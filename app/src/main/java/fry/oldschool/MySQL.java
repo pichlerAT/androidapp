@@ -1,5 +1,7 @@
 package fry.oldschool;
 
+import android.os.AsyncTask;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -19,6 +21,15 @@ public class MySQL {
 
     private static void msg(String s) {
         System.out.println("----    _"+s);
+    }
+
+    public static class Register extends AsyncTask<String,String,String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            return null;
+        }
+
     }
 
     public static byte register(String email,String password) {

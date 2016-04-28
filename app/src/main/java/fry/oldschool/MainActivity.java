@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
         MySQL.register("stefan.fragner@rk.at","1234");
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+        // spast.
     }
 
     @Override
