@@ -1,5 +1,6 @@
 package fry.oldschool;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-        (new MySQL.Login()).execute("pichler.edwin@rk.at","123");
+        //MySQL.register("stefan.fragner@rk.at","1234");
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
     }
 
@@ -82,16 +83,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        FragmentManager fm = getFragmentManager();
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
+        if (id == R.id.nav_timetable) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new TimetableFragment()).commit();
+        } else if (id == R.id.nav_task) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskFragment()).commit();
+        } else if (id == R.id.nav_logbook) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new LogbookFragment()).commit();
+        } else if (id == R.id.nav_accounting) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new AccountingFragment()).commit();
+        } else if (id == R.id.nav_friends) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new FriendsFragment()).commit();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
