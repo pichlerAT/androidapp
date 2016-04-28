@@ -42,9 +42,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-        MySQL.register("stefan.fragner@rk.at","1234");
+        MySQL.register("stefan.fragner@rk.at","1234"); // tsaps
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-        // spast.
     }
 
     @Override
