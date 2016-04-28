@@ -40,6 +40,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+        MySQL.register("stefan.fragner@rk.at","1234");
+        //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
     }
 
     @Override
