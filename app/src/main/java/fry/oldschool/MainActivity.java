@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-        MySQL.register("stefan.fragner@rk.at","1234"); // tsaps
+        (new MySQL.Login()).execute("pichler.edwin@rk.at","123");
         //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
     }
 
