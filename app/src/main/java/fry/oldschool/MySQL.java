@@ -13,21 +13,16 @@ import java.net.URL;
  */
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://91.114.246.96/Oldschool/";
+    public static final String ADDRESS="http://193.81.75.135/Oldschool/";
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
     protected String errorMessage="";
 
-    private static void msg(String s) {
-        System.out.println("----"+s);
-    }
-
     @Override
     protected void onPostExecute(String file_url) {
         if(errorDialog) {
-            //App.errorDialog(errorTitle,errorMessage);
-            msg(errorMessage);
+            App.errorDialog(errorTitle,errorMessage);
         }
     }
 
@@ -54,7 +49,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 }
                 char c=line.charAt(4);
                 if(c=='S') {
-                    // SUCCESS
+                    error("SUCCESS");
                 }else if(c=='0') {
                     error("missing parameters");
                 }else if(c=='1') {
@@ -91,9 +86,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 }
                 char c=line.charAt(4);
                 if(c=='S') {
-                    // SUCCESS
-                    msg("SUCCESS");
-
+                    error("SUCCESS");
                 }else if(c=='0') {
                     error("missing parameters");
 
@@ -114,23 +107,17 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         }
     }
 
-    public static class Test extends MySQL {
+    public static class Todolist extends MySQL {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"get_users.php");
+                URL url=new URL(ADDRESS+"todolist.php?i="+args[0]+"&n="+args[1]);
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
                 con.connect();
                 BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
 
                 String line=br.readLine();
-                msg(line);
-                /*
-                String line;
-                while((line=br.readLine())!=null) {
-                    msg(line);
-                }
-                */
+                error(line);
 
                 br.close();
                 con.disconnect();

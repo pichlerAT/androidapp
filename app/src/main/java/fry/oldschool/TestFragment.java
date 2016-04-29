@@ -25,6 +25,22 @@ public class TestFragment extends Fragment {
             }
         });
 
+        Button button2 = (Button) rootView.findViewById(R.id.button_test_2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                (new MySQL.Register()).execute("bigblack.cock@gmx.net","cocksforlive");
+            }
+        });
+
+        Button button3 = (Button) rootView.findViewById(R.id.button_test_3);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                (new MySQL.Todolist()).execute("9","task3");
+            }
+        });
+
         return rootView;
     }
 }
