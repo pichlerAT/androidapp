@@ -13,7 +13,7 @@ import java.net.URL;
  */
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://212.183.46.2/Oldschool/";
+    public static final String ADDRESS="http://91.114.246.96/Oldschool/";
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
@@ -26,8 +26,14 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String file_url) {
         if(errorDialog) {
-            App.errorDialog(errorTitle,errorMessage);
+            //App.errorDialog(errorTitle,errorMessage);
+            msg(errorMessage);
         }
+    }
+
+    protected void error(String errorMessage) {
+        this.errorMessage = errorMessage;
+        errorDialog = true;
     }
 
     public static class Register extends MySQL {
@@ -50,18 +56,18 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 if(c=='S') {
                     // SUCCESS
                 }else if(c=='0') {
-                    // missing parameters
+                    error("missing parameters");
                 }else if(c=='1') {
-                    // email already in use
+                    error("email already in use");
                 }else if(c=='2') {
-                    // cannot insert into table
+                    error("cannot insert into table");
                 }
 
                 br.close();
                 con.disconnect();
 
             } catch (IOException e) {
-                // cannot connect to server
+                error("cannot connect to server");
             }
             return null;
         }
@@ -89,26 +95,48 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                     msg("SUCCESS");
 
                 }else if(c=='0') {
-                    errorDialog=true;
-                    errorMessage="missing parameters";
-                    msg("missing parameters");
+                    error("missing parameters");
 
                 }else if(c=='1') {
-                    errorDialog=true;
-                    errorMessage="email not found";
-                    msg("email not found");
+                    error("email not found");
 
                 }else if(c=='2') {
-                    errorDialog=true;
-                    errorMessage="wrong password";
-                    msg("wrong password");
+                    error("wrong password");
                 }
 
                 br.close();
                 con.disconnect();
 
             } catch (IOException e) {
-                // cannot connect to server
+                error("cannot connect to server");
+            }
+            return null;
+        }
+    }
+
+    public static class Test extends MySQL {
+        @Override
+        protected String doInBackground(String... args) {
+            try {
+                URL url=new URL(ADDRESS+"get_users.php");
+                HttpURLConnection con = (HttpURLConnection)url.openConnection();
+                con.connect();
+                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+                String line=br.readLine();
+                msg(line);
+                /*
+                String line;
+                while((line=br.readLine())!=null) {
+                    msg(line);
+                }
+                */
+
+                br.close();
+                con.disconnect();
+
+            } catch (IOException e) {
+                error("cannot connect to server");
             }
             return null;
         }

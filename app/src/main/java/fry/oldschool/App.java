@@ -30,6 +30,7 @@ public class App extends Application {
                         dialog.dismiss();
                     }
                 })
+                .create()
                 .show();
     }
 
