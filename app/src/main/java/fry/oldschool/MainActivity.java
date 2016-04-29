@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity
             fm.beginTransaction().replace(R.id.frame_fragment_main, new AccountingFragment()).commit();
         } else if (id == R.id.nav_friends) {
             fm.beginTransaction().replace(R.id.frame_fragment_main, new FriendsFragment()).commit();
+        } else if (id == R.id.nav_test) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new TestFragment()).commit();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
