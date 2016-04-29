@@ -10,14 +10,14 @@ import android.support.v7.app.AlertDialog;
  */
 public class App extends Application {
 
-    protected static Context mContext;
-
-    public App() {
-        mContext = this;
-    }
+    private static Context mContext;
 
     public static Context getContext() {
         return mContext;
+    }
+
+    public static void setContext(Context mContext) {
+        App.mContext = mContext;
     }
 
     public static void errorDialog(String title,String message) {
@@ -33,5 +33,6 @@ public class App extends Application {
                 .create()
                 .show();
     }
+
 
 }
