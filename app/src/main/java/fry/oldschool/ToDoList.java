@@ -19,13 +19,17 @@ public class ToDoList {
 
     public String[] task;
 
-    public ToDoList(int id,int owner_id,String name) {
+    public static ToDoList create(String name) {
+        return new ToDoList(0,MySQL.USER_ID,name);
+    }
+
+    protected ToDoList(int id,int owner_id,String name) {
         this.id = id;
         this.owner_id = owner_id;
         this.name = name;
     }
 
-    public ToDoList(int id,int owner_id,String name,int[] entry_id,int[] user_id,byte[] state,String[] task) {
+    protected ToDoList(int id,int owner_id,String name,int[] entry_id,int[] user_id,byte[] state,String[] task) {
         this(id,owner_id,name);
         this.entry_id = entry_id;
         this.user_id = user_id;
@@ -34,6 +38,6 @@ public class ToDoList {
     }
 
     public boolean done(int index) {
-        return ( state[index]==0 ? true : false );
+        return ( state[index]==0 );
     }
 }

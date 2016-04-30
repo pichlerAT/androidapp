@@ -15,6 +15,8 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
     public static final String ADDRESS="http://193.81.75.135/Oldschool/";
 
+    public static int USER_ID;
+
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
     protected String errorMessage="";
