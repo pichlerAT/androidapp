@@ -8,6 +8,11 @@
 
     <string name="error_message_neutral_button">OK</string>
 
+    <!-- Fragment task / create-->
+
+    <string name="todo_list">To-do list</string>
+    <string name="task">Task</string>
+
     <string name="time_am">AM</string>
     <string name="time_pm">PM</string>
 
