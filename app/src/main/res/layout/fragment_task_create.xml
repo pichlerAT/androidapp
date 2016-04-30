@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <TextView
+        android:id="@+id/textview_task_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/task"/>
+
+    <EditText
+        android:id="@+id/edittext_task_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/todo_list"
+        android:layout_below="@id/textview_task_name"/>
+
+    <Button
+        android:id="@+id/button_task_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edittext_task_name"
+        android:text="Save"/>
+
+    <Button
+        android:id="@+id/button_task_addentry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_task_save"
+        android:text="+"/>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_task_addentry"
+        >
+
+        <TableLayout
+            android:id="@+id/tablelayout_task_entries"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+
+
+        </TableLayout>
+
+    </ScrollView>
+
+
+
+
+
+</RelativeLayout>
