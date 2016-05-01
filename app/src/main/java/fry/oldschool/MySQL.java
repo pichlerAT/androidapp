@@ -13,7 +13,7 @@ import java.net.URL;
  */
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://193.81.75.135/Oldschool/";
+    public static final String ADDRESS="http://194.118.34.232/Oldschool/";
 
     public static int USER_ID;
 
@@ -109,17 +109,24 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         }
     }
 
-    public static class Todolist extends MySQL {
+    public static class todolist_create extends MySQL {
+
+        public int id;
+
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"todolist.php?i="+args[0]+"&n="+args[1]);
+                URL url=new URL(ADDRESS+"todolist.php?user_id="+USER_ID+"&name="+args[0]);
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
                 con.connect();
                 BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
 
                 String line=br.readLine();
-                error(line);
+                if(line.substring(0,3).equals("suc")) {
+                    id = Integer.parseInt(line.substring(3));
+                }else {
+                    error(line);
+                }
 
                 br.close();
                 con.disconnect();
