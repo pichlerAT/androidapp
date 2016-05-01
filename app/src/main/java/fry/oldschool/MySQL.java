@@ -30,8 +30,12 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
             App.errorDialog(errorTitle,errorMessage);
         }
         try {
-            br.close();
-            con.disconnect();
+            if(br != null) {
+                br.close();
+            }
+            if(con != null) {
+                con.disconnect();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

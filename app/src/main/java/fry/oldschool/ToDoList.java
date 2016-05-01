@@ -1,10 +1,6 @@
 package fry.oldschool;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * Created by Stefan on 30.04.2016.
@@ -36,13 +32,6 @@ public class ToDoList {
         state = new byte[length];
         entry_id = new int[length];
         task = new String[length];
-    }
-
-    protected ToDoList(int id,String name,int[] entry_id,byte[] state,String[] task) {
-        this(name,0);
-        this.entry_id = entry_id;
-        this.state = state;
-        this.task = task;
     }
 
     public void setAtPosition(int index,String task,byte state) {
