@@ -1,9 +1,13 @@
 package fry.oldschool;
 
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -13,16 +17,22 @@ import android.widget.ListView;
  * Created by Edwin Pichler on 28.04.2016.
  */
 public class TaskFragment extends ListFragment{
+
     Context ctx = App.getContext();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_task, container, false);
+        setHasOptionsMenu(true);
 
-        ToDoList item1 = ToDoList.create("ToDo list #1", 1);
+        ToDoList item1 = ToDoList.create("ToDo list #1", 3);
         item1.setAtPosition(0, "Buy bananas from the store", (byte) 1);
+        item1.setAtPosition(1, "Wash the car", (byte) 0);
+        item1.setAtPosition(2, "Refuel the car", (byte) 0);
 
-        ToDoList item2 = ToDoList.create("ToDo list #2", 1);
+        ToDoList item2 = ToDoList.create("ToDo list #2", 2);
         item2.setAtPosition(0, "Call my mum", (byte) 0);
+        item2.setAtPosition(1, "Go to the gym", (byte) 0);
         ToDoList[] list = {item1, item2};
 
         ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
@@ -41,4 +51,27 @@ public class TaskFragment extends ListFragment{
         */
         return rootView;
     }
+
+    @Override
+    public void onCreateOptionsMenu(
+            Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.task_menu, menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        FragmentManager fm = getFragmentManager();
+        switch (item.getItemId()){
+            case R.id.action_add:
+                fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
+                return true;
+            case R.id.action_settings:
+                fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
 }

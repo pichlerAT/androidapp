@@ -68,6 +68,7 @@ public class TaskCreateFragment extends Fragment {
                         }
                         //Save 'entry' and 'entry_done' to MySQL
                         tdl.setAtPosition(i,entry,entry_done);
+                        tdl.update();
                     }
 
                 }

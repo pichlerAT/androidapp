@@ -65,7 +65,6 @@ public class TaskAdapter extends BaseAdapter{
             else
                 cb.setChecked(false);
             entries.addView(cb);
-
         }
 
         return res;

@@ -16,7 +16,7 @@ public class TestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_test, container, false);
-
+/*
         Button button1 = (Button) rootView.findViewById(R.id.button_test_1);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,7 +40,7 @@ public class TestFragment extends Fragment {
                 (new MySQL.Todolist()).execute("9","task3");
             }
         });
-
+*/
         return rootView;
     }
 }
