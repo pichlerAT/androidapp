@@ -19,7 +19,7 @@ public class ToDoList {
 
     public int[] entry_id;
 
-    //public int[] user_id;
+    public int[] user_id;
 
     public String[] task;
 
@@ -44,8 +44,23 @@ public class ToDoList {
         for (int i = 0; i < s.length; ++i) {
             String[] r = s[i].split(",");
             int id = Integer.parseInt(r[0]);
-            ToDoList tdl=new ToDoList(r[1], 1, id);
-            tdl.setAtPosition(0,"test",(byte)0);
+            ToDoList tdl=new ToDoList(r[1], 0, id);
+
+            con=new Get_Entries(id);
+            con.execute();
+            String resp=con.response();
+            if(resp != null) {
+                r = resp.split(";");
+                tdl.setLength(r.length);
+                for(int j=0;j<r.length;++j) {
+                    String[] ri=r[j].split(",");
+                    tdl.entry_id[j]=Integer.parseInt(ri[0]);
+                    tdl.user_id[j]=Integer.parseInt(ri[1]);
+                    tdl.task[j]=ri[2];
+                    tdl.state[j]=Byte.parseByte(ri[3]);
+                }
+            }
+
             tdls.add(tdl);
         }
 
@@ -78,6 +93,7 @@ public class ToDoList {
     public void setLength(int length) {
         state = new byte[length];
         entry_id = new int[length];
+        user_id = new int[length];
         task = new String[length];
     }
 
@@ -136,7 +152,7 @@ public class ToDoList {
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
                     entry_id[index] = Integer.parseInt(line.substring(3));
-                    //user_id[index] = USER_ID;
+                    user_id[index] = USER_ID;
                 }else {
                     error(line);
                 }
@@ -199,6 +215,34 @@ public class ToDoList {
         protected String doInBackground(String... params) {
             try {
                 connect("todolist/get_lists.php","user_id=" + USER_ID);
+
+                String line=br.readLine();
+                if(line.substring(0,3).equals("suc")) {
+                    return line.substring(3);
+                }else {
+                    error(line);
+                }
+
+            } catch (IOException e) {
+                error("cannot connect to server");
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    protected static class Get_Entries extends MySQL {
+
+        protected int id;
+
+        protected Get_Entries(int id) {
+            this.id = id;
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+            try {
+                connect("todolist/get_entries.php","table_id=" + id);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
