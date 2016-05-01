@@ -26,6 +26,7 @@ public class ToDoList {
     public static ToDoList create(String name,String[] task,byte[] state) {
         ToDoList tdl=new ToDoList(0,MySQL.USER_ID,name);
         tdl.update(task,state);
+
         return tdl;
     }
 
