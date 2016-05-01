@@ -1,6 +1,7 @@
 package fry.oldschool;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,8 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
     public ArrayList<ToDoList> list;
     Context ctx;
 
-    public TaskAdapter(Context context, ArrayList<ToDoList> list){
-        super(context, 0, list);
+    public TaskAdapter(Context context, int resourceID, ArrayList<ToDoList> list){
+        super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
     }
@@ -50,6 +51,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         else{
             res = convertView;
         }
+        res.setBackgroundColor(Color.parseColor("#ffffff"));
         ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
