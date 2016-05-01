@@ -16,7 +16,11 @@ import android.widget.TableRow;
  * Created by Edwin Pichler on 29.04.2016.
  */
 public class TaskCreateFragment extends Fragment {
+
     Context ctx = App.getContext();
+
+    ToDoList tdl;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_task_create, container, false);
@@ -45,7 +49,9 @@ public class TaskCreateFragment extends Fragment {
         button_task_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (int i = 0; i < tablelayout_task_entries.getChildCount(); i++) {
+                int length = tablelayout_task_entries.getChildCount();
+                tdl = ToDoList.create("name",length);
+                for (int i = 0; i < length; i++) {
                     View table_view = tablelayout_task_entries.getChildAt(i);
                     if (table_view instanceof TableRow) {
                         TableRow row = (TableRow) table_view;
@@ -56,11 +62,12 @@ public class TaskCreateFragment extends Fragment {
                         CheckBox checkbox = (CheckBox) view_checkbox;
                         EditText edittext = (EditText) view_edittext;
                         String entry = edittext.getText().toString();
-                        Boolean entry_done = false;
+                        byte entry_done = 0;
                         if (checkbox.isChecked()) {
-                            entry_done = true;
+                            entry_done = 1;
                         }
                         //Save 'entry' and 'entry_done' to MySQL
+                        tdl.setAtPosition(i,entry,entry_done);
                     }
 
                 }

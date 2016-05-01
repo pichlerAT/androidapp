@@ -19,29 +19,38 @@ public class ToDoList {
 
     public String[] task;
 
-    public static ToDoList create(String name) {
-        return new ToDoList(0,MySQL.USER_ID,name);
+    public static ToDoList create(String name,int length) {
+        return new ToDoList(0,MySQL.USER_ID,name,length);
     }
 
     public static ToDoList create(String name,String[] task,byte[] state) {
-        ToDoList tdl=new ToDoList(0,MySQL.USER_ID,name);
+        ToDoList tdl=new ToDoList(0,MySQL.USER_ID,name,0);
         tdl.update(task,state);
 
         return tdl;
     }
 
-    protected ToDoList(int id,int owner_id,String name) {
+    protected ToDoList(int id,int owner_id,String name,int length) {
         this.id = id;
         this.owner_id = owner_id;
         this.name = name;
+        state = new byte[length];
+        entry_id = new int[length];
+        user_id = new int[length];
+        task = new String[length];
     }
 
     protected ToDoList(int id,int owner_id,String name,int[] entry_id,int[] user_id,byte[] state,String[] task) {
-        this(id,owner_id,name);
+        this(id,owner_id,name,0);
         this.entry_id = entry_id;
         this.user_id = user_id;
         this.state = state;
         this.task = task;
+    }
+
+    public void setAtPosition(int index,String task,byte state) {
+        this.task[index] = task;
+        this.state[index] = state;
     }
 
     public void update(String[] task,byte[] state) {
