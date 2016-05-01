@@ -31,11 +31,13 @@ public class TaskCreateFragment extends Fragment {
 
                 CheckBox checkbox = new CheckBox(ctx);
                 EditText edittext = new EditText(ctx);
-                edittext.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                edittext.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
+                edittext.setFocusableInTouchMode(true);
+                edittext.requestFocus();
 
                 row.addView(checkbox);
                 row.addView(edittext);
-                tablelayout_task_entries.addView(row);
+                tablelayout_task_entries.addView(row, 0);
             }
         });
 
