@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Stefan on 30.04.2016.
+ *
  */
 public class ToDoList {
 
@@ -40,8 +41,8 @@ public class ToDoList {
         }
 
         String[] s=response.split(";");
-        for (int i = 0; i < s.length; ++i) {
-            String[] r = s[i].split(",");
+        for(String si : s) {
+            String[] r = si.split(",");
             int id = Integer.parseInt(r[0]);
             ToDoList tdl=new ToDoList(r[1], 0, id);
 
