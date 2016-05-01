@@ -5,34 +5,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Created by Edwin Pichler on 01.05.2016.
  */
-public class TaskAdapter extends BaseAdapter{
+public class TaskAdapter extends ArrayAdapter<ToDoList>{
 
-    public ToDoList[] list;
-    Context ctx = App.getContext();
+    public ArrayList<ToDoList> list;
+    Context ctx;
 
-    public TaskAdapter(ToDoList[] list){
+    public TaskAdapter(Context context, ArrayList<ToDoList> list){
+        super(context, 0, list);
         this.list = list;
+        this.ctx = context;
     }
 
     @Override
     public ToDoList getItem(int position){
-        return list[position];
+        return list.get(position);
     }
 
     @Override
     public int getCount() {
-        return list.length;
+        return list.size();
     }
 
     @Override
