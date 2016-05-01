@@ -57,13 +57,15 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        header.setText(item.name + " [" + item.id + "]");
+        String headerText = item.name + " [" + item.id + "]";
+        header.setText(headerText);
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
         for (int i=0; i<item.length(); i++){
             CheckBox cb = new CheckBox(ctx);
-            cb.setText(item.task[i] + " (" + item.entry_id[i] + ")");
+            String cbText = item.task[i] + " (" + item.entry_id[i] + ") [" + item.user_id[i] + "]";
+            cb.setText(cbText);
             if (item.state[i] == 1)
                 cb.setChecked(true);
             else
