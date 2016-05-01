@@ -119,7 +119,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist/create.php","user_id="+USER_ID+"&name="+name);
+                connect("todolist/create.php","&name="+name);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -147,7 +147,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist/entries/create.php","table_id="+id+"&user_id="+USER_ID+"&description="+task[index]+"&state="+state[index]);
+                connect("todolist/entries/create.php","&table_id="+id+"&description="+task[index]+"&state="+state[index]);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -169,7 +169,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist/update.php","table_id="+id+"&name="+name);
+                connect("todolist/update.php","&table_id="+id+"&name="+name);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("err")) {
@@ -195,7 +195,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... params) {
                 try {
-                    connect("todolist/entries/update.php","entry_id=" + entry_id[index] + "&user_id=" + USER_ID + "&description=" + task[index] + "&state=" + state[index]);
+                    connect("todolist/entries/update.php","&entry_id=" + entry_id[index] + "&description=" + task[index] + "&state=" + state[index]);
 
                     String line = br.readLine();
                     if (line.substring(0, 3).equals("err")) {
@@ -214,9 +214,15 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... params) {
             try {
-                connect("todolist/get_lists.php","user_id=" + USER_ID);
+                connect("todolist/get.php","");
 
                 String line=br.readLine();
+                System.out.println("------------------"+line);
+                String li;
+                while((li=br.readLine())!=null) {
+                    System.out.println("------------------"+li);
+                }
+
                 if(line.substring(0,3).equals("suc")) {
                     return line.substring(3);
                 }else {
@@ -242,7 +248,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist/get_entries.php","table_id=" + id);
+                connect("todolist/entries/get.php","&table_id=" + id);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {

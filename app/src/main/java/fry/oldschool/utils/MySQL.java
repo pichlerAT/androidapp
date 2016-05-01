@@ -18,6 +18,8 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     public static final String ADDRESS="http://194.118.34.232/Oldschool/";
 
     public static int USER_ID = 9;
+    public static String USER_EMAIL = "pichler.edwin@rk.at";
+    public static String USER_PASSWORD = "1234";
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
@@ -53,7 +55,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         con = (HttpURLConnection)url.openConnection();
         con.setDoOutput(true);
         OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
-        os.write(post);
+        os.write("user_id="+USER_ID+"&password="+USER_PASSWORD+post);
         os.flush();
         os.close();
         con.connect();
