@@ -21,16 +21,32 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     protected String errorTitle="ERROR";
     protected String errorMessage="";
 
+    protected HttpURLConnection con;
+    protected BufferedReader br;
+
     @Override
     protected void onPostExecute(String file_url) {
         if(errorDialog) {
             App.errorDialog(errorTitle,errorMessage);
+        }
+        try {
+            br.close();
+            con.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     protected void error(String errorMessage) {
         this.errorMessage = errorMessage;
         errorDialog = true;
+    }
+
+    protected void connect(String address) throws IOException {
+        URL url=new URL(ADDRESS+address);
+        con = (HttpURLConnection)url.openConnection();
+        con.connect();
+        br=new BufferedReader(new InputStreamReader(con.getInputStream()));
     }
 
     public static class Register extends MySQL {

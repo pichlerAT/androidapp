@@ -76,10 +76,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"todolist.php?user_id="+USER_ID+"&name="+name);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("todolist.php?user_id="+USER_ID+"&name="+name);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -87,9 +84,6 @@ public class ToDoList {
                 }else {
                     error(line);
                 }
-
-                br.close();
-                con.disconnect();
 
             } catch (IOException e) {
                 error("cannot connect to server");
@@ -109,10 +103,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"todolist_entries_create.php?table_id="+id+"&user_id="+USER_ID+"&description="+task[index]+"&state="+state[index]);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("todolist_entries_create.php?table_id="+id+"&user_id="+USER_ID+"&description="+task[index]+"&state="+state[index]);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -121,9 +112,6 @@ public class ToDoList {
                 }else {
                     error(line);
                 }
-
-                br.close();
-                con.disconnect();
 
             } catch (IOException e) {
                 error("cannot connect to server");
@@ -136,18 +124,12 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"todolist_update.php?table_id="+id+"&name="+name);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("todolist_update.php?table_id="+id+"&name="+name);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("err")) {
                     error(line);
                 }
-
-                br.close();
-                con.disconnect();
 
             } catch (IOException e) {
                 error("cannot connect to server");
@@ -167,18 +149,12 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... params) {
                 try {
-                    URL url = new URL(ADDRESS + "todolist_entries_update.php?entry_id=" + entry_id[index] + "&user_id=" + USER_ID + "&description=" + task[index] + "&state=" + state[index]);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.connect();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    connect("todolist_entries_update.php?entry_id=" + entry_id[index] + "&user_id=" + USER_ID + "&description=" + task[index] + "&state=" + state[index]);
 
                     String line = br.readLine();
                     if (line.substring(0, 3).equals("err")) {
                         error(line);
                     }
-
-                    br.close();
-                    con.disconnect();
 
                 } catch (IOException e) {
                     error("cannot connect to server");
