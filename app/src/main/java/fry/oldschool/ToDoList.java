@@ -23,13 +23,6 @@ public class ToDoList {
         return new ToDoList(0,MySQL.USER_ID,name,length);
     }
 
-    public static ToDoList create(String name,String[] task,byte[] state) {
-        ToDoList tdl=new ToDoList(0,MySQL.USER_ID,name,0);
-        tdl.update(task,state);
-
-        return tdl;
-    }
-
     protected ToDoList(int id,int owner_id,String name,int length) {
         this.id = id;
         this.owner_id = owner_id;
@@ -51,11 +44,6 @@ public class ToDoList {
     public void setAtPosition(int index,String task,byte state) {
         this.task[index] = task;
         this.state[index] = state;
-    }
-
-    public void update(String[] task,byte[] state) {
-        System.arraycopy(task,0,this.task,0,task.length);
-        System.arraycopy(state,0,this.state,0,state.length);
     }
 
     public boolean done(int index) {
