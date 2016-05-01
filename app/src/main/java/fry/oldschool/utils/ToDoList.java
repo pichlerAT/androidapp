@@ -1,8 +1,7 @@
-package fry.oldschool;
+package fry.oldschool.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Stefan on 30.04.2016.

@@ -1,7 +1,6 @@
-package fry.oldschool;
+package fry.oldschool.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import fry.oldschool.R;
+import fry.oldschool.utils.ToDoList;
 
 /**
  * Created by Edwin Pichler on 01.05.2016.

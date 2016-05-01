@@ -1,4 +1,4 @@
-package fry.oldschool;
+package fry.oldschool.utils;
 
 import android.os.AsyncTask;
 

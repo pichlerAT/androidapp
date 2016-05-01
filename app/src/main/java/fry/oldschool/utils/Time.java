@@ -1,4 +1,4 @@
-package fry.oldschool;
+package fry.oldschool.utils;
 
 /**
  * Created by Stefan on 29.04.2016.

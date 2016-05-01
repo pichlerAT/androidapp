@@ -1,4 +1,6 @@
-package fry.oldschool;
+package fry.oldschool.utils;
+
+import fry.oldschool.R;
 
 /**
  * Created by Stefan on 29.04.2016.

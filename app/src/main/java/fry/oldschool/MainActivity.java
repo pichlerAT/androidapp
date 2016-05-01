@@ -2,11 +2,9 @@ package fry.oldschool;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,6 +14,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import fry.oldschool.fragment.AccountingFragment;
+import fry.oldschool.fragment.FriendsFragment;
+import fry.oldschool.fragment.LogbookFragment;
+import fry.oldschool.fragment.TaskFragment;
+import fry.oldschool.fragment.TestFragment;
+import fry.oldschool.fragment.TimetableFragment;
+import fry.oldschool.utils.App;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

@@ -1,4 +1,4 @@
-package fry.oldschool;
+package fry.oldschool.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -11,6 +11,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+
+import fry.oldschool.utils.App;
+import fry.oldschool.R;
+import fry.oldschool.utils.ToDoList;
 
 /**
  * Created by Edwin Pichler on 29.04.2016.

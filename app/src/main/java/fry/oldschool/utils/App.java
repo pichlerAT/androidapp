@@ -1,9 +1,11 @@
-package fry.oldschool;
+package fry.oldschool.utils;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+
+import fry.oldschool.R;
 
 /**
  * Created by Stefan on 28.04.2016.

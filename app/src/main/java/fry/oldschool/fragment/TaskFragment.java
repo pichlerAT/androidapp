@@ -1,4 +1,4 @@
-package fry.oldschool;
+package fry.oldschool.fragment;
 
 import android.app.FragmentManager;
 import android.app.ListFragment;
@@ -13,6 +13,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+
+import fry.oldschool.utils.App;
+import fry.oldschool.R;
+import fry.oldschool.adapter.TaskAdapter;
+import fry.oldschool.utils.ToDoList;
 
 
 /**

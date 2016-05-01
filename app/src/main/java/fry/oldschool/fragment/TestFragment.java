@@ -1,13 +1,12 @@
-package fry.oldschool;
+package fry.oldschool.fragment;
 
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+
+import fry.oldschool.R;
 
 /**
  * Created by Edwin Pichler on 29.04.2016.
