@@ -45,13 +45,15 @@ public class TaskCreateFragment extends Fragment {
             }
         });
 
+        final EditText edittext_task_name = (EditText) rootView.findViewById(R.id.edittext_task_name);
+
         Button button_task_save = (Button) rootView.findViewById(R.id.button_task_save);
         button_task_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int length = tablelayout_task_entries.getChildCount();
                 if(tdl == null) {
-                    tdl = ToDoList.create("name", length);
+                    tdl = ToDoList.create(edittext_task_name.getText().toString(), length);
                 }
                 for (int i = 0; i < length; i++) {
                     View table_view = tablelayout_task_entries.getChildAt(i);
