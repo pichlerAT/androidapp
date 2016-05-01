@@ -15,7 +15,10 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
     public static final String ADDRESS="http://194.118.34.232/Oldschool/";
 
-    public static int USER_ID;
+    protected static final String SPACE = ".~sp-";
+    protected static final String HASHTAG = ".~ht-";
+
+    public static int USER_ID = 1;
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
@@ -37,7 +40,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 con.disconnect();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            error("cannot close connection");
         }
     }
 
@@ -53,14 +56,19 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         br=new BufferedReader(new InputStreamReader(con.getInputStream()));
     }
 
+    protected String replaceChars(String s) {
+        return s.replace(" ",SPACE).replace("#",HASHTAG);
+    }
+
+    protected String returnChars(String s) {
+        return s.replace(SPACE," ").replace(HASHTAG,"#");
+    }
+
     public static class Register extends MySQL {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"register.php?e="+args[0]+"&p="+args[1]);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("register.php?e="+args[0]+"&p="+args[1]);
 
                 String line;
                 while((line=br.readLine())!=null) {
@@ -80,9 +88,6 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                     error("cannot insert into table");
                 }
 
-                br.close();
-                con.disconnect();
-
             } catch (IOException e) {
                 error("cannot connect to server");
             }
@@ -94,10 +99,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"login.php?e="+args[0]+"&p="+args[1]);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("login.php?e="+args[0]+"&p="+args[1]);
 
                 String line;
                 while((line=br.readLine())!=null) {
@@ -119,9 +121,6 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                     error("wrong password");
                 }
 
-                br.close();
-                con.disconnect();
-
             } catch (IOException e) {
                 error("cannot connect to server");
             }
@@ -136,10 +135,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         @Override
         protected String doInBackground(String... args) {
             try {
-                URL url=new URL(ADDRESS+"todolist.php?user_id="+USER_ID+"&name="+args[0]);
-                HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                con.connect();
-                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                connect("todolist.php?user_id="+USER_ID+"&name="+args[0]);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -147,9 +143,6 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 }else {
                     error(line);
                 }
-
-                br.close();
-                con.disconnect();
 
             } catch (IOException e) {
                 error("cannot connect to server");

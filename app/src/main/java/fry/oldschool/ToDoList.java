@@ -65,7 +65,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist.php?user_id="+USER_ID+"&name="+name);
+                connect("todolist/create.php?user_id="+USER_ID+"&name="+replaceChars(name));
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -76,6 +76,7 @@ public class ToDoList {
 
             } catch (IOException e) {
                 error("cannot connect to server");
+                e.printStackTrace();
             }
             return null;
         }
@@ -92,7 +93,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist_entries_create.php?table_id="+id+"&user_id="+USER_ID+"&description="+task[index]+"&state="+state[index]);
+                connect("todolist/entries/create.php?table_id="+id+"&user_id="+USER_ID+"&description="+task[index]+"&state="+state[index]);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("suc")) {
@@ -104,6 +105,7 @@ public class ToDoList {
 
             } catch (IOException e) {
                 error("cannot connect to server");
+                e.printStackTrace();
             }
             return null;
         }
@@ -113,7 +115,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... args) {
             try {
-                connect("todolist_update.php?table_id="+id+"&name="+name);
+                connect("todolist/update.php?table_id="+id+"&name="+name);
 
                 String line=br.readLine();
                 if(line.substring(0,3).equals("err")) {
@@ -122,6 +124,7 @@ public class ToDoList {
 
             } catch (IOException e) {
                 error("cannot connect to server");
+                e.printStackTrace();
             }
             return null;
         }
@@ -138,7 +141,7 @@ public class ToDoList {
         @Override
         protected String doInBackground(String... params) {
                 try {
-                    connect("todolist_entries_update.php?entry_id=" + entry_id[index] + "&user_id=" + USER_ID + "&description=" + task[index] + "&state=" + state[index]);
+                    connect("todolist/entries/update.php?entry_id=" + entry_id[index] + "&user_id=" + USER_ID + "&description=" + task[index] + "&state=" + state[index]);
 
                     String line = br.readLine();
                     if (line.substring(0, 3).equals("err")) {
@@ -147,6 +150,7 @@ public class ToDoList {
 
                 } catch (IOException e) {
                     error("cannot connect to server");
+                    e.printStackTrace();
                 }
             return null;
         }

@@ -25,15 +25,9 @@ public class TaskFragment extends ListFragment{
         View rootView = inflater.inflate(R.layout.fragment_task, container, false);
         setHasOptionsMenu(true);
 
-        ToDoList item1 = ToDoList.create("ToDo list #1", 3);
-        item1.setAtPosition(0, "Buy bananas from the store", (byte) 1);
-        item1.setAtPosition(1, "Wash the car", (byte) 0);
-        item1.setAtPosition(2, "Refuel the car", (byte) 0);
+        ToDoList item1 = ToDoList.create("ToDo list #1", 0);
 
-        ToDoList item2 = ToDoList.create("ToDo list #2", 2);
-        item2.setAtPosition(0, "Call my mum", (byte) 0);
-        item2.setAtPosition(1, "Go to the gym", (byte) 0);
-        ToDoList[] list = {item1, item2};
+        ToDoList[] list={item1};
 
         ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
         TaskAdapter adapter = new TaskAdapter(list);

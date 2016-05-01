@@ -50,7 +50,9 @@ public class TaskCreateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 int length = tablelayout_task_entries.getChildCount();
-                tdl = ToDoList.create("name",length);
+                if(tdl == null) {
+                    tdl = ToDoList.create("name", length);
+                }
                 for (int i = 0; i < length; i++) {
                     View table_view = tablelayout_task_entries.getChildAt(i);
                     if (table_view instanceof TableRow) {
@@ -68,10 +70,10 @@ public class TaskCreateFragment extends Fragment {
                         }
                         //Save 'entry' and 'entry_done' to MySQL
                         tdl.setAtPosition(i,entry,entry_done);
-                        tdl.update();
                     }
 
                 }
+                tdl.update();
 
             }
         });
