@@ -57,7 +57,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        String headerText = item.name + " [" + item.id + "]";
+        String headerText = item.name + " (" + item.id + ")";
         header.setText(headerText);
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
