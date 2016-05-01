@@ -54,6 +54,8 @@ public class TaskCreateFragment extends Fragment {
                 int length = tablelayout_task_entries.getChildCount();
                 if(tdl == null) {
                     tdl = ToDoList.create(edittext_task_name.getText().toString(), length);
+                }else if(length != tdl.length()) {
+                    tdl.setLength(length);
                 }
                 for (int i = 0; i < length; i++) {
                     View table_view = tablelayout_task_entries.getChildAt(i);

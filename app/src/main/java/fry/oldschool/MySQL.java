@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Stefan on 26.04.2016.
@@ -16,7 +17,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
     public static final String ADDRESS="http://194.118.34.232/Oldschool/";
 
-    public static int USER_ID = 1;
+    public static int USER_ID = 9;
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
@@ -57,6 +58,17 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         os.close();
         con.connect();
         br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+    }
+
+    protected String response() {
+        try {
+            return get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static class Register extends MySQL {

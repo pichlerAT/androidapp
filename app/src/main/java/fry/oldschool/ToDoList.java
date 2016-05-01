@@ -1,6 +1,8 @@
 package fry.oldschool;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Stefan on 30.04.2016.
@@ -27,11 +29,37 @@ public class ToDoList {
         return tdl;
     }
 
+    public static ArrayList<ToDoList> getToDoLists() {
+        MySQL con=new Get_Lists();
+        con.execute();
+
+        ArrayList<ToDoList> tdls=new ArrayList<ToDoList>();
+
+        String response=con.response();
+        if(response == null) {
+            return tdls;
+        }
+
+        String[] s=response.split(";");
+        for (int i = 0; i < s.length; ++i) {
+            String[] r = s[i].split(",");
+            int id = Integer.parseInt(r[0]);
+            ToDoList tdl=new ToDoList(r[1], 1, id);
+            tdl.setAtPosition(0,"test",(byte)0);
+            tdls.add(tdl);
+        }
+
+        return tdls;
+    }
+
     protected ToDoList(String name,int length) {
         this.name = name;
-        state = new byte[length];
-        entry_id = new int[length];
-        task = new String[length];
+        setLength(length);
+    }
+
+    protected ToDoList(String name,int length,int id) {
+        this(name,length);
+        this.id = id;
     }
 
     public void setAtPosition(int index,String task,byte state) {
@@ -41,6 +69,16 @@ public class ToDoList {
 
     public boolean done(int index) {
         return ( state[index]==0 );
+    }
+
+    public int length() {
+        return entry_id.length;
+    }
+
+    public void setLength(int length) {
+        state = new byte[length];
+        entry_id = new int[length];
+        task = new String[length];
     }
 
     public void create() {
@@ -152,6 +190,27 @@ public class ToDoList {
                     error("cannot connect to server");
                     e.printStackTrace();
                 }
+            return null;
+        }
+    }
+
+    protected static class Get_Lists extends MySQL {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                connect("todolist/get_lists.php","user_id=" + USER_ID);
+
+                String line=br.readLine();
+                if(line.substring(0,3).equals("suc")) {
+                    return line.substring(3);
+                }else {
+                    error(line);
+                }
+
+            } catch (IOException e) {
+                error("cannot connect to server");
+                e.printStackTrace();
+            }
             return null;
         }
     }
