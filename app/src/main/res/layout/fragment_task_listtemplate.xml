@@ -1,24 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:background="#fff">
 
     <TextView
         android:id="@+id/textview_listtemplate_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:textStyle="bold"
         android:textSize="22dp"
         android:text="Header"/>
+
+    <ImageButton
+        android:id="@+id/imagebutton_listtemplate_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_edit"
+        android:background="@null"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/imagebutton_listtemplate_delete"/>
+
+    <ImageButton
+        android:id="@+id/imagebutton_listtemplate_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_delete"
+        android:layout_alignParentRight="true"
+        android:background="@null"/>
 
     <LinearLayout
         android:id="@+id/linearlayout_listtemplate_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
         android:orientation="vertical"
         android:layout_below="@id/textview_listtemplate_header">
 

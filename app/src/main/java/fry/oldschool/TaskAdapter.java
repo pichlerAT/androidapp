@@ -51,24 +51,24 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         else{
             res = convertView;
         }
-        res.setBackgroundColor(Color.parseColor("#ffffff"));
+
         ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        header.setText(item.name);
+        header.setText(item.name + " [" + item.id + "]");
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
-
-        for (int i=0; i<item.state.length; i++){
+        entries.removeAllViews(); //Change later, because this isn't the best solution
+        for (int i=0; i<item.length(); i++){
             CheckBox cb = new CheckBox(ctx);
-            cb.setText(item.task[i]);
+            cb.setText(item.task[i] + " (" + item.entry_id[i] + ")");
             if (item.state[i] == 1)
                 cb.setChecked(true);
             else
                 cb.setChecked(false);
             entries.addView(cb);
         }
-
+        res.setBackgroundResource(R.drawable.listview_style);
         return res;
     }
 }
