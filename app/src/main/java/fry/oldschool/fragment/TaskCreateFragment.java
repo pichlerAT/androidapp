@@ -62,6 +62,7 @@ public class TaskCreateFragment extends Fragment {
                 row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
                 row.addView(checkbox);
                 row.addView(edittext);
+                tablelayout_task_entries.addView(row, 0);
             }
         }
 

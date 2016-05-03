@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import fry.oldschool.MainActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
@@ -61,13 +62,13 @@ public class TaskFragment extends ListFragment{
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        FragmentManager fm = getFragmentManager();
+
         switch (item.getItemId()){
             case R.id.action_add:
-                fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
+                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
                 return true;
             case R.id.action_settings:
-                fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
+                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

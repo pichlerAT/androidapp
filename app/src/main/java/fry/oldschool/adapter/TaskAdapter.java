@@ -1,6 +1,11 @@
 package fry.oldschool.adapter;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
+import android.media.Image;
+
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +17,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import fry.oldschool.MainActivity;
 import fry.oldschool.R;
+import fry.oldschool.fragment.TaskCreateFragment;
+import fry.oldschool.utils.App;
 import fry.oldschool.utils.ToDoList;
 
 public class TaskAdapter extends ArrayAdapter<ToDoList>{
 
     public ArrayList<ToDoList> list;
-    Context ctx;
+    protected Context ctx;
+    protected FragmentManager fm;
 
     public TaskAdapter(Context context, int resourceID, ArrayList<ToDoList> list){
         super(context, resourceID, list);
@@ -55,7 +64,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         final ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        String headerText = item.name + " (" + item.id + ")";
+        final String headerText = item.name + " (" + item.id + ")";
         header.setText(headerText);
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
@@ -73,6 +82,20 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
             @Override
             public void onClick(View view) {
                 item.delete();
+            }
+        });
+
+        ImageButton edit = (ImageButton) res.findViewById(R.id.imagebutton_listtemplate_edit);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new TaskCreateFragment();
+                Bundle args = new Bundle();
+                args.putString("header", headerText);
+                args.putByteArray("checked", item.state);
+                args.putStringArray("entries", item.task);
+                fragment.setArguments(args);
+                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, fragment).commit();
             }
         });
 
