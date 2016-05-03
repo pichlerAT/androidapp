@@ -99,6 +99,33 @@ public class ToDoList {
         this.id = id;
     }
 
+    protected void removeFromArray(int index) {
+        byte[] s=state;
+        int[] ei=entry_id;
+        int[] ui=user_id;
+        String[] t=task;
+        state=new byte[s.length-1];
+        entry_id=new int[s.length-1];
+        user_id=new int[s.length-1];
+        task=new String[s.length-1];
+        boolean removed=false;
+        for(int i=0;i<s.length;++i) {
+            if(i == index) {
+                removed = true;
+            }else if(removed) {
+                state[i-1]=s[i];
+                entry_id[i-1]=ei[i];
+                user_id[i-1]=ui[i];
+                task[i-1]=t[i];
+            }else {
+                state[i]=s[i];
+                entry_id[i]=ei[i];
+                user_id[i]=ui[i];
+                task[i]=t[i];
+            }
+        }
+    }
+
     public void setAtPosition(int index,String task,byte state) {
         this.task[index] = task;
         this.state[index] = state;
@@ -173,6 +200,7 @@ public class ToDoList {
 
         public void mysql_delete() {
             connect("todolist/delete.php", "&table_id=" + id);
+            if(!errorDialog) ToDoLists.remove(ToDoList.this);
         }
 
         public void mysql_entry_create(int index) {
@@ -189,6 +217,7 @@ public class ToDoList {
 
         public void mysql_entry_delete(int index) {
             connect("todolist/entry/delete.php", "&entry_id=" + index);
+            if(!errorDialog) ToDoList.this.removeFromArray(index);
         }
     }
 
