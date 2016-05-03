@@ -47,6 +47,6 @@
 
     <!--             local files                -->
 
-    <string name="file_todolist">tdl</string>
+    <string name="file_todolist">tdl.txt</string>
 
 </resources>
