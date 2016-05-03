@@ -51,6 +51,8 @@
 
     <!--             MySQL.class                -->
 
+    <string name="err">Error: </string>
+    <string name="err_">An error occured</string>
     <string name="err_con0">Error when trying to log in</string>
     <string name="err_con1">User not found</string>
     <string name="err_con2">Wrong password</string>

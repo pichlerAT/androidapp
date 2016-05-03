@@ -11,6 +11,8 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+import fry.oldschool.R;
+
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
     public static final String ADDRESS="http://62.46.11.178/Oldschool/";
@@ -23,7 +25,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
     protected boolean errorDialog=false;
     protected String errorTitle="ERROR";
-    protected String errorMessage="";
+    protected String errorCode="err_";
 
     public static void setListener(MySQLListener listener) {
         MySQL.listener = listener;
@@ -36,7 +38,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     @Override
     protected void onPostExecute(String file_url) {
         if(errorDialog) {
-            App.errorDialog(errorTitle,errorMessage);
+            App.errorDialog(errorTitle,getErrorMessage(errorCode));
             if(listener != null) listener.mysql_finished("error");
         }else {
             if(listener != null) listener.mysql_finished(response());
@@ -44,7 +46,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     }
 
     protected void error(String errorMessage) {
-        this.errorMessage = errorMessage;
+        this.errorCode = errorMessage;
         errorDialog = true;
     }
 
@@ -97,26 +99,27 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
     protected String getErrorMessage(String errorCode) {
         switch(errorCode) {
-            case "err_con0":
-            case "err_con1":
-            case "err_con2":
-            case "err_tc0":
-            case "err_tc1":
-            case "err_tu0":
-            case "err_tu1":
-            case "err_tg0":
-            case "err_td0":
-            case "err_td1":
-            case "err_tec0":
-            case "err_tec1":
-            case "err_teu0":
-            case "err_teu1":
-            case "err_teg0":
-            case "err_teg1":
-            case "err_ted0":
-            case "err_ted1":
+            case "err_con0": return App.getContext().getResources().getString(R.string.err_con0);
+            case "err_con1": return App.getContext().getResources().getString(R.string.err_con1);
+            case "err_con2": return App.getContext().getResources().getString(R.string.err_con2);
+            case "err_tc0": return App.getContext().getResources().getString(R.string.err_tc0);
+            case "err_tc1": return App.getContext().getResources().getString(R.string.err_tc1);
+            case "err_tu0": return App.getContext().getResources().getString(R.string.err_tu0);
+            case "err_tu1": return App.getContext().getResources().getString(R.string.err_tu1);
+            case "err_tg0": return App.getContext().getResources().getString(R.string.err_tg0);
+            case "err_td0": return App.getContext().getResources().getString(R.string.err_td0);
+            case "err_td1": return App.getContext().getResources().getString(R.string.err_td1);
+            case "err_tec0": return App.getContext().getResources().getString(R.string.err_tec0);
+            case "err_tec1": return App.getContext().getResources().getString(R.string.err_tec1);
+            case "err_teu0": return App.getContext().getResources().getString(R.string.err_teu0);
+            case "err_teu1": return App.getContext().getResources().getString(R.string.err_teu1);
+            case "err_teg0": return App.getContext().getResources().getString(R.string.err_teg0);
+            case "err_teg1": return App.getContext().getResources().getString(R.string.err_teg1);
+            case "err_ted0": return App.getContext().getResources().getString(R.string.err_ted0);
+            case "err_ted1": return App.getContext().getResources().getString(R.string.err_ted1);
+            case "err_": return App.getContext().getResources().getString(R.string.err_);
+            default: return ( App.getContext().getResources().getString(R.string.err) + errorCode );
         }
-        return null;
     }
 
     protected static class Synchronize extends MySQL {
