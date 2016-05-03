@@ -23,14 +23,9 @@ import fry.oldschool.utils.MySQL;
 import fry.oldschool.utils.MySQLListener;
 import fry.oldschool.utils.ToDoList;
 
-
-/**
- * Created by Edwin Pichler on 28.04.2016.
- */
 public class TaskFragment extends ListFragment{
 
     Context ctx = App.getContext();
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,13 +33,16 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
 
+        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
+        lv.setAdapter(adapter);
 
         MySQL.setListener(new MySQLListener() {
             @Override
             public void mysql_finished(String arg) {
-                TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
+                //TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
                 if (arg.equals("tdl_load") || arg.equals("tdl_delete")){
-                    lv.setAdapter(adapter);
+                    //lv.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
 
             }

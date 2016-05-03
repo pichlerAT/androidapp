@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import fry.oldschool.R;
 import fry.oldschool.utils.ToDoList;
 
-/**
- * Created by Edwin Pichler on 01.05.2016.
- */
 public class TaskAdapter extends ArrayAdapter<ToDoList>{
 
     public ArrayList<ToDoList> list;
