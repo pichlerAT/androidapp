@@ -106,12 +106,9 @@ public class TaskCreateFragment extends Fragment {
                         CheckBox checkbox = (CheckBox) view_checkbox;
                         EditText edittext = (EditText) view_edittext;
                         String entry = edittext.getText().toString();
-                        byte entry_done = 0;
-                        if (checkbox.isChecked()) {
-                            entry_done = 1;
-                        }
+                        // pssst, i changed something ;)
                         //Save 'entry' and 'entry_done' to MySQL
-                        tdl.setAtPosition(i,entry,entry_done);
+                        tdl.setAtPosition(i,entry,checkbox.isChecked());
                     }
 
                 }

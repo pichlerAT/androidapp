@@ -12,7 +12,7 @@ import fry.oldschool.R;
 
 public class ToDoList {
 
-    public static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
+    protected static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
 
     public int id;
 
@@ -32,6 +32,11 @@ public class ToDoList {
         ToDoList tdl=new ToDoList(name,length);
         tdl.create();
         return tdl;
+    }
+
+    public static  ArrayList<ToDoList> createToDoLists() {
+        ToDoLists = new  ArrayList<>();
+        return ToDoLists;
     }
 
     public static void loadToDoLists() {
@@ -126,9 +131,9 @@ public class ToDoList {
         }
     }
 
-    public void setAtPosition(int index,String task,byte state) {
+    public void setAtPosition(int index,String task,boolean state) {
         this.task[index] = task;
-        this.state[index] = state;
+        this.state[index] = ( state ? (byte)0 : (byte)1 );
     }
 
     public boolean done(int index) {
