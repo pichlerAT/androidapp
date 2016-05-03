@@ -225,7 +225,7 @@ public class ToDoList {
 
         @Override
         protected String doInBackground(String... args) {
-            if(ToDoLists.size() == 0) {
+            if(ToDoLists.size() != 0) {
                 ToDoLists = new ArrayList<>();
             }
             String lists=connect("todolist/get.php","");
