@@ -89,9 +89,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     protected String response() {
         try {
             return get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
