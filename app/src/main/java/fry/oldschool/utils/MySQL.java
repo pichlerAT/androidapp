@@ -102,7 +102,7 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
             switch(args[0]) {
                 case "all": sync_all(); break;
                 case "tdl": sync_tdl(); break;
-                default: return "Unknown Command: sync:"+args[0];
+                default: return "Unknown Command: sync_"+args[0];
             }
             return "sync_"+args[0];
         }

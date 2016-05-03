@@ -200,7 +200,7 @@ public class ToDoList {
             String lists=connect("todolist/get.php","");
 
             if(lists == null) {
-                return null;
+                return "tdl_load_error";
             }
 
             String[] sl=lists.split(";");
