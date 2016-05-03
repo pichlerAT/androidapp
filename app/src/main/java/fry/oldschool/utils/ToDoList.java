@@ -1,17 +1,22 @@
 package fry.oldschool.utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by Stefan on 30.04.2016.
- *
- */
+import fry.oldschool.R;
+
 public class ToDoList {
+
+    public static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
 
     public int id;
 
-    //public int owner_id;
+    public int owner_id;
 
     public String name;
 
@@ -29,42 +34,59 @@ public class ToDoList {
         return tdl;
     }
 
-    public static ArrayList<ToDoList> getToDoLists() {
-        MySQL con=new Get_Lists();
+    public static void loadToDoLists() {
+        MySQL con=new Load();
         con.execute();
+    }
 
-        ArrayList<ToDoList> tdls=new ArrayList<ToDoList>();
+    public static void local_save() {
+        try {
+            FileWriter fw=new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist)));
 
-        String response=con.response();
-        if(response == null) {
-            return tdls;
-        }
-
-        String[] s=response.split(";");
-        for(String si : s) {
-            String[] r = si.split(",");
-            int id = Integer.parseInt(r[0]);
-            ToDoList tdl=new ToDoList(r[1], 0, id);
-
-            con=new Get_Entries(id);
-            con.execute();
-            String resp=con.response();
-            if(resp != null) {
-                r = resp.split(";");
-                tdl.setLength(r.length);
-                for(int j=0;j<r.length;++j) {
-                    String[] ri=r[j].split(",");
-                    tdl.entry_id[j]=Integer.parseInt(ri[0]);
-                    tdl.user_id[j]=Integer.parseInt(ri[1]);
-                    tdl.task[j]=ri[2];
-                    tdl.state[j]=Byte.parseByte(ri[3]);
+            for(ToDoList tdl : ToDoLists) {
+                fw.write(tdl.id+","+tdl.name);
+                for(int i=0;i<tdl.length();++i) {
+                    fw.write(";"+tdl.entry_id[i]+","+tdl.user_id[i]+","+tdl.task[i]+","+tdl.state[i]);
                 }
+                fw.write(String.format("%n"));
             }
 
-            tdls.add(tdl);
-        }
+            fw.write("EOF");
+            fw.close();
 
-        return tdls;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void local_load() {
+        try {
+            BufferedReader br=new BufferedReader(new FileReader(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist))));
+
+            ToDoLists=new ArrayList<>();
+
+            String line;
+            while(!(line=br.readLine()).equals("EOF")) {
+                String[] r=line.split(";");
+                String[] ri=r[0].split(",");
+                ToDoList tdl=new ToDoList(ri[1],Integer.parseInt(ri[0]),r.length-1);
+                for(int i=1;i<r.length;++i) {
+                    ri=r[i].split(",");
+                    tdl.entry_id[i-1]=Integer.parseInt(ri[0]);
+                    tdl.user_id[i-1]=Integer.parseInt(ri[1]);
+                    tdl.task[i-1]=ri[2];
+                    tdl.state[i-1]=Byte.parseByte(ri[3]);
+                }
+                ToDoLists.add(tdl);
+            }
+
+            br.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected ToDoList(String name,int length) {
@@ -98,170 +120,115 @@ public class ToDoList {
     }
 
     public void create() {
-        MySQL con=new Create();
-        con.execute();
+        (new Connection()).execute("create");
     }
 
     public void update() {
-        MySQL con=new Update();
-        con.execute();
-        for(int i=0;i<entry_id.length;++i) {
-            if(entry_id[i]==0) {
-                con=new Entry(i);
-            }else {
-                con=new Update_Entry(i);
-            }
-            con.execute();
-        }
+        (new Connection()).execute("update");
     }
 
-    protected class Create extends MySQL {
-        @Override
-        protected String doInBackground(String... args) {
-            try {
-                connect("todolist/create.php","&name="+name);
-
-                String line=br.readLine();
-                if(line.substring(0,3).equals("suc")) {
-                    id = Integer.parseInt(line.substring(3));
-                }else {
-                    error(line);
-                }
-
-            } catch (IOException e) {
-                error("cannot connect to server");
-                e.printStackTrace();
-            }
-            return null;
-        }
+    public void delete() {
+        (new Connection()).execute("delete");
     }
 
-    protected class Entry extends MySQL {
+    public void delete(int index) {
+        (new Connection()).execute("entry_delete",""+index);
+    }
 
-        protected int index;
-
-        protected Entry(int index) {
-            this.index = index;
-        }
+    protected class Connection extends MySQL {
 
         @Override
         protected String doInBackground(String... args) {
-            try {
-                connect("todolist/entries/create.php","&table_id="+id+"&description="+task[index]+"&state="+state[index]);
+            switch(args[0]) {
+                case "create": mysql_create(); break;
+                case "update": mysql_update(); break;
+                case "delete": mysql_delete(); break;
+                case "entry_create": mysql_entry_create(Integer.parseInt(args[1])); break;
+                case "entry_update": mysql_entry_update(Integer.parseInt(args[1])); break;
+                case "entry_delete": mysql_entry_delete(Integer.parseInt(args[1])); break;
+                default: error("Unknown Command: tdl:"+args[0]);
+            }
+            return args[0];
+        }
 
-                String line=br.readLine();
-                if(line.substring(0,3).equals("suc")) {
-                    entry_id[index] = Integer.parseInt(line.substring(3));
-                    user_id[index] = USER_ID;
+        public void mysql_create() {
+            String re = connect("todolist/create.php", "&name=" + name);
+            if (re != null) {
+                id = Integer.parseInt(re);
+            }
+        }
+
+        public void mysql_update() {
+            connect("todolist/update.php","&table_id="+id+"&name="+name);
+            for(int i=0;i<entry_id.length;++i) {
+                if(entry_id[i]==0) {
+                    mysql_entry_create(i);
+                }else if(state[i]==2) {
+                    mysql_entry_delete(i);
                 }else {
-                    error(line);
+                    mysql_entry_update(i);
                 }
-
-            } catch (IOException e) {
-                error("cannot connect to server");
-                e.printStackTrace();
             }
-            return null;
         }
-    }
 
-    protected class Update extends MySQL {
-        @Override
-        protected String doInBackground(String... args) {
-            try {
-                connect("todolist/update.php","&table_id="+id+"&name="+name);
+        public void mysql_delete() {
+            connect("todolist/delete.php", "&table_id=" + id);
+        }
 
-                String line=br.readLine();
-                if(line.substring(0,3).equals("err")) {
-                    error(line);
-                }
-
-            } catch (IOException e) {
-                error("cannot connect to server");
-                e.printStackTrace();
+        public void mysql_entry_create(int index) {
+            String re = connect("todolist/entry/create.php","&table_id="+id+"&description="+task[index]+"&state="+state[index]);
+            if(re != null) {
+                entry_id[index] = Integer.parseInt(re);
+                user_id[index] = USER_ID;
             }
-            return null;
+        }
+
+        public void mysql_entry_update(int index) {
+            connect("todolist/entry/update.php","&entry_id=" + entry_id[index] + "&description=" + task[index] + "&state=" + state[index]);
+        }
+
+        public void mysql_entry_delete(int index) {
+            connect("todolist/entry/delete.php", "&entry_id=" + index);
         }
     }
 
-    protected class Update_Entry extends MySQL {
-
-        protected int index;
-
-        protected Update_Entry(int index) {
-            this.index = index;
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-                try {
-                    connect("todolist/entries/update.php","&entry_id=" + entry_id[index] + "&description=" + task[index] + "&state=" + state[index]);
-
-                    String line = br.readLine();
-                    if (line.substring(0, 3).equals("err")) {
-                        error(line);
-                    }
-
-                } catch (IOException e) {
-                    error("cannot connect to server");
-                    e.printStackTrace();
-                }
-            return null;
-        }
-    }
-
-    protected static class Get_Lists extends MySQL {
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                connect("todolist/get.php","");
-
-                String line=br.readLine();
-                System.out.println("------------------"+line);
-                String li;
-                while((li=br.readLine())!=null) {
-                    System.out.println("------------------"+li);
-                }
-
-                if(line.substring(0,3).equals("suc")) {
-                    return line.substring(3);
-                }else {
-                    error(line);
-                }
-
-            } catch (IOException e) {
-                error("cannot connect to server");
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
-    protected static class Get_Entries extends MySQL {
-
-        protected int id;
-
-        protected Get_Entries(int id) {
-            this.id = id;
-        }
+    protected static class Load extends MySQL {
 
         @Override
         protected String doInBackground(String... args) {
-            try {
-                connect("todolist/entries/get.php","&table_id=" + id);
+            ToDoLists=new ArrayList<>();
+            String lists=connect("todolist/get.php","");
 
-                String line=br.readLine();
-                if(line.substring(0,3).equals("suc")) {
-                    return line.substring(3);
-                }else {
-                    error(line);
+            if(lists == null) {
+                return null;
+            }
+
+            String[] sl=lists.split(";");
+            for(String rl : sl) {
+                String[] rli=rl.split(",");
+
+                int tdl_id=Integer.parseInt(rli[0]);
+                String entries=connect("todolist/entry/get.php","&table_id=" + tdl_id);
+
+                if(entries == null) {
+                    continue;
                 }
 
-            } catch (IOException e) {
-                error("cannot connect to server");
-                e.printStackTrace();
+                String[] re=entries.split(";");
+                ToDoList tdl=new ToDoList(rli[1],re.length,tdl_id);
+
+                for(int j=0;j<re.length;++j) {
+                    String[] rei=re[j].split(",");
+
+                    tdl.entry_id[j]=Integer.parseInt(rei[0]);
+                    tdl.user_id[j]=Integer.parseInt(rei[1]);
+                    tdl.task[j]=rei[2];
+                    tdl.state[j]=Byte.parseByte(rei[3]);
+                }
+
+                ToDoLists.add(tdl);
             }
-            return null;
+            return "todolist_load";
         }
     }
 }

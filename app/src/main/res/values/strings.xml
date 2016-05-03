@@ -10,13 +10,17 @@
 
     <string name="add">Add</string>
 
-    <!-- Fragment task / create-->
+    <!--        Fragment task / create         -->
 
     <string name="todo_list">To-do list</string>
     <string name="task">Task</string>
 
+    <!--             Time.class                -->
+
     <string name="time_am">AM</string>
     <string name="time_pm">PM</string>
+
+    <!--             Date.class                -->
 
     <string name="year_leapyear">Leap Year</string>
 
@@ -40,5 +44,9 @@
     <string name="weekday_fri">Friday</string>
     <string name="weekday_sat">Saturday</string>
     <string name="weekday_sun">Sunday</string>
+
+    <!--             local files                -->
+
+    <string name="file_todolist">tdl</string>
 
 </resources>
