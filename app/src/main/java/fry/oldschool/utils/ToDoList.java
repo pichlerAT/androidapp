@@ -216,7 +216,7 @@ public class ToDoList {
         }
 
         public void mysql_entry_delete(int index) {
-            connect("todolist/entry/delete.php", "&entry_id=" + index);
+            connect("todolist/entry/delete.php", "&entry_id=" + entry_id[index]);
             if(!errorDialog) ToDoList.this.removeFromArray(index);
         }
     }
@@ -225,7 +225,7 @@ public class ToDoList {
 
         @Override
         protected String doInBackground(String... args) {
-            if(ToDoLists.size() != 0) {
+            if(ToDoLists.size() > 0) {
                 ToDoLists = new ArrayList<>();
             }
             String lists=connect("todolist/get.php","");

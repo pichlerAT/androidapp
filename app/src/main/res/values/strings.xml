@@ -49,4 +49,25 @@
 
     <string name="file_todolist">tdl.txt</string>
 
+    <!--             MySQL.class                -->
+
+    <string name="err_con0">Error when trying to log in</string>
+    <string name="err_con1">User not found</string>
+    <string name="err_con2">Wrong password</string>
+    <string name="err_tc0">Error when trying to create the ToDoList: err_tc0</string>
+    <string name="err_tc1">Error when trying to create the ToDoList: err_tc1</string>
+    <string name="err_tu0">Error when trying to update the ToDoList: err_tu0</string>
+    <string name="err_tu1">Error when trying to update the ToDoList: err_tu1</string>
+    <string name="err_tg0">Unable to load ToDoList</string>
+    <string name="err_td0">Error when trying to delete the ToDoList: err_td0</string>
+    <string name="err_td1">Error when trying to delete the ToDoList: err_td1</string>
+    <string name="err_tec0">Error when trying to create entry: err_tec0</string>
+    <string name="err_tec1">Error when trying to create entry: err_tec1</string>
+    <string name="err_teu0">Error when trying to create entry: err_teu0</string>
+    <string name="err_teu1">Error when trying to create entry: err_teu1</string>
+    <string name="err_teg0">Error when trying to create entry: err_teg0</string>
+    <string name="err_teg1">Error when trying to create entry: err_teg1</string>
+    <string name="err_ted0">Error when trying to create entry: err_ted0</string>
+    <string name="err_ted1">Error when trying to create entry: err_ted1</string>
+
 </resources>

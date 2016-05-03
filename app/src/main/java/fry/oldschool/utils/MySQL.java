@@ -95,6 +95,30 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         return null;
     }
 
+    protected String getErrorMessage(String errorCode) {
+        switch(errorCode) {
+            case "err_con0":
+            case "err_con1":
+            case "err_con2":
+            case "err_tc0":
+            case "err_tc1":
+            case "err_tu0":
+            case "err_tu1":
+            case "err_tg0":
+            case "err_td0":
+            case "err_td1":
+            case "err_tec0":
+            case "err_tec1":
+            case "err_teu0":
+            case "err_teu1":
+            case "err_teg0":
+            case "err_teg1":
+            case "err_ted0":
+            case "err_ted1":
+        }
+        return null;
+    }
+
     protected static class Synchronize extends MySQL {
 
         @Override
