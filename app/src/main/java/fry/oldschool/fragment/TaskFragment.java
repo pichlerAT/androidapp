@@ -23,7 +23,7 @@ import fry.oldschool.utils.ToDoList;
 /**
  * Created by Edwin Pichler on 28.04.2016.
  */
-public class TaskFragment extends ListFragment{
+public class TaskFragment extends ListFragment {
 
     Context ctx = App.getContext();
 
@@ -32,7 +32,7 @@ public class TaskFragment extends ListFragment{
         View rootView = inflater.inflate(R.layout.fragment_task, container, false);
         setHasOptionsMenu(true);
 
-         ToDoList.loadToDoLists();
+        ToDoList.loadToDoLists();
 
         ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
         TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);

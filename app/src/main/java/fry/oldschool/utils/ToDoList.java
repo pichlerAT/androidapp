@@ -148,7 +148,7 @@ public class ToDoList {
                 case "entry_delete": mysql_entry_delete(Integer.parseInt(args[1])); break;
                 default: error("Unknown Command: tdl:"+args[0]);
             }
-            return args[0];
+            return "tdl_"+args[0];
         }
 
         public void mysql_create() {
@@ -228,7 +228,7 @@ public class ToDoList {
 
                 ToDoLists.add(tdl);
             }
-            return "todolist_load";
+            return "tdl_load";
         }
     }
 }
