@@ -196,7 +196,9 @@ public class ToDoList {
 
         @Override
         protected String doInBackground(String... args) {
-            ToDoLists=new ArrayList<>();
+            if(ToDoLists.size() == 0) {
+                ToDoLists = new ArrayList<>();
+            }
             String lists=connect("todolist/get.php","");
 
             if(lists == null) {
