@@ -25,10 +25,46 @@ public class TaskCreateFragment extends Fragment {
 
     ToDoList tdl;
 
+    public static TaskCreateFragment newInstance(String header, byte[] checked, String[] entries){
+        TaskCreateFragment fragment = new TaskCreateFragment();
+
+        Bundle args = new Bundle();
+        args.putString("header", header);
+        args.putByteArray("checked", checked);
+        args.putStringArray("entries", entries);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_task_create, container, false);
         final TableLayout tablelayout_task_entries = (TableLayout) rootView.findViewById(R.id.tablelayout_task_entries);
+        final EditText edittext_task_name = (EditText) rootView.findViewById(R.id.edittext_task_name);
+
+        Bundle args = getArguments();
+        if (args != null){
+            byte[] checked = args.getByteArray("checked");
+            String[] entries = args.getStringArray("entries");
+
+            edittext_task_name.setText(args.getString("header"));
+            for(int i=0; i<checked.length; i++){
+                CheckBox checkbox = new CheckBox(ctx);
+                if (checked[i] == 1)
+                    checkbox.setChecked(true);
+
+                EditText edittext = new EditText(ctx);
+                edittext.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
+                edittext.setText(entries[i]);
+
+                TableRow row = new TableRow(ctx);
+                row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                row.addView(checkbox);
+                row.addView(edittext);
+            }
+        }
+
 
         Button button_task_addentry = (Button) rootView.findViewById(R.id.button_task_addentry);
         button_task_addentry.setOnClickListener(new View.OnClickListener() {
@@ -48,8 +84,6 @@ public class TaskCreateFragment extends Fragment {
                 tablelayout_task_entries.addView(row, 0);
             }
         });
-
-        final EditText edittext_task_name = (EditText) rootView.findViewById(R.id.edittext_task_name);
 
         Button button_task_save = (Button) rootView.findViewById(R.id.button_task_save);
         button_task_save.setOnClickListener(new View.OnClickListener() {

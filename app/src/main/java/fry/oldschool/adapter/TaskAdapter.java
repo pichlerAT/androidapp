@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -45,7 +46,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
 
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(final int position, View convertView, ViewGroup parent){
         View res;
         if (convertView == null){
             res = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_task_listtemplate, parent, false);
@@ -54,7 +55,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
             res = convertView;
         }
 
-        ToDoList item = getItem(position);
+        final ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         String headerText = item.name + " (" + item.id + ")";
@@ -66,13 +67,21 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
             CheckBox cb = new CheckBox(ctx);
             String cbText = item.task[i] + " (" + item.entry_id[i] + ") [" + item.user_id[i] + "]";
             cb.setText(cbText);
-            if (item.state[i] == 1)
-                cb.setChecked(true);
-            else
-                cb.setChecked(false);
+            cb.setChecked(item.done(i));
             entries.addView(cb);
         }
+
+        ImageButton delete = (ImageButton) res.findViewById(R.id.imagebutton_listtemplate_delete);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                item.delete();
+            }
+        });
+
+        //Set optical design elements for list item (view)
         res.setBackgroundResource(R.drawable.listview_style);
+
         return res;
     }
 }
