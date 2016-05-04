@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+
+import java.util.ArrayList;
 
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
@@ -25,13 +28,11 @@ public class TaskCreateFragment extends Fragment {
 
     ToDoList tdl;
 
-    public static TaskCreateFragment newInstance(String header, byte[] checked, String[] entries){
+    public static TaskCreateFragment newInstance(int index){
         TaskCreateFragment fragment = new TaskCreateFragment();
 
         Bundle args = new Bundle();
-        args.putString("header", header);
-        args.putByteArray("checked", checked);
-        args.putStringArray("entries", entries);
+        args.putInt("index", index);
         fragment.setArguments(args);
 
         return fragment;
@@ -43,12 +44,15 @@ public class TaskCreateFragment extends Fragment {
         final TableLayout tablelayout_task_entries = (TableLayout) rootView.findViewById(R.id.tablelayout_task_entries);
         final EditText edittext_task_name = (EditText) rootView.findViewById(R.id.edittext_task_name);
 
-        Bundle args = getArguments();
-        if (args != null){
-            byte[] checked = args.getByteArray("checked");
-            String[] entries = args.getStringArray("entries");
+        final Bundle args = getArguments();
 
-            edittext_task_name.setText(args.getString("header"));
+
+        if (args != null){
+            tdl = ToDoList.ToDoLists.get(args.getInt(("index")));
+            byte[] checked = tdl.state;
+            String[] entries = tdl.task;
+
+            edittext_task_name.setText(tdl.name);
             for(int i=0; i<checked.length; i++){
                 CheckBox checkbox = new CheckBox(ctx);
                 if (checked[i] == 1)
@@ -91,11 +95,6 @@ public class TaskCreateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 int length = tablelayout_task_entries.getChildCount();
-                if(tdl == null) {
-                    tdl = ToDoList.create(edittext_task_name.getText().toString(), length);
-                }else if(length != tdl.length()) {
-                    tdl.setLength(length);
-                }
                 for (int i = 0; i < length; i++) {
                     View table_view = tablelayout_task_entries.getChildAt(i);
                     if (table_view instanceof TableRow) {
@@ -109,10 +108,21 @@ public class TaskCreateFragment extends Fragment {
                         String entry = edittext.getText().toString();
                         // pssst, i changed something ;)
                         //Save 'entry' and 'entry_done' to MySQL
-                        tdl.setAtPosition(i,entry,checkbox.isChecked());
+                        tdl.setAtPosition(i, entry, checkbox.isChecked());
                     }
 
                 }
+                if (args == null) {
+                    if (tdl == null) {
+                        tdl = ToDoList.create(edittext_task_name.getText().toString(), length);
+                    } else if (length != tdl.length()) {
+                        tdl.setLength(length);
+                    }
+                }
+                else {
+                    tdl.name = edittext_task_name.getText().toString();
+                }
+
                 tdl.update();
 
             }

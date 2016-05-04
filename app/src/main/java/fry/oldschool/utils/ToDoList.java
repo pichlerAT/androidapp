@@ -11,7 +11,7 @@ import fry.oldschool.R;
 
 public class ToDoList {
 
-    protected static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
+    public static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
 
     public int id;
 

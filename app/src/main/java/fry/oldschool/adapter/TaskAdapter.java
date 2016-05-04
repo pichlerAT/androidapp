@@ -91,9 +91,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
             public void onClick(View view) {
                 Fragment fragment = new TaskCreateFragment();
                 Bundle args = new Bundle();
-                args.putString("header", headerText);
-                args.putByteArray("checked", item.state);
-                args.putStringArray("entries", item.task);
+                args.putInt("index", position);
                 fragment.setArguments(args);
                 MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, fragment).commit();
             }

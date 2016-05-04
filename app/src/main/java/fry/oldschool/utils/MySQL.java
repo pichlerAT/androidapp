@@ -15,7 +15,7 @@ import fry.oldschool.R;
 
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://62.46.11.178/Oldschool/";
+    public static final String ADDRESS="http://193.81.75.23/Oldschool/";
 
     public static int USER_ID = 9;
     public static String USER_EMAIL = "pichler.edwin@rk.at";
