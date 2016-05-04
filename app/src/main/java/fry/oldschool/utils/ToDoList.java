@@ -133,6 +133,27 @@ public class ToDoList {
         this.state[index] = ( state ? (byte)0 : (byte)1 );
     }
 
+    public void addEntry(String task,boolean state) {
+        byte[] s=this.state;
+        int[] ei=entry_id;
+        int[] ui=user_id;
+        String[] t=this.task;
+        this.state=new byte[s.length+1];
+        entry_id=new int[s.length+1];
+        user_id=new int[s.length+1];
+        this.task=new String[s.length+1];
+        for(int i=0;i<s.length;++i) {
+            this.state[i]=s[i];
+            entry_id[i]=ei[i];
+            user_id[i]=ui[i];
+            this.task[i]=t[i];
+        }
+        this.state[s.length]=( state ? (byte)0 : (byte)1 );
+        entry_id[s.length]=0;
+        user_id[s.length]=MySQL.USER_ID;
+        this.task[s.length]=task;
+    }
+
     public boolean done(int index) {
         return ( state[index]==0 );
     }

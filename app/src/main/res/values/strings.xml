@@ -56,6 +56,9 @@
     <string name="err_con0">Error when trying to log in</string>
     <string name="err_con1">User not found</string>
     <string name="err_con2">Wrong password</string>
+    <string name="err_reg0">Error when trying to register: err_reg0</string>
+    <string name="err_reg1">email already in use</string>
+    <string name="err_reg2">Error when trying to register: err_reg2</string>
     <string name="err_tc0">Error when trying to create the ToDoList: err_tc0</string>
     <string name="err_tc1">Error when trying to create the ToDoList: err_tc1</string>
     <string name="err_tu0">Error when trying to update the ToDoList: err_tu0</string>

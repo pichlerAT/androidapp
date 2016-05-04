@@ -15,7 +15,7 @@ import fry.oldschool.R;
 
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://193.81.75.23/Oldschool/";
+    public static final String ADDRESS="http://62.47.229.197/Oldschool/";
 
     public static int USER_ID = 9;
     public static String USER_EMAIL = "pichler.edwin@rk.at";
@@ -71,14 +71,21 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String line=br.readLine();
-            br.close();
-            con.disconnect();
+            //br.close();
+            //con.disconnect();
 
             if(line.substring(0,3).equals("suc")) {
                 return line.substring(3);
             }else {
+                System.out.println("---------"+line);
+                String line1;
+                while((line1=br.readLine()) != null) {
+                    System.out.println("---------"+line1);
+                }
                 error(line);
             }
+            br.close();
+            con.disconnect();
         }catch(IOException ex) {
             error("cannot connect to server");
             ex.printStackTrace();
@@ -100,6 +107,9 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
             case "err_con0": return App.getContext().getResources().getString(R.string.err_con0);
             case "err_con1": return App.getContext().getResources().getString(R.string.err_con1);
             case "err_con2": return App.getContext().getResources().getString(R.string.err_con2);
+            case "err_reg0": return App.getContext().getResources().getString(R.string.err_reg0);
+            case "err_reg1": return App.getContext().getResources().getString(R.string.err_reg1);
+            case "err_reg2": return App.getContext().getResources().getString(R.string.err_reg2);
             case "err_tc0": return App.getContext().getResources().getString(R.string.err_tc0);
             case "err_tc1": return App.getContext().getResources().getString(R.string.err_tc1);
             case "err_tu0": return App.getContext().getResources().getString(R.string.err_tu0);
