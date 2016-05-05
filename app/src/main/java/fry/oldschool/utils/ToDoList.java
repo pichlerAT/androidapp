@@ -13,9 +13,11 @@ public class ToDoList {
 
     public static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
 
+    public static int[] deleted_entries;
+
     public int id;
 
-    public int owner_id;
+    //public int owner_id;
 
     public String name;
 
@@ -38,6 +40,10 @@ public class ToDoList {
         return ToDoLists;
     }
 
+    public static void unload() {
+
+    }
+
     public static void loadToDoLists() {
         MySQL con=new Load();
         con.execute();
@@ -47,12 +53,21 @@ public class ToDoList {
         try {
             FileWriter fw=new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist)));
 
+            if(deleted_entries.length>0) {
+                fw.write(deleted_entries[0]);
+            }
+            for(int i=1;i<deleted_entries.length;++i) {
+                fw.write(";"+deleted_entries[i]);
+            }
+            fw.write("%n");
+
             for(ToDoList tdl : ToDoLists) {
-                fw.write(tdl.id+","+tdl.name);
+                int entry_count=0;
                 for(int i=0;i<tdl.length();++i) {
-                    fw.write(";"+tdl.entry_id[i]+","+tdl.user_id[i]+","+tdl.task[i]+","+tdl.state[i]);
+                    fw.write(tdl.entry_id[i]+","+tdl.user_id[i]+","+tdl.task[i]+","+tdl.state[i]+";");
+                    if(tdl.entry_id[i] >= 0) ++entry_count;
                 }
-                fw.write(String.format("%n"));
+                fw.write(String.format(tdl.id+","+tdl.name+","+entry_count+"%n"));
             }
 
             fw.write("EOF");
@@ -63,25 +78,39 @@ public class ToDoList {
         }
     }
 
-    public static void local_load() {
+    public static ArrayList<ToDoList> local_load() {
+        ArrayList<ToDoList> tdls=new ArrayList<>();
         try {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist))));
 
-            ToDoLists=new ArrayList<>();
+            String line=br.readLine();
 
-            String line;
+            if(line!=null && !line.equals("")) {
+                String[] r=line.split(";");
+                deleted_entries=new int[r.length];
+                for(int i=0;i<r.length;++i) {
+                    deleted_entries[i]=Integer.parseInt(r[i]);
+                }
+            }
+
             while(!(line=br.readLine()).equals("EOF")) {
                 String[] r=line.split(";");
-                String[] ri=r[0].split(",");
-                ToDoList tdl=new ToDoList(ri[1],Integer.parseInt(ri[0]),r.length-1);
-                for(int i=1;i<r.length;++i) {
+                String[] ri=r[r.length-1].split(",");
+                ToDoList tdl=new ToDoList(ri[1],Integer.parseInt(ri[0]),Integer.parseInt(ri[2]));
+                int index=0;
+                for(int i=0;i<r.length-1;++i) {
                     ri=r[i].split(",");
-                    tdl.entry_id[i-1]=Integer.parseInt(ri[0]);
-                    tdl.user_id[i-1]=Integer.parseInt(ri[1]);
-                    tdl.task[i-1]=ri[2];
-                    tdl.state[i-1]=Byte.parseByte(ri[3]);
+                    int entry_id = Integer.parseInt(ri[0]);
+                    if(entry_id < 0) {
+                        continue;
+                    }
+                    tdl.entry_id[index]=entry_id;
+                    tdl.user_id[index]=Integer.parseInt(ri[1]);
+                    tdl.task[index]=ri[2];
+                    tdl.state[index]=Byte.parseByte(ri[3]);
+                    ++index;
                 }
-                ToDoLists.add(tdl);
+                tdls.add(tdl);
             }
 
             br.close();
@@ -89,6 +118,7 @@ public class ToDoList {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return tdls;
     }
 
     protected ToDoList(String name,int length) {

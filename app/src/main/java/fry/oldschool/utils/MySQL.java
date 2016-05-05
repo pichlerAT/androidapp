@@ -15,7 +15,9 @@ import fry.oldschool.R;
 
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://62.47.229.197/Oldschool/";
+    public static final String ADDRESS="http://194.118.34.166/Oldschool/";
+
+    public static final int WAIT_FOR_CONNECTION_SLEEP = 2 * 60 * 1000;
 
     public static int USER_ID = 9;
     public static String USER_EMAIL = "pichler.edwin@rk.at";
@@ -31,8 +33,8 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         MySQL.listener = listener;
     }
 
-    public static void synchronize(String arg) {
-        (new Synchronize()).execute(arg);
+    public static void synchronize() {
+        (new Synchronize()).execute();
     }
 
     @Override
@@ -50,10 +52,28 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         errorDialog = true;
     }
 
-    protected boolean hasInternet() {
-        try{
-            return !InetAddress.getByName("google.com").equals("");
-        }catch(Exception ex) {
+    protected boolean waitForConnection() {
+        try {
+            while(!connected()) {
+
+                Thread.sleep(WAIT_FOR_CONNECTION_SLEEP);
+
+            }
+            System.out.println("---------- HAS CONNECTION !");
+            return true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    protected boolean connected() {
+        try {
+            URL url = new URL(ADDRESS + "test_connection.php");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.connect();
+            return (HttpURLConnection.HTTP_OK == con.getResponseCode());
+        }catch (IOException ex) {
             return false;
         }
     }
@@ -134,12 +154,14 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... args) {
-            switch(args[0]) {
-                case "all": sync_all(); break;
-                case "tdl": sync_tdl(); break;
-                default: return "Unknown Command: sync_"+args[0];
+
+            if(!connected()) {
+                waitForConnection();
             }
-            return "sync_"+args[0];
+
+            sync_all();
+
+            return "synchronize";
         }
 
         protected void sync_all() {
@@ -151,5 +173,6 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
                 tdl.update();
             }
         }
+
     }
 }
