@@ -64,10 +64,8 @@ public class TaskFragment extends ListFragment{
             case R.id.action_add:
                 Intent intent = new Intent(ctx, TaskCreateActivity.class);
                 ctx.startActivity(intent);
-                //MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
                 return true;
             case R.id.action_settings:
-                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
