@@ -8,7 +8,12 @@
 
     <string name="error_message_neutral_button">OK</string>
 
+    <!--               General                 -->
+
     <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="done">Done</string>
 
     <!--        Fragment task / create         -->
 

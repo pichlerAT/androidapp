@@ -295,6 +295,7 @@ public class ToDoList {
                 String entries=connect("todolist/entry/get.php","&table_id=" + tdl_id);
 
                 if(entries == null) {
+                    ToDoLists.add(new ToDoList(rli[1],0,tdl_id));
                     continue;
                 }
 

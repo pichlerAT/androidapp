@@ -1,7 +1,8 @@
-package fry.oldschool;
+package fry.oldschool.activity;
 
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import fry.oldschool.R;
 import fry.oldschool.fragment.AccountingFragment;
 import fry.oldschool.fragment.FriendsFragment;
 import fry.oldschool.fragment.LogbookFragment;
@@ -29,15 +31,18 @@ public class MainActivity extends AppCompatActivity
     private Context ctx = this;
     public static FragmentManager fm;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         App.setContext(this);
+        fm = getFragmentManager();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fm = getFragmentManager();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

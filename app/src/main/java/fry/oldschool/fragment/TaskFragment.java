@@ -1,9 +1,8 @@
 package fry.oldschool.fragment;
 
-import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Context;
-import android.media.Image;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,12 +10,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
-import fry.oldschool.MainActivity;
+import fry.oldschool.activity.MainActivity;
+import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
@@ -41,7 +38,7 @@ public class TaskFragment extends ListFragment{
             @Override
             public void mysql_finished(String arg) {
                 //TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
-                if (arg.equals("tdl_load") || arg.equals("tdl_delete")){
+                if (arg.equals("tdl_load") || arg.equals("tdl_delete") || arg.equals("error")){
                     //lv.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
@@ -65,7 +62,9 @@ public class TaskFragment extends ListFragment{
 
         switch (item.getItemId()){
             case R.id.action_add:
-                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
+                Intent intent = new Intent(ctx, TaskCreateActivity.class);
+                ctx.startActivity(intent);
+                //MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();
                 return true;
             case R.id.action_settings:
                 MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskCreateFragment()).commit();

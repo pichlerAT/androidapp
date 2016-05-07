@@ -1,11 +1,9 @@
 package fry.oldschool.adapter;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.media.Image;
 
-import android.os.Bundle;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +15,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import fry.oldschool.MainActivity;
 import fry.oldschool.R;
-import fry.oldschool.fragment.TaskCreateFragment;
-import fry.oldschool.utils.App;
+import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.ToDoList;
 
 public class TaskAdapter extends ArrayAdapter<ToDoList>{
@@ -64,14 +60,14 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         final ToDoList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        final String headerText = item.name + " (" + item.id + ")";
+        final String headerText = item.name;
         header.setText(headerText);
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
         for (int i=0; i<item.length(); i++){
             CheckBox cb = new CheckBox(ctx);
-            String cbText = item.task[i] + " (" + item.entry_id[i] + ") [" + item.user_id[i] + "]";
+            String cbText = item.task[i];
             cb.setText(cbText);
             cb.setChecked(item.done(i));
             entries.addView(cb);
@@ -89,11 +85,9 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = new TaskCreateFragment();
-                Bundle args = new Bundle();
-                args.putInt("index", position);
-                fragment.setArguments(args);
-                MainActivity.fm.beginTransaction().replace(R.id.frame_fragment_main, fragment).commit();
+                Intent intent = new Intent(ctx, TaskCreateActivity.class);
+                intent.putExtra("index", position);
+                ctx.startActivity(intent);
             }
         });
 
