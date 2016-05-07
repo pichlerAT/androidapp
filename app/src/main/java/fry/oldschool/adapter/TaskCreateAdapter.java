@@ -5,6 +5,8 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
@@ -48,7 +50,7 @@ public class TaskCreateAdapter extends PagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return "test";
+        return setPageTitle(position);
     }
 
     public int addView(View v)
@@ -68,6 +70,16 @@ public class TaskCreateAdapter extends PagerAdapter {
 
     public View getView(int position){
         return view_list.get(position);
+    }
+
+    public CharSequence setPageTitle(int position){
+        RelativeLayout currentView = (RelativeLayout) getView(position);
+        EditText header = (EditText) currentView.getChildAt(0);
+        String headerText = header.getText().toString();
+        if (headerText.matches(""))
+            return "New task";
+
+        return (CharSequence) headerText;
     }
 
 }

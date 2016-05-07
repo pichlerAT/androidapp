@@ -15,7 +15,7 @@ import fry.oldschool.R;
 
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://194.118.34.166/Oldschool/";
+    public static final String ADDRESS="http://212.183.67.41/Oldschool/";
 
     public static final int WAIT_FOR_CONNECTION_SLEEP = 2 * 60 * 1000;
 
