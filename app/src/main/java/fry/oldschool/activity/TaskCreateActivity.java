@@ -4,29 +4,23 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
-import fry.oldschool.fragment.TaskFragment;
 import fry.oldschool.utils.ToDoList;
 
 /**
@@ -38,7 +32,6 @@ public class TaskCreateActivity extends AppCompatActivity{
     private TaskCreateAdapter adapter = null;
 
     protected Context ctx = this;
-    protected ArrayList<Integer> index_list = new ArrayList<Integer>();
     protected ArrayList<RelativeLayout> layouts;
 
     @Override
@@ -47,7 +40,7 @@ public class TaskCreateActivity extends AppCompatActivity{
         setContentView(R.layout.activity_task_create);
 
         //Initialize variables
-        layouts = new ArrayList<RelativeLayout>();
+        layouts = new ArrayList<>();
 
         //Initialize toolbar and set the back button within it
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_task_create);
@@ -136,14 +129,11 @@ public class TaskCreateActivity extends AppCompatActivity{
         int length = taskEntries.getChildCount();
 
         //When no task is found, then it creates a new one, otherwise the name of the task will be changed
-        if (tdl == null) {
-            if (tdl == null) {
-                tdl = ToDoList.create(header.getText().toString(), length);
-            } else if (length != tdl.length()) {
-                tdl.setLength(length);
-            }
-        }
+        if (tdl == null)
+            tdl = ToDoList.create(header.getText().toString(), length);
         else {
+            if (length != tdl.length())
+                tdl.setLength(length);
             tdl.name = header.getText().toString();
         }
 
@@ -211,7 +201,7 @@ public class TaskCreateActivity extends AppCompatActivity{
 
         return text;
     }
-
+/*
     public void addView(View v){
         int index = adapter.addView(v);
 
@@ -225,7 +215,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             index--;
         pager.setCurrentItem(index);
     }
-
+*/
     public View getCurrentPage(){
         return adapter.getView(pager.getCurrentItem());
     }
