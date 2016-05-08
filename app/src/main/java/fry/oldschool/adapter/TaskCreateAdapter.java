@@ -53,6 +53,7 @@ public class TaskCreateAdapter extends PagerAdapter {
         return setPageTitle(position);
     }
 
+
     public int addView(View v)
     {
         int position = view_list.size();

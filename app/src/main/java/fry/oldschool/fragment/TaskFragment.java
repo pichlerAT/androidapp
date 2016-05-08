@@ -1,5 +1,8 @@
 package fry.oldschool.fragment;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import fry.oldschool.activity.MainActivity;
 import fry.oldschool.activity.TaskCreateActivity;
@@ -27,7 +31,7 @@ public class TaskFragment extends ListFragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_task, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_task, container, false);
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
 
@@ -42,6 +46,11 @@ public class TaskFragment extends ListFragment{
                     //lv.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
+                else if (ToDoList.ToDoLists.size() == 0){
+                    TextView text = new TextView(ctx);
+                    text.setText("No tasks found");
+
+                }
 
             }
         });
@@ -49,8 +58,17 @@ public class TaskFragment extends ListFragment{
 
         return rootView;
     }
-
-
+/*
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
+            Fragment taskFragment = new TaskFragment();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.detach(taskFragment).attach(taskFragment).commit();
+        }
+    }
+*/
     @Override
     public void onCreateOptionsMenu(
             Menu menu, MenuInflater inflater) {
@@ -63,7 +81,8 @@ public class TaskFragment extends ListFragment{
         switch (item.getItemId()){
             case R.id.action_add:
                 Intent intent = new Intent(ctx, TaskCreateActivity.class);
-                ctx.startActivity(intent);
+                //startActivityForResult(intent, 10001);
+                startActivity(intent);
                 return true;
             case R.id.action_settings:
                 return true;

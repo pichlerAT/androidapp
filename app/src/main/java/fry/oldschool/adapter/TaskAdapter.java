@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +63,10 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         final String headerText = item.name;
         header.setText(headerText);
+        if (position == 0)
+            header.setBackgroundColor(Color.rgb(20, 150, 20));
+        else
+            header.setBackgroundColor(Color.rgb(60, 60, 180));
 
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution

@@ -6,6 +6,7 @@
     <color name="colorSecondary">#EEE</color>
     <color name="colorBorder">#CCC</color>
     <color name="colorText">#000</color>
+    <color name="colorTextLight">#FFF</color>
     <color name="colorAccent">#F63</color>
 
 

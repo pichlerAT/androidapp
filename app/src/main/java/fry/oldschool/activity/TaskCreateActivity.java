@@ -1,5 +1,6 @@
 package fry.oldschool.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -58,6 +59,23 @@ public class TaskCreateActivity extends AppCompatActivity{
         adapter = new TaskCreateAdapter();
         pager = (ViewPager) findViewById(R.id.viewpager_task_id);
         pager.setAdapter(adapter);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_SETTLING)
+                    saveList();
+            }
+        });
 
         //Initialize the first view for viewpager, which is an empty task
         LayoutInflater inflater = getLayoutInflater();
@@ -125,40 +143,42 @@ public class TaskCreateActivity extends AppCompatActivity{
         if (position >= 0)
              tdl = ToDoList.ToDoLists.get(position);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
-        TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
-        int length = taskEntries.getChildCount();
+        if (!header.getText().toString().matches("")) {
+            TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
+            int length = taskEntries.getChildCount();
 
-        //When no task is found, then it creates a new one, otherwise the name of the task will be changed
-        if (tdl == null)
-            tdl = ToDoList.create(header.getText().toString(), length);
-        else {
-            if (length != tdl.length())
-                tdl.setLength(length);
-            tdl.name = header.getText().toString();
-        }
-
-        //In this loop task entries are created, or changed if they already exist
-        for (int i = 0; i < length; i++) {
-            View table_view = taskEntries.getChildAt(i);
-            if (table_view instanceof TableRow) {
-                TableRow row = (TableRow) table_view;
-
-                View view_checkbox = row.getChildAt(0);
-                View view_edittext = row.getChildAt(1);
-
-                CheckBox checkbox = (CheckBox) view_checkbox;
-                EditText edittext = (EditText) view_edittext;
-                String entry = edittext.getText().toString();
-                if (i >= tdl.length())
-                    tdl.addEntry(entry, checkbox.isChecked());
-                else
-                    tdl.setAtPosition(i, entry, checkbox.isChecked());
+            //When no task is found, then it creates a new one, otherwise the name of the task will be changed
+            if (tdl == null)
+                tdl = ToDoList.create(header.getText().toString(), length);
+            else {
+                if (length != tdl.length())
+                    tdl.setLength(length);
+                tdl.name = header.getText().toString();
             }
 
+            //In this loop task entries are created, or changed if they already exist
+            for (int i = 0; i < length; i++) {
+                View table_view = taskEntries.getChildAt(i);
+                if (table_view instanceof TableRow) {
+                    TableRow row = (TableRow) table_view;
+
+                    View view_checkbox = row.getChildAt(0);
+                    View view_edittext = row.getChildAt(1);
+
+                    CheckBox checkbox = (CheckBox) view_checkbox;
+                    EditText edittext = (EditText) view_edittext;
+                    String entry = edittext.getText().toString();
+                    if (i >= tdl.length())
+                        tdl.addEntry(entry, checkbox.isChecked());
+                    else
+                        tdl.setAtPosition(i, entry, checkbox.isChecked());
+                }
+
+            }
+            //Updates the task in the database and closes the activity
+            tdl.update();
         }
-        //Updates the task in the database and closes the activity
-        tdl.update();
-        finish();
+
     }
 
     //This method adds a new empty entry to the actual task
@@ -235,10 +255,12 @@ public class TaskCreateActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
+                finish();
                 return true;
             case R.id.action_done:
                 saveList();
+                //setResult(Activity.RESULT_OK);
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
