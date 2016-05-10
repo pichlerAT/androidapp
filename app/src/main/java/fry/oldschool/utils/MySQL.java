@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
@@ -15,12 +14,10 @@ import fry.oldschool.R;
 
 public abstract class MySQL extends AsyncTask<String,String,String> {
 
-    public static final String ADDRESS="http://188.23.54.134/Oldschool/";
+    public static final String ADDRESS="http://62.47.229.123/Oldschool/";
 
-    public static final int WAIT_FOR_CONNECTION_SLEEP = 2 * 60 * 1000;
-
-    public static int USER_ID = 9;
-    public static String USER_EMAIL = "pichler.edwin@rk.at";
+    public static int USER_ID = 8;
+    public static String USER_EMAIL = "stefan.fragner@rk.at";
     public static String USER_PASSWORD = "1234";
 
     protected static MySQLListener listener;
@@ -33,8 +30,8 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         MySQL.listener = listener;
     }
 
-    public static void synchronize() {
-        (new Synchronize()).execute();
+    public static void sync() {
+        (new ToDoList.Sync()).execute();
     }
 
     @Override
@@ -48,34 +45,13 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
     }
 
     protected void error(String errorMessage) {
+        switch(errorMessage) {
+            case "err_tg0":
+            case "err_teg0":
+                return;
+        }
         this.errorCode = errorMessage;
         errorDialog = true;
-    }
-
-    protected boolean waitForConnection() {
-        try {
-            while(!connected()) {
-
-                Thread.sleep(WAIT_FOR_CONNECTION_SLEEP);
-
-            }
-            System.out.println("---------- HAS CONNECTION !");
-            return true;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    protected boolean connected() {
-        try {
-            URL url = new URL(ADDRESS + "test_connection.php");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.connect();
-            return (HttpURLConnection.HTTP_OK == con.getResponseCode());
-        }catch (IOException ex) {
-            return false;
-        }
     }
 
     protected String connect(String address,String post) {
@@ -91,21 +67,15 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String line=br.readLine();
-            //br.close();
-            //con.disconnect();
+            br.close();
+            con.disconnect();
 
             if(line.substring(0,3).equals("suc")) {
                 return line.substring(3);
             }else {
-                System.out.println("---------"+line);
-                String line1;
-                while((line1=br.readLine()) != null) {
-                    System.out.println("---------"+line1);
-                }
                 error(line);
             }
-            br.close();
-            con.disconnect();
+
         }catch(IOException ex) {
             error("cannot connect to server");
             ex.printStackTrace();
@@ -150,29 +120,4 @@ public abstract class MySQL extends AsyncTask<String,String,String> {
         }
     }
 
-    protected static class Synchronize extends MySQL {
-
-        @Override
-        protected String doInBackground(String... args) {
-
-            if(!connected()) {
-                waitForConnection();
-            }
-
-            sync_all();
-
-            return "synchronize";
-        }
-
-        protected void sync_all() {
-            sync_tdl();
-        }
-
-        protected void sync_tdl() {
-            for(ToDoList tdl : ToDoList.ToDoLists) {
-                tdl.update();
-            }
-        }
-
-    }
 }

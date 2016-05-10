@@ -2,7 +2,6 @@ package fry.oldschool.activity;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,14 +23,13 @@ import fry.oldschool.fragment.TaskFragment;
 import fry.oldschool.fragment.TestFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
+import fry.oldschool.utils.ToDoList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Context ctx = this;
     public static FragmentManager fm;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +40,8 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ToDoList.load();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +60,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ToDoList.save_local();
     }
 
     @Override

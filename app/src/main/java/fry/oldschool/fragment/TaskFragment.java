@@ -35,7 +35,7 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
 
-        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.createToDoLists());
+        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
         lv.setAdapter(adapter);
 
         MySQL.setListener(new MySQLListener() {
@@ -54,7 +54,6 @@ public class TaskFragment extends ListFragment{
 
             }
         });
-        ToDoList.loadToDoLists();
 
         return rootView;
     }

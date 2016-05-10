@@ -7,9 +7,6 @@ import android.support.v7.app.AlertDialog;
 
 import fry.oldschool.R;
 
-/**
- * Created by Stefan on 28.04.2016.
- */
 public class App extends Application {
 
     private static Context mContext;

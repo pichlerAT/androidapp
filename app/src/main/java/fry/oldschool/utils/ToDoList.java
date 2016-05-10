@@ -1,6 +1,7 @@
 package fry.oldschool.utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -11,13 +12,14 @@ import fry.oldschool.R;
 
 public class ToDoList {
 
-    public static ArrayList<ToDoList> ToDoLists=new ArrayList<>();
+    public static ArrayList<ToDoList> ToDoLists;
 
+    public static ArrayList<ToDoList> deleted_ToDoLists;
     public static int[] deleted_entries;
 
     public int id;
 
-    //public int owner_id;
+    public int owner_id;
 
     public String name;
 
@@ -29,57 +31,54 @@ public class ToDoList {
 
     public String[] task;
 
+    public static void load() {
+        ToDoLists = new ArrayList<>();
+        deleted_ToDoLists = new ArrayList<>();
+        deleted_entries = new int[0];
+        load_local();
+        (new NetworkStateReciever.CheckInternetConnection()).execute();
+    }
+
+    public static void unload() {
+        save_local();
+        ToDoLists = null;
+        deleted_ToDoLists = null;
+        deleted_entries = null;
+    }
+
     public static ToDoList create(String name,int length) {
-        ToDoList tdl=new ToDoList(name,length);
+        ToDoList tdl=new ToDoList(0,MySQL.USER_ID,name,length);
         tdl.create();
         return tdl;
     }
 
-    public static  ArrayList<ToDoList> createToDoLists() {
-        ToDoLists = new  ArrayList<>();
-        return ToDoLists;
-    }
-
-    public static void unload() {
-
-    }
-
-    public static void loadToDoLists() {
-        MySQL con=new Load();
-        con.execute();
-    }
-
-    public static void local_save() {
+    public static void save_local() {
         try {
-            FileWriter fw=new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist)));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist))));
 
             if(deleted_entries.length>0) {
-                fw.write(deleted_entries[0]);
+                bw.write(deleted_entries[0]);
             }
             for(int i=1;i<deleted_entries.length;++i) {
-                fw.write(";"+deleted_entries[i]);
+                bw.write(";"+deleted_entries[i]);
             }
-            fw.write("%n");
 
             for(ToDoList tdl : ToDoLists) {
-                int entry_count=0;
+                bw.newLine();
+                bw.write(tdl.id+","+tdl.owner_id+","+tdl.name);
                 for(int i=0;i<tdl.length();++i) {
-                    fw.write(tdl.entry_id[i]+","+tdl.user_id[i]+","+tdl.task[i]+","+tdl.state[i]+";");
-                    if(tdl.entry_id[i] >= 0) ++entry_count;
+                    bw.write(";"+tdl.entry_id[i]+","+tdl.user_id[i]+","+tdl.task[i]+","+tdl.state[i]);
                 }
-                fw.write(String.format(tdl.id+","+tdl.name+","+entry_count+"%n"));
             }
 
-            fw.write("EOF");
-            fw.close();
+            bw.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static ArrayList<ToDoList> local_load() {
-        ArrayList<ToDoList> tdls=new ArrayList<>();
+    public static void load_local() {
         try {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist))));
 
@@ -93,24 +92,27 @@ public class ToDoList {
                 }
             }
 
-            while(!(line=br.readLine()).equals("EOF")) {
+            while((line=br.readLine()) != null) {
+                if(line.equals("")) continue;
+
                 String[] r=line.split(";");
-                String[] ri=r[r.length-1].split(",");
-                ToDoList tdl=new ToDoList(ri[1],Integer.parseInt(ri[0]),Integer.parseInt(ri[2]));
-                int index=0;
-                for(int i=0;i<r.length-1;++i) {
-                    ri=r[i].split(",");
-                    int entry_id = Integer.parseInt(ri[0]);
-                    if(entry_id < 0) {
-                        continue;
-                    }
-                    tdl.entry_id[index]=entry_id;
-                    tdl.user_id[index]=Integer.parseInt(ri[1]);
-                    tdl.task[index]=ri[2];
-                    tdl.state[index]=Byte.parseByte(ri[3]);
-                    ++index;
+                String[] ri=r[0].split(",");
+
+                int owner_id = Integer.parseInt(ri[1]);
+                if(owner_id < 0) {
+                    continue;
                 }
-                tdls.add(tdl);
+
+                ToDoList tdl=new ToDoList(Integer.parseInt(ri[0]),owner_id,ri[2],r.length-1);
+
+                for(int i=1;i<r.length;++i) {
+                    ri=r[i].split(",");
+                    tdl.entry_id[i-1]=Integer.parseInt(ri[0]);
+                    tdl.user_id[i-1]=Integer.parseInt(ri[1]);
+                    tdl.task[i-1]=ri[2];
+                    tdl.state[i-1]=Byte.parseByte(ri[3]);
+                }
+                ToDoLists.add(tdl);
             }
 
             br.close();
@@ -118,17 +120,17 @@ public class ToDoList {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return tdls;
     }
 
-    protected ToDoList(String name,int length) {
+    protected ToDoList(int id,int owner_id, String name, int length) {
+        this.id = id;
+        this.owner_id = owner_id;
         this.name = name;
         setLength(length);
     }
 
-    protected ToDoList(String name,int length,int id) {
-        this(name,length);
-        this.id = id;
+    protected ToDoList(int id, String name, int length) {
+        this(id,MySQL.USER_ID,name,length);
     }
 
     protected void removeFromArray(int index) {
@@ -172,12 +174,10 @@ public class ToDoList {
         entry_id=new int[s.length+1];
         user_id=new int[s.length+1];
         this.task=new String[s.length+1];
-        for(int i=0;i<s.length;++i) {
-            this.state[i]=s[i];
-            entry_id[i]=ei[i];
-            user_id[i]=ui[i];
-            this.task[i]=t[i];
-        }
+        System.arraycopy(s,0,this.state,0,s.length);
+        System.arraycopy(ei,0,entry_id,0,s.length);
+        System.arraycopy(ui,0,user_id,0,s.length);
+        System.arraycopy(t,0,this.task,0,s.length);
         this.state[s.length]=( state ? (byte)0 : (byte)1 );
         entry_id[s.length]=0;
         user_id[s.length]=MySQL.USER_ID;
@@ -200,19 +200,51 @@ public class ToDoList {
     }
 
     public void create() {
-        (new Connection()).execute("create");
+        ToDoLists.add(this);
+        System.out.print("--------------- tdl.create()");
+        if(NetworkStateReciever.hasInternetConnection) {
+            System.out.println(" - ONLINE");
+            (new Connection()).execute("create");
+        }else {
+            System.out.println(" - OFFLINE");
+        }
     }
 
     public void update() {
-        (new Connection()).execute("update");
+        System.out.print("--------------- tdl.update()");
+        if(NetworkStateReciever.hasInternetConnection) {
+            System.out.println(" - ONLINE");
+            (new Connection()).execute("update");
+        }else {
+            System.out.println(" - OFFLINE");
+        }
     }
 
     public void delete() {
-        (new Connection()).execute("delete");
+        ToDoLists.remove(this);
+        owner_id = -1;
+        System.out.print("--------------- tdl.delete()");
+        if(NetworkStateReciever.hasInternetConnection) {
+            System.out.println(" - ONLINE");
+            (new Connection()).execute("delete");
+        }else {
+            System.out.println(" - OFFLINE");
+        }
     }
 
     public void delete(int index) {
-        (new Connection()).execute("entry_delete",""+index);
+        int[] d=deleted_entries;
+        deleted_entries=new int[d.length+1];
+        System.arraycopy(d,0,deleted_entries,0,d.length);
+        deleted_entries[d.length]=entry_id[index];
+        removeFromArray(index);
+        System.out.print("--------------- tdl.delete(int)");
+        if(NetworkStateReciever.hasInternetConnection) {
+            System.out.println(" - ONLINE");
+            (new Connection()).execute("entry_delete",""+index);
+        }else {
+            System.out.println(" - OFFLINE");
+        }
     }
 
     protected class Connection extends MySQL {
@@ -225,7 +257,7 @@ public class ToDoList {
                 case "delete": mysql_delete(); break;
                 case "entry_create": mysql_entry_create(Integer.parseInt(args[1])); break;
                 case "entry_update": mysql_entry_update(Integer.parseInt(args[1])); break;
-                case "entry_delete": mysql_entry_delete(Integer.parseInt(args[1])); break;
+                case "entry_delete": mysql_entry_delete(args[1]); break;
                 default: error("Unknown Command: tdl:"+args[0]);
             }
             return "tdl_"+args[0];
@@ -239,12 +271,14 @@ public class ToDoList {
         }
 
         public void mysql_update() {
-            connect("todolist/update.php","&table_id="+id+"&name="+name);
+            if(id == 0) {
+                mysql_create();
+            }else {
+                connect("todolist/update.php", "&table_id=" + id + "&name=" + name);
+            }
             for(int i=0;i<entry_id.length;++i) {
                 if(entry_id[i]==0) {
                     mysql_entry_create(i);
-                }else if(state[i]==2) {
-                    mysql_entry_delete(i);
                 }else {
                     mysql_entry_update(i);
                 }
@@ -253,14 +287,12 @@ public class ToDoList {
 
         public void mysql_delete() {
             connect("todolist/delete.php", "&table_id=" + id);
-            if(!errorDialog) ToDoLists.remove(ToDoList.this);
         }
 
         public void mysql_entry_create(int index) {
             String re = connect("todolist/entry/create.php","&table_id="+id+"&description="+task[index]+"&state="+state[index]);
             if(re != null) {
                 entry_id[index] = Integer.parseInt(re);
-                user_id[index] = USER_ID;
             }
         }
 
@@ -268,9 +300,35 @@ public class ToDoList {
             connect("todolist/entry/update.php","&entry_id=" + entry_id[index] + "&description=" + task[index] + "&state=" + state[index]);
         }
 
-        public void mysql_entry_delete(int index) {
-            connect("todolist/entry/delete.php", "&entry_id=" + entry_id[index]);
-            if(!errorDialog) ToDoList.this.removeFromArray(index);
+        public void mysql_entry_delete(String entry_id) {
+            connect("todolist/entry/delete.php", "&entry_id=" + entry_id);
+        }
+    }
+
+    protected static class Sync extends MySQL {
+
+        @Override
+        protected String doInBackground(String... params) {
+            for(ToDoList tdl : ToDoLists) {
+                tdl.update();
+            }
+            for(ToDoList tdl : deleted_ToDoLists) {
+                mysql_delete(tdl.id);
+            }
+            deleted_ToDoLists = new ArrayList<>();
+            for(int entry_id : deleted_entries) {
+                mysql_entry_delete(entry_id);
+            }
+            deleted_entries = new int[0];
+            return "sync_tdl";
+        }
+
+        public void mysql_delete(int table_id) {
+            connect("todolist/delete.php", "&table_id=" + table_id);
+        }
+
+        public void mysql_entry_delete(int entry_id) {
+            connect("todolist/entry/delete.php", "&entry_id=" + entry_id);
         }
     }
 
@@ -295,12 +353,12 @@ public class ToDoList {
                 String entries=connect("todolist/entry/get.php","&table_id=" + tdl_id);
 
                 if(entries == null) {
-                    ToDoLists.add(new ToDoList(rli[1],0,tdl_id));
+                    ToDoLists.add(new ToDoList(tdl_id,rli[1],0));
                     continue;
                 }
 
                 String[] re=entries.split(";");
-                ToDoList tdl=new ToDoList(rli[1],re.length,tdl_id);
+                ToDoList tdl=new ToDoList(tdl_id,rli[1],re.length);
 
                 for(int j=0;j<re.length;++j) {
                     String[] rei=re[j].split(",");
