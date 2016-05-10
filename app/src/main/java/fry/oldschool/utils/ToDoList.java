@@ -52,6 +52,15 @@ public class ToDoList {
         return tdl;
     }
 
+    public static ToDoList findById(int id) {
+        for(ToDoList tdl : ToDoLists) {
+            if(tdl.id == id) {
+                return tdl;
+            }
+        }
+        return null;
+    }
+
     public static void save_local() {
         try {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_todolist))));
@@ -312,6 +321,7 @@ public class ToDoList {
             for(ToDoList tdl : ToDoLists) {
                 tdl.update();
             }
+            mysql_load();
             for(ToDoList tdl : deleted_ToDoLists) {
                 mysql_delete(tdl.id);
             }
@@ -329,6 +339,46 @@ public class ToDoList {
 
         public void mysql_entry_delete(int entry_id) {
             connect("todolist/entry/delete.php", "&entry_id=" + entry_id);
+        }
+
+        public void mysql_load() {
+            String lists=connect("todolist/get.php","");
+
+            if(lists == null) {
+                return;
+            }
+
+            String[] sl=lists.split(";");
+            for(String rl : sl) {
+                String[] rli=rl.split(",");
+
+                int tdl_id=Integer.parseInt(rli[0]);
+
+                if(findById(tdl_id) != null) {
+                    return;
+                }
+
+                String entries=connect("todolist/entry/get.php","&table_id=" + tdl_id);
+
+                if(entries == null) {
+                    ToDoLists.add(new ToDoList(tdl_id,rli[1],0));
+                    continue;
+                }
+
+                String[] re=entries.split(";");
+                ToDoList tdl=new ToDoList(tdl_id,rli[1],re.length);
+
+                for(int j=0;j<re.length;++j) {
+                    String[] rei=re[j].split(",");
+
+                    tdl.entry_id[j]=Integer.parseInt(rei[0]);
+                    tdl.user_id[j]=Integer.parseInt(rei[1]);
+                    tdl.task[j]=rei[2];
+                    tdl.state[j]=Byte.parseByte(rei[3]);
+                }
+
+                ToDoLists.add(tdl);
+            }
         }
     }
 
