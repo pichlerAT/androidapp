@@ -1,8 +1,5 @@
 package fry.oldschool.fragment;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -16,14 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import fry.oldschool.activity.MainActivity;
 import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
-import fry.oldschool.utils.MySQL;
 import fry.oldschool.utils.MySQLListener;
-import fry.oldschool.utils.ToDoList;
+import fry.oldschool.utils.TaskList;
 
 public class TaskFragment extends ListFragment{
 
@@ -35,10 +30,11 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
 
-        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
+        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, TaskList.TaskLists);
         lv.setAdapter(adapter);
 
-        MySQL.setListener(new MySQLListener() {
+        //MySQL.setListener(new MySQLListener() {
+        App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished(String arg) {
                 //TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
@@ -46,7 +42,7 @@ public class TaskFragment extends ListFragment{
                     //lv.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
-                else if (ToDoList.ToDoLists.size() == 0){
+                else if (TaskList.TaskLists.size() == 0){
                     TextView text = new TextView(ctx);
                     text.setText("No tasks found");
 

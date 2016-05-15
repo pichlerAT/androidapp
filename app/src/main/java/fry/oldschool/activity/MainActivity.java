@@ -23,7 +23,8 @@ import fry.oldschool.fragment.TaskFragment;
 import fry.oldschool.fragment.TestFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.ToDoList;
+import fry.oldschool.utils.NetworkStateReciever;
+import fry.oldschool.utils.TaskList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -41,7 +42,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ToDoList.load();
+        NetworkStateReciever.checkInternet();
+        App.conMan.load();
+        TaskList.load();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +68,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
-        ToDoList.save_local();
+        App.conMan.save();
+        TaskList.save_local();
     }
 
     @Override

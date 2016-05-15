@@ -1,6 +1,5 @@
 package fry.oldschool.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,7 +21,8 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
-import fry.oldschool.utils.ToDoList;
+import fry.oldschool.utils.TaskList;
+import fry.oldschool.utils.TaskListEntry;
 
 /**
  * Created by Edwin Pichler on 04.05.2016.
@@ -101,24 +101,25 @@ public class TaskCreateActivity extends AppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(ToDoList tdl : ToDoList.ToDoLists){
+        for(TaskList tdl : TaskList.TaskLists){
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
             taskName.setText(tdl.name);
             layouts.add(taskView);
 
+            /*
             byte[] checked = tdl.state;
             String[] entries = tdl.task;
+            */
 
-            for(int i=0; i<checked.length; i++){
+            for(TaskListEntry ent : tdl.entry){
                 entryRow = new TableRow(ctx);
                 entryState = new CheckBox(ctx);
                 entryName = createEntryName();
-                entryName.setText(entries[i]);
+                entryName.setText(ent.description);
                 entryListeners(taskEntries, entryName, entryRow);
-                if (checked[i] == 0)
-                    entryState.setChecked(true);
+                entryState.setChecked(ent.done());
 
                 entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
                 entryRow.addView(entryState);
@@ -127,7 +128,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             }
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == ToDoList.ToDoLists.get(index)){
+            if (args != null && tdl == TaskList.TaskLists.get(index)){
                 setCurrentPage(taskView);
             }
         }
@@ -139,9 +140,9 @@ public class TaskCreateActivity extends AppCompatActivity{
         //Get data from the current displayed view
         int position = adapter.getItemPosition(getCurrentPage()) - 1;
         RelativeLayout currentView = (RelativeLayout) getCurrentPage();
-        ToDoList tdl = null;
+        TaskList tdl = null;
         if (position >= 0)
-             tdl = ToDoList.ToDoLists.get(position);
+             tdl = TaskList.TaskLists.get(position);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
         if (!header.getText().toString().matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
@@ -149,11 +150,13 @@ public class TaskCreateActivity extends AppCompatActivity{
 
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (tdl == null)
-                tdl = ToDoList.create(header.getText().toString(), length);
+                tdl = TaskList.create(header.getText().toString(), length);
             else {
+                /*
                 if (length != tdl.length())
                     tdl.setLength(length);
                 tdl.name = header.getText().toString();
+                */
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -168,15 +171,15 @@ public class TaskCreateActivity extends AppCompatActivity{
                     CheckBox checkbox = (CheckBox) view_checkbox;
                     EditText edittext = (EditText) view_edittext;
                     String entry = edittext.getText().toString();
-                    if (i >= tdl.length())
+                    //if (i >= tdl.length())
                         tdl.addEntry(entry, checkbox.isChecked());
-                    else
-                        tdl.setAtPosition(i, entry, checkbox.isChecked());
+                    //else
+                    //    tdl.setAtPosition(i, entry, checkbox.isChecked());
                 }
 
             }
             //Updates the task in the database and closes the activity
-            tdl.update();
+            //tdl.update();
         }
 
     }

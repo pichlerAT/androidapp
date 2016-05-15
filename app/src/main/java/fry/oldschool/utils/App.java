@@ -9,6 +9,8 @@ import fry.oldschool.R;
 
 public class App extends Application {
 
+    public static ConnectionManager conMan = new ConnectionManager();
+
     private static Context mContext;
 
     public static Context getContext() {
@@ -17,6 +19,10 @@ public class App extends Application {
 
     public static void setContext(Context mContext) {
         App.mContext = mContext;
+    }
+
+    public static void setMySQLListener(MySQLListener mysql_Listener) {
+        conMan.setMySQLListener(mysql_Listener);
     }
 
     public static void errorDialog(String title,String message) {

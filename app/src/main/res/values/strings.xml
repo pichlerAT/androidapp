@@ -52,7 +52,8 @@
 
     <!--             local files                -->
 
-    <string name="file_todolist">tdl.txt</string>
+    <string name="file_tasklist">tasklist.txt</string>
+    <string name="file_sync">sync.txt</string>
 
     <!--             MySQL.class                -->
 

@@ -15,6 +15,8 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
     protected static boolean hasInternetConnection = false;
 
+    protected static boolean checkingForInternet = false;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         // network connectivity change
@@ -22,7 +24,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
             NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
                 // network ni.getTypeName() connected
-                (new CheckInternetConnection()).execute();
+                checkInternet();
                 return;
             }
         }
@@ -32,16 +34,28 @@ public class NetworkStateReciever extends BroadcastReceiver {
         hasInternetConnection = false;
     }
 
-    public static class CheckInternetConnection extends AsyncTask<String,String,String> {
+    public static void checkInternet() {
+        if(!hasInternetConnection && !checkingForInternet) {
+            checkingForInternet = true;
+            (new CheckInternetConnection()).execute();
+            System.out.println("----- NetworkStateReciever#checkInternet");
+        }
+    }
+
+    protected static class CheckInternetConnection extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... params) {
-            boolean internet = hasActiveInternetConnection();
-            if(internet) {
-                MySQL.sync();
+            hasInternetConnection = hasActiveInternetConnection();
+            if(hasInternetConnection) {
+                App.conMan.sync();
             }
-            hasInternetConnection = internet;
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            checkingForInternet = false;
         }
 
         protected boolean hasActiveInternetConnection() {

@@ -18,22 +18,22 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.activity.TaskCreateActivity;
-import fry.oldschool.utils.ToDoList;
+import fry.oldschool.utils.TaskList;
 
-public class TaskAdapter extends ArrayAdapter<ToDoList>{
+public class TaskAdapter extends ArrayAdapter<TaskList>{
 
-    public ArrayList<ToDoList> list;
+    public ArrayList<TaskList> list;
     protected Context ctx;
     protected FragmentManager fm;
 
-    public TaskAdapter(Context context, int resourceID, ArrayList<ToDoList> list){
+    public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
         super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
     }
 
     @Override
-    public ToDoList getItem(int position){
+    public TaskList getItem(int position){
         return list.get(position);
     }
 
@@ -58,7 +58,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
             res = convertView;
         }
 
-        final ToDoList item = getItem(position);
+        final TaskList item = getItem(position);
 
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         final String headerText = item.name;
@@ -72,7 +72,7 @@ public class TaskAdapter extends ArrayAdapter<ToDoList>{
         entries.removeAllViews(); //Change later, because this isn't the best solution
         for (int i=0; i<item.length(); i++){
             CheckBox cb = new CheckBox(ctx);
-            String cbText = item.task[i];
+            String cbText = item.getTaskName(i);
             cb.setText(cbText);
             cb.setChecked(item.done(i));
             entries.addView(cb);
