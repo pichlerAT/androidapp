@@ -43,7 +43,7 @@ public class ContactList extends MySQL {
             int id=Integer.parseInt(r[0]);
             Contact cont=getContact(id);
             if(cont == null) {
-                cont=new Contact(r[1],r[2]);
+                cont=new Contact(id,r[1],r[2]);
                 cg0.add(cont);
             }else {
                 cont.name = r[2];

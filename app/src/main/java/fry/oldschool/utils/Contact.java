@@ -2,20 +2,16 @@ package fry.oldschool.utils;
 
 public class Contact extends MySQL {
 
+    protected int id;
+
     public String email;
 
     public String name;
 
-    protected int id;
-
-    protected Contact(String email,String name) {
+    protected Contact(int id,String email,String name) {
+        this.id = id;
         this.email = email;
         this.name = name;
-    }
-
-    protected Contact(int id,String email,String name) {
-        this(email,name);
-        this.id = id;
     }
 
     @Override
