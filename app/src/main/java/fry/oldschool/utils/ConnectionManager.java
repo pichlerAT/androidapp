@@ -15,7 +15,7 @@ import fry.oldschool.R;
 
 public class ConnectionManager {
 
-    protected ArrayList<Entry> entry = new ArrayList<>();
+    protected ArrayList<MySQL> entry = new ArrayList<>();
 
     protected Sync syncTask = new Sync();
 
@@ -36,7 +36,7 @@ public class ConnectionManager {
 
     public void load() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(App.getContext().getFilesDir(), App.getContext().getResources().getString(R.string.file_sync))));
+            BufferedReader br = new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
             String line;
             int c=0;
             while((line=br.readLine()) != null) {
@@ -67,8 +67,8 @@ public class ConnectionManager {
     public void save() {
         int c=0;
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.getContext().getFilesDir(), App.getContext().getResources().getString(R.string.file_sync))));
-            Iterator<Entry> it = entry.iterator();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
+            Iterator<MySQL> it = entry.iterator();
 
             if (it.hasNext()) {
                 bw.write(it.next().getString());
@@ -99,19 +99,13 @@ public class ConnectionManager {
         return "update";
     }
 
-    protected void add(Entry entry) {
-        System.out.println("----- ConnectionManager#add1 "+addText(entry));
+    protected void add(MySQL entry) {
+        System.out.println("----- ConnectionManager#add1");
         this.entry.add(entry);
         sync();
     }
-/*
-    protected void add(ArrayList<Entry> entry) {
-        System.out.println("----- ConnectionManager#add2");
-        this.entry.addAll(entry);
-        sync();
-    }
-*/
-    protected void remove(Entry entry) {
+
+    protected void remove(MySQL entry) {
         System.out.println("----- ConnectionManager#remove");
         this.entry.remove(entry);
     }
@@ -120,8 +114,12 @@ public class ConnectionManager {
 
         @Override
         protected String doInBackground(String... params) {
+            System.out.println("----- ConnectionManager.Sync#doInBackground: Sync in progress");
+            if(App.PERFORM_UPDATE) {
+                App.PERFORM_UPDATE = false;
+                App.conLis.mysql_update();
+            }
             for(int i=0 ; i<entry.size() ; ) {
-                System.out.println("----- ConnectionManager.Sync#doInBackground: Sync in progress");
                 if(entry.get(i).mysql_update()) {
                     ++i;
                 }
@@ -132,7 +130,7 @@ public class ConnectionManager {
 
         @Override
         protected void onPostExecute(String file_url) {
-            mysql_listener.mysql_finished("");
+            if(mysql_listener!=null) mysql_listener.mysql_finished("");
             System.out.println("----- ConnectionManager.Sync#onPostExecute");
         }
     }

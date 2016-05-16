@@ -22,7 +22,7 @@ import fry.oldschool.utils.TaskList;
 
 public class TaskFragment extends ListFragment{
 
-    Context ctx = App.getContext();
+    protected Context ctx = App.mContext;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

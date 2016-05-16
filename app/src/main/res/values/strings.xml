@@ -52,8 +52,9 @@
 
     <!--             local files                -->
 
-    <string name="file_tasklist">tasklist.txt</string>
+    <string name="file_settings">settings.txt</string>
     <string name="file_sync">sync.txt</string>
+    <string name="file_tasklist">tasklist.txt</string>
 
     <!--             MySQL.class                -->
 

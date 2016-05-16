@@ -117,18 +117,18 @@ public class Date {
 
     public String getMonth(int month) {
         switch(month) {
-            case 1: return App.getContext().getResources().getString(R.string.month_jan);
-            case 2: return App.getContext().getResources().getString(R.string.month_feb);
-            case 3: return App.getContext().getResources().getString(R.string.month_mar);
-            case 4: return App.getContext().getResources().getString(R.string.month_apr);
-            case 5: return App.getContext().getResources().getString(R.string.month_may);
-            case 6: return App.getContext().getResources().getString(R.string.month_jun);
-            case 7: return App.getContext().getResources().getString(R.string.month_jul);
-            case 8: return App.getContext().getResources().getString(R.string.month_aug);
-            case 9: return App.getContext().getResources().getString(R.string.month_sep);
-            case 10: return App.getContext().getResources().getString(R.string.month_oct);
-            case 11: return App.getContext().getResources().getString(R.string.month_nov);
-            case 12: return App.getContext().getResources().getString(R.string.month_dec);
+            case 1: return App.mContext.getResources().getString(R.string.month_jan);
+            case 2: return App.mContext.getResources().getString(R.string.month_feb);
+            case 3: return App.mContext.getResources().getString(R.string.month_mar);
+            case 4: return App.mContext.getResources().getString(R.string.month_apr);
+            case 5: return App.mContext.getResources().getString(R.string.month_may);
+            case 6: return App.mContext.getResources().getString(R.string.month_jun);
+            case 7: return App.mContext.getResources().getString(R.string.month_jul);
+            case 8: return App.mContext.getResources().getString(R.string.month_aug);
+            case 9: return App.mContext.getResources().getString(R.string.month_sep);
+            case 10: return App.mContext.getResources().getString(R.string.month_oct);
+            case 11: return App.mContext.getResources().getString(R.string.month_nov);
+            case 12: return App.mContext.getResources().getString(R.string.month_dec);
             default: return "";
         }
     }
@@ -139,13 +139,13 @@ public class Date {
 
     public String getWeekday(int weekday) {
         switch(weekday) {
-            case 0: return App.getContext().getResources().getString(R.string.weekday_mon);
-            case 1: return App.getContext().getResources().getString(R.string.weekday_tue);
-            case 2: return App.getContext().getResources().getString(R.string.weekday_wed);
-            case 3: return App.getContext().getResources().getString(R.string.weekday_thu);
-            case 4: return App.getContext().getResources().getString(R.string.weekday_fri);
-            case 5: return App.getContext().getResources().getString(R.string.weekday_sat);
-            case 6: return App.getContext().getResources().getString(R.string.weekday_sun);
+            case 0: return App.mContext.getResources().getString(R.string.weekday_mon);
+            case 1: return App.mContext.getResources().getString(R.string.weekday_tue);
+            case 2: return App.mContext.getResources().getString(R.string.weekday_wed);
+            case 3: return App.mContext.getResources().getString(R.string.weekday_thu);
+            case 4: return App.mContext.getResources().getString(R.string.weekday_fri);
+            case 5: return App.mContext.getResources().getString(R.string.weekday_sat);
+            case 6: return App.mContext.getResources().getString(R.string.weekday_sun);
             default: return "";
         }
     }

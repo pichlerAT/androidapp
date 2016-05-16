@@ -44,40 +44,9 @@ public class TaskList extends Entry {
         return null;
     }
 
-    public static void save_local() {
-        try {
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_tasklist))));
-
-            Iterator<TaskList> it = TaskLists.iterator();
-            TaskList tdl;
-
-            if(it.hasNext()) {
-                tdl = it.next();
-                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
-                for(TaskListEntry ent : tdl.entry) {
-                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
-                }
-            }
-
-            while(it.hasNext()) {
-                tdl = it.next();
-                bw.newLine();
-                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
-                for(TaskListEntry ent : tdl.entry) {
-                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
-                }
-            }
-
-            bw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void load_local() {
         try {
-            BufferedReader br=new BufferedReader(new FileReader(new File(App.getContext().getFilesDir(),App.getContext().getResources().getString(R.string.file_tasklist))));
+            BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
 
             String line;
 
@@ -100,6 +69,37 @@ public class TaskList extends Entry {
             }
 
             br.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void save_local() {
+        try {
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
+
+            Iterator<TaskList> it = TaskLists.iterator();
+            TaskList tdl;
+
+            if(it.hasNext()) {
+                tdl = it.next();
+                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
+                for(TaskListEntry ent : tdl.entry) {
+                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
+                }
+            }
+
+            while(it.hasNext()) {
+                tdl = it.next();
+                bw.newLine();
+                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
+                for(TaskListEntry ent : tdl.entry) {
+                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
+                }
+            }
+
+            bw.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -188,131 +188,5 @@ public class TaskList extends Entry {
         entry.get(index).delete();
         entry.remove(index);
     }
-/*
-    protected class Connection extends MySQL {
 
-        @Override
-        protected String doInBackground(String... args) {
-            switch(args[0]) {
-                case "create": mysql_create(); break;
-                case "update": mysql_update(); break;
-                case "delete": mysql_delete(); break;
-                case "entry_create": mysql_entry_create(Integer.parseInt(args[1])); break;
-                case "entry_update": mysql_entry_update(Integer.parseInt(args[1])); break;
-                case "entry_delete": mysql_entry_delete(args[1]); break;
-                default: error("Unknown Command: tdl:"+args[0]);
-            }
-            return "tdl_"+args[0];
-        }
-
-        public void mysql_create() {
-            String re = connect("todolist/create.php", "&name=" + name);
-            if (re != null) {
-                id = Integer.parseInt(re);
-            }
-        }
-
-        public void mysql_update() {
-            if(id == 0) {
-                mysql_create();
-            }else {
-                connect("todolist/update.php", "&table_id=" + id + "&name=" + name);
-            }
-            for(int i=0;i<entry_id.length;++i) {
-                if(entry_id[i]==0) {
-                    mysql_entry_create(i);
-                }else {
-                    mysql_entry_update(i);
-                }
-            }
-        }
-
-        public void mysql_delete() {
-            connect("todolist/delete.php", "&table_id=" + id);
-        }
-
-        public void mysql_entry_create(int index) {
-            String re = connect("todolist/entry/create.php","&table_id="+id+"&description="+task[index]+"&state="+state[index]);
-            if(re != null) {
-                entry_id[index] = Integer.parseInt(re);
-            }
-        }
-
-        public void mysql_entry_update(int index) {
-            connect("todolist/entry/update.php","&entry_id=" + entry_id[index] + "&description=" + task[index] + "&state=" + state[index]);
-        }
-
-        public void mysql_entry_delete(String entry_id) {
-            connect("todolist/entry/delete.php", "&entry_id=" + entry_id);
-        }
-    }
-
-    protected static class Sync extends MySQL {
-
-        @Override
-        protected String doInBackground(String... params) {
-            for(TaskList tdl : TaskLists) {
-                tdl.update();
-            }
-            mysql_load();
-            for(TaskList tdl : deleted_TaskLists) {
-                mysql_delete(tdl.id);
-            }
-            deleted_TaskLists = new ArrayList<>();
-            for(int entry_id : deleted_entries) {
-                mysql_entry_delete(entry_id);
-            }
-            deleted_entries = new int[0];
-            return "sync_tdl";
-        }
-
-        public void mysql_delete(int table_id) {
-            connect("todolist/delete.php", "&table_id=" + table_id);
-        }
-
-        public void mysql_entry_delete(int entry_id) {
-            connect("todolist/entry/delete.php", "&entry_id=" + entry_id);
-        }
-
-        public void mysql_load() {
-            String lists=connect("todolist/get.php","");
-
-            if(lists == null) {
-                return;
-            }
-
-            String[] sl=lists.split(";");
-            for(String rl : sl) {
-                String[] rli=rl.split(",");
-
-                int tdl_id=Integer.parseInt(rli[0]);
-
-                if(findById(tdl_id) != null) {
-                    return;
-                }
-
-                String entries=connect("todolist/entry/get.php","&table_id=" + tdl_id);
-
-                if(entries == null) {
-                    TaskLists.add(new TaskList(tdl_id,rli[1],0));
-                    continue;
-                }
-
-                String[] re=entries.split(";");
-                TaskList tdl=new TaskList(tdl_id,rli[1],re.length);
-
-                for(int j=0;j<re.length;++j) {
-                    String[] rei=re[j].split(",");
-
-                    tdl.entry_id[j]=Integer.parseInt(rei[0]);
-                    tdl.user_id[j]=Integer.parseInt(rei[1]);
-                    tdl.task[j]=rei[2];
-                    tdl.state[j]=Byte.parseByte(rei[3]);
-                }
-
-                TaskLists.add(tdl);
-            }
-        }
-    }
-    */
 }

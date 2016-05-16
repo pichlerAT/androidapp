@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
+        App.save_settings();
         App.conMan.save();
         TaskList.save_local();
     }
