@@ -16,11 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import fry.oldschool.R;
-import fry.oldschool.fragment.AccountingFragment;
-import fry.oldschool.fragment.FriendsFragment;
-import fry.oldschool.fragment.LogbookFragment;
+import fry.oldschool.fragment.ContactFragment;
 import fry.oldschool.fragment.TaskFragment;
-import fry.oldschool.fragment.TestFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.NetworkStateReciever;
@@ -113,19 +110,13 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_timetable) {
             fm.beginTransaction().replace(R.id.frame_fragment_main, new TimetableFragment()).commit();
-        } else if (id == R.id.nav_task) {
+        } else if (id == R.id.nav_tasks) {
             fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskFragment()).commit();
-        } else if (id == R.id.nav_logbook) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new LogbookFragment()).commit();
-        } else if (id == R.id.nav_accounting) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new AccountingFragment()).commit();
-        } else if (id == R.id.nav_friends) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new FriendsFragment()).commit();
-        } else if (id == R.id.nav_test) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new TestFragment()).commit();
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_contacts) {
+            fm.beginTransaction().replace(R.id.frame_fragment_main, new ContactFragment()).commit();
+        } else if (id == R.id.nav_info) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_settings) {
 
         }
 

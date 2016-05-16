@@ -4,40 +4,28 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_timetable"
-            android:icon="@android:drawable/ic_menu_my_calendar"
-            android:title="Timetable" />
+            android:icon="@drawable/ic_timetable"
+            android:title="@string/timetable" />
         <item
-            android:id="@+id/nav_task"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Tasks" />
+            android:id="@+id/nav_tasks"
+            android:icon="@drawable/ic_task"
+            android:title="@string/tasks" />
         <item
-            android:id="@+id/nav_logbook"
-            android:icon="@android:drawable/ic_menu_more"
-            android:title="Logbook" />
-        <item
-            android:id="@+id/nav_accounting"
-            android:icon="@android:drawable/ic_menu_edit"
-            android:title="Accounting" />
-        <item
-            android:id="@+id/nav_friends"
-            android:icon="@android:drawable/ic_menu_myplaces"
-            android:title="Friendslist" />
-
-        <item
-            android:id="@+id/nav_test"
-            android:title="Test" />
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_contacts"
+            android:title="@string/contacts" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Other">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/nav_info"
+                android:icon="@drawable/ic_info"
+                android:title="@string/information" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/action_settings" />
         </menu>
     </item>
 

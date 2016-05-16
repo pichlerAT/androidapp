@@ -1,6 +1,5 @@
 package fry.oldschool.adapter;
 
-import android.app.FragmentManager;
 import android.content.Context;
 
 import android.content.Intent;
@@ -22,9 +21,8 @@ import fry.oldschool.utils.TaskList;
 
 public class TaskAdapter extends ArrayAdapter<TaskList>{
 
-    public ArrayList<TaskList> list;
+    public ArrayList<TaskList> list = null;
     protected Context ctx;
-    protected FragmentManager fm;
 
     public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
         super(context, resourceID, list);
@@ -38,7 +36,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
     }
 
     @Override
-    public int getCount() {
+    public int getCount(){
         return list.size();
     }
 

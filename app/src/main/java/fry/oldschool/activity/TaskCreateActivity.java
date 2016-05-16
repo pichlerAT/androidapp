@@ -34,6 +34,7 @@ public class TaskCreateActivity extends AppCompatActivity{
 
     protected Context ctx = this;
     protected ArrayList<RelativeLayout> layouts;
+    protected ArrayList<Integer> index_list = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +88,8 @@ public class TaskCreateActivity extends AppCompatActivity{
         //Add an empty entry for the empty task
         TableRow entryRow = new TableRow(ctx);
         entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        entryRow.setTag(1);
+        index_list.add(1);
         CheckBox entryState = new CheckBox(ctx);
         EditText entryName = createEntryName();
         entryRow.addView(entryState);
@@ -112,7 +115,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             byte[] checked = tdl.state;
             String[] entries = tdl.task;
             */
-
+            int count = 1;
             for(TaskListEntry ent : tdl.entry){
                 entryRow = new TableRow(ctx);
                 entryState = new CheckBox(ctx);
@@ -122,9 +125,12 @@ public class TaskCreateActivity extends AppCompatActivity{
                 entryState.setChecked(ent.done());
 
                 entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                entryRow.setTag(count);
                 entryRow.addView(entryState);
                 entryRow.addView(entryName);
                 taskEntries.addView(entryRow);
+                index_list.add(count);
+                count++;
             }
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
@@ -192,13 +198,18 @@ public class TaskCreateActivity extends AppCompatActivity{
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     TableRow entryRow = new TableRow(ctx);
                     entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                    int newPos = index_list.indexOf((Integer) curRow.getTag()) + 1;
+
+                    int newID = index_list.size() + 1;
+                    entryRow.setTag(newID);
+                    index_list.add(newPos, newID);
 
                     CheckBox entryState = new CheckBox(ctx);
                     EditText entryName = createEntryName();
 
                     entryRow.addView(entryState);
                     entryRow.addView(entryName);
-                    taskEntries.addView(entryRow);
+                    taskEntries.addView(entryRow, newPos);
 
                     //Adds a new listener to the new created entry
                     entryListeners(taskEntries, entryName, entryRow);
@@ -206,8 +217,17 @@ public class TaskCreateActivity extends AppCompatActivity{
                 }
 
                 else if(keyCode == KeyEvent.KEYCODE_DEL){
-                    if (entry.getText().toString().matches(""))
+                    if (entry.getText().toString().matches("")) {
+                        int curIndex = index_list.indexOf(curRow.getTag());
                         taskEntries.removeView(curRow);
+                        index_list.remove(curIndex);
+
+                        TableRow aboveRow = (TableRow) taskEntries.getChildAt(curIndex - 1);
+                        EditText aboveText = (EditText) aboveRow.getChildAt(1);
+                        aboveText.setFocusableInTouchMode(true);
+                        aboveText.requestFocus();
+                    }
+
                 }
                 return false;
             }

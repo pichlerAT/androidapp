@@ -14,13 +14,29 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="done">Done</string>
+    <string name="search">Search</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="information">Information</string>
 
-    <!--        Fragment task / create         -->
+    <!--              Timetable                -->
+
+    <string name="timetable">Timetable</string>
+
+    <!--                Task                   -->
 
     <string name="todo_list">To-do list</string>
     <string name="task">Task</string>
+    <string name="tasks">Tasks</string>
 
-    <!--             Time.class                -->
+    <!--             Contactlist               -->
+
+    <string name="contacts">Contacts</string>
+    <string name="contact_request">Contact request</string>
+    <string name="new_group">New group</string>
+    <string name="assign_to_group">Assign to group</string>
+
+    <!--              Time.class               -->
 
     <string name="time_am">AM</string>
     <string name="time_pm">PM</string>

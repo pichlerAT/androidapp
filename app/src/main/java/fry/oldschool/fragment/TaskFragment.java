@@ -17,6 +17,8 @@ import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
+import fry.oldschool.utils.ConnectionManager;
+import fry.oldschool.utils.MySQL;
 import fry.oldschool.utils.MySQLListener;
 import fry.oldschool.utils.TaskList;
 
@@ -28,7 +30,7 @@ public class TaskFragment extends ListFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_task, container, false);
         setHasOptionsMenu(true);
-        final ListView lv = (ListView) rootView.findViewById(R.id.listview_task_id);
+        final ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
         final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, TaskList.TaskLists);
         lv.setAdapter(adapter);
@@ -37,9 +39,7 @@ public class TaskFragment extends ListFragment{
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished(String arg) {
-                //TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, ToDoList.ToDoLists);
                 if (arg.equals("tdl_load") || arg.equals("tdl_delete") || arg.equals("error")){
-                    //lv.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                 }
                 else if (TaskList.TaskLists.size() == 0){
@@ -53,20 +53,15 @@ public class TaskFragment extends ListFragment{
 
         return rootView;
     }
-/*
+
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if ((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
-            Fragment taskFragment = new TaskFragment();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.detach(taskFragment).attach(taskFragment).commit();
-        }
+    public void onDestroy() {
+        TaskList.unload();
+        super.onDestroy();
     }
-*/
+
     @Override
-    public void onCreateOptionsMenu(
-            Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.task_menu, menu);
     }
