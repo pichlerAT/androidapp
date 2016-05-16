@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class ContactList extends MySQL {
 
-    protected ArrayList<ContactGroup> groups=new ArrayList<>();
+    public ArrayList<ContactGroup> groups=new ArrayList<>();
 
     protected ContactList(String... splitLine) {
         ContactGroup cg0=new ContactGroup("All Contacts");
@@ -28,7 +28,7 @@ public class ContactList extends MySQL {
 
     @Override
     protected boolean mysql_update() {
-        String resp=connect("get_contacts.php","");
+        String resp=connect("contact/get.php","");
         if(resp!=null && resp.length()>0) {
             updateContacts(resp.substring(1).split(";"));
             return true;
@@ -57,14 +57,25 @@ public class ContactList extends MySQL {
 
     protected Contact getContact(int id) {
         for(Contact cont : groups.get(0).contacts) {
-            if(cont.id==id) {
+            if(cont.id == id) {
                 return cont;
             }
         }
         return null;
     }
 
-     public ContactGroup getContactGroup(int index) {
-         return groups.get(index);
-     }
+    public ContactGroup getContactGroup(int index) {
+        return groups.get(index);
+    }
+
+    public void deleteContact(Contact cont) {
+        for(ContactGroup grp : groups) {
+            grp.contacts.remove(cont);
+        }
+        App.conMan.add(cont);
+    }
+
+    public void sendRequest(String email) {
+        App.conMan.add(new ContactRequest(email));
+    }
 }

@@ -25,11 +25,19 @@ public class Contact extends MySQL {
 
     @Override
     protected boolean mysql_update() {
-        return true;
+        String resp = connect("contact/delete.php","contact_id="+id);
+
+        if(resp == null) {
+            return true;
+        }
+
+        App.conMan.remove(this);
+        return false;
     }
 
     @Override
     protected String getString() {
         return ( id + "," + email + "," + name );
     }
+
 }

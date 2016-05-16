@@ -89,16 +89,6 @@ public class ConnectionManager {
         System.out.println("----- ConnectionManager#save: c="+c);
     }
 
-    String addText(Entry entry) {
-        if(entry.user_id < 0) {
-            return "delete";
-        }
-        if(entry.id == 0) {
-            return "create";
-        }
-        return "update";
-    }
-
     protected void add(MySQL entry) {
         System.out.println("----- ConnectionManager#add1");
         this.entry.add(entry);
