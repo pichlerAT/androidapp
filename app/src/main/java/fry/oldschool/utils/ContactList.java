@@ -63,4 +63,8 @@ public class ContactList extends MySQL {
         }
         return null;
     }
+
+     protected ArrayList<Contact> getContactGroup(int index) {
+         return groups.get(index).contacts;
+     }
 }

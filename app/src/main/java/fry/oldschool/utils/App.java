@@ -20,6 +20,7 @@ public class App extends Application {
     protected static boolean PERFORM_UPDATE;
 
     public static ContactList conLis;
+
     public static ConnectionManager conMan = new ConnectionManager();
 
     public static Context mContext;
@@ -52,6 +53,9 @@ public class App extends Application {
         mContext = this;
         PERFORM_UPDATE = true;
         load_settings();
+        App.conMan.load();
+        TaskList.load();
+        NetworkStateReciever.checkInternet();
     }
 
     protected void load_settings() {
