@@ -18,6 +18,11 @@
     <string name="send">Send</string>
     <string name="cancel">Cancel</string>
     <string name="information">Information</string>
+    <string name="warning">Warning</string>
+
+    <!--              Messages                 -->
+
+    <string name="delete_message">Do you really want to delete this?</string>
 
     <!--              Timetable                -->
 

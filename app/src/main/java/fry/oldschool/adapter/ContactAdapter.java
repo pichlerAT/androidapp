@@ -8,12 +8,16 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import fry.oldschool.R;
+import fry.oldschool.utils.App;
+import fry.oldschool.utils.Contact;
+import fry.oldschool.utils.ContactGroup;
 
 /**
  * Created by Edwin Pichler on 13.05.2016.
@@ -22,35 +26,31 @@ import fry.oldschool.R;
 public class ContactAdapter extends BaseExpandableListAdapter {
 
     protected Context mContext;
-    protected List<String> mHeaderList;
-    protected HashMap<String, List<String>> mContactList;
-    protected HashMap<String, List<String>> mContactOriginalList;
+    protected ArrayList<ContactGroup> contactGroupList;
 
-    public ContactAdapter(Context context, List<String> headerList, HashMap<String, List<String>> contactList){
-        this.mContactOriginalList = new HashMap<String, List<String>>(contactList);
+    public ContactAdapter(Context context, ArrayList<ContactGroup> contactGroupList){
         this.mContext = context;
-        this.mHeaderList = headerList;
-        this.mContactList = contactList;
+        this.contactGroupList = contactGroupList;
     }
 
     @Override
     public int getGroupCount() {
-        return mHeaderList.size();
+        return contactGroupList.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mContactList.get(mHeaderList.get(groupPosition)).size();
+        return contactGroupList.get(groupPosition).contacts.size();
     }
 
     @Override
-    public Object getGroup(int groupPosition) {
-        return mHeaderList.get(groupPosition);
+    public ContactGroup getGroup(int groupPosition) {
+        return contactGroupList.get(groupPosition);
     }
 
     @Override
-    public Object getChild(int groupPosition, int childPosition) {
-        return mContactList.get(mHeaderList.get(groupPosition)).get(childPosition);
+    public Contact getChild(int groupPosition, int childPosition) {
+        return contactGroupList.get(groupPosition).contacts.get(childPosition);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        String headerString = (String) getGroup(groupPosition);
+        String headerString = (String) getGroup(groupPosition).name;
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_contact_list_header, parent, false);
@@ -85,16 +85,19 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        String childString = (String) getChild(groupPosition, childPosition);
+        Contact contact = getChild(groupPosition, childPosition);
+        String childString = contact.name;
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_contact_list_item, parent, false);
         }
 
         TextView contactName = (TextView) convertView.findViewById(R.id.textview_contact_name);
+        TextView contactEmail = (TextView) convertView.findViewById(R.id.textview_contact_email);
         TextView firstLetter = (TextView) convertView.findViewById(R.id.textview_contact_icon);
         contactName.setText(childString);
-        firstLetter.setText(String.valueOf(childString.charAt(0)));
+        contactEmail.setText(contact.email);
+        firstLetter.setText(String.valueOf(childString.charAt(0)).toUpperCase());
 
         return convertView;
     }
@@ -104,41 +107,45 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    public List<String> getGroupList(){
-        return mHeaderList;
+    public ArrayList<ContactGroup> getGroupList(){
+        return contactGroupList;
     }
 
     public void addGroup(String groupName){
-        mHeaderList.add(0, groupName);
-        mContactOriginalList.put(mHeaderList.get(0), new ArrayList<String>());
-        mContactList.put(mHeaderList.get(0), new ArrayList<String>());
+        //Add group
         notifyDataSetChanged();
-        //Add group to database
     }
 
     public void assignChildToGroups(List<String> groupList, int childIndex){
 
     }
 
+    public void removeChilds(ArrayList<Contact> contacts){
+        for (Contact contact : contacts){
+            App.conLis.deleteContact(contact);
+            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
+        }
+        notifyDataSetChanged();
+    }
+
     public void filterContacts(String search){
         if(!search.isEmpty()) {
             search = search.toLowerCase();
-            for (Map.Entry<String, List<String>> entry : mContactOriginalList.entrySet()) {
-                List<String> newContacts = new ArrayList<String>();
-                for (String contact : entry.getValue()) {
-                    if (contact.toLowerCase().contains(search)) {
+            for (ContactGroup group : contactGroupList) {
+                ArrayList<Contact> newContacts = new ArrayList<Contact>();
+                for (Contact contact : group.contacts) {
+                    if (contact.name.toLowerCase().contains(search) || contact.email.toLowerCase().contains(search)) {
                         newContacts.add(contact);
                     }
                 }
-                if (newContacts.size() > 0)
-                    mContactList.put(entry.getKey(), newContacts);
-
+                if (newContacts.size() <= 0)
+                    group.setContacts(newContacts);
                 else
-                    mContactList.put(entry.getKey(), new ArrayList<String>());
+                    group.setContacts(new ArrayList<Contact>());
             }
         }
         else{
-            mContactList = new HashMap<>(mContactOriginalList);
+            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
         }
         notifyDataSetChanged();
     }

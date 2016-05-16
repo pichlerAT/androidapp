@@ -17,8 +17,6 @@ import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
-import fry.oldschool.utils.ConnectionManager;
-import fry.oldschool.utils.MySQL;
 import fry.oldschool.utils.MySQLListener;
 import fry.oldschool.utils.TaskList;
 
