@@ -2,9 +2,6 @@ package fry.oldschool.utils;
 
 import java.util.ArrayList;
 
-/**
- * Created by Stefan on 16.05.2016.
- */
 public class ContactGroup {
 
     protected String name;
