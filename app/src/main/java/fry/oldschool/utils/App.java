@@ -92,4 +92,10 @@ public class App extends Application {
         }
     }
 
+    public static boolean delete_local_files() {
+        return  (new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))).delete()
+             && (new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_sync))).delete()
+             && (new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))).delete();
+    }
+
 }
