@@ -2,67 +2,21 @@ package fry.oldschool.utils;
 
 public abstract class Entry extends MySQL {
 
-    protected int id;
+    protected static final byte type_contact = 1;
+    protected static final byte type_contactrequest = 2;
+    protected static final byte type_tasklist = 3;
+    protected static final byte type_tasklistentry = 4;
 
-    protected int user_id;
-
-    protected Entry(int id, int user_id) {
-        this.id = id;
-        this.user_id = user_id;
-    }
-
-    public void create() {
+    protected void update() {
         App.conMan.add(this);
     }
 
-    public void update() {
-        App.conMan.add(this);
+    protected String getConnectionManagerString() {
+        return ( getType() + "" );
     }
 
-    public void delete() {
-        user_id = -1;
-        App.conMan.add(this);
-    }
+    protected abstract byte getType();
 
-    protected String[] getAddress() {
-        if(user_id<0) {
-            return getDelete();
-        }
-        if(id == 0) {
-            return getCreate();
-        }
-        return getUpdate();
-    }
+    protected abstract boolean mysql_update();
 
-    @Override
-    protected String getString() {
-        return ( super.getString() + SEP_1 + id + SEP_1 + user_id );
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        String[] addr = getAddress();
-        String resp = connect(addr[0],addr[1]);
-
-        if(resp == null) {
-            return true;
-        }
-
-        App.conMan.remove(this);
-        if(id == 0) {
-            setId(Integer.parseInt(resp));
-        }
-
-        return false;
-    }
-
-    protected void setId(int id) {
-        this.id = id;
-    }
-
-    protected abstract String[] getCreate();
-
-    protected abstract String[] getUpdate();
-
-    protected abstract String[] getDelete();
 }

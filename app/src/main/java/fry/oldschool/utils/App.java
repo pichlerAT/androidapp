@@ -63,8 +63,9 @@ public class App extends Application {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
 
             String line=br.readLine();
-            conLis=new ContactList(line.split(";"));
-
+            if(line!=null) {
+                conLis = new ContactList(line.split(";"));
+            }
 
         }catch (IOException ex) {
             conLis=new ContactList();
@@ -79,9 +80,11 @@ public class App extends Application {
 
             Iterator<Contact> it = conLis.groups.get(0).contacts.iterator();
             if(it.hasNext()) {
-                bw.write(it.next().getString());
+                Contact cont = it.next();
+                bw.write(cont.id+","+cont.email+","+cont.name);
                 while(it.hasNext()) {
-                    bw.write(";" + it.next().getString());
+                    cont = it.next();
+                    bw.write(";"+cont.id+","+cont.email+","+cont.name);
                 }
             }
 

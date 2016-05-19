@@ -9,7 +9,7 @@ import java.net.URL;
 
 public abstract class MySQL {
 
-    public static final String IP_ADDRESS = "91.114.246.54" ;
+    public static final String IP_ADDRESS = "91.114.164.184" ;
 
     public static final String ADDRESS="http://"+IP_ADDRESS+"/Oldschool/";
 
@@ -34,6 +34,15 @@ public abstract class MySQL {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String line=br.readLine();
+
+            if(line.equals("<br />")) {
+                System.out.println("|||||-" + line);
+                String li;
+                while ((li = br.readLine()) != null) {
+                    System.out.println("|||||-" + li);
+                }
+            }
+
             br.close();
             con.disconnect();
 
@@ -47,13 +56,4 @@ public abstract class MySQL {
             return null;
         }
     }
-
-    protected String getString() {
-        return ( "" + getType() );
-    }
-
-    protected abstract byte getType();
-
-    protected abstract boolean mysql_update();
-
 }

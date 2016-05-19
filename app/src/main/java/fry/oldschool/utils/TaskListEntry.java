@@ -1,6 +1,6 @@
 package fry.oldschool.utils;
 
-public class TaskListEntry extends Entry {
+public class TaskListEntry extends UserEntry {
 
     protected byte state;
 
@@ -30,13 +30,13 @@ public class TaskListEntry extends Entry {
     }
 
     @Override
-    protected String getString() {
-        return super.getString() + SEP_1 + table_id + SEP_1 + description + SEP_1 + state ;
+    protected String getConnectionManagerString() {
+        return super.getConnectionManagerString() + SEP_1 + table_id + SEP_1 + description + SEP_1 + state ;
     }
 
     @Override
     protected byte getType() {
-        return 1;
+        return type_tasklistentry;
     }
 
     @Override

@@ -11,9 +11,9 @@ import java.util.Iterator;
 
 import fry.oldschool.R;
 
-public class TaskList extends Entry {
+public class TaskList extends UserEntry {
 
-    public static ArrayList<TaskList> TaskLists;
+    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
 
     public String name;
 
@@ -30,7 +30,7 @@ public class TaskList extends Entry {
     }
 
     public static TaskList create(String name, int length) {
-        TaskList tdl=new TaskList(0, MySQL.USER_ID,name);
+        TaskList tdl=new TaskList(0, Entry.USER_ID,name);
         tdl.create();
         return tdl;
     }
@@ -121,13 +121,13 @@ public class TaskList extends Entry {
     }
 
     @Override
-    protected String getString() {
-        return super.getString() + SEP_1 + name ;
+    protected String getConnectionManagerString() {
+        return super.getConnectionManagerString() + SEP_1 + name ;
     }
 
     @Override
     protected byte getType() {
-        return 0;
+        return type_tasklist;
     }
 
     @Override
@@ -147,10 +147,6 @@ public class TaskList extends Entry {
 
     public void set(String name) {
         this.name = name;
-    }
-
-    public void setAtPosition(int index,String task,boolean state) {
-        entry.get(index).set(task,state);
     }
 
     public void addEntry(String task,boolean state) {

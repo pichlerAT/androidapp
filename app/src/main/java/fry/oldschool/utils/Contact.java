@@ -1,6 +1,6 @@
 package fry.oldschool.utils;
 
-public class Contact extends MySQL {
+public class Contact extends Entry {
 
     protected int id;
 
@@ -16,12 +16,12 @@ public class Contact extends MySQL {
 
     @Override
     protected byte getType() {
-        return -1;
+        return type_contact;
     }
 
     @Override
     protected boolean mysql_update() {
-        String resp = connect("contact/delete.php","contact_id="+id);
+        String resp = connect("contact/delete.php","&contact_id="+id);
 
         if(resp == null) {
             return true;
@@ -32,8 +32,8 @@ public class Contact extends MySQL {
     }
 
     @Override
-    protected String getString() {
-        return ( id + "," + email + "," + name );
+    protected String getConnectionManagerString() {
+        return ( super.getConnectionManagerString() + SEP_1 + id + SEP_1 + email + SEP_1 + name );
     }
 
 }

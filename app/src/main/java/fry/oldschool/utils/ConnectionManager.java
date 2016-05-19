@@ -15,7 +15,7 @@ import fry.oldschool.R;
 
 public class ConnectionManager {
 
-    protected ArrayList<MySQL> entry = new ArrayList<>();
+    protected ArrayList<Entry> entry = new ArrayList<>();
 
     protected Sync syncTask = new Sync();
 
@@ -34,6 +34,17 @@ public class ConnectionManager {
         }
     }
 
+    protected Entry createEntry(String[] r) {
+        byte type = Byte.parseByte(r[0]);
+        switch(type) {
+            case Entry.type_contact: return new Contact(Integer.parseInt(r[1]),r[2],r[3]);
+            case Entry.type_contactrequest: return new ContactRequest(r[1]);
+            case Entry.type_tasklist: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
+            case Entry.type_tasklistentry: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
+            default: return null;
+        }
+    }
+
     public void load() {
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
@@ -41,14 +52,8 @@ public class ConnectionManager {
             int c=0;
             while((line=br.readLine()) != null) {
                 String[] r=line.split(",");
-                Entry ent = null;
 
-                byte type=Byte.parseByte(r[0]);
-                if(type == 0) {
-                    ent = new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
-                }else if(type == 1) {
-                    ent = new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
-                }
+                Entry ent = createEntry(r);
 
                 if(ent != null) {
                     entry.add(ent);
@@ -68,16 +73,16 @@ public class ConnectionManager {
         int c=0;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
-            Iterator<MySQL> it = entry.iterator();
+            Iterator<Entry> it = entry.iterator();
 
             if (it.hasNext()) {
-                bw.write(it.next().getString());
+                bw.write(it.next().getConnectionManagerString());
                 ++c;
             }
 
             while(it.hasNext()) {
                 bw.newLine();
-                bw.write(it.next().getString());
+                bw.write(it.next().getConnectionManagerString());
                 ++c;
             }
 
@@ -89,13 +94,13 @@ public class ConnectionManager {
         System.out.println("----- ConnectionManager#save: c="+c);
     }
 
-    protected void add(MySQL entry) {
+    protected void add(Entry entry) {
         System.out.println("----- ConnectionManager#add1");
         this.entry.add(entry);
         sync();
     }
 
-    protected void remove(MySQL entry) {
+    protected void remove(Entry entry) {
         System.out.println("----- ConnectionManager#remove");
         this.entry.remove(entry);
     }

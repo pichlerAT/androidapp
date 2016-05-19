@@ -14,19 +14,8 @@ public class ContactList extends MySQL {
             String[] r=s.split(",");
             cg0.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
         }
-
-        System.out.println("*****| ContactList#ContactList(String...):");
-        for(Contact cont : cg0.contacts) {
-            System.out.println("*****| "+cont.getString());
-        }
     }
 
-    @Override
-    protected byte getType() {
-        return 0;
-    }
-
-    @Override
     protected boolean mysql_update() {
         String resp=connect("contact/get.php","");
         if(resp!=null && resp.length()>0) {
@@ -48,10 +37,6 @@ public class ContactList extends MySQL {
             }else {
                 cont.name = r[2];
             }
-        }
-        System.out.println("*****| ContactList#updateContacts(String...):");
-        for(Contact cont : cg0.contacts) {
-            System.out.println("*****| "+cont.getString());
         }
     }
 

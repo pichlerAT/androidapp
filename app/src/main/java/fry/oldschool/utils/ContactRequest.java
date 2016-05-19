@@ -1,9 +1,6 @@
 package fry.oldschool.utils;
 
-/**
- * Created by Stefan on 16.05.2016.
- */
-public class ContactRequest extends MySQL {
+public class ContactRequest extends Entry {
 
     protected String email;
 
@@ -13,7 +10,12 @@ public class ContactRequest extends MySQL {
 
     @Override
     protected byte getType() {
-        return 0;
+        return type_contactrequest;
+    }
+
+    @Override
+    protected String getConnectionManagerString() {
+        return ( super.getConnectionManagerString() + SEP_1 + email );
     }
 
     @Override
