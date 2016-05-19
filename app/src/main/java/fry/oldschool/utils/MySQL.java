@@ -48,13 +48,7 @@ public abstract class MySQL {
             br.close();
             con.disconnect();
 
-            if(line.substring(0,3).equals("suc")) {
-                return line.substring(3);
-            }
-            if(line.substring(0,3).equals("err")) {
-                error(line);
-            }
-            return null;
+            return line;
 
         } catch (IOException ex) {
             ex.printStackTrace();

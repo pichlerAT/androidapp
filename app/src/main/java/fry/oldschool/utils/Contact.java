@@ -23,12 +23,11 @@ public class Contact extends Entry {
     protected boolean mysql_update() {
         String resp = connect("contact/delete.php","&contact_id="+id);
 
-        if(resp == null) {
-            return true;
+        if(resp!=null && ( resp.equals("suc") || resp.equals("err_cd1") )) {
+            App.conMan.remove(this);
+            return false;
         }
-
-        App.conMan.remove(this);
-        return false;
+        return true;
     }
 
     @Override

@@ -30,16 +30,14 @@ public abstract class UserEntry extends Entry {
         String[] addr = getAddress();
         String resp = connect(addr[0],addr[1]);
 
-        if(resp == null) {
-            return true;
+        if(resp!=null && resp.equals("suc")) {
+            App.conMan.remove(this);
+            if(id == 0) {
+                setId(Integer.parseInt(resp));
+            }
+            return false;
         }
-
-        App.conMan.remove(this);
-        if(id == 0) {
-            setId(Integer.parseInt(resp));
-        }
-
-        return false;
+        return true;
     }
 
     protected String[] getAddress() {

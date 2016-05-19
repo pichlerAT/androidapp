@@ -18,7 +18,7 @@ public class ContactList extends MySQL {
 
     protected boolean mysql_update() {
         String resp=connect("contact/get.php","");
-        if(resp!=null && resp.length()>0) {
+        if(resp!=null && resp.substring(0,3).equals("suc") && resp.length()>0) {
             updateContacts(resp.substring(1).split(";"));
             return true;
         }
