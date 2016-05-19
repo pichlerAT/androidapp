@@ -49,11 +49,18 @@ public abstract class MySQL {
             if(line.substring(0,3).equals("suc")) {
                 return line.substring(3);
             }
+            if(line.substring(0,3).equals("err")) {
+                error(line);
+            }
             return null;
 
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    protected void error(String code) {
+        App.errorDialog("error",code);
     }
 }
