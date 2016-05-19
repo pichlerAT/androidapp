@@ -1,5 +1,7 @@
 package fry.oldschool.utils;
 
+import android.os.AsyncTask;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -61,6 +63,22 @@ public abstract class MySQL {
     }
 
     protected void error(String code) {
-        App.errorDialog("error",code);
+        (new Error()).execute(code);
+    }
+
+    protected class Error extends AsyncTask<String,String,String> {
+
+        protected String msg;
+
+        @Override
+        protected String doInBackground(String... args) {
+            msg = args[0];
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            App.errorDialog("error",msg);
+        }
     }
 }
