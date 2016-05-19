@@ -26,7 +26,7 @@ public class ConnectionManager {
     }
 
     public void sync() {
-        if(syncTask.getStatus()== AsyncTask.Status.PENDING && NetworkStateReciever.hasInternetConnection) {
+        if(syncTask.getStatus()== AsyncTask.Status.PENDING && App.hasInternetConnection) {
             syncTask.execute();
         }else {
             NetworkStateReciever.checkInternet();
@@ -37,7 +37,8 @@ public class ConnectionManager {
         byte type = Byte.parseByte(r[0]);
         switch(type) {
             case Entry.type_contact: return new Contact(Integer.parseInt(r[1]),r[2],r[3]);
-            case Entry.type_contactrequest: return new ContactRequest(r[1]);
+            case Entry.type_contactrequest_send: return new ContactRequest.Send(r[1]);
+            case Entry.type_contactrequest_accept: return new ContactRequest.Accept(new Contact(Integer.parseInt(r[1]),r[2],r[3]));
             case Entry.type_tasklist: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
             case Entry.type_tasklistentry: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
             default: return null;

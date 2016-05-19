@@ -13,8 +13,6 @@ import java.net.URL;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 
-    protected static boolean hasInternetConnection = false;
-
     protected static boolean checkingForInternet = false;
 
     @Override
@@ -31,11 +29,11 @@ public class NetworkStateReciever extends BroadcastReceiver {
         if(intent.getExtras().getBoolean(ConnectivityManager.EXTRA_NO_CONNECTIVITY,Boolean.FALSE)) {
             // no network connectivity
         }
-        hasInternetConnection = false;
+        App.hasInternetConnection = false;
     }
 
     public static void checkInternet() {
-        if(!hasInternetConnection && !checkingForInternet) {
+        if(!App.hasInternetConnection && !checkingForInternet) {
             checkingForInternet = true;
             (new CheckInternetConnection()).execute();
             System.out.println("----- NetworkStateReciever#checkInternet");
@@ -46,8 +44,8 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
         @Override
         protected String doInBackground(String... params) {
-            hasInternetConnection = hasActiveInternetConnection();
-            if(hasInternetConnection) {
+            App.hasInternetConnection = hasActiveInternetConnection();
+            if(App.hasInternetConnection) {
                 App.conMan.sync();
             }
             return null;

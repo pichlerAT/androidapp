@@ -1,8 +1,5 @@
 package fry.oldschool.utils;
 
-/**
- * Created by Stefan on 30.04.2016.
- */
 public class Timetable {
 
     public int id;

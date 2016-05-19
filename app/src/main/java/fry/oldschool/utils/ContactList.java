@@ -6,6 +6,8 @@ public class ContactList extends MySQL {
 
     public ArrayList<ContactGroup> groups=new ArrayList<>();
 
+    public ArrayList<Contact> contactRequests=new ArrayList<>();
+
     protected ContactList(String... splitLine) {
         ContactGroup cg0=new ContactGroup("All Contacts");
         groups.add(cg0);
@@ -17,12 +19,33 @@ public class ContactList extends MySQL {
     }
 
     protected boolean mysql_update() {
+        boolean get_contacts = false;
+        boolean get_requests = false;
+
         String resp=connect("contact/get.php","");
-        if(resp!=null && resp.substring(0,3).equals("suc") && resp.length()>0) {
-            updateContacts(resp.substring(4).split(";"));
-            return true;
+        if(resp!=null && resp.substring(0,3).equals("suc")) {
+            if(resp.length()>4) {
+                updateContacts(resp.substring(4).split(";"));
+            }
+            get_contacts = true;
         }
-        return false;
+
+        resp=connect("contact/request/get.php","");
+        if(resp!=null && resp.substring(0,3).equals("suc")) {
+            if(resp.length()>4) {
+                setContactRequests(resp.substring(4).split(";"));
+            }
+            get_requests = true;
+        }
+
+        return (get_contacts && get_requests);
+    }
+
+    protected void setContactRequests(String... splitLine) {
+        for(String s : splitLine) {
+            String[] r = s.split(",");
+            contactRequests.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
+        }
     }
 
     protected void updateContacts(String... splitLine) {
@@ -38,6 +61,10 @@ public class ContactList extends MySQL {
                 cont.name = r[2];
             }
         }
+    }
+
+    protected void addContact(Contact cont) {
+        groups.get(0).add(cont);
     }
 
     protected Contact getContact(int id) {
@@ -61,6 +88,11 @@ public class ContactList extends MySQL {
     }
 
     public void sendRequest(String email) {
-        App.conMan.add(new ContactRequest(email));
+        App.conMan.add(new ContactRequest.Send(email));
+    }
+
+    public void acceptRequest(Contact cont) {
+        contactRequests.remove(cont);
+        App.conMan.add(new ContactRequest.Accept(cont));
     }
 }

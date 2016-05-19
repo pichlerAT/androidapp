@@ -25,6 +25,8 @@ public class App extends Application {
 
     public static Context mContext;
 
+    public static boolean hasInternetConnection = false;
+
     public static void setContext(Context mContext) {
         App.mContext = mContext;
     }

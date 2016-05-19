@@ -1,8 +1,5 @@
 package fry.oldschool.utils;
 
-/**
- * Created by Stefan on 29.04.2016.
- */
 public class Time {
 
     public short time;
