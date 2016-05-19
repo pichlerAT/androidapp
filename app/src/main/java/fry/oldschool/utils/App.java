@@ -68,10 +68,9 @@ public class App extends Application {
             }
 
         }catch (IOException ex) {
-            conLis=new ContactList();
-
             ex.printStackTrace();
         }
+        conLis=new ContactList();
     }
 
     public static void save_settings() {
