@@ -2,6 +2,6 @@ package fry.oldschool.utils;
 
 public interface MySQLListener {
 
-    void mysql_finished(String arg);
+    void mysql_finished();
 
 }

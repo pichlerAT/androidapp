@@ -125,7 +125,7 @@ public class ConnectionManager {
 
         @Override
         protected void onPostExecute(String file_url) {
-            if(mysql_listener!=null) mysql_listener.mysql_finished("");
+            if(mysql_listener!=null) mysql_listener.mysql_finished();
             System.out.println("----- ConnectionManager.Sync#onPostExecute");
         }
     }

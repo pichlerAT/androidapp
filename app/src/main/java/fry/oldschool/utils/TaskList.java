@@ -26,7 +26,7 @@ public class TaskList extends UserEntry {
 
     public static void unload() {
         save_local();
-        TaskLists = null;
+        //TaskLists = null;
     }
 
     public static TaskList create(String name, int length) {

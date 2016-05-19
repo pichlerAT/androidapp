@@ -32,6 +32,7 @@ import fry.oldschool.adapter.ContactAdapter;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.Contact;
 import fry.oldschool.utils.ContactGroup;
+import fry.oldschool.utils.ContactList;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.
@@ -224,14 +225,16 @@ public class ContactFragment extends Fragment {
 
         switch (item.getItemId()){
             case R.id.action_contact_request:
-                View requestView = View.inflate(App.mContext, R.layout.fragment_contact_request, null);
+                final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_request, null);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                 requestBuilder.setTitle(R.string.contact_request)
                     .setView(requestView)
                     .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                            String email = ((EditText) requestView.findViewById(R.id.edittext_contact_email)).getText().toString();
+                            if (!email.isEmpty())
+                                App.conLis.sendRequest(email);
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

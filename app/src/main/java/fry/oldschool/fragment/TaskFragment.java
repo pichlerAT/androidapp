@@ -36,14 +36,14 @@ public class TaskFragment extends ListFragment{
         //MySQL.setListener(new MySQLListener() {
         App.setMySQLListener(new MySQLListener() {
             @Override
-            public void mysql_finished(String arg) {
-                if (arg.equals("tdl_load") || arg.equals("tdl_delete") || arg.equals("error")){
-                    adapter.notifyDataSetChanged();
-                }
-                else if (TaskList.TaskLists.size() == 0){
+            public void mysql_finished() {
+                if (TaskList.TaskLists.size() == 0){
                     TextView text = new TextView(ctx);
                     text.setText("No tasks found");
 
+                }
+                else{
+                    adapter.notifyDataSetChanged();
                 }
 
             }

@@ -21,7 +21,7 @@ import fry.oldschool.utils.TaskList;
 
 public class TaskAdapter extends ArrayAdapter<TaskList>{
 
-    public ArrayList<TaskList> list = null;
+    public ArrayList<TaskList> list;
     protected Context ctx;
 
     public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
