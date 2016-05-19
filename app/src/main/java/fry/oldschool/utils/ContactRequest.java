@@ -20,7 +20,7 @@ public class ContactRequest extends Entry {
 
     @Override
     protected boolean mysql_update() {
-        String resp = connect("contact/request.php","contact_email="+email);
+        String resp = connect("contact/request.php","&contact_email="+email);
 
         if(resp == null) {
             return true;

@@ -26,7 +26,6 @@ public class ConnectionManager {
     }
 
     public void sync() {
-        System.out.println("----- ConnectionManager#sync: pend="+(syncTask.getStatus()==AsyncTask.Status.PENDING)+", inet="+NetworkStateReciever.hasInternetConnection+", ent.s()="+entry.size());
         if(syncTask.getStatus()== AsyncTask.Status.PENDING && NetworkStateReciever.hasInternetConnection) {
             syncTask.execute();
         }else {
@@ -60,7 +59,6 @@ public class ConnectionManager {
                 }
                 ++c;
             }
-            System.out.println("----- ConnectionManager#load: entry.size()="+entry.size()+", c="+c);
             br.close();
             sync();
 
@@ -91,17 +89,14 @@ public class ConnectionManager {
         }catch(IOException ex) {
             ex.printStackTrace();
         }
-        System.out.println("----- ConnectionManager#save: c="+c);
     }
 
     protected void add(Entry entry) {
-        System.out.println("----- ConnectionManager#add1");
         this.entry.add(entry);
         sync();
     }
 
     protected void remove(Entry entry) {
-        System.out.println("----- ConnectionManager#remove");
         this.entry.remove(entry);
     }
 
@@ -109,7 +104,6 @@ public class ConnectionManager {
 
         @Override
         protected String doInBackground(String... params) {
-            System.out.println("----- ConnectionManager.Sync#doInBackground: Sync in progress");
             if(App.PERFORM_UPDATE) {
                 App.PERFORM_UPDATE = false;
                 App.conLis.mysql_update();
@@ -126,7 +120,6 @@ public class ConnectionManager {
         @Override
         protected void onPostExecute(String file_url) {
             if(mysql_listener!=null) mysql_listener.mysql_finished();
-            System.out.println("----- ConnectionManager.Sync#onPostExecute");
         }
     }
 }
