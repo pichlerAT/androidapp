@@ -22,7 +22,7 @@ public class ContactRequest extends Entry {
     protected boolean mysql_update() {
         String resp = connect("contact/request.php","&contact_email="+email);
 
-        if(resp!=null && !resp.equals("err_cr0") && !resp.equals("err_cr4")) {
+        if(resp!=null && !resp.equals("err_cr0") && !resp.equals("err_cr1") && !resp.equals("err_cr5")) {
             if(!resp.equals("suc")) {
                 error(resp);
             }
