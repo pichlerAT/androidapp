@@ -44,7 +44,10 @@ public class ContactList extends MySQL {
     protected void setContactRequests(String... splitLine) {
         for(String s : splitLine) {
             String[] r = s.split(",");
-            contactRequests.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
+            int contact_id = Integer.parseInt(r[0]);
+            if(!requestLoaded(contact_id)) {
+                contactRequests.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
+            }
         }
     }
 
@@ -74,6 +77,15 @@ public class ContactList extends MySQL {
             }
         }
         return null;
+    }
+
+    protected boolean requestLoaded(int contact_id) {
+        for(Contact c : contactRequests) {
+            if(c.id == contact_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public ContactGroup getContactGroup(int index) {
