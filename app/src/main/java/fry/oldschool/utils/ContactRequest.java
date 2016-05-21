@@ -12,7 +12,7 @@ public class ContactRequest {
 
         @Override
         protected byte getType() {
-            return type_contactrequest_send;
+            return TYPE_CONTACTREQUEST_SEND;
         }
 
         @Override
@@ -29,9 +29,9 @@ public class ContactRequest {
                     error(resp);
                 }
                 App.conMan.remove(this);
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
     }
 
@@ -45,7 +45,7 @@ public class ContactRequest {
 
         @Override
         protected byte getType() {
-            return type_contactrequest_accept;
+            return TYPE_CONTACTREQUEST_ACCEPT;
         }
 
         @Override
@@ -63,9 +63,42 @@ public class ContactRequest {
                 }
                 App.conMan.remove(this);
                 App.conLis.addContact(cont);
-                return false;
+                return true;
             }
-            return true;
+            return false;
+        }
+    }
+
+    protected static class Decline extends Entry {
+
+        protected int contact_id;
+
+        protected Decline(int contact_id) {
+            this.contact_id = contact_id;
+        }
+
+        @Override
+        protected byte getType() {
+            return TYPE_CONTACTREQUEST_DECLINE;
+        }
+
+        @Override
+        protected String getConnectionManagerString() {
+            return (super.getConnectionManagerString() + SEP_1 + contact_id);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("contact/request/decline.php", "&contact_id=" + contact_id);
+
+            if (resp != null) {
+                if (!resp.equals("suc")) {
+                    error(resp);
+                }
+                App.conMan.remove(this);
+                return true;
+            }
+            return false;
         }
     }
 }

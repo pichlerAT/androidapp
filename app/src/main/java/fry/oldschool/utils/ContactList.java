@@ -104,7 +104,14 @@ public class ContactList extends MySQL {
     }
 
     public void acceptRequest(Contact cont) {
-        contactRequests.remove(cont);
-        App.conMan.add(new ContactRequest.Accept(cont));
+        if(contactRequests.remove(cont)) {
+            App.conMan.add(new ContactRequest.Accept(cont));
+        }
+    }
+
+    public void declineRequest(Contact cont) {
+        if(contactRequests.remove(cont)) {
+            App.conMan.add(new ContactRequest.Decline(cont.id));
+        }
     }
 }

@@ -36,11 +36,12 @@ public class ConnectionManager {
     protected Entry createEntry(String[] r) {
         byte type = Byte.parseByte(r[0]);
         switch(type) {
-            case Entry.type_contact: return new Contact(Integer.parseInt(r[1]),r[2],r[3]);
-            case Entry.type_contactrequest_send: return new ContactRequest.Send(r[1]);
-            case Entry.type_contactrequest_accept: return new ContactRequest.Accept(new Contact(Integer.parseInt(r[1]),r[2],r[3]));
-            case Entry.type_tasklist: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
-            case Entry.type_tasklistentry: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
+            case Entry.TYPE_CONTACT: return new Contact(Integer.parseInt(r[1]),r[2],r[3]);
+            case Entry.TYPE_CONTACTREQUEST_SEND: return new ContactRequest.Send(r[1]);
+            case Entry.TYPE_CONTACTREQUEST_ACCEPT: return new ContactRequest.Accept(new Contact(Integer.parseInt(r[1]),r[2],r[3]));
+            case Entry.TYPE_CONTACTREQUEST_DECLINE: return new ContactRequest.Decline(Integer.parseInt(r[1]));
+            case Entry.TYPE_TASKLIST: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
+            case Entry.TYPE_TASKLISTENTRY: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
             default: return null;
         }
     }
@@ -110,17 +111,14 @@ public class ConnectionManager {
                 App.conLis.mysql_update();
             }
             for(int i=0 ; i<entry.size() ; ) {
-                if(entry.get(i).mysql_update()) {
+                if(!entry.get(i).mysql_update()) {
                     ++i;
+                }else if(mysql_listener != null){
+                    mysql_listener.mysql_finished();
                 }
             }
             syncTask = new Sync();
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if(mysql_listener!=null) mysql_listener.mysql_finished();
         }
     }
 }

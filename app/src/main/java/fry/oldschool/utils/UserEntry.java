@@ -35,9 +35,9 @@ public abstract class UserEntry extends Entry {
             if(id == 0) {
                 setId(Integer.parseInt(resp));
             }
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     protected String[] getAddress() {

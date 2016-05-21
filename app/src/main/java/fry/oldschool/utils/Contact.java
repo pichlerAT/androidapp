@@ -16,7 +16,7 @@ public class Contact extends Entry {
 
     @Override
     protected byte getType() {
-        return type_contact;
+        return TYPE_CONTACT;
     }
 
     @Override
@@ -25,9 +25,9 @@ public class Contact extends Entry {
 
         if(resp!=null && ( resp.equals("suc") || resp.equals("err_cd1") )) {
             App.conMan.remove(this);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override

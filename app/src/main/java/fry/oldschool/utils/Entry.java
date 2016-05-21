@@ -2,15 +2,17 @@ package fry.oldschool.utils;
 
 public abstract class Entry extends MySQL {
 
-    protected static final byte type_contact = 1;
-    protected static final byte type_contactrequest_send = 2;
-    protected static final byte type_tasklist = 3;
-    protected static final byte type_tasklistentry = 4;
-    protected static final byte type_contactrequest_accept = 5;
+    protected static final byte TYPE_CONTACT = 1;
 
-    protected void update() {
-        App.conMan.add(this);
-    }
+    protected static final byte TYPE_CONTACTREQUEST_SEND = 2;
+
+    protected static final byte TYPE_TASKLIST = 3;
+
+    protected static final byte TYPE_TASKLISTENTRY = 4;
+
+    protected static final byte TYPE_CONTACTREQUEST_ACCEPT = 5;
+
+    protected static final byte TYPE_CONTACTREQUEST_DECLINE = 6;
 
     protected String getConnectionManagerString() {
         return ( getType() + "" );

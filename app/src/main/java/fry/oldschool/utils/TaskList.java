@@ -127,7 +127,7 @@ public class TaskList extends UserEntry {
 
     @Override
     protected byte getType() {
-        return type_tasklist;
+        return TYPE_TASKLIST;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class TaskListEntry extends UserEntry {
     public void set(String description,boolean state) {
         this.description = description;
         this.state = ( state ? (byte)0 : (byte)1 );
-        update();
+        App.conMan.add(this);
     }
 
     public boolean done() {
@@ -36,7 +36,7 @@ public class TaskListEntry extends UserEntry {
 
     @Override
     protected byte getType() {
-        return type_tasklistentry;
+        return TYPE_TASKLISTENTRY;
     }
 
     @Override
