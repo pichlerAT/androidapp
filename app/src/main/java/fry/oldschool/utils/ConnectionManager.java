@@ -113,12 +113,15 @@ public class ConnectionManager {
             for(int i=0 ; i<entry.size() ; ) {
                 if(!entry.get(i).mysql_update()) {
                     ++i;
-                }else if(mysql_listener != null){
-                    mysql_listener.mysql_finished();
                 }
             }
             syncTask = new Sync();
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if(mysql_listener != null) mysql_listener.mysql_finished();
         }
     }
 }
