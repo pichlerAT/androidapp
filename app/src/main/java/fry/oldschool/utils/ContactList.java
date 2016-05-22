@@ -72,7 +72,7 @@ public class ContactList extends MySQL {
             ContactGroup grp = findContactGroupById(id);
             if(grp == null) {
                 grp = new ContactGroup(id, r);
-                groups.add(grp);
+                groups.add(groups.size()-1,grp);
             }else {
                 grp.name = r[1];
                 grp.update(r);

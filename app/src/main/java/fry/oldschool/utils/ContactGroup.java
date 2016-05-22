@@ -115,6 +115,9 @@ public class ContactGroup extends Entry {
     }
 
     protected String getContactsString() {
+        if(contacts.size() == 0) {
+            return "n";
+        }
         String s = "";
         Iterator<Contact> it = contacts.iterator();
         if(it.hasNext()) {
@@ -122,9 +125,6 @@ public class ContactGroup extends Entry {
         }
         while(it.hasNext()) {
             s += SEP_1 + it.next().id;
-        }
-        if(s.isEmpty()) {
-            return "n";
         }
         return s;
     }
