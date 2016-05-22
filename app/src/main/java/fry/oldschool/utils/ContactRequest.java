@@ -11,60 +11,53 @@ public class ContactRequest {
         }
 
         @Override
-        protected byte getType() {
-            return TYPE_CONTACTREQUEST_SEND;
-        }
-
-        @Override
-        protected String getConnectionManagerString() {
-            return (super.getConnectionManagerString() + SEP_1 + email);
+        protected String getString() {
+            return TYPE_CONTACTREQUEST_SEND + "" +email;
         }
 
         @Override
         protected boolean mysql_update() {
             String resp = connect("contact/request/send.php", "&contact_email=" + email);
 
-            if (resp != null && !resp.equals("err_cr0") && !resp.equals("err_cr1") && !resp.equals("err_cr5")) {
-                if (!resp.equals("suc")) {
-                    error(resp);
-                }
-                App.conMan.remove(this);
+            if(resp.equals("suc")) {
                 return true;
             }
+
+            if(resp.equals("err_crs2") || resp.equals("err_crs3") || resp.equals("err_crs4")) {
+                return true;
+            }
+
             return false;
         }
     }
 
     protected static class Accept extends Entry {
 
-        protected Contact cont;
+        protected Contact contact;
 
-        protected Accept(Contact cont) {
-            this.cont = cont;
+        protected Accept(Contact contact) {
+            this.contact = contact;
+        }
+
+        protected Accept(String line) {
+            String[] r = line.split(";");
+            contact = new Contact(Integer.parseInt(r[0]),r[1],r[2]);
         }
 
         @Override
-        protected byte getType() {
-            return TYPE_CONTACTREQUEST_ACCEPT;
-        }
-
-        @Override
-        protected String getConnectionManagerString() {
-            return (super.getConnectionManagerString() + SEP_1 + cont.id + SEP_1 + cont.email + SEP_1 + cont.name);
+        protected String getString() {
+            return TYPE_CONTACTREQUEST_ACCEPT + "" + contact.id + ";" + contact.email + ";" + contact.name;
         }
 
         @Override
         protected boolean mysql_update() {
-            String resp = connect("contact/request/accept.php", "&contact_id=" + cont.id);
+            String resp = connect("contact/request/accept.php", "&contact_id=" + contact.id);
 
-            if (resp != null) {
-                if (!resp.equals("suc")) {
-                    error(resp);
-                }
-                App.conMan.remove(this);
-                App.conLis.addContact(cont);
+            if (resp.equals("suc")) {
+                App.conLis.groups.get(App.conLis.groups.size()-1).contacts.add(contact);
                 return true;
             }
+
             return false;
         }
     }
@@ -77,28 +70,20 @@ public class ContactRequest {
             this.contact_id = contact_id;
         }
 
-        @Override
-        protected byte getType() {
-            return TYPE_CONTACTREQUEST_DECLINE;
+        protected Decline(String line) {
+            contact_id = Integer.parseInt(line);
         }
 
         @Override
-        protected String getConnectionManagerString() {
-            return (super.getConnectionManagerString() + SEP_1 + contact_id);
+        protected String getString() {
+            return TYPE_CONTACTREQUEST_DECLINE + "" + contact_id;
         }
 
         @Override
         protected boolean mysql_update() {
             String resp = connect("contact/request/decline.php", "&contact_id=" + contact_id);
 
-            if (resp != null) {
-                if (!resp.equals("suc")) {
-                    error(resp);
-                }
-                App.conMan.remove(this);
-                return true;
-            }
-            return false;
+            return resp.equals("suc");
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 import fry.oldschool.R;
 
-public class TaskList extends UserEntry {
+public class TaskList {
 
     public static ArrayList<TaskList> TaskLists=new ArrayList<>();
 
@@ -20,17 +20,17 @@ public class TaskList extends UserEntry {
     public ArrayList<TaskListEntry> entry = new ArrayList<>();
 
     public static void load() {
-        TaskLists = new ArrayList<>();
-        load_local();
+        //TaskLists = new ArrayList<>();
+        //load_local();
     }
 
     public static void unload() {
-        local_save();
+        //local_save();
         //TaskLists = null;
     }
 
     public static TaskList create(String name) {
-        TaskList tdl=new TaskList(0, Entry.USER_ID,name);
+        TaskList tdl=new TaskList(0, 1/*Entry.USER_ID*/,name);
         tdl.create();
         return tdl;
     }
@@ -54,7 +54,7 @@ public class TaskList extends UserEntry {
                     int entry_id=Integer.parseInt(ri[0]);
                     int user_id=Integer.parseInt(ri[1]);
                     byte state=Byte.parseByte(ri[3]);
-                    tdl.entry.add(new TaskListEntry(entry_id,tdl.id,user_id,ri[2],state));
+                    //tdl.entry.add(new TaskListEntry(entry_id,tdl.id,user_id,ri[2],state));
                 }
                 TaskLists.add(tdl);
             }
@@ -66,7 +66,7 @@ public class TaskList extends UserEntry {
         }
     }
 
-    public static void local_save() {
+    public static void local_save() {/*
         try {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
 
@@ -94,14 +94,14 @@ public class TaskList extends UserEntry {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     protected TaskList(int id, int user_id, String name) {
-        super(id,user_id);
+        //super(id,user_id);
         this.name = name;
     }
-
+/*
     @Override
     protected void setId(int id) {
         super.setId(id);
@@ -135,17 +135,17 @@ public class TaskList extends UserEntry {
     protected String[] getDelete() {
         return new String[]{"todolist/delete.php", "&table_id=" + id};
     }
-
+*/
     public void set(String name) {
         this.name = name;
     }
 
-    public void addEntry(String task,boolean state) {
+    public void addEntry(String task,boolean state) {/*
         TaskListEntry ent = new TaskListEntry(id,task,( state ? (byte)0 : (byte)1 ));
         entry.add(ent);
         if(id != 0) {
             ent.create();
-        }
+        }*/
     }
 
     public boolean done(int index) {
@@ -161,18 +161,18 @@ public class TaskList extends UserEntry {
     }
 
     public void create() {
-        super.create();
+        //super.create();
         TaskLists.add(this);
     }
 
     public void delete() {
-        super.delete();
+        //super.delete();
         TaskLists.remove(this);
         entry = null;
     }
 
     public void delete(int index) {
-        entry.get(index).delete();
+        //entry.get(index).delete();
         entry.remove(index);
     }
 

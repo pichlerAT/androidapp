@@ -1,7 +1,6 @@
 package fry.oldschool.utils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ContactGroup extends Entry {
 
@@ -11,26 +10,19 @@ public class ContactGroup extends Entry {
 
     public ArrayList<Contact> contacts=new ArrayList<>();
 
-    protected ContactGroup(String name) {
-        this.id = 0;
-        this.name = name;
-    }
-
-    protected ContactGroup(int id,String[] contacts) {
-        this.id = id;
-        update(contacts);
-    }
-
-    protected ContactGroup(String[] r) {
-        id = Integer.parseInt(r[1]);
-        name = r[2];
-        for(int i=3;i<r.length;++i) {
+    protected ContactGroup(String... r) {
+        if(r.length == 1) {
+            name = r[0];
+            return;
+        }
+        id = Integer.parseInt(r[0]);
+        name = r[1];
+        if(r[2].equals("n")) {
+            return;
+        }
+        for(int i=2;i<r.length;++i) {
             this.contacts.add(App.conLis.findContactById(Integer.parseInt(r[i])));
         }
-    }
-
-    public void add(Contact contact) {
-        contacts.add(contact);
     }
 
     public void setContacts(ArrayList<Contact> contacts){
@@ -58,30 +50,9 @@ public class ContactGroup extends Entry {
         App.conMan.add(this);
     }
 
-    protected void update(String[] contacts) {
-        name = contacts[1];
-        if(contacts[2].equals("n")) {
-           return;
-        }
-        for(int i=2;i<contacts.length;++i) {
-            int contact_id = Integer.parseInt(contacts[i]);
-            Contact c = findContactById(contact_id);
-            if(c == null) {
-                c = App.conLis.findContactById(contact_id);
-                if(c == null) {
-                    System.err.println("SCHEISSE!!");
-                    continue;
-                }
-                this.contacts.add(i-2,c);
-            }
-        }
-    }
-
     public void delete() {
-        name = null;
-        contacts = null;
         App.conLis.groups.remove(this);
-        App.conMan.add(this);
+        App.conMan.add(new Delete(id));
     }
 
     protected Contact findContactById(int contact_id) {
@@ -94,32 +65,26 @@ public class ContactGroup extends Entry {
     }
 
     @Override
-    protected byte getType() {
-        return TYPE_CONTACTGROUP;
-    }
-
-    @Override
     protected boolean mysql_update() {
-        String resp;
         if(id == 0) {
-            resp = connect("contact/group/create.php","&group_name="+name+"&contacts="+getContactsString());
-        }else if(name == null) {
-            resp = connect("contact/group/delete.php","&group_id="+id);
-        }else {
-            resp = connect("contact/group/update.php","&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
-        }
-        if(resp.substring(0,3).equals("suc")) {
-            if(id == 0) {
+            String resp = connect("contact/group/create.php","&group_name="+name+"&contacts="+getContactsString());
+            if(resp.substring(0,3).equals("suc")) {
                 id = Integer.parseInt(resp.substring(3));
+                return true;
             }
-            return true;
+        }else {
+            String resp = connect("contact/group/update.php","&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
+            if(resp.equals("suc")) {
+                return true;
+            }
         }
+
         return false;
     }
 
     @Override
-    protected String getConnectionManagerString() {
-        return ( super.getConnectionManagerString() + SEP_1 + id + SEP_1 + name + SEP_1 + getContactsString() );
+    protected String getString() {
+        return TYPE_CONTACTGROUP + "" + id + ";" + name + ";" + getContactsString();
     }
 
     protected String getContactsString() {
@@ -127,13 +92,35 @@ public class ContactGroup extends Entry {
             return "n";
         }
         String s = "";
-        Iterator<Contact> it = contacts.iterator();
-        if(it.hasNext()) {
-            s += it.next().id;
-        }
-        while(it.hasNext()) {
-            s += SEP_1 + it.next().id;
+        for(Contact c : contacts) {
+            s += c.id + ";" ;
         }
         return s;
     }
+
+    protected static class Delete extends Entry {
+
+        protected int group_id;
+
+        protected Delete(int group_id) {
+            this.group_id = group_id;
+        }
+
+        protected Delete(String line) {
+            group_id = Integer.parseInt(line);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("contact/group/delete.php","&group_id="+group_id);
+
+            return resp.equals("suc");
+        }
+
+        @Override
+        protected String getString() {
+            return TYPE_CONTACTGROUP_DELETE + "" + group_id;
+        }
+    }
+
 }

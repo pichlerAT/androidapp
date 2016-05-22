@@ -1,6 +1,7 @@
 package fry.oldschool.utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ContactList extends MySQL {
 
@@ -9,117 +10,74 @@ public class ContactList extends MySQL {
     public ArrayList<Contact> contactRequests=new ArrayList<>();
 
     protected ContactList(String... splitLine) {
-        ContactGroup cg0=new ContactGroup("All Contacts");
-        groups.add(cg0);
+        ContactGroup all=new ContactGroup("All Contacts");
+        groups.add(all);
 
-        for(String s : splitLine) {
-            String[] r=s.split(",");
-            cg0.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
+        for(int i=2;i<splitLine.length;i+=3) {
+            all.contacts.add(new Contact(Integer.parseInt(splitLine[i-2]),splitLine[i-1],splitLine[i]));
         }
     }
 
+    @Override
     protected boolean mysql_update() {
         boolean get_contacts = false;
         boolean get_requests = false;
 
-        String resp=connect("contact/get.php","");
-        if(resp!=null && resp.substring(0,3).equals("suc")) {
-            if(resp.length()>4) {
-                updateContacts(resp.substring(4).split(";"));
-            }
+        ArrayList<String> respList=connect_list("contact/get.php","");
+        Iterator<String> it = respList.iterator();
+        String resp = it.next();
+        if(resp.substring(0,3).equals("suc")) {
             get_contacts = true;
+            if(resp.length()>4) {
+                updateContacts(resp.substring(3).split(";"));
+            }
+            while(it.hasNext()) {
+                groups.add(new ContactGroup(it.next()));
+            }
         }
 
         resp=connect("contact/request/get.php","");
-        if(resp!=null && resp.substring(0,3).equals("suc")) {
+        if(resp.substring(0,3).equals("suc")) {
+            get_requests = true;
             if(resp.length()>4) {
                 setContactRequests(resp.substring(4).split(";"));
             }
-            get_requests = true;
         }
 
         return (get_contacts && get_requests);
     }
 
-    protected void setContactRequests(String... splitLine) {
-        for(String s : splitLine) {
-            String[] r = s.split(",");
-            int contact_id = Integer.parseInt(r[0]);
-            if(!requestLoaded(contact_id)) {
-                contactRequests.add(new Contact(Integer.parseInt(r[0]),r[1],r[2]));
-            }
+    protected void setContactRequests(String... r) {
+        contactRequests=new ArrayList<>();
+        for(int i=2;i<r.length;i+=3) {
+            contactRequests.add(new Contact(Integer.parseInt(r[i-2]),r[i-1],r[i]));
         }
     }
 
-    protected void updateContacts(String... splitLine) {
-        int contactCount = Integer.parseInt(splitLine[0]);
+    protected void updateContacts(String... r) {
         ContactGroup cg0=groups.get(groups.size()-1);
-
-        for(int i=1;i<contactCount+1;++i) {
-            String[] r = splitLine[i].split(",");
-            int id = Integer.parseInt(r[0]);
+        for(int i=2;i<r.length;++i) {
+            int id = Integer.parseInt(r[i-2]);
             Contact cont = findContactById(id);
             if(cont == null) {
-                cont = new Contact(id,r[1],r[2]);
-                cg0.add(cont);
+                cont = new Contact(id,r[i-1],r[i]);
+                cg0.contacts.add(cont);
             }else {
-                cont.name = r[2];
+                cont.email = r[i-1];
+                cont.name = r[i];
             }
         }
-        for(int i=contactCount+1;i<splitLine.length;++i) {
-            String[] r = splitLine[i].split(",");
-            int id = Integer.parseInt(r[0]);
-            ContactGroup grp = findContactGroupById(id);
-            if(grp == null) {
-                grp = new ContactGroup(id, r);
-                groups.add(groups.size()-1,grp);
-            }else {
-                grp.name = r[1];
-                grp.update(r);
-
-            }
-        }
-    }
-
-    protected ContactGroup findContactGroupById(int group_id) {
-        for(ContactGroup g : groups) {
-            if(g.id == group_id) {
-                return g;
-            }
-        }
-        return null;
     }
 
     protected Contact findContactById(int contact_id) {
         return groups.get(groups.size()-1).findContactById(contact_id);
     }
 
-    protected void addContact(Contact cont) {
-        groups.get(groups.size()-1).add(cont);
-    }
-
-    protected Contact getContact(int index) {
-        return groups.get(groups.size()-1).contacts.get(index);
-    }
-
-    protected boolean requestLoaded(int contact_id) {
-        for(Contact c : contactRequests) {
-            if(c.id == contact_id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public ContactGroup getContactGroup(int index) {
-        return groups.get(index);
-    }
-
     public void deleteContact(Contact cont) {
         for(ContactGroup grp : groups) {
             grp.contacts.remove(cont);
         }
-        App.conMan.add(cont);
+        App.conMan.add(new Contact.Delete(cont.id));
     }
 
     public void sendRequest(String email) {

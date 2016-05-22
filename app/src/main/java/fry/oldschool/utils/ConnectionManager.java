@@ -33,34 +33,21 @@ public class ConnectionManager {
         }
     }
 
-    protected Entry createEntry(String[] r) {
-        byte type = Byte.parseByte(r[0]);
-        switch(type) {
-            case Entry.TYPE_CONTACT: return new Contact(Integer.parseInt(r[1]),r[2],r[3]);
-            case Entry.TYPE_CONTACTREQUEST_SEND: return new ContactRequest.Send(r[1]);
-            case Entry.TYPE_CONTACTREQUEST_ACCEPT: return new ContactRequest.Accept(new Contact(Integer.parseInt(r[1]),r[2],r[3]));
-            case Entry.TYPE_CONTACTREQUEST_DECLINE: return new ContactRequest.Decline(Integer.parseInt(r[1]));
-            case Entry.TYPE_TASKLIST: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
-            case Entry.TYPE_TASKLISTENTRY: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
-            case Entry.TYPE_CONTACTGROUP: return new ContactGroup(r);
-            default: return null;
-        }
-    }
-
     public void load() {
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
             String line;
-            int c=0;
+
             while((line=br.readLine()) != null) {
-                String[] r=line.split(",");
 
-                Entry ent = createEntry(r);
+                Entry ent = Entry.create(line);
 
-                if(ent != null) {
-                    entry.add(ent);
+                if(ent == null) {
+                    continue;
                 }
-                ++c;
+
+                entry.add(ent);
+
             }
             br.close();
             sync();
@@ -71,20 +58,16 @@ public class ConnectionManager {
     }
 
     public void save() {
-        int c=0;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
             Iterator<Entry> it = entry.iterator();
 
             if (it.hasNext()) {
-                bw.write(it.next().getConnectionManagerString());
-                ++c;
-            }
-
-            while(it.hasNext()) {
-                bw.newLine();
-                bw.write(it.next().getConnectionManagerString());
-                ++c;
+                bw.write(it.next().getString());
+                while(it.hasNext()) {
+                    bw.newLine();
+                    bw.write(it.next().getString());
+                }
             }
 
             bw.close();
@@ -99,8 +82,8 @@ public class ConnectionManager {
         sync();
     }
 
-    protected void remove(Entry entry) {
-        this.entry.remove(entry);
+    protected void notifyMySQLListener() {
+        (new NotifyListener()).execute();
     }
 
     protected class Sync extends AsyncTask<String,String,String> {
@@ -112,7 +95,10 @@ public class ConnectionManager {
                 App.conLis.mysql_update();
             }
             for(int i=0 ; i<entry.size() ; ) {
-                if(!entry.get(i).mysql_update()) {
+                if(entry.get(i).mysql_update()) {
+                    entry.remove(i);
+                    notifyMySQLListener();
+                }else {
                     ++i;
                 }
             }
@@ -122,9 +108,27 @@ public class ConnectionManager {
 
         @Override
         protected void onPostExecute(String file_url) {
+            /*
             if(mysql_listener != null) {
                 mysql_listener.mysql_finished();
             }
+            */
+        }
+    }
+
+    protected class NotifyListener extends AsyncTask<String,String,String> {
+
+        @Override
+        protected String doInBackground(String... args) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if(mysql_listener != null) {
+                mysql_listener.mysql_finished(/*message*/);
+            }
+            //App.errorDialog("error",message);
         }
     }
 }

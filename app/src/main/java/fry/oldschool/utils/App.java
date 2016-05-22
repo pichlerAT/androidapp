@@ -65,8 +65,10 @@ public class App extends Application {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
 
             String line=br.readLine();
-            if(line!=null) {
-                conLis = new ContactList(line.split(";"));
+            conLis = new ContactList(line.split(";"));
+
+            while((line = br.readLine()) != null) {
+                conLis.groups.add(new ContactGroup(line.split(";")));
             }
 
         }catch (IOException ex) {
@@ -79,16 +81,18 @@ public class App extends Application {
         try{
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
 
-            Iterator<Contact> it = conLis.groups.get(conLis.groups.size()-1).contacts.iterator();
-            if(it.hasNext()) {
-                Contact cont = it.next();
-                bw.write(cont.id+","+cont.email+","+cont.name);
-                while(it.hasNext()) {
-                    cont = it.next();
-                    bw.write(";"+cont.id+","+cont.email+","+cont.name);
-                }
+            for(Contact c : conLis.groups.get(conLis.groups.size()-1).contacts ) {
+                bw.write(c.id + ";" + c.email + ";" + c.name + ";");
             }
 
+            Iterator<ContactGroup> it = conLis.groups.iterator();
+            if(it.hasNext()) {
+                ContactGroup g = it.next();
+                while(it.hasNext()) {
+                    bw.newLine();
+                    bw.write(g.id + ";" + g.name + ";" + g.getContactsString());
+                }
+            }
 
             bw.close();
         } catch (IOException e) {
