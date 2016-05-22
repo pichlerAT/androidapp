@@ -79,7 +79,7 @@ public class App extends Application {
         try{
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
 
-            Iterator<Contact> it = conLis.groups.get(0).contacts.iterator();
+            Iterator<Contact> it = conLis.groups.get(conLis.groups.size()-1).contacts.iterator();
             if(it.hasNext()) {
                 Contact cont = it.next();
                 bw.write(cont.id+","+cont.email+","+cont.name);

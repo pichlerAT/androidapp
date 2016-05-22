@@ -53,7 +53,7 @@ public class ContactList extends MySQL {
 
     protected void updateContacts(String... splitLine) {
         int contactCount = Integer.parseInt(splitLine[0]);
-        ContactGroup cg0=groups.get(0);
+        ContactGroup cg0=groups.get(groups.size()-1);
 
         for(int i=1;i<contactCount+1;++i) {
             String[] r = splitLine[i].split(",");
@@ -90,15 +90,15 @@ public class ContactList extends MySQL {
     }
 
     protected Contact findContactById(int contact_id) {
-        return groups.get(0).findContactById(contact_id);
+        return groups.get(groups.size()-1).findContactById(contact_id);
     }
 
     protected void addContact(Contact cont) {
-        groups.get(0).add(cont);
+        groups.get(groups.size()-1).add(cont);
     }
 
     protected Contact getContact(int index) {
-        return groups.get(0).contacts.get(index);
+        return groups.get(groups.size()-1).contacts.get(index);
     }
 
     protected boolean requestLoaded(int contact_id) {
