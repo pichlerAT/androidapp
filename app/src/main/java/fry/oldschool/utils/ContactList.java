@@ -76,6 +76,7 @@ public class ContactList extends MySQL {
             }else {
                 grp.name = r[1];
                 grp.update(r);
+
             }
         }
     }

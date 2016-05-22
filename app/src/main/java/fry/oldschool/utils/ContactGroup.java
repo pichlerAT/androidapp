@@ -21,6 +21,14 @@ public class ContactGroup extends Entry {
         update(contacts);
     }
 
+    protected ContactGroup(String[] r) {
+        id = Integer.parseInt(r[1]);
+        name = r[2];
+        for(int i=3;i<r.length;++i) {
+            this.contacts.add(App.conLis.findContactById(Integer.parseInt(r[i])));
+        }
+    }
+
     public void add(Contact contact) {
         contacts.add(contact);
     }

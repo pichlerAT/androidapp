@@ -42,7 +42,7 @@ public class ConnectionManager {
             case Entry.TYPE_CONTACTREQUEST_DECLINE: return new ContactRequest.Decline(Integer.parseInt(r[1]));
             case Entry.TYPE_TASKLIST: return new TaskList(Integer.parseInt(r[1]),Integer.parseInt(r[2]),r[3]);
             case Entry.TYPE_TASKLISTENTRY: return new TaskListEntry(Integer.parseInt(r[1]),Integer.parseInt(r[2]),Integer.parseInt(r[3]),r[4],Byte.parseByte(r[5]));
-            case Entry.TYPE_CONTACTGROUP: return new ContactGroup(Integer.parseInt(r[0]),r);
+            case Entry.TYPE_CONTACTGROUP: return new ContactGroup(r);
             default: return null;
         }
     }
