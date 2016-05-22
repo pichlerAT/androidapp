@@ -1,8 +1,9 @@
 package fry.oldschool.utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class ContactGroup {
+public class ContactGroup extends Entry {
 
     protected int id;
 
@@ -28,6 +29,11 @@ public class ContactGroup {
         this.contacts = contacts;
     }
 
+    public void update(ArrayList<Contact> contacts) {
+        this.contacts = contacts;
+        App.conMan.add(this);
+    }
+
     protected void update(String[] contacts) {
         name = contacts[1];
         for(int i=2;i<contacts.length;++i) {
@@ -44,6 +50,13 @@ public class ContactGroup {
         }
     }
 
+    public void delete() {
+        name = null;
+        contacts = null;
+        App.conLis.groups.remove(this);
+        App.conMan.add(this);
+    }
+
     protected Contact findContactById(int contact_id) {
         for(Contact c : contacts) {
             if(c.id == contact_id) {
@@ -53,4 +66,44 @@ public class ContactGroup {
         return null;
     }
 
+    @Override
+    protected byte getType() {
+        return TYPE_CONTACTGROUP;
+    }
+
+    @Override
+    protected boolean mysql_update() {
+        String resp;
+        if(id == 0) {
+            resp = connect("contact/group/create.php","&group_name="+name+"&contacts="+getContactsString());
+        }else if(name == null) {
+            resp = connect("contact/group/delete.php","&group_id="+id);
+        }else {
+            resp = connect("contact/group/update.php","&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
+        }
+        if(resp.substring(0,3).equals("suc")) {
+            if(id == 0) {
+                id = Integer.parseInt(resp.substring(3));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected String getConnectionManagerString() {
+        return ( super.getConnectionManagerString() + SEP_1 + id + SEP_1 + name + SEP_1 + getContactsString() );
+    }
+
+    protected String getContactsString() {
+        String s = "";
+        Iterator<Contact> it = contacts.iterator();
+        if(it.hasNext()) {
+            s += it.next().id;
+        }
+        while(it.hasNext()) {
+            s += SEP_1 + it.next().id;
+        }
+        return s;
+    }
 }

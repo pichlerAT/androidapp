@@ -14,6 +14,8 @@ public abstract class Entry extends MySQL {
 
     protected static final byte TYPE_CONTACTREQUEST_DECLINE = 6 ;
 
+    protected static final byte TYPE_CONTACTGROUP = 7 ;
+
     protected String getConnectionManagerString() {
         return ( getType() + "" );
     }
