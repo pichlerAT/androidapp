@@ -52,6 +52,9 @@ public class ContactGroup extends Entry {
 
     protected void update(String[] contacts) {
         name = contacts[1];
+        if(contacts[2].equals("n")) {
+           return;
+        }
         for(int i=2;i<contacts.length;++i) {
             int contact_id = Integer.parseInt(contacts[i]);
             Contact c = findContactById(contact_id);
@@ -119,6 +122,9 @@ public class ContactGroup extends Entry {
         }
         while(it.hasNext()) {
             s += SEP_1 + it.next().id;
+        }
+        if(s.isEmpty()) {
+            return "n";
         }
         return s;
     }

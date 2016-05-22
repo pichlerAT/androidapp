@@ -140,6 +140,6 @@ public class ContactList extends MySQL {
     public void createContactGroup(String name) {
         ContactGroup grp=new ContactGroup(name);
         App.conMan.add(grp);
-        groups.add(grp);
+        groups.add(groups.size()-1,grp);
     }
 }
