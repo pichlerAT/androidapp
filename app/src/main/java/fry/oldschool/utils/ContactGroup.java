@@ -29,8 +29,24 @@ public class ContactGroup extends Entry {
         this.contacts = contacts;
     }
 
-    public void update(ArrayList<Contact> contacts) {
-        this.contacts = contacts;
+    public void rename(String name) {
+        this.name = name;
+        App.conMan.add(this);
+    }
+
+    public void addContacts(ArrayList<Contact> contacts) {
+        for(Contact c : contacts) {
+            if(findContactById(c.id) == null) {
+                this.contacts.add(c);
+            }
+        }
+        App.conMan.add(this);
+    }
+
+    public void removeContacts(ArrayList<Contact> contacts) {
+        for(Contact c : contacts) {
+            this.contacts.remove(c);
+        }
         App.conMan.add(this);
     }
 
