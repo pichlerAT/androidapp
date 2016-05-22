@@ -17,7 +17,7 @@ public abstract class MySQL {
     public static final String ADDRESS="http://"+IP_ADDRESS+"/Oldschool/";
 
     public static int USER_ID = 1;
-    public static String USER_EMAIL = "fragner@gmx.net";
+    //public static String USER_EMAIL = "fragner@gmx.net";
     public static String USER_PASSWORD = "Marmor";
 
     protected abstract boolean mysql_update();

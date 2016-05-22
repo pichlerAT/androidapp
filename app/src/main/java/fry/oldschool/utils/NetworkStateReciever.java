@@ -26,9 +26,11 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 return;
             }
         }
+        /*
         if(intent.getExtras().getBoolean(ConnectivityManager.EXTRA_NO_CONNECTIVITY,Boolean.FALSE)) {
             // no network connectivity
         }
+        */
         App.hasInternetConnection = false;
     }
 
