@@ -152,12 +152,12 @@ public class TaskCreateActivity extends AppCompatActivity{
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
         if (!header.getText().toString().matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
-            int length = taskEntries.getChildCount();
+            //int length = taskEntries.getChildCount();
 
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
-            if (tdl == null)
-                tdl = TaskList.create(header.getText().toString(), length);
-            else {
+            if (tdl == null) {
+                //tdl = TaskList.create(header.getText().toString(), length);
+            }else {
                 /*
                 if (length != tdl.length())
                     tdl.setLength(length);
@@ -166,7 +166,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             }
 
             //In this loop task entries are created, or changed if they already exist
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < taskEntries.getChildCount(); i++) {
                 View table_view = taskEntries.getChildAt(i);
                 if (table_view instanceof TableRow) {
                     TableRow row = (TableRow) table_view;

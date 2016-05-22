@@ -52,31 +52,53 @@ public class ContactList extends MySQL {
     }
 
     protected void updateContacts(String... splitLine) {
+        int contactCount = Integer.parseInt(splitLine[0]);
         ContactGroup cg0=groups.get(0);
-        for(String s : splitLine) {
-            String[] r=s.split(",");
-            int id=Integer.parseInt(r[0]);
-            Contact cont=getContact(id);
+
+        for(int i=1;i<contactCount+1;++i) {
+            String[] r = splitLine[i].split(",");
+            int id = Integer.parseInt(r[0]);
+            Contact cont = findContactById(id);
             if(cont == null) {
-                cont=new Contact(id,r[1],r[2]);
+                cont = new Contact(id,r[1],r[2]);
                 cg0.add(cont);
             }else {
                 cont.name = r[2];
             }
         }
+        for(int i=contactCount+1;i<splitLine.length;++i) {
+            String[] r = splitLine[i].split(",");
+            int id = Integer.parseInt(r[0]);
+            ContactGroup grp = findContactGroupById(id);
+            if(grp == null) {
+                grp = new ContactGroup(id, r);
+                groups.add(grp);
+            }else {
+                grp.name = r[1];
+                grp.update(r);
+            }
+        }
+    }
+
+    protected ContactGroup findContactGroupById(int group_id) {
+        for(ContactGroup g : groups) {
+            if(g.id == group_id) {
+                return g;
+            }
+        }
+        return null;
+    }
+
+    protected Contact findContactById(int contact_id) {
+        return groups.get(0).findContactById(contact_id);
     }
 
     protected void addContact(Contact cont) {
         groups.get(0).add(cont);
     }
 
-    protected Contact getContact(int id) {
-        for(Contact cont : groups.get(0).contacts) {
-            if(cont.id == id) {
-                return cont;
-            }
-        }
-        return null;
+    protected Contact getContact(int index) {
+        return groups.get(0).contacts.get(index);
     }
 
     protected boolean requestLoaded(int contact_id) {

@@ -25,23 +25,14 @@ public class TaskList extends UserEntry {
     }
 
     public static void unload() {
-        save_local();
+        local_save();
         //TaskLists = null;
     }
 
-    public static TaskList create(String name, int length) {
+    public static TaskList create(String name) {
         TaskList tdl=new TaskList(0, Entry.USER_ID,name);
         tdl.create();
         return tdl;
-    }
-
-    public static TaskList findById(int id) {
-        for(TaskList tdl : TaskLists) {
-            if(tdl.id == id) {
-                return tdl;
-            }
-        }
-        return null;
     }
 
     public static void load_local() {
@@ -75,7 +66,7 @@ public class TaskList extends UserEntry {
         }
     }
 
-    public static void save_local() {
+    public static void local_save() {
         try {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
 
