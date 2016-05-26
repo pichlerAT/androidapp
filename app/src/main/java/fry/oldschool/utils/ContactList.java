@@ -42,8 +42,8 @@ public class ContactList extends MySQL {
         resp=connect("contact/request/get.php","");
         if(resp.substring(0,3).equals("suc")) {
             get_requests = true;
-            if(resp.length()>4) {
-                setContactRequests(resp.substring(4).split(";"));
+            if(resp.length()>3) {
+                setContactRequests(resp.substring(3).split(";"));
             }
         }
 
