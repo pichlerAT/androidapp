@@ -32,7 +32,10 @@ public class ContactList extends MySQL {
                 updateContacts(resp.substring(3).split(";"));
             }
             while(it.hasNext()) {
-                groups.add(groups.size()-1,new ContactGroup(it.next().split(";")));
+                ContactGroup g = new ContactGroup(it.next().split(";"));
+                if(!hasContactGroup(g.id)) {
+                    groups.add(groups.size() - 1, g);
+                }
             }
         }
 
@@ -67,6 +70,15 @@ public class ContactList extends MySQL {
                 cont.name = r[i];
             }
         }
+    }
+
+    protected boolean hasContactGroup(int group_id) {
+        for(ContactGroup g : groups) {
+            if(g.id == group_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Contact findContactById(int contact_id) {
