@@ -64,13 +64,13 @@ public class TaskListEntry extends Entry {
     @Override
     protected boolean mysql_update() {
         if(id == 0) {
-            String resp = connect("todolist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+            String resp = connect("tasklist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
             if(resp.substring(0,3).equals("suc")) {
                 id = Integer.parseInt(resp.substring(3));
                 return true;
             }
         }else {
-            String resp = connect("todolist/entry/update.php","&entry_id=" + id + "&description=" + description + "&state=" + state);
+            String resp = connect("tasklist/entry/update.php","&entry_id=" + id + "&description=" + description + "&state=" + state);
             return resp.equals("suc");
         }
         return false;
