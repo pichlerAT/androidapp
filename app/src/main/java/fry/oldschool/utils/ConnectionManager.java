@@ -120,14 +120,6 @@ public class ConnectionManager extends MySQL {
             return null;
         }
 
-        @Override
-        protected void onPostExecute(String file_url) {
-            /*
-            if(mysql_listener != null) {
-                mysql_listener.mysql_finished();
-            }
-            */
-        }
     }
 
     protected class NotifyListener extends AsyncTask<String,String,String> {

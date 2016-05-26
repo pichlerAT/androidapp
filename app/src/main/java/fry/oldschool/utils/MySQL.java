@@ -18,7 +18,7 @@ public abstract class MySQL {
 
     public static int USER_ID = 1;
     //public static String USER_EMAIL = "fragner@gmx.net";
-    public static String USER_PASSWORD = "Marmor";
+    public static String USER_PASSWORD = "1234";
 
     protected abstract boolean mysql_update();
 
