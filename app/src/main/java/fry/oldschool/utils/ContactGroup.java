@@ -74,16 +74,14 @@ public class ContactGroup extends Entry {
             }
         }else {
             String resp = connect("contact/group/update.php","&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
-            if(resp.equals("suc")) {
-                return true;
-            }
+            return resp.equals("suc");
         }
 
         return false;
     }
 
     @Override
-    protected String getString() {
+    protected String getConManString() {
         return TYPE_CONTACTGROUP + "" + id + ";" + name + ";" + getContactsString();
     }
 
@@ -118,7 +116,7 @@ public class ContactGroup extends Entry {
         }
 
         @Override
-        protected String getString() {
+        protected String getConManString() {
             return TYPE_CONTACTGROUP_DELETE + "" + group_id;
         }
     }

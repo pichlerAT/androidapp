@@ -1,57 +1,93 @@
 package fry.oldschool.utils;
 
-public class TaskListEntry {
+public class TaskListEntry extends Entry {
 
-    protected byte state;
+    protected int id;
 
     protected int table_id;
 
+    protected int user_id;
+
+    protected byte state;
+
     public String description;
 
-    protected TaskListEntry(int id,int user_id,int table_id,String description,byte state) {
-        //super(id,user_id);
+    protected static TaskListEntry create(int table_id,String description,boolean state) {
+        TaskListEntry ent = new TaskListEntry(0,table_id,Entry.USER_ID,description,( state ? (byte)0 : (byte)1 ));
+        App.conMan.add(ent);
+        return ent;
+    }
+
+    protected TaskListEntry(int id,int table_id,int user_id,String description,byte state) {
+        this.id = id;
         this.table_id = table_id;
+        this.user_id = user_id;
         this.description = description;
         this.state = state;
     }
 
-    protected TaskListEntry(int table_id,String description,byte state) {
-        //this(0,table_id,USER_ID,description,state);
+    protected TaskListEntry(String line) {
+        String[] r = line.split(";");
+        id = Integer.parseInt(r[0]);
+        user_id = Integer.parseInt(r[1]);
+        table_id = Integer.parseInt(r[2]);
+        description = r[3];
+        state = Byte.parseByte(r[4]);
     }
 
-    public void set(String description,boolean state) {
+    public void change(String description,boolean state) {
         this.description = description;
         this.state = ( state ? (byte)0 : (byte)1 );
-        //App.conMan.add(this);
+        App.conMan.add(this);
     }
 
     public boolean done() {
         return ( state == 0 );
     }
-/*
+
     @Override
-    protected String getConnectionManagerString() {
-        return super.getConnectionManagerString() + SEP_1 + table_id + SEP_1 + description + SEP_1 + state ;
+    protected String getConManString() {
+        return TYPE_TASKLIST_ENTRY + "" + id + ";" + table_id + ";" + user_id + ";" + description + ";" + state;
     }
 
     @Override
-    protected byte getType() {
-        return TYPE_TASKLISTENTRY;
+    protected boolean mysql_update() {
+        if(id == 0) {
+            String resp = connect("todolist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+            if(resp.substring(0,3).equals("suc")) {
+                id = Integer.parseInt(resp.substring(3));
+                return true;
+            }
+        }else {
+            String resp = connect("todolist/entry/update.php","&entry_id=" + id + "&description=" + description + "&state=" + state);
+            return resp.equals("suc");
+        }
+        return false;
     }
 
-    @Override
-    protected String[] getCreate() {
-        return new String[]{"todolist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state};
-    }
 
-    @Override
-    protected String[] getUpdate() {
-        return new String[]{"todolist/entry/update.php","&entry_id=" + id + "&description=" + description + "&state=" + state};
-    }
+    protected static class Delete extends Entry {
 
-    @Override
-    protected String[] getDelete() {
-        return new String[]{"todolist/entry/delete.php","&entry_id=" + id};
+        protected int entry_id;
+
+        protected Delete(int entry_id) {
+            this.entry_id = entry_id;
+        }
+
+        protected Delete(String line) {
+            entry_id = Integer.parseInt(line);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("tasklist/entry/delete.php", "&entry_id=" + entry_id);
+            return resp.equals("suc");
+        }
+
+        @Override
+        protected String getConManString() {
+            return TYPE_TASKLIST_ENTRY_DELETE + "" + entry_id;
+        }
+
     }
-*/
 }

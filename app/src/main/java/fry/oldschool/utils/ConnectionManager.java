@@ -13,13 +13,26 @@ import java.util.Iterator;
 
 import fry.oldschool.R;
 
-public class ConnectionManager {
+public class ConnectionManager extends MySQL {
 
     protected ArrayList<Entry> entry = new ArrayList<>();
 
     protected Sync syncTask = new Sync();
 
     protected MySQLListener mysql_listener;
+
+    @Override
+    protected boolean mysql_update() {
+        ArrayList<String> resp = connect_list("tasklist/get.php","");
+        Iterator<String> it = resp.iterator();
+        if(it.next().equals("suc")) {
+            while(it.hasNext()) {
+                App.TaskLists.add(new TaskList(it.next()));
+            }
+            return true;
+        }
+        return false;
+    }
 
     protected void setMySQLListener(MySQLListener mysql_listener) {
         this.mysql_listener = mysql_listener;
@@ -63,10 +76,10 @@ public class ConnectionManager {
             Iterator<Entry> it = entry.iterator();
 
             if (it.hasNext()) {
-                bw.write(it.next().getString());
+                bw.write(it.next().getConManString());
                 while(it.hasNext()) {
                     bw.newLine();
-                    bw.write(it.next().getString());
+                    bw.write(it.next().getConManString());
                 }
             }
 
@@ -93,6 +106,7 @@ public class ConnectionManager {
             if(App.PERFORM_UPDATE) {
                 App.PERFORM_UPDATE = false;
                 App.conLis.mysql_update();
+                mysql_update();
             }
             for(int i=0 ; i<entry.size() ; ) {
                 if(entry.get(i).mysql_update()) {

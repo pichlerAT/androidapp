@@ -11,52 +11,35 @@ import java.util.Iterator;
 
 import fry.oldschool.R;
 
-public class TaskList {
+public class TaskList extends Entry {
 
-    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
+    protected int id;
+
+    protected int user_id;
 
     public String name;
 
     public ArrayList<TaskListEntry> entry = new ArrayList<>();
 
-    public static void load() {
-        //TaskLists = new ArrayList<>();
-        //load_local();
-    }
-
-    public static void unload() {
-        //local_save();
-        //TaskLists = null;
-    }
-
     public static TaskList create(String name) {
-        TaskList tdl=new TaskList(0, 1/*Entry.USER_ID*/,name);
-        tdl.create();
-        return tdl;
+        TaskList tl=new TaskList(0,Entry.USER_ID,name);
+        App.conMan.add(tl);
+        return tl;
     }
 
-    public static void load_local() {
+    public static void load() {
         try {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
 
             String line;
 
             while((line=br.readLine()) != null) {
-                if(line.equals("")) continue;
-
-                String[] r=line.split(";");
-                String[] ri=r[0].split(",");
-
-                TaskList tdl=new TaskList(Integer.parseInt(ri[0]),Integer.parseInt(ri[1]),ri[2]);
-
-                for(int i=1;i<r.length;++i) {
-                    ri=r[i].split(",");
-                    int entry_id=Integer.parseInt(ri[0]);
-                    int user_id=Integer.parseInt(ri[1]);
-                    byte state=Byte.parseByte(ri[3]);
-                    //tdl.entry.add(new TaskListEntry(entry_id,tdl.id,user_id,ri[2],state));
+                String[] r = line.split(";");
+                TaskList tl = new TaskList(Integer.parseInt(r[0]),Integer.parseInt(r[1]),r[2]);
+                for(int i=6;i<r.length;i+=4) {
+                    tl.entry.add(new TaskListEntry(Integer.parseInt(r[i-3]),tl.id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i])));
                 }
-                TaskLists.add(tdl);
+                App.TaskLists.add(tl);
             }
 
             br.close();
@@ -66,27 +49,18 @@ public class TaskList {
         }
     }
 
-    public static void local_save() {/*
+    public static void save() {
         try {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
-
-            Iterator<TaskList> it = TaskLists.iterator();
-            TaskList tdl;
+            Iterator<TaskList> it = App.TaskLists.iterator();
 
             if(it.hasNext()) {
-                tdl = it.next();
-                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
-                for(TaskListEntry ent : tdl.entry) {
-                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
-                }
-            }
-
-            while(it.hasNext()) {
-                tdl = it.next();
-                bw.newLine();
-                bw.write(tdl.id+","+tdl.user_id+","+tdl.name);
-                for(TaskListEntry ent : tdl.entry) {
-                    bw.write(";"+ent.id+","+ent.user_id+","+ent.description+","+ent.state);
+                TaskList tl = it.next();
+                bw.write(tl.id + ";" + tl.user_id + ";" + tl.name + ";" + tl.getEntryStrings());
+                while(it.hasNext()) {
+                    tl = it.next();
+                    bw.newLine();
+                    bw.write(tl.id + ";" + tl.user_id + ";" + tl.name + ";" + tl.getEntryStrings());
                 }
             }
 
@@ -94,58 +68,34 @@ public class TaskList {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
-    }
-
-    protected TaskList(int id, int user_id, String name) {
-        //super(id,user_id);
-        this.name = name;
-    }
-/*
-    @Override
-    protected void setId(int id) {
-        super.setId(id);
-        for(TaskListEntry ent : entry) {
-            ent.table_id = id;
-            ent.create();
         }
     }
 
-    @Override
-    protected String getConnectionManagerString() {
-        return super.getConnectionManagerString() + SEP_1 + name ;
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_TASKLIST;
-    }
-
-    @Override
-    protected String[] getCreate() {
-        return new String[]{"todolist/create.php", "&name=" + name};
-    }
-
-    @Override
-    protected String[] getUpdate() {
-        return new String[]{"todolist/update.php", "&table_id=" + id + "&name=" + name};
-    }
-
-    @Override
-    protected String[] getDelete() {
-        return new String[]{"todolist/delete.php", "&table_id=" + id};
-    }
-*/
-    public void set(String name) {
+    protected TaskList(int id, int user_id, String name) {
+        this.id = id;
+        this.user_id = user_id;
         this.name = name;
     }
 
-    public void addEntry(String task,boolean state) {/*
-        TaskListEntry ent = new TaskListEntry(id,task,( state ? (byte)0 : (byte)1 ));
-        entry.add(ent);
-        if(id != 0) {
-            ent.create();
-        }*/
+    protected TaskList(String line) {
+        String[] r = line.split(";");
+        id = Integer.parseInt(r[0]);
+        user_id = Integer.parseInt(r[1]);
+        name = r[2];
+        if(r.length > 3) {
+            for(int i=6;i<r.length;i+=4) {
+                entry.add(new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i])));
+            }
+        }
+    }
+
+    public void rename(String name) {
+        this.name = name;
+        App.conMan.add(this);
+    }
+
+    public void addEntry(String task,boolean state) {
+        entry.add(TaskListEntry.create(id,task,state));
     }
 
     public boolean done(int index) {
@@ -160,20 +110,69 @@ public class TaskList {
         return entry.get(index).description;
     }
 
-    public void create() {
-        //super.create();
-        TaskLists.add(this);
+    @Override
+    protected boolean mysql_update() {
+        if(id == 0) {
+            String resp = connect("tasklist/create.php", "&name=" + name);
+            if(resp.substring(0,3).equals("suc")) {
+                id = Integer.parseInt(resp.substring(3));
+                return true;
+            }
+        }else {
+            String resp = connect("tasklist/update.php", "&table_id=" + id + "&name=" + name);
+            return resp.equals("suc");
+        }
+        return false;
+    }
+
+    @Override
+    protected String getConManString() {
+        return TYPE_TASKLIST + "" + id + ";" + user_id + ";" + name;
     }
 
     public void delete() {
-        //super.delete();
-        TaskLists.remove(this);
-        entry = null;
+        App.TaskLists.remove(this);
+        App.conMan.add(new Delete(id));
     }
 
     public void delete(int index) {
-        //entry.get(index).delete();
+        App.conMan.add(new TaskListEntry.Delete(entry.get(index).id));
         entry.remove(index);
     }
 
+    protected String getEntryStrings() {
+        if(entry.size() <= 0) {
+            return "n";
+        }
+        String s = "";
+        for(TaskListEntry e : entry) {
+            s += e.id + ";" + e.user_id + ";" + e.description + ";" + e.state + ";";
+        }
+        return s;
+    }
+
+    protected static class Delete extends Entry {
+
+        protected int table_id;
+
+        protected Delete(int table_id) {
+            this.table_id = table_id;
+        }
+
+        protected Delete(String line) {
+            table_id = Integer.parseInt(line);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("tasklist/delete.php", "&table_id=" + table_id);
+            return resp.equals("suc");
+        }
+
+        @Override
+        protected String getConManString() {
+            return TYPE_TASKLIST_DELETE + "" + table_id;
+        }
+
+    }
 }

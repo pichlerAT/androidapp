@@ -34,7 +34,7 @@ public class Contact {
         }
 
         @Override
-        protected String getString() {
+        protected String getConManString() {
             return TYPE_CONTACT_DELETE + "" + contact_id;
         }
     }

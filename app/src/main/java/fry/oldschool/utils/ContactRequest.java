@@ -11,7 +11,7 @@ public class ContactRequest {
         }
 
         @Override
-        protected String getString() {
+        protected String getConManString() {
             return TYPE_CONTACTREQUEST_SEND + "" +email;
         }
 
@@ -45,7 +45,7 @@ public class ContactRequest {
         }
 
         @Override
-        protected String getString() {
+        protected String getConManString() {
             return TYPE_CONTACTREQUEST_ACCEPT + "" + contact.id + ";" + contact.email + ";" + contact.name;
         }
 
@@ -75,7 +75,7 @@ public class ContactRequest {
         }
 
         @Override
-        protected String getString() {
+        protected String getConManString() {
             return TYPE_CONTACTREQUEST_DECLINE + "" + contact_id;
         }
 

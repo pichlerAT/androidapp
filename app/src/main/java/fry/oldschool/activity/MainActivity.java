@@ -20,7 +20,6 @@ import fry.oldschool.fragment.ContactFragment;
 import fry.oldschool.fragment.TaskFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.NetworkStateReciever;
 import fry.oldschool.utils.TaskList;
 
 public class MainActivity extends AppCompatActivity
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         App.save_settings();
         App.conMan.save();
-        TaskList.save_local();
+        TaskList.save();
     }
 
     @Override

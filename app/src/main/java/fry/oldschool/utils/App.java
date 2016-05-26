@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import fry.oldschool.R;
@@ -19,13 +20,15 @@ public class App extends Application {
 
     protected static boolean PERFORM_UPDATE;
 
+    public static boolean hasInternetConnection = false;
+
+    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
+
     public static ContactList conLis;
 
     public static ConnectionManager conMan = new ConnectionManager();
 
     public static Context mContext;
-
-    public static boolean hasInternetConnection = false;
 
     public static void setContext(Context mContext) {
         App.mContext = mContext;
@@ -54,10 +57,20 @@ public class App extends Application {
         super.onCreate();
         mContext = this;
         PERFORM_UPDATE = true;
-        load_settings();
-        App.conMan.load();
-        TaskList.load();
+        load();
         NetworkStateReciever.checkInternet();
+    }
+
+    protected void load() {
+        load_settings();
+        conMan.load();
+        TaskList.load();
+    }
+
+    public static void save() {
+        save_settings();
+        conMan.save();
+        TaskList.save();
     }
 
     protected void load_settings() {
