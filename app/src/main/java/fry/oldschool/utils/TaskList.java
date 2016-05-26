@@ -117,6 +117,10 @@ public class TaskList extends Entry {
         entry.add(TaskListEntry.create(id,task,state));
     }
 
+    public void addEntry(int index,String task,boolean state) {
+        entry.add(index,TaskListEntry.create(id,task,state));
+    }
+
     public boolean done(int index) {
         return entry.get(index).done();
     }
