@@ -22,6 +22,10 @@ public abstract class Entry extends MySQL {
 
     protected static final char TYPE_TASKLIST_ENTRY_DELETE = 10 ;
 
+    protected static final char TYPE_TASKLIST_SHARE_CREATE = 11 ;
+
+    protected static final char TYPE_TASKLIST_SHARE_DELETE = 12 ;
+
     protected static Entry create(String line) {
         switch(line.charAt(0)) {
             case TYPE_CONTACT_DELETE: return new Contact.Delete(line.substring(1));
@@ -34,6 +38,8 @@ public abstract class Entry extends MySQL {
             case TYPE_TASKLIST_DELETE: return new TaskList.Delete(line.substring(1));
             case TYPE_TASKLIST_ENTRY: return new TaskListEntry(line.substring(1));
             case TYPE_TASKLIST_ENTRY_DELETE: return new TaskListEntry.Delete(line.substring(1));
+            case TYPE_TASKLIST_SHARE_CREATE: return new TaskList.Share.Create(line.substring(1));
+            case TYPE_TASKLIST_SHARE_DELETE: return new TaskList.Share.Delete(line.substring(1));
         }
         return null;
     }

@@ -89,9 +89,28 @@ public class TaskList extends Entry {
         }
     }
 
+    public boolean owner() {
+        return ( user_id == Entry.USER_ID );
+    }
+
+    public Contact getOwner() {
+        if(owner()) {
+            return null;
+        }
+        return App.conLis.findContactById(user_id);
+    }
+
     public void rename(String name) {
         this.name = name;
         App.conMan.add(this);
+    }
+
+    public void addShare(Contact cont) {
+        App.conMan.add(new Share.Create(cont.id,id));
+    }
+
+    public void removeShare(Contact cont) {
+        App.conMan.add(new Share.Delete(cont.id,id));
     }
 
     public void addEntry(String task,boolean state) {
@@ -175,4 +194,68 @@ public class TaskList extends Entry {
         }
 
     }
+
+    protected static abstract class Share extends Entry {
+
+        protected int contact_id;
+
+        protected int table_id;
+
+        protected Share(int contact_id,int table_id) {
+            this.contact_id = contact_id;
+            this.table_id = table_id;
+        }
+
+        protected Share(String line) {
+            String[] r = line.split(";");
+            contact_id = Integer.parseInt(r[0]);
+            table_id = Integer.parseInt(r[1]);
+        }
+
+        protected static class Create extends Share {
+
+            protected Create(int contact_id,int table_id) {
+                super(contact_id,table_id);
+            }
+
+            protected Create(String line) {
+                super(line);
+            }
+
+            @Override
+            protected boolean mysql_update() {
+                String resp = connect("tasklist/share/create.php", "&contact_id=" + contact_id + "&table_id=" + table_id);
+                return ( resp.equals("suc") || resp.equals("err_tsc2") );
+            }
+
+            @Override
+            protected String getConManString() {
+                return TYPE_TASKLIST_SHARE_CREATE + "" + contact_id + ";" + table_id;
+            }
+        }
+
+        protected static class Delete extends Share {
+
+            protected Delete(int contact_id,int table_id) {
+                super(contact_id,table_id);
+            }
+
+            protected Delete(String line) {
+                super(line);
+            }
+
+            @Override
+            protected boolean mysql_update() {
+                String resp = connect("tasklist/share/delete.php", "&contact_id=" + contact_id + "&table_id=" + table_id);
+                return ( resp.equals("suc") );
+            }
+
+            @Override
+            protected String getConManString() {
+                return TYPE_TASKLIST_SHARE_DELETE + "" + contact_id + ";" + table_id;
+            }
+        }
+
+    }
+
 }

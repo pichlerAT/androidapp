@@ -45,6 +45,17 @@ public class TaskListEntry extends Entry {
         return ( state == 0 );
     }
 
+    public boolean owner() {
+        return ( user_id == Entry.USER_ID );
+    }
+
+    public Contact getOwner() {
+        if(owner()) {
+            return null;
+        }
+        return App.conLis.findContactById(user_id);
+    }
+
     @Override
     protected String getConManString() {
         return TYPE_TASKLIST_ENTRY + "" + id + ";" + table_id + ";" + user_id + ";" + description + ";" + state;
