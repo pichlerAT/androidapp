@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
+import fry.oldschool.utils.App;
 import fry.oldschool.utils.TaskList;
 import fry.oldschool.utils.TaskListEntry;
 
@@ -104,7 +105,7 @@ public class TaskCreateActivity extends AppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(TaskList tdl : TaskList.TaskLists){
+        for(TaskList tdl : App.TaskLists){
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
@@ -134,7 +135,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             }
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == TaskList.TaskLists.get(index)){
+            if (args != null && tdl == App.TaskLists.get(index)){
                 setCurrentPage(taskView);
             }
         }
@@ -144,31 +145,27 @@ public class TaskCreateActivity extends AppCompatActivity{
     //This method saves the current task to the database
     protected void saveList(){
         //Get data from the current displayed view
-        int position = adapter.getItemPosition(getCurrentPage()) - 1;
+        int position = adapter.getItemPosition(getCurrentPage()) -1;
         RelativeLayout currentView = (RelativeLayout) getCurrentPage();
         TaskList tdl = null;
+
         if (position >= 0)
-             tdl = TaskList.TaskLists.get(position);
+             tdl = App.TaskLists.get(position);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
+
         if (!header.getText().toString().matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
-            //int length = taskEntries.getChildCount();
-
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (tdl == null) {
-                //tdl = TaskList.create(header.getText().toString(), length);
-            }else {
-                /*
-                if (length != tdl.length())
-                    tdl.setLength(length);
-                tdl.name = header.getText().toString();
-                */
+                tdl = TaskList.create(header.getText().toString());
             }
 
             //In this loop task entries are created, or changed if they already exist
             for (int i = 0; i < taskEntries.getChildCount(); i++) {
+
                 View table_view = taskEntries.getChildAt(i);
                 if (table_view instanceof TableRow) {
+
                     TableRow row = (TableRow) table_view;
 
                     View view_checkbox = row.getChildAt(0);
@@ -176,11 +173,15 @@ public class TaskCreateActivity extends AppCompatActivity{
 
                     CheckBox checkbox = (CheckBox) view_checkbox;
                     EditText edittext = (EditText) view_edittext;
-                    String entry = edittext.getText().toString();
-                    //if (i >= tdl.length())
-                        tdl.addEntry(entry, checkbox.isChecked());
-                    //else
-                    //    tdl.setAtPosition(i, entry, checkbox.isChecked());
+                    String entryText = edittext.getText().toString();
+
+                    TaskListEntry entry = null;
+                    if (tdl.entry.size() > i)
+                        entry = tdl.entry.get(i);
+                    if (entry != null && !entry.description.equals(entryText))
+                        entry.change(entryText, checkbox.isChecked());
+                    else if (entry == null)
+                        tdl.addEntry(entryText, checkbox.isChecked());
                 }
 
             }
@@ -219,13 +220,15 @@ public class TaskCreateActivity extends AppCompatActivity{
                 else if(keyCode == KeyEvent.KEYCODE_DEL){
                     if (entry.getText().toString().matches("")) {
                         int curIndex = index_list.indexOf(curRow.getTag());
-                        taskEntries.removeView(curRow);
-                        index_list.remove(curIndex);
+                        if (curIndex != 0) {
+                            TableRow aboveRow = (TableRow) taskEntries.getChildAt(curIndex - 1);
+                            EditText aboveText = (EditText) aboveRow.getChildAt(1);
 
-                        TableRow aboveRow = (TableRow) taskEntries.getChildAt(curIndex - 1);
-                        EditText aboveText = (EditText) aboveRow.getChildAt(1);
-                        aboveText.setFocusableInTouchMode(true);
-                        aboveText.requestFocus();
+                            taskEntries.removeView(curRow);
+                            index_list.remove(curIndex);
+                            aboveText.setFocusableInTouchMode(true);
+                            aboveText.requestFocus();
+                        }
                     }
 
                 }

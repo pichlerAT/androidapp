@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativelayout_contact"
     android:orientation="vertical"
     android:background="@color/colorPrimary"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
 
     <SearchView
         android:id="@+id/searchview_contact_id"
@@ -12,6 +17,7 @@
 
     <ExpandableListView
         android:id="@+id/listview_contact_id"
+        android:layout_below="@id/searchview_contact_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -22,4 +28,6 @@
         android:divider="@null"
         />
 
-</LinearLayout>
+
+
+</RelativeLayout>

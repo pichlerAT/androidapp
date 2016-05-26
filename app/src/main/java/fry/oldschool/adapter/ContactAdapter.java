@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
@@ -69,7 +71,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+    public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String headerString = (String) getGroup(groupPosition).name;
 
         if(convertView == null){
@@ -80,8 +82,28 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         headerName.setTypeface(null, Typeface.BOLD);
         headerName.setText(headerString);
 
+        Button deleteGroup = (Button) convertView.findViewById(R.id.button_contact_group_delete);
+        deleteGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getGroup(groupPosition).delete();
+            }
+        });
+
+        int lastPosition = contactGroupList.size()-1;
+        //Has to be if / else, otherwise it doesn't work
+        if (lastPosition != groupPosition) {
+            deleteGroup.setAlpha(1);
+            deleteGroup.setEnabled(true);
+        }
+        else{
+            deleteGroup.setAlpha(0);
+            deleteGroup.setEnabled(false);
+        }
+
         return convertView;
     }
+
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {

@@ -104,6 +104,7 @@ public class App extends Application {
                 while(it.hasNext()) {
                     bw.newLine();
                     bw.write(g.id + ";" + g.name + ";" + g.getContactsString());
+                    it.next();
                 }
             }
 

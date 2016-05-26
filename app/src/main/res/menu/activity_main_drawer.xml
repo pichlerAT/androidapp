@@ -12,7 +12,7 @@
             android:title="@string/tasks" />
         <item
             android:id="@+id/nav_contacts"
-            android:icon="@drawable/ic_contacts"
+            android:icon="@drawable/ic_contacts_dark"
             android:title="@string/contacts" />
     </group>
 

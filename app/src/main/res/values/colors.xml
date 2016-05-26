@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorActionbar">#F63</color>
+    <color name="colorActionbar">#1d1d1d</color>
     <color name="colorBackground">#DDD</color>
     <color name="colorPrimary">#FFF</color>
     <color name="colorSecondary">#EEE</color>

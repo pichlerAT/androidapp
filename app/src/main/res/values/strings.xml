@@ -8,6 +8,12 @@
 
     <string name="error_message_neutral_button">OK</string>
 
+    <string-array name="actions">
+        <item>Item 1</item>
+        <item>Item 2</item>
+        <item>Item 3</item>
+    </string-array>
+
     <!--               General                 -->
 
     <string name="add">Add</string>
@@ -38,6 +44,7 @@
 
     <string name="contacts">Contacts</string>
     <string name="contact_request">Contact request</string>
+    <string name="contact_requests">Contact requests</string>
     <string name="new_group">New group</string>
     <string name="assign_to_group">Assign to group</string>
 

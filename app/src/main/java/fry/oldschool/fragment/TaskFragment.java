@@ -30,15 +30,14 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, TaskList.TaskLists);
+        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, App.TaskLists);
         lv.setAdapter(adapter);
 
-        //MySQL.setListener(new MySQLListener() {
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (TaskList.TaskLists.size() == 0){
-                    TextView text = new TextView(ctx);
+                if (App.TaskLists.size() == 0){
+                    TextView text = (TextView) rootView.findViewById(R.id.textview_task_message);
                     text.setText("No tasks found");
 
                 }
@@ -54,7 +53,6 @@ public class TaskFragment extends ListFragment{
 
     @Override
     public void onDestroy() {
-        TaskList.unload();
         super.onDestroy();
     }
 

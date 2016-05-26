@@ -2,12 +2,12 @@ package fry.oldschool.fragment;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ListFragment;
+import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -23,31 +23,35 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import fry.oldschool.R;
+import fry.oldschool.activity.MainActivity;
 import fry.oldschool.adapter.ContactAdapter;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.Contact;
 import fry.oldschool.utils.ContactGroup;
-import fry.oldschool.utils.ContactList;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.
  */
-public class ContactFragment extends Fragment {
+public class ContactFragment extends Fragment{
 
     protected SearchView mSearch;
     protected ContactAdapter adapter;
     protected ArrayList<Contact> childList;
+    protected int request_number = 0;
+    private TextView request_number_text = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_contact, container, false);
         setHasOptionsMenu(true);
+
         childList = new ArrayList<>();
+        request_number = App.conLis.contactRequests.size();
 
         ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
 
@@ -138,8 +142,8 @@ public class ContactFragment extends Fragment {
                         View requestView = View.inflate(App.mContext, R.layout.fragment_contact_groupassign, null);
                         final LinearLayout layout = (LinearLayout) requestView.findViewById(R.id.linearlayout_contact_groupassign);
 
-                        for(int i=0; i < adapter.getGroupCount()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
-                            String groupName = adapter.getGroup(i).toString();
+                        for(int i=0; i < App.conLis.groups.size()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
+                            String groupName = App.conLis.groups.get(i).name;
                             CheckBox cb = new CheckBox(App.mContext);
                             cb.setText(groupName);
                             layout.addView(cb);
@@ -151,17 +155,10 @@ public class ContactFragment extends Fragment {
                             .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    List<String> newHeaderList = new ArrayList<String>();
-                                    for (int j=0; j<layout.getChildCount(); i++){
-                                        CheckBox cb = (CheckBox)layout.getChildAt(i);
+                                    for (int j=0; j<layout.getChildCount(); j++){
+                                        CheckBox cb = (CheckBox)layout.getChildAt(j);
                                         if(cb.isChecked()){
-                                            newHeaderList.add(cb.getText().toString());
-                                        }
-                                    }
-                                    for(int k=checkedItems.size()-1 ;k>= 0;k--){
-
-                                        if(checkedItems.valueAt(k)){
-                                            adapter.assignChildToGroups(newHeaderList, checkedItems.keyAt(k));
+                                            App.conLis.groups.get(j).addContacts(childList);
                                         }
                                     }
                                 }
@@ -191,6 +188,7 @@ public class ContactFragment extends Fragment {
         });
 
         lv.setAdapter(adapter);
+
         //Search listener for the listview
         SearchManager searchManager = (SearchManager) App.mContext.getSystemService(Context.SEARCH_SERVICE);
         mSearch = (SearchView) rootView.findViewById(R.id.searchview_contact_id);
@@ -217,15 +215,37 @@ public class ContactFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(
             Menu menu, MenuInflater inflater) {
-        menu.clear();
+
         inflater.inflate(R.menu.contact_menu, menu);
+        View menuContactRequests = menu.findItem(R.id.action_contact_requests).getActionView();
+        request_number_text = (TextView) menuContactRequests.findViewById(R.id.textview_contact_requests_text);
+        updateRequestCount(request_number);
+        menuContactRequests.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentTransaction transaction = MainActivity.fm.beginTransaction();
+                transaction.replace(R.id.frame_fragment_main, new ContactRequestFragment()).commit();
+            }
+        });
+
     }
+    public void updateRequestCount(final int request_number) {
+        if (request_number_text == null) return;
+
+        if (request_number == 0)
+            request_number_text.setVisibility(View.INVISIBLE);
+        else {
+            request_number_text.setVisibility(View.VISIBLE);
+            request_number_text.setText(Integer.toString(request_number));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
         switch (item.getItemId()){
-            case R.id.action_contact_request:
-                final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_request, null);
+            case R.id.action_send_request:
+                final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                 requestBuilder.setTitle(R.string.contact_request)
                     .setView(requestView)
@@ -245,8 +265,9 @@ public class ContactFragment extends Fragment {
                     })
                     .show();
                 return true;
+
             case R.id.action_new_group:
-                final View groupView = View.inflate(App.mContext, R.layout.fragment_contact_request, null);
+                final View groupView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
                 AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.mContext);
                 newGroupBuilder.setTitle(R.string.new_group)
                     .setView(groupView)
@@ -254,7 +275,7 @@ public class ContactFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
-                            adapter.addGroup(groupName);
+                            App.conLis.createContactGroup(groupName);
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -265,8 +286,7 @@ public class ContactFragment extends Fragment {
                     })
                     .show();
                 return true;
-            case R.id.action_settings:
-                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -278,4 +298,5 @@ public class ContactFragment extends Fragment {
         // Convert the dps to pixels, based on density scale
         return (int) (pixels * scale + 0.5f);
     }
+
 }

@@ -56,7 +56,7 @@ public class ContactList extends MySQL {
 
     protected void updateContacts(String... r) {
         ContactGroup cg0=groups.get(groups.size()-1);
-        for(int i=2;i<r.length;++i) {
+        for(int i=2;i<r.length;i+=3) {
             int id = Integer.parseInt(r[i-2]);
             Contact cont = findContactById(id);
             if(cont == null) {

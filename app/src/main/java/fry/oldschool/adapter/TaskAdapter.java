@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -61,11 +62,12 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         final String headerText = item.name;
         header.setText(headerText);
+        /*
         if (position == 0)
             header.setBackgroundColor(Color.rgb(20, 150, 20));
         else
             header.setBackgroundColor(Color.rgb(60, 60, 180));
-
+        */
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
         for (int i=0; i<item.length(); i++){
@@ -76,7 +78,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
             entries.addView(cb);
         }
 
-        ImageButton delete = (ImageButton) res.findViewById(R.id.imagebutton_listtemplate_delete);
+        Button delete = (Button) res.findViewById(R.id.imagebutton_listtemplate_delete);
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,7 +86,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
             }
         });
 
-        ImageButton edit = (ImageButton) res.findViewById(R.id.imagebutton_listtemplate_edit);
+        Button edit = (Button) res.findViewById(R.id.imagebutton_listtemplate_edit);
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

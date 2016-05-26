@@ -2,13 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_contact_requests"
+        app:actionLayout="@layout/actionbar_contact_requests"
+        android:icon="@drawable/ic_contacts"
+        android:title="@string/contact_requests"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_send_request"
+        android:icon="@drawable/ic_contact_add"
+        android:title="@string/contact_request"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_new_group"
         android:icon="@drawable/ic_group_add"
         android:title="@string/new_group"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_contact_request"
-        android:icon="@drawable/ic_contact_add"
-        android:title="@string/contact_request"
         app:showAsAction="ifRoom" />
 </menu>
