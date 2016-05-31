@@ -31,12 +31,16 @@
         <TextView
             android:id="@+id/textview_contact_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"/>
         <TextView
             android:id="@+id/textview_contact_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="italic"/>
+            android:textStyle="italic"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
     </LinearLayout>
 
