@@ -36,7 +36,7 @@ public class TaskCreateActivity extends AppCompatActivity{
     protected Context ctx = this;
     protected ArrayList<RelativeLayout> layouts;
     protected ArrayList<Integer> index_list = new ArrayList<>();
-    protected int lastPos = 0;
+    protected int lastPos = -1;
     protected boolean swipeSave = false;
 
     @Override
@@ -70,14 +70,16 @@ public class TaskCreateActivity extends AppCompatActivity{
 
             @Override
             public void onPageSelected(int position) {
+                if (lastPos != -1) {
+                    swipeSave = true;
+                    saveList();
+                }
                 lastPos = position;
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                if (state == ViewPager.SCROLL_STATE_SETTLING)
-                    swipeSave = true;
-                    //saveList();
+
             }
         });
 
@@ -144,19 +146,8 @@ public class TaskCreateActivity extends AppCompatActivity{
 
     }
 
-    //This method saves the current task to the database
-    protected void saveList(){
-        //Get data from the current displayed view
-        int position = 0;
-        if (swipeSave)
-            position = lastPos;
-        else
-            position = adapter.getItemPosition(getCurrentPage()) -1;
-        RelativeLayout currentView = (RelativeLayout) getCurrentPage();
-        TaskList tdl = null;
-
-        if (position >= 0)
-             tdl = App.TaskLists.get(position);
+    protected void taskList(TaskList tdl, int viewPage){
+        RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
 
         if (!header.getText().toString().matches("")) {
@@ -164,6 +155,7 @@ public class TaskCreateActivity extends AppCompatActivity{
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (tdl == null) {
                 tdl = TaskList.create(header.getText().toString());
+                App.TaskLists.add(tdl);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -191,10 +183,26 @@ public class TaskCreateActivity extends AppCompatActivity{
                 }
 
             }
-            App.TaskLists.add(tdl);
         }
-        swipeSave = false;
+    }
 
+    //This method saves the current task to the database
+    protected void saveList(){
+        //Get data from the current displayed view
+        int position = 0;
+        if (swipeSave)
+            position = lastPos - 1;
+        else
+            position = adapter.getItemPosition(getCurrentPage()) -1;
+
+        if (position >= 0) {
+            TaskList tdl = App.TaskLists.get(position);
+            taskList(tdl, position+1);
+        }
+        else
+            taskList(null, 0);
+
+        swipeSave = false;
     }
 
     //This method adds a new empty entry to the actual task
