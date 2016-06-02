@@ -26,6 +26,8 @@ public class App extends Application {
 
     public static ContactList conLis;
 
+    public static TaskListManager taskMan = new TaskListManager();
+
     public static ConnectionManager conMan = new ConnectionManager();
 
     public static Context mContext;

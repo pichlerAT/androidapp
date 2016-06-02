@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public abstract class MySQL {
 
-    public static final String IP_ADDRESS = "188.23.48.63" ;
+    public static final String IP_ADDRESS = "188.23.50.33" ;
 
     public static final String ADDRESS="http://"+IP_ADDRESS+"/Oldschool/";
 

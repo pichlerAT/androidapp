@@ -114,11 +114,19 @@ public class TaskList extends Entry {
     }
 
     public void addEntry(String task,boolean state) {
-        entry.add(TaskListEntry.create(id,task,state));
+        TaskListEntry ent = new TaskListEntry(task,state);
+        entry.add(ent);
+        if(id != 0) {
+            ent.create(id);
+        }
     }
 
     public void addEntry(int index,String task,boolean state) {
-        entry.add(index,TaskListEntry.create(id,task,state));
+        TaskListEntry ent = new TaskListEntry(task,state);
+        entry.add(index,ent);
+        if(id != 0) {
+            ent.create(id);
+        }
     }
 
     public boolean done(int index) {
@@ -139,6 +147,9 @@ public class TaskList extends Entry {
             String resp = connect("tasklist/create.php", "&name=" + name);
             if(resp.substring(0,3).equals("suc")) {
                 id = Integer.parseInt(resp.substring(3));
+                for(TaskListEntry e : entry) {
+                    e.create(id);
+                }
                 return true;
             }
         }else {
@@ -150,7 +161,7 @@ public class TaskList extends Entry {
 
     @Override
     protected String getConManString() {
-        return TYPE_TASKLIST + "" + id + ";" + user_id + ";" + name;
+        return TYPE_TASKLIST + "" + id + ";" + user_id + ";" + name + ( id==0 ? ";"+getEntryStrings() : "" );
     }
 
     public void delete() {

@@ -12,10 +12,8 @@ public class TaskListEntry extends Entry {
 
     public String description;
 
-    protected static TaskListEntry create(int table_id,String description,boolean state) {
-        TaskListEntry ent = new TaskListEntry(0,table_id,USER_ID,description,( state ? (byte)0 : (byte)1 ));
-        App.conMan.add(ent);
-        return ent;
+    protected TaskListEntry(String description,boolean state) {
+        this(0,0,USER_ID,description,( state ? (byte)0 : (byte)1 ));
     }
 
     protected TaskListEntry(int id,int table_id,int user_id,String description,byte state) {
@@ -35,8 +33,18 @@ public class TaskListEntry extends Entry {
         state = Byte.parseByte(r[4]);
     }
 
+    protected void create(int table_id) {
+        this.table_id = table_id;
+        App.conMan.add(this);
+    }
+
     public void change(String description,boolean state) {
         this.description = description;
+        this.state = ( state ? (byte)0 : (byte)1 );
+        App.conMan.add(this);
+    }
+
+    public void change(boolean state) {
         this.state = ( state ? (byte)0 : (byte)1 );
         App.conMan.add(this);
     }
