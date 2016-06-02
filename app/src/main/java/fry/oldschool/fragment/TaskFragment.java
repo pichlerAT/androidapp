@@ -23,6 +23,7 @@ import fry.oldschool.utils.TaskList;
 public class TaskFragment extends ListFragment{
 
     protected Context ctx = App.mContext;
+    protected TaskAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final TaskAdapter adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, App.TaskLists);
+        adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, App.TaskLists);
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
@@ -49,6 +50,12 @@ public class TaskFragment extends ListFragment{
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
     }
 
     @Override

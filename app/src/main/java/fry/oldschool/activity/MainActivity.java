@@ -1,6 +1,7 @@
 package fry.oldschool.activity;
 
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity
     private Context ctx = this;
     public static FragmentManager fm;
     public static FloatingActionButton fab;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else if (fm.getBackStackEntryCount() != 0){
+            fm.popBackStack();
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -101,13 +107,20 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentTransaction ft = fm.beginTransaction();
 
         if (id == R.id.nav_timetable) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new TimetableFragment()).commit();
+            ft.replace(R.id.frame_fragment_main, new TimetableFragment());
+            ft.addToBackStack(null);
+            ft.commit();
         } else if (id == R.id.nav_tasks) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new TaskFragment()).commit();
+            ft.replace(R.id.frame_fragment_main, new TaskFragment());
+            ft.addToBackStack(null);
+            ft.commit();
         } else if (id == R.id.nav_contacts) {
-            fm.beginTransaction().replace(R.id.frame_fragment_main, new ContactFragment()).commit();
+            ft.replace(R.id.frame_fragment_main, new ContactFragment());
+            ft.addToBackStack(null);
+            ft.commit();
         } else if (id == R.id.nav_info) {
 
         } else if (id == R.id.nav_settings) {
@@ -118,7 +131,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-
 }

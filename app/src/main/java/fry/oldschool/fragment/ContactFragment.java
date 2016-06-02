@@ -246,9 +246,10 @@ public class ContactFragment extends Fragment{
         switch (item.getItemId()){
             case R.id.action_send_request:
                 final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
+                TextView title = (TextView) requestView.findViewById(R.id.textview_contact_dialog_title);
+                title.setText(R.string.contact_request);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
-                requestBuilder.setTitle(R.string.contact_request)
-                    .setView(requestView)
+                requestBuilder.setView(requestView)
                     .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -298,5 +299,6 @@ public class ContactFragment extends Fragment{
         // Convert the dps to pixels, based on density scale
         return (int) (pixels * scale + 0.5f);
     }
+
 
 }

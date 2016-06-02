@@ -36,6 +36,8 @@ public class TaskCreateActivity extends AppCompatActivity{
     protected Context ctx = this;
     protected ArrayList<RelativeLayout> layouts;
     protected ArrayList<Integer> index_list = new ArrayList<>();
+    protected int lastPos = 0;
+    protected boolean swipeSave = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,18 +66,18 @@ public class TaskCreateActivity extends AppCompatActivity{
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
             public void onPageSelected(int position) {
-
+                lastPos = position;
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_SETTLING)
-                    saveList();
+                    swipeSave = true;
+                    //saveList();
             }
         });
 
@@ -145,7 +147,11 @@ public class TaskCreateActivity extends AppCompatActivity{
     //This method saves the current task to the database
     protected void saveList(){
         //Get data from the current displayed view
-        int position = adapter.getItemPosition(getCurrentPage()) -1;
+        int position = 0;
+        if (swipeSave)
+            position = lastPos;
+        else
+            position = adapter.getItemPosition(getCurrentPage()) -1;
         RelativeLayout currentView = (RelativeLayout) getCurrentPage();
         TaskList tdl = null;
 
@@ -185,9 +191,9 @@ public class TaskCreateActivity extends AppCompatActivity{
                 }
 
             }
-            //Updates the task in the database and closes the activity
-            //tdl.update();
+            App.TaskLists.add(tdl);
         }
+        swipeSave = false;
 
     }
 
