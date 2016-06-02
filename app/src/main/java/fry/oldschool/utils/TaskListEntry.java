@@ -13,7 +13,7 @@ public class TaskListEntry extends Entry {
     public String description;
 
     protected static TaskListEntry create(int table_id,String description,boolean state) {
-        TaskListEntry ent = new TaskListEntry(0,table_id,Entry.USER_ID,description,( state ? (byte)0 : (byte)1 ));
+        TaskListEntry ent = new TaskListEntry(0,table_id,USER_ID,description,( state ? (byte)0 : (byte)1 ));
         App.conMan.add(ent);
         return ent;
     }
@@ -46,7 +46,7 @@ public class TaskListEntry extends Entry {
     }
 
     public boolean owner() {
-        return ( user_id == Entry.USER_ID );
+        return ( user_id == USER_ID );
     }
 
     public Contact getOwner() {

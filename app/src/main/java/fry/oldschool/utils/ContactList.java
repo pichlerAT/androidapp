@@ -24,6 +24,7 @@ public class ContactList extends MySQL {
         boolean get_requests = false;
 
         ArrayList<String> respList=connect_list("contact/get.php","");
+
         Iterator<String> it = respList.iterator();
         String resp = it.next();
         if(resp.substring(0,3).equals("suc")) {

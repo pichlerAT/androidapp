@@ -1,39 +1,18 @@
 package fry.oldschool.utils;
 
+import java.util.ArrayList;
+
 public class Timetable {
 
-    public int id;
+    protected ArrayList<TimetableCategory> category = new ArrayList<>();
 
-    public int owner_id;
+    protected ArrayList<TimetableEntry> entry = new ArrayList<>();
 
-    public String name;
+    protected void load_local() {
 
-    public int[] entry_id;
-
-    public int[] user_id;
-
-    public Date[] date;
-
-    public Time[] time_start;
-
-    public Time[] time_end;
-
-    public Timetable(int id,int owner_id,String name) {
-        this.id = id;
-        this.owner_id = owner_id;
-        this.name = name;
     }
 
-    public Timetable(int id,int owner_id,String name,int[] entry_id,int[] user_id,Date[] date,Time[] time_start,Time[] time_end) {
-        this(id,owner_id,name);
-        this.entry_id = entry_id;
-        this.user_id = user_id;
-        this.date = date;
-        this.time_start = time_start;
-        this.time_end = time_end;
-    }
+    protected void save_local() {
 
-    public String getTimeSpan(int index) {
-        return time_start[index].getString() + " - " + time_end[index].getString();
     }
 }

@@ -78,6 +78,11 @@ public class App extends Application {
             BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
 
             String line=br.readLine();
+            if(line == null) {
+                conLis = new ContactList();
+                return;
+            }
+
             conLis = new ContactList(line.split(";"));
 
             while((line = br.readLine()) != null) {

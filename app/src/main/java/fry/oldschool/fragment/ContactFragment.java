@@ -224,7 +224,7 @@ public class ContactFragment extends Fragment{
             @Override
             public void onClick(View view) {
                 FragmentTransaction transaction = MainActivity.fm.beginTransaction();
-                transaction.replace(R.id.frame_fragment_main, new ContactRequestFragment()).commit();
+                //transaction.replace(R.id.frame_fragment_main, new ContactRequestFragment()).commit();
             }
         });
 

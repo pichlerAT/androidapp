@@ -2,28 +2,60 @@ package fry.oldschool.utils;
 
 import fry.oldschool.R;
 
-/**
- * Created by Stefan on 29.04.2016.
- */
 public class Date {
 
-    protected short date;
+    public static final int YEAR_OFFSET = 2000;
+
+    protected int day;
+
+    protected int month;
+
+    protected int year;
 
     public Date(short date) {
-        this.date = date;
+        day = date&31;
+        month = (date>>5)&15;
+        year = (date>>9)&127 + YEAR_OFFSET;
+    }
+
+    public Date(int day,int month,int year) {
+        this.day = day;
+        this.month = month;
+        this.year = year;
     }
 
     public Date(String date) {
         String[] r = date.split("-");
-        int year = Integer.parseInt(r[2]) - 2000;
-        int month = Integer.parseInt(r[1]);
-        int day = Integer.parseInt(r[0]);
-        this.date = (short)( day + (month<<5) + (year<<9) );
+        year = Integer.parseInt(r[2]);
+        month = Integer.parseInt(r[1]);
+        day = Integer.parseInt(r[0]);
+    }
+
+    protected short getShort() {
+        return (short)( day + (month<<5) + ( (year - YEAR_OFFSET)<<9 ) );
+    }
+
+    public void add(int days) {
+        day += days;
+        while( day>getDaysOfMonth() || month>12) {
+            if(month > 12) {
+                day -= 31;
+                month = 1;
+                year++;
+            }
+            if(day > getDaysOfMonth()) {
+                day -= getDaysOfMonth();
+                month++;
+            }
+        }
     }
 
     public boolean leapYear() {
-        int year = (date>>9)&127;
         return ( (year%4)== 0 );
+    }
+
+    public int getDaysOfMonth() {
+        return getDaysOfMonth(month);
     }
 
     public int getDaysOfMonth(int month) {
@@ -52,6 +84,10 @@ public class Date {
     }
 
     public int getDaysOfYear() {
+        return getDaysOfYear(year);
+    }
+
+    public int getDaysOfYear(int year) {
         return (leapYear() ? 366 : 365);
     }
 
@@ -70,7 +106,7 @@ public class Date {
             case 10: days = 273; break;
             case 11: days = 304; break;
             case 12: days = 334; break;
-            default: days = 0;
+            default: return 0;
         }
         if(leapYear()) {
             ++days;
@@ -84,34 +120,23 @@ public class Date {
         return (y/4)*(4*365+1) + yp4*365 + ( yp4==0 ? 0 : 1 );
     }
 
-    public int getTotalDaysUntil() {
-        return getTotalDaysUntil(date);
+    public int getTotalDaysUntil(Date date) {
+        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.month) + date.day + 4;
     }
 
-    public int getTotalDaysUntil(short date) {
-        int day = date&31;
-        int month = (date>>5)&15;
-        int year = (date>>9)&127;
-        return getDaysUntilYear(year+2000) + getDaysUntilMonth(month) + day + 4;
-    }
-
-    public int getDaysUntil(short date) {
-        return ( getTotalDaysUntil(date) - getTotalDaysUntil(this.date) );
+    public int getDaysUntil(Date date) {
+        return ( getTotalDaysUntil(date) - getTotalDaysUntil(this) );
     }
 
     public int getDayOfWeek() {
-        return (getTotalDaysUntil()%7);
+        return (getTotalDaysUntil(this)%7);
     }
 
     public String getString() {
-        int day = date&31;
-        int month = (date>>5)&15;
-        int year = (date>>9)&127;
-        return day + "-" + month + "-" + (year+2000);
+        return day + "-" + month + "-" + year;
     }
 
     public String getMonth() {
-        int month = (date>>5)&15;
         return getMonth(month);
     }
 
@@ -151,6 +176,6 @@ public class Date {
     }
 
     public Date copy() {
-        return new Date(date);
+        return new Date(day,month,year);
     }
 }

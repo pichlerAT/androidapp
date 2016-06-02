@@ -26,6 +26,21 @@ public abstract class Entry extends MySQL {
 
     protected static final char TYPE_TASKLIST_SHARE_DELETE = 12 ;
 
+
+
+
+    protected static final char TYPE_CALENDAR_ENTRY = 13 ;
+
+    protected static final char TYPE_CALENDAR_ENTRY_DELETE = 14 ;
+
+    protected static final char TYPE_CALENDAR_CATEGORY = 15 ;
+
+    protected static final char TYPE_CALENDAR_CATEGORY_DELETE = 16 ;
+
+    protected static final char TYPE_CALENDAR_CATEGORY_SHARE_CREATE = 17 ;
+
+    protected static final char TYPE_CALENDAR_CATEGORY_SHARE_DELETE = 18 ;
+
     protected static Entry create(String line) {
         switch(line.charAt(0)) {
             case TYPE_CONTACT_DELETE: return new Contact.Delete(line.substring(1));
