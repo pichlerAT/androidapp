@@ -10,14 +10,26 @@
     android:focusableInTouchMode="true">
 
 
-    <SearchView
-        android:id="@+id/searchview_contact_id"
+    <FrameLayout
+        android:id="@+id/framelayout_contact_id"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="10dp"
+        android:background="@color/colorActionbar">
+
+        <SearchView
+            android:id="@+id/searchview_contact_id"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/searchview_style"
+            style=""/>
+    </FrameLayout>
 
     <ExpandableListView
         android:id="@+id/listview_contact_id"
-        android:layout_below="@id/searchview_contact_id"
+        android:layout_below="@id/framelayout_contact_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"

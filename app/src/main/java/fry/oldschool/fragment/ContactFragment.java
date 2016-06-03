@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -189,6 +190,10 @@ public class ContactFragment extends Fragment{
 
         lv.setAdapter(adapter);
 
+        for (int i=0; i<adapter.getGroupCount(); i++){
+            lv.expandGroup(i);
+        }
+
         //Search listener for the listview
         SearchManager searchManager = (SearchManager) App.mContext.getSystemService(Context.SEARCH_SERVICE);
         mSearch = (SearchView) rootView.findViewById(R.id.searchview_contact_id);
@@ -248,6 +253,8 @@ public class ContactFragment extends Fragment{
                 final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
                 TextView title = (TextView) requestView.findViewById(R.id.textview_contact_dialog_title);
                 title.setText(R.string.contact_request);
+                EditText mail = (EditText) requestView.findViewById(R.id.edittext_contact_email);
+                mail.setHint(R.string.mail);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                 requestBuilder.setView(requestView)
                     .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
@@ -269,9 +276,12 @@ public class ContactFragment extends Fragment{
 
             case R.id.action_new_group:
                 final View groupView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
+                TextView titleGroup = (TextView) groupView.findViewById(R.id.textview_contact_dialog_title);
+                titleGroup.setText(R.string.new_group);
+                EditText group = (EditText) groupView.findViewById(R.id.edittext_contact_email);
+                group.setHint(R.string.name_of_group);
                 AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.mContext);
-                newGroupBuilder.setTitle(R.string.new_group)
-                    .setView(groupView)
+                newGroupBuilder.setView(groupView)
                     .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

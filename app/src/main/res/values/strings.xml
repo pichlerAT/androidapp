@@ -26,6 +26,7 @@
     <string name="information">Information</string>
     <string name="warning">Warning</string>
     <string name="share">Share</string>
+    <string name="mail">Mail</string>
 
     <!--              Messages                 -->
 
@@ -48,6 +49,7 @@
     <string name="contact_requests">Contact requests</string>
     <string name="new_group">New group</string>
     <string name="assign_to_group">Assign to group</string>
+    <string name="name_of_group">Name of group</string>
 
     <!--              Time.class               -->
 
