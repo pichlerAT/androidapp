@@ -287,6 +287,7 @@ public class ContactFragment extends Fragment{
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
                             App.conLis.createContactGroup(groupName);
+                            adapter.notifyDataSetChanged();
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

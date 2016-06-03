@@ -37,22 +37,22 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
-        return contactGroupList.size();
+        return App.conLis.groups.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return contactGroupList.get(groupPosition).contacts.size();
+        return App.conLis.groups.get(groupPosition).contacts.size();
     }
 
     @Override
     public ContactGroup getGroup(int groupPosition) {
-        return contactGroupList.get(groupPosition);
+        return App.conLis.groups.get(groupPosition);
     }
 
     @Override
     public Contact getChild(int groupPosition, int childPosition) {
-        return contactGroupList.get(groupPosition).contacts.get(childPosition);
+        return App.conLis.groups.get(groupPosition).contacts.get(childPosition);
     }
 
     @Override
@@ -87,10 +87,12 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 getGroup(groupPosition).delete();
+                contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
+                notifyDataSetChanged();
             }
         });
 
-        int lastPosition = contactGroupList.size()-1;
+        int lastPosition = App.conLis.groups.size()-1;
         //Has to be if / else, otherwise it doesn't work
         if (lastPosition != groupPosition) {
             deleteGroup.setAlpha(1);
