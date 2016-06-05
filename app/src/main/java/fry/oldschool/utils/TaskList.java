@@ -105,12 +105,24 @@ public class TaskList extends Entry {
         App.conMan.add(this);
     }
 
-    public void addShare(Contact cont) {
-        App.conMan.add(new Share.Create(cont.id,id));
+    public void addShare(Contact contact) {
+        App.conMan.add(new Share.Create(contact.id,id));
+    }
+
+    public void addShare(ArrayList<Contact> contacts) {
+        for(Contact contact : contacts) {
+            App.conMan.add(new Share.Create(contact.id,id));
+        }
     }
 
     public void removeShare(Contact cont) {
         App.conMan.add(new Share.Delete(cont.id,id));
+    }
+
+    public void removeShare(ArrayList<Contact> contacts) {
+        for(Contact contact : contacts) {
+            App.conMan.add(new Share.Delete(contact.id,id));
+        }
     }
 
     public void addEntry(String task,boolean state) {
