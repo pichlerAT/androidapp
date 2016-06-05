@@ -57,7 +57,7 @@ public class ContactFragment extends Fragment{
         ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
 
         final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
-        adapter = new ContactAdapter(App.mContext, contactGroupList);
+        adapter = new ContactAdapter(App.mContext, contactGroupList, false);
 
         ViewTreeObserver vto = lv.getViewTreeObserver();
 

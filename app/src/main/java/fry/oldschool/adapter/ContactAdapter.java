@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
@@ -29,30 +30,32 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     protected Context mContext;
     protected ArrayList<ContactGroup> contactGroupList;
+    protected boolean isTask;
 
-    public ContactAdapter(Context context, ArrayList<ContactGroup> contactGroupList){
+    public ContactAdapter(Context context, ArrayList<ContactGroup> contactGroupList, boolean isTask){
         this.mContext = context;
         this.contactGroupList = contactGroupList;
+        this.isTask = isTask;
     }
 
     @Override
     public int getGroupCount() {
-        return App.conLis.groups.size();
+        return contactGroupList.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return App.conLis.groups.get(groupPosition).contacts.size();
+        return contactGroupList.get(groupPosition).contacts.size();
     }
 
     @Override
     public ContactGroup getGroup(int groupPosition) {
-        return App.conLis.groups.get(groupPosition);
+        return contactGroupList.get(groupPosition);
     }
 
     @Override
     public Contact getChild(int groupPosition, int childPosition) {
-        return App.conLis.groups.get(groupPosition).contacts.get(childPosition);
+        return contactGroupList.get(groupPosition).contacts.get(childPosition);
     }
 
     @Override
@@ -81,26 +84,29 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         TextView headerName = (TextView) convertView.findViewById(R.id.textview_contact_header);
         headerName.setTypeface(null, Typeface.BOLD);
         headerName.setText(headerString);
-
         Button deleteGroup = (Button) convertView.findViewById(R.id.button_contact_group_delete);
-        deleteGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getGroup(groupPosition).delete();
-                contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
-                notifyDataSetChanged();
-            }
-        });
-
-        int lastPosition = App.conLis.groups.size()-1;
-        //Has to be if / else, otherwise it doesn't work
-        if (lastPosition != groupPosition) {
-            deleteGroup.setAlpha(1);
-            deleteGroup.setEnabled(true);
+        if (isTask){
+            ((LinearLayout) convertView.findViewById(R.id.linearlayout_contact_list_header)).removeView(deleteGroup);
         }
-        else{
-            deleteGroup.setAlpha(0);
-            deleteGroup.setEnabled(false);
+        else {
+            deleteGroup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getGroup(groupPosition).delete();
+                    App.conLis.groups.get(groupPosition).delete();
+                    notifyDataSetChanged();
+                }
+            });
+
+            int lastPosition = getGroupCount() - 1;
+            //Has to be if / else, otherwise it doesn't work
+            if (lastPosition != groupPosition) {
+                deleteGroup.setAlpha(1);
+                deleteGroup.setEnabled(true);
+            } else {
+                deleteGroup.setAlpha(0);
+                deleteGroup.setEnabled(false);
+            }
         }
 
         return convertView;

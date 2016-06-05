@@ -1,9 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/task_share"
+        android:title="@string/share"/>
+
+    <item
         android:id="@+id/task_edit"
         android:title="@string/edit"/>
-
 
     <item
         android:id="@+id/task_delete"
