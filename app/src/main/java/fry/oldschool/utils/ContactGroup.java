@@ -10,7 +10,8 @@ public class ContactGroup extends Entry {
 
     public ArrayList<Contact> contacts=new ArrayList<>();
 
-    protected ContactGroup(String... r) {
+    protected ContactGroup(String line) {
+        String[] r = line.split(";");
         if(r.length == 1) {
             name = r[0];
             return;

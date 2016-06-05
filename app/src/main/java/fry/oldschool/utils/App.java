@@ -88,7 +88,7 @@ public class App extends Application {
             conLis = new ContactList(line.split(";"));
 
             while((line = br.readLine()) != null) {
-                conLis.groups.add(new ContactGroup(line.split(";")));
+                conLis.groups.add(new ContactGroup(line));
             }
 
         }catch (IOException ex) {

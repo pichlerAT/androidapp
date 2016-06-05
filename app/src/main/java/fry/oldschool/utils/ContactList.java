@@ -33,7 +33,7 @@ public class ContactList extends MySQL {
                 updateContacts(resp.substring(3).split(";"));
             }
             while(it.hasNext()) {
-                ContactGroup g = new ContactGroup(it.next().split(";"));
+                ContactGroup g = new ContactGroup(it.next());
                 if(!hasContactGroup(g.id)) {
                     groups.add(groups.size() - 1, g);
                 }
