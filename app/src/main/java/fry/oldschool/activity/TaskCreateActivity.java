@@ -173,13 +173,15 @@ public class TaskCreateActivity extends AppCompatActivity{
                     EditText edittext = (EditText) view_edittext;
                     String entryText = edittext.getText().toString();
 
-                    TaskListEntry entry = null;
-                    if (tdl.entry.size() > i)
-                        entry = tdl.entry.get(i);
-                    if (entry != null && !entry.description.equals(entryText))
-                        entry.change(entryText, checkbox.isChecked());
-                    else if (entry == null)
-                        tdl.addEntry(entryText, checkbox.isChecked());
+                    if (!entryText.isEmpty()) {
+                        TaskListEntry entry = null;
+                        if (tdl.entry.size() > i)
+                            entry = tdl.entry.get(i);
+                        if (entry != null && !entry.description.equals(entryText))
+                            entry.change(entryText, checkbox.isChecked());
+                        else if (entry == null)
+                            tdl.addEntry(entryText, checkbox.isChecked());
+                    }
                 }
 
             }

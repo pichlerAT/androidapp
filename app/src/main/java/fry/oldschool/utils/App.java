@@ -121,4 +121,9 @@ public class App extends Application {
         }
     }
 
+    public static int pixelToDPScale(int dp){
+        float scale = mContext.getResources().getDisplayMetrics().density;
+        return (int) (dp*scale + 0.5f);
+    }
+
 }

@@ -22,6 +22,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -79,14 +80,20 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
 
-        for (int i=0; i<item.length(); i++){
-            CheckBox cb = new CheckBox(ctx);
-            String cbText = item.getTaskName(i);
-            cb.setText(cbText);
-            cb.setChecked(item.done(i));
-            entries.addView(cb);
+        if (item.length() > 0) {//item.length is the number of entries
+            for (int i = 0; i < item.length(); i++) {
+                CheckBox cb = new CheckBox(ctx);
+                String cbText = item.getTaskName(i);
+                cb.setText(cbText);
+                cb.setChecked(item.done(i));
+                entries.addView(cb);
+            }
+            int padding = App.pixelToDPScale(10);
+            entries.setPadding(padding, padding, padding, padding);
         }
-
+        else{
+            //entries.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
+        }
         final Button more = (Button) res.findViewById(R.id.button_listtemplate_more);
         more.setOnClickListener(new View.OnClickListener() {
             @Override

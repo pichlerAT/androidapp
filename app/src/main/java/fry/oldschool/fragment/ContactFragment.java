@@ -64,7 +64,7 @@ public class ContactFragment extends Fragment{
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                lv.setIndicatorBounds(lv.getRight()- pixelScale(40), lv.getWidth());
+                lv.setIndicatorBounds(lv.getRight()- App.pixelToDPScale(40), lv.getWidth());
             }
         });
         lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -304,12 +304,6 @@ public class ContactFragment extends Fragment{
         }
     }
 
-    protected int pixelScale(float pixels) {
-        // Get the screen's density scale
-        final float scale = App.mContext.getResources().getDisplayMetrics().density;
-        // Convert the dps to pixels, based on density scale
-        return (int) (pixels * scale + 0.5f);
-    }
 
 
 }
