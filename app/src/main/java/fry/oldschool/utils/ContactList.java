@@ -5,6 +5,23 @@ import java.util.Iterator;
 
 public class ContactList extends MySQL {
 
+    public void print() {
+        System.out.println("---------- ContactList#print ----------");
+        System.out.println("------------ ContactGroups ------------");
+        for(ContactGroup g : groups) {
+            System.out.println("|" + g.id + "|" + g.name + "|" + g.getContactsString() + "|");
+        }
+        System.out.println("-------------- Contacts ---------------");
+        for(Contact c : groups.get(groups.size()-1).contacts) {
+            System.out.println("|"+c.id+"|"+c.email+"|"+c.name+"|");
+        }
+        System.out.println("------------ ContactRequests ----------");
+        for(Contact c : contactRequests) {
+            System.out.println("|"+c.id+"|"+c.email+"|"+c.name+"|");
+        }
+        System.out.println("---------------------------------------");
+    }
+
     public ArrayList<ContactGroup> groups=new ArrayList<>();
 
     public ArrayList<Contact> contactRequests=new ArrayList<>();
@@ -23,6 +40,8 @@ public class ContactList extends MySQL {
         boolean get_contacts = false;
         boolean get_requests = false;
 
+        System.out.println("---------- ContactList#mysql_update ----------");
+
         ArrayList<String> respList=connect_list("contact/get.php","");
 
         Iterator<String> it = respList.iterator();
@@ -34,7 +53,7 @@ public class ContactList extends MySQL {
             }
             while(it.hasNext()) {
                 ContactGroup g = new ContactGroup(it.next());
-                if(!hasContactGroup(g.id)) {
+                if(!hasContactGroup(g.id) && !hasContactGroupDeleted(g.id)) {
                     groups.add(groups.size() - 1, g);
                 }
             }
@@ -60,17 +79,50 @@ public class ContactList extends MySQL {
 
     protected void updateContacts(String... r) {
         ContactGroup cg0=groups.get(groups.size()-1);
+        boolean[] online = new boolean[cg0.contacts.size()];
         for(int i=2;i<r.length;i+=3) {
             int id = Integer.parseInt(r[i-2]);
-            Contact cont = findContactById(id);
+            Contact cont = cg0.findContactById(id);
             if(cont == null) {
-                cont = new Contact(id,r[i-1],r[i]);
-                cg0.contacts.add(cont);
+                if(!hasContactDeleted(id)) {
+                    cont = new Contact(id, r[i-1], r[i]);
+                    cg0.contacts.add(cont);
+                }
             }else {
                 cont.email = r[i-1];
                 cont.name = r[i];
+                online[(i-2)/3] = true;
             }
         }
+        for(int i=online.length-1;i>=0;--i) {
+            if(!online[i]) {
+                cg0.contacts.remove(i);
+            }
+        }
+    }
+
+    protected boolean hasContactDeleted(int contact_id) {
+        for(Entry e : App.conMan.entry) {
+            if(e instanceof Contact.Delete) {
+                Contact.Delete c = (Contact.Delete)e;
+                if(c.contact_id == contact_id) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean hasContactGroupDeleted(int group_id) {
+        for(Entry e : App.conMan.entry) {
+            if(e instanceof ContactGroup.Delete) {
+                ContactGroup.Delete g = (ContactGroup.Delete)e;
+                if(g.group_id == group_id) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected boolean hasContactGroup(int group_id) {
@@ -82,13 +134,22 @@ public class ContactList extends MySQL {
         return false;
     }
 
+    protected ContactGroup findContactGroupById(int group_id) {
+        for(ContactGroup g : groups) {
+            if(g.id == group_id) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     protected Contact findContactById(int contact_id) {
         return groups.get(groups.size()-1).findContactById(contact_id);
     }
 
     public void deleteContact(Contact cont) {
         for(ContactGroup grp : groups) {
-            grp.contacts.remove(cont);
+            grp.removeContact(cont);
         }
         App.conMan.add(new Contact.Delete(cont.id));
     }

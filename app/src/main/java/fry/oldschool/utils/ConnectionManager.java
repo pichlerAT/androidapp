@@ -48,9 +48,14 @@ public class ConnectionManager extends MySQL {
 
     public void load() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
-            String line;
+            File file = new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync));
+            if(!file.exists()) {
+                return;
+            }
 
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            System.out.println("--------- ConnectionManager#load ---------");
             while((line=br.readLine()) != null) {
 
                 Entry ent = Entry.create(line);
@@ -60,8 +65,9 @@ public class ConnectionManager extends MySQL {
                 }
 
                 entry.add(ent);
-
+                System.out.println(ent.getConManString());
             }
+            System.out.println("------------------------------------------");
             br.close();
             sync();
 
@@ -75,11 +81,11 @@ public class ConnectionManager extends MySQL {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
             Iterator<Entry> it = entry.iterator();
 
-            if (it.hasNext()) {
-                bw.write(it.next().getConManString());
-                while(it.hasNext()) {
+            for(Entry e : entry) {
+                String line = e.getConManString();
+                if(line != null) {
+                    bw.write(line);
                     bw.newLine();
-                    bw.write(it.next().getConManString());
                 }
             }
 

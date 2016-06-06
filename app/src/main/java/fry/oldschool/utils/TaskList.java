@@ -22,23 +22,24 @@ public class TaskList extends Entry {
     public ArrayList<TaskListEntry> entry = new ArrayList<>();
 
     public static TaskList create(String name) {
-        TaskList tl=new TaskList(0,Entry.USER_ID,name);
+        TaskList tl=new TaskList(name);
         App.conMan.add(tl);
         return tl;
     }
 
     public static void load() {
         try {
-            BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
+            File file = new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist));
+            if(!file.exists()) {
+                return;
+            }
+
+            BufferedReader br=new BufferedReader(new FileReader(file));
 
             String line;
 
             while((line=br.readLine()) != null) {
-                String[] r = line.split(";");
-                TaskList tl = new TaskList(Integer.parseInt(r[0]),Integer.parseInt(r[1]),r[2]);
-                for(int i=6;i<r.length;i+=4) {
-                    tl.entry.add(new TaskListEntry(Integer.parseInt(r[i-3]),tl.id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i])));
-                }
+                TaskList tl = new TaskList(line);
                 App.TaskLists.add(tl);
             }
 
@@ -71,21 +72,25 @@ public class TaskList extends Entry {
         }
     }
 
-    protected TaskList(int id, int user_id, String name) {
-        this.id = id;
-        this.user_id = user_id;
-        this.name = name;
-    }
-
     protected TaskList(String line) {
         String[] r = line.split(";");
+        if(r.length == 1) {
+            user_id = USER_ID;
+            name = line;
+            return;
+        }
         id = Integer.parseInt(r[0]);
         user_id = Integer.parseInt(r[1]);
         name = r[2];
-        if(r.length > 3) {
-            for(int i=6;i<r.length;i+=4) {
-                entry.add(new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i])));
+        for(int i=6;i<r.length;i+=4) {
+            TaskListEntry e = new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i]));
+            entry.add(e);
+            if(id!=0 && e.id==0) {
+                e.create(id);
             }
+        }
+        if(id == 0) {
+            App.conMan.add(this);
         }
     }
 
@@ -102,7 +107,7 @@ public class TaskList extends Entry {
 
     public void rename(String name) {
         this.name = name;
-        App.conMan.add(this);
+        App.conMan.add(new Update(id));
     }
 
     public void addShare(Contact contact) {
@@ -155,25 +160,20 @@ public class TaskList extends Entry {
 
     @Override
     protected boolean mysql_update() {
-        if(id == 0) {
-            String resp = connect("tasklist/create.php", "&name=" + name);
-            if(resp.substring(0,3).equals("suc")) {
-                id = Integer.parseInt(resp.substring(3));
-                for(TaskListEntry e : entry) {
-                    e.create(id);
-                }
-                return true;
+        String resp = connect("tasklist/create.php", "&name=" + name);
+        if(resp.substring(0,3).equals("suc")) {
+            id = Integer.parseInt(resp.substring(3));
+            for(TaskListEntry e : entry) {
+                e.create(id);
             }
-        }else {
-            String resp = connect("tasklist/update.php", "&table_id=" + id + "&name=" + name);
-            return resp.equals("suc");
+            return true;
         }
         return false;
     }
 
     @Override
     protected String getConManString() {
-        return TYPE_TASKLIST + "" + id + ";" + user_id + ";" + name + ( id==0 ? ";"+getEntryStrings() : "" );
+        return null;
     }
 
     public void delete() {
@@ -218,6 +218,35 @@ public class TaskList extends Entry {
         @Override
         protected String getConManString() {
             return TYPE_TASKLIST_DELETE + "" + table_id;
+        }
+
+    }
+
+    protected static class Update extends Entry {
+
+        protected int table_id;
+
+        protected Update(int table_id) {
+            this.table_id = table_id;
+        }
+
+        protected Update(String line) {
+            table_id = Integer.parseInt(line);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            TaskList tl = App.taskMan.findTaskListById(table_id);
+            if(tl == null) {
+                return true;
+            }
+            String resp = connect("tasklist/update.php", "&table_id=" + table_id + "&name=" + tl.name);
+            return resp.equals("suc");
+        }
+
+        @Override
+        protected String getConManString() {
+            return TYPE_TASKLIST_UPDATE + "" + table_id;
         }
 
     }

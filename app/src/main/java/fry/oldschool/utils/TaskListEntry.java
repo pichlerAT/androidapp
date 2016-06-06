@@ -66,7 +66,10 @@ public class TaskListEntry extends Entry {
 
     @Override
     protected String getConManString() {
-        return TYPE_TASKLIST_ENTRY + "" + id + ";" + table_id + ";" + user_id + ";" + description + ";" + state;
+        if(id == 0) {
+            return null;
+        }
+        return TYPE_TASKLIST_ENTRY_UPDATE + "" + id + ";" + table_id + ";" + user_id + ";" + description + ";" + state;
     }
 
     @Override

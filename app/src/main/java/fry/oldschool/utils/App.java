@@ -20,6 +20,8 @@ public class App extends Application {
 
     protected static boolean PERFORM_UPDATE;
 
+    protected static boolean DELETE_LOCAL_FILES = false;
+
     public static boolean hasInternetConnection = false;
 
     public static ArrayList<TaskList> TaskLists=new ArrayList<>();
@@ -64,20 +66,38 @@ public class App extends Application {
     }
 
     protected void load() {
+        if(DELETE_LOCAL_FILES) {
+            delete_local_files();
+        }
         load_settings();
         conMan.load();
         TaskList.load();
     }
 
     public static void save() {
+        System.out.println("--------- App#save ----------");
         save_settings();
         conMan.save();
         TaskList.save();
     }
 
+    protected void delete_local_files() {
+        int[] files = {R.string.file_settings,R.string.file_sync,R.string.file_tasklist};
+        for(int i : files) {
+            File f = new File(mContext.getFilesDir(), mContext.getResources().getString(i));
+            f.delete();
+        }
+    }
+
     protected void load_settings() {
         try{
-            BufferedReader br=new BufferedReader(new FileReader(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
+            File file = new File(mContext.getFilesDir(),mContext.getResources().getString(R.string.file_settings));
+            if(!file.exists()) {
+                conLis = new ContactList();
+                return;
+            }
+
+            BufferedReader br=new BufferedReader(new FileReader(file));
 
             String line=br.readLine();
             if(line == null) {
@@ -88,7 +108,7 @@ public class App extends Application {
             conLis = new ContactList(line.split(";"));
 
             while((line = br.readLine()) != null) {
-                conLis.groups.add(new ContactGroup(line));
+                conLis.groups.add(conLis.groups.size()-1,new ContactGroup(line));
             }
 
         }catch (IOException ex) {
@@ -99,7 +119,7 @@ public class App extends Application {
 
     public static void save_settings() {
         try{
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_settings))));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(mContext.getFilesDir(),mContext.getResources().getString(R.string.file_settings))));
 
             for(Contact c : conLis.groups.get(conLis.groups.size()-1).contacts ) {
                 bw.write(c.id + ";" + c.email + ";" + c.name + ";");
@@ -111,7 +131,7 @@ public class App extends Application {
                 while(it.hasNext()) {
                     bw.newLine();
                     bw.write(g.id + ";" + g.name + ";" + g.getContactsString());
-                    it.next();
+                    g = it.next();
                 }
             }
 

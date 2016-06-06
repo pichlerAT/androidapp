@@ -25,4 +25,12 @@ public class TaskListManager {
         return false;
     }
 
+    protected TaskList findTaskListById(int table_id) {
+        for(TaskList t : App.TaskLists) {
+            if(t.id == table_id) {
+                return t;
+            }
+        }
+        return null;
+    }
 }
