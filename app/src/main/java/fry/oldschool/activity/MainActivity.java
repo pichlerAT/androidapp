@@ -23,7 +23,7 @@ import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.TaskList;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends mAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Context ctx = this;
@@ -58,12 +58,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        App.save();
     }
 
     @Override

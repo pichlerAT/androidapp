@@ -17,6 +17,8 @@ public class TaskList extends Entry {
 
     protected int user_id;
 
+    protected byte state;
+
     public String name;
 
     public ArrayList<TaskListEntry> entry = new ArrayList<>();
@@ -29,7 +31,7 @@ public class TaskList extends Entry {
 
     public static void load() {
         try {
-            File file = new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist));
+            File file = new File(App.appContext.getFilesDir(),App.appContext.getResources().getString(R.string.file_tasklist));
             if(!file.exists()) {
                 return;
             }
@@ -52,16 +54,16 @@ public class TaskList extends Entry {
 
     public static void save() {
         try {
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(),App.mContext.getResources().getString(R.string.file_tasklist))));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.appContext.getFilesDir(),App.appContext.getResources().getString(R.string.file_tasklist))));
             Iterator<TaskList> it = App.TaskLists.iterator();
 
             if(it.hasNext()) {
                 TaskList tl = it.next();
-                bw.write(tl.id + ";" + tl.user_id + ";" + tl.name + ";" + tl.getEntryStrings());
+                bw.write(tl.id + ";" + tl.user_id + ";" + tl.state + ";" + tl.name + ";" + tl.getEntryStrings());
                 while(it.hasNext()) {
                     tl = it.next();
                     bw.newLine();
-                    bw.write(tl.id + ";" + tl.user_id + ";" + tl.name + ";" + tl.getEntryStrings());
+                    bw.write(tl.id + ";" + tl.user_id + ";" + tl.state + ";" + tl.name + ";" + tl.getEntryStrings());
                 }
             }
 
@@ -76,13 +78,15 @@ public class TaskList extends Entry {
         String[] r = line.split(";");
         if(r.length == 1) {
             user_id = USER_ID;
+            state = 0;
             name = line;
             return;
         }
         id = Integer.parseInt(r[0]);
         user_id = Integer.parseInt(r[1]);
-        name = r[2];
-        for(int i=6;i<r.length;i+=4) {
+        state = Byte.parseByte(r[2]);
+        name = r[3];
+        for(int i=7;i<r.length;i+=4) {
             TaskListEntry e = new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),r[i-1],Byte.parseByte(r[i]));
             entry.add(e);
             if(id!=0 && e.id==0) {
@@ -105,18 +109,22 @@ public class TaskList extends Entry {
         return App.conLis.findContactById(user_id);
     }
 
+    public boolean done() {
+        return ( state == 1 );
+    }
+
     public void rename(String name) {
         this.name = name;
         App.conMan.add(new Update(id));
     }
 
     public void addShare(Contact contact) {
-        App.conMan.add(new Share.Create(contact.id,id));
+        App.conMan.add(new Share.Create(contact.user_id,id));
     }
 
     public void addShare(ArrayList<Contact> contacts) {
         for(Contact contact : contacts) {
-            App.conMan.add(new Share.Create(contact.id,id));
+            App.conMan.add(new Share.Create(contact.user_id,id));
         }
     }
 
@@ -146,7 +154,16 @@ public class TaskList extends Entry {
         }
     }
 
-    public boolean done(int index) {
+    public void change(boolean state) {
+        this.state = ( state ? (byte)1 : (byte)0 );
+    }
+
+    public void change(String name,boolean state) {
+        this.name = name;
+        this.state = ( state ? (byte)1 : (byte)0 );
+    }
+
+    public boolean isDone(int index) {
         return entry.get(index).done();
     }
 
@@ -253,25 +270,25 @@ public class TaskList extends Entry {
 
     protected static abstract class Share extends Entry {
 
-        protected int contact_id;
+        protected int user_id;
 
         protected int table_id;
 
-        protected Share(int contact_id,int table_id) {
-            this.contact_id = contact_id;
+        protected Share(int user_id,int table_id) {
+            this.user_id = user_id;
             this.table_id = table_id;
         }
 
         protected Share(String line) {
             String[] r = line.split(";");
-            contact_id = Integer.parseInt(r[0]);
+            user_id = Integer.parseInt(r[0]);
             table_id = Integer.parseInt(r[1]);
         }
 
         protected static class Create extends Share {
 
-            protected Create(int contact_id,int table_id) {
-                super(contact_id,table_id);
+            protected Create(int user_id,int table_id) {
+                super(user_id,table_id);
             }
 
             protected Create(String line) {
@@ -280,20 +297,20 @@ public class TaskList extends Entry {
 
             @Override
             protected boolean mysql_update() {
-                String resp = connect("tasklist/share/create.php", "&contact_id=" + contact_id + "&table_id=" + table_id);
+                String resp = connect("tasklist/share/create.php", "&contact_id=" + user_id + "&table_id=" + table_id);
                 return ( resp.equals("suc") || resp.equals("err_tsc2") );
             }
 
             @Override
             protected String getConManString() {
-                return TYPE_TASKLIST_SHARE_CREATE + "" + contact_id + ";" + table_id;
+                return TYPE_TASKLIST_SHARE_CREATE + "" + user_id + ";" + table_id;
             }
         }
 
         protected static class Delete extends Share {
 
-            protected Delete(int contact_id,int table_id) {
-                super(contact_id,table_id);
+            protected Delete(int user_id,int table_id) {
+                super(user_id,table_id);
             }
 
             protected Delete(String line) {
@@ -302,13 +319,13 @@ public class TaskList extends Entry {
 
             @Override
             protected boolean mysql_update() {
-                String resp = connect("tasklist/share/delete.php", "&contact_id=" + contact_id + "&table_id=" + table_id);
+                String resp = connect("tasklist/share/delete.php", "&contact_id=" + user_id + "&table_id=" + table_id);
                 return ( resp.equals("suc") );
             }
 
             @Override
             protected String getConManString() {
-                return TYPE_TASKLIST_SHARE_DELETE + "" + contact_id + ";" + table_id;
+                return TYPE_TASKLIST_SHARE_DELETE + "" + user_id + ";" + table_id;
             }
         }
 

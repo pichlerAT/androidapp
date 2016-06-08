@@ -48,7 +48,7 @@ public class ConnectionManager extends MySQL {
 
     public void load() {
         try {
-            File file = new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync));
+            File file = new File(App.appContext.getFilesDir(), App.appContext.getResources().getString(R.string.file_sync));
             if(!file.exists()) {
                 return;
             }
@@ -78,7 +78,7 @@ public class ConnectionManager extends MySQL {
 
     public void save() {
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.mContext.getFilesDir(), App.mContext.getResources().getString(R.string.file_sync))));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.appContext.getFilesDir(), App.appContext.getResources().getString(R.string.file_sync))));
             Iterator<Entry> it = entry.iterator();
 
             for(Entry e : entry) {
@@ -94,6 +94,10 @@ public class ConnectionManager extends MySQL {
         }catch(IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    protected boolean remove(Entry entry) {
+        return this.entry.remove(entry);
     }
 
     protected void add(Entry entry) {
@@ -140,7 +144,6 @@ public class ConnectionManager extends MySQL {
             if(mysql_listener != null) {
                 mysql_listener.mysql_finished(/*message*/);
             }
-            //App.errorDialog("error",message);
         }
     }
 }

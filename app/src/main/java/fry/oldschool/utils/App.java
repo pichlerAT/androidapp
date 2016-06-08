@@ -34,6 +34,10 @@ public class App extends Application {
 
     public static Context mContext;
 
+    public static boolean isAppActive = true;
+
+    protected static Context appContext;
+
     public static void setContext(Context mContext) {
         App.mContext = mContext;
     }
@@ -59,10 +63,26 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        mContext = this;
+        appContext = this;
         PERFORM_UPDATE = true;
         load();
         NetworkStateReciever.checkInternet();
+    }
+
+    public static void onPause() {
+        isAppActive = false;
+        Updater.stop();
+        save();
+    }
+
+    public static void onResume() {
+        isAppActive = true;
+        Updater.start();
+    }
+
+    public static void performUpdate() {
+        PERFORM_UPDATE = true;
+        conMan.sync();
     }
 
     protected void load() {
@@ -84,14 +104,14 @@ public class App extends Application {
     protected void delete_local_files() {
         int[] files = {R.string.file_settings,R.string.file_sync,R.string.file_tasklist};
         for(int i : files) {
-            File f = new File(mContext.getFilesDir(), mContext.getResources().getString(i));
+            File f = new File(appContext.getFilesDir(), appContext.getResources().getString(i));
             f.delete();
         }
     }
 
     protected void load_settings() {
         try{
-            File file = new File(mContext.getFilesDir(),mContext.getResources().getString(R.string.file_settings));
+            File file = new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings));
             if(!file.exists()) {
                 conLis = new ContactList();
                 return;
@@ -119,10 +139,10 @@ public class App extends Application {
 
     public static void save_settings() {
         try{
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(mContext.getFilesDir(),mContext.getResources().getString(R.string.file_settings))));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings))));
 
             for(Contact c : conLis.groups.get(conLis.groups.size()-1).contacts ) {
-                bw.write(c.id + ";" + c.email + ";" + c.name + ";");
+                bw.write(c.id + ";" + c.user_id + ";" + c.email + ";" + c.name + ";");
             }
 
             Iterator<ContactGroup> it = conLis.groups.iterator();

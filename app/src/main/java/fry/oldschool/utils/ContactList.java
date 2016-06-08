@@ -16,22 +16,22 @@ public class ContactList extends MySQL {
             System.out.println("|"+c.id+"|"+c.email+"|"+c.name+"|");
         }
         System.out.println("------------ ContactRequests ----------");
-        for(Contact c : contactRequests) {
-            System.out.println("|"+c.id+"|"+c.email+"|"+c.name+"|");
+        for(ContactRequest c : contactRequests) {
+            System.out.println("|"+c.id+"|"+c.user_id+"|"+c.email+"|"+c.name+"|");
         }
         System.out.println("---------------------------------------");
     }
 
     public ArrayList<ContactGroup> groups=new ArrayList<>();
 
-    public ArrayList<Contact> contactRequests=new ArrayList<>();
+    public ArrayList<ContactRequest> contactRequests=new ArrayList<>();
 
     protected ContactList(String... splitLine) {
         ContactGroup all=new ContactGroup("All Contacts");
         groups.add(all);
 
-        for(int i=2;i<splitLine.length;i+=3) {
-            all.contacts.add(new Contact(Integer.parseInt(splitLine[i-2]),splitLine[i-1],splitLine[i]));
+        for(int i=3;i<splitLine.length;i+=4) {
+            all.contacts.add(new Contact(Integer.parseInt(splitLine[i-3]),Integer.parseInt(splitLine[i-2]),splitLine[i-1],splitLine[i]));
         }
     }
 
@@ -72,26 +72,26 @@ public class ContactList extends MySQL {
 
     protected void setContactRequests(String... r) {
         contactRequests=new ArrayList<>();
-        for(int i=2;i<r.length;i+=3) {
-            contactRequests.add(new Contact(Integer.parseInt(r[i-2]),r[i-1],r[i]));
+        for(int i=3;i<r.length;i+=4) {
+            contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
         }
     }
 
     protected void updateContacts(String... r) {
         ContactGroup cg0=groups.get(groups.size()-1);
         boolean[] online = new boolean[cg0.contacts.size()];
-        for(int i=2;i<r.length;i+=3) {
-            int id = Integer.parseInt(r[i-2]);
+        for(int i=3;i<r.length;i+=4) {
+            int id = Integer.parseInt(r[i-3]);
             Contact cont = cg0.findContactById(id);
             if(cont == null) {
                 if(!hasContactDeleted(id)) {
-                    cont = new Contact(id, r[i-1], r[i]);
+                    cont = new Contact(id, Integer.parseInt(r[i-2]), r[i-1], r[i]);
                     cg0.contacts.add(cont);
                 }
             }else {
                 cont.email = r[i-1];
                 cont.name = r[i];
-                online[(i-2)/3] = true;
+                online[(i-2)/4] = true;
             }
         }
         for(int i=online.length-1;i>=0;--i) {
@@ -101,11 +101,11 @@ public class ContactList extends MySQL {
         }
     }
 
-    protected boolean hasContactDeleted(int contact_id) {
+    protected boolean hasContactDeleted(int id) {
         for(Entry e : App.conMan.entry) {
             if(e instanceof Contact.Delete) {
                 Contact.Delete c = (Contact.Delete)e;
-                if(c.contact_id == contact_id) {
+                if(c.id == id) {
                     return true;
                 }
             }
@@ -147,6 +147,10 @@ public class ContactList extends MySQL {
         return groups.get(groups.size()-1).findContactById(contact_id);
     }
 
+    protected Contact findContactByUserId(int user_id) {
+        return groups.get(groups.size()-1).findContactByUserId(user_id);
+    }
+
     public void deleteContact(Contact cont) {
         for(ContactGroup grp : groups) {
             grp.removeContact(cont);
@@ -156,18 +160,6 @@ public class ContactList extends MySQL {
 
     public void sendRequest(String email) {
         App.conMan.add(new ContactRequest.Send(email));
-    }
-
-    public void acceptRequest(Contact cont) {
-        if(contactRequests.remove(cont)) {
-            App.conMan.add(new ContactRequest.Accept(cont));
-        }
-    }
-
-    public void declineRequest(Contact cont) {
-        if(contactRequests.remove(cont)) {
-            App.conMan.add(new ContactRequest.Decline(cont.id));
-        }
     }
 
     public void createContactGroup(String name) {

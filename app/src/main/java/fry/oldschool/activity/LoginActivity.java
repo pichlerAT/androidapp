@@ -1,6 +1,5 @@
 package fry.oldschool.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import fry.oldschool.R;
@@ -8,7 +7,7 @@ import fry.oldschool.R;
 /**
  * Created by Edwin Pichler on 04.05.2016.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends mActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

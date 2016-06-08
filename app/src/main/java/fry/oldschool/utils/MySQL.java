@@ -12,9 +12,14 @@ import java.util.ArrayList;
 
 public abstract class MySQL {
 
-    public static final String IP_ADDRESS = "188.23.50.74:80" ;
+    public static final String IP_ADDRESS = "193.81.52.38" ;
 
-    public static final String ADDRESS="http://"+IP_ADDRESS+"/Oldschool/";
+    public static final String PORT = "80";
+
+    public static final String DIRECTORY = "android";
+
+    protected static final String ADDRESS="http://"+IP_ADDRESS+":"+PORT+"/"+DIRECTORY+"/";
+
 
     public static int USER_ID = 1;
     //public static String USER_EMAIL = "fragner@gmx.net";
@@ -31,7 +36,6 @@ public abstract class MySQL {
 
             os.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
             os.flush();
-            //os.close();
             con.connect();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -58,7 +62,6 @@ public abstract class MySQL {
 
             os.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
             os.flush();
-            //os.close();
             con.connect();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));

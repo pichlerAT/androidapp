@@ -2,6 +2,33 @@ package fry.oldschool.utils;
 
 public class ContactRequest {
 
+    protected int id;
+
+    protected int user_id;
+
+    public String email;
+
+    public String name;
+
+    protected ContactRequest(int id,int user_id,String email,String name) {
+        this.id = id;
+        this.user_id = user_id;
+        this.email = email;
+        this.name = name;
+    }
+
+    public void accept() {
+        if(App.conLis.contactRequests.remove(this)) {
+            App.conMan.add(new Accept(id,user_id,email,name));
+        }
+    }
+
+    public void decline() {
+        if(App.conLis.contactRequests.remove(this)) {
+            App.conMan.add(new Decline(id));
+        }
+    }
+
     protected static class Send extends Entry {
 
         protected String email;
@@ -33,28 +60,41 @@ public class ContactRequest {
 
     protected static class Accept extends Entry {
 
-        protected Contact contact;
+        protected int id;
 
-        protected Accept(Contact contact) {
-            this.contact = contact;
+        protected int user_id;
+
+        protected String email;
+
+        protected String name;
+
+        protected Accept(int id,int user_id,String email,String name) {
+            this.id = id;
+            this.user_id = user_id;
+            this.email = email;
+            this.name = name;
         }
 
         protected Accept(String line) {
             String[] r = line.split(";");
-            contact = new Contact(Integer.parseInt(r[0]),r[1],r[2]);
+            id = Integer.parseInt(r[0]);
+            user_id = Integer.parseInt(r[1]);
+            email = r[2];
+            name = r[3];
         }
 
         @Override
         protected String getConManString() {
-            return TYPE_CONTACTREQUEST_ACCEPT + "" + contact.id + ";" + contact.email + ";" + contact.name;
+            return TYPE_CONTACTREQUEST_ACCEPT + "" + id + ";" + user_id + ";" + email + ";" + name;
         }
 
         @Override
         protected boolean mysql_update() {
-            String resp = connect("contact/request/accept.php", "&contact_id=" + contact.id);
+            String resp = connect("contact/request/accept.php", "&contact_id=" + id);
 
             if (resp.equals("suc")) {
-                App.conLis.groups.get(App.conLis.groups.size()-1).contacts.add(contact);
+                int contact_id = Integer.parseInt(resp.substring(3));
+                App.conLis.groups.get(App.conLis.groups.size() - 1).contacts.add(new Contact(contact_id,user_id,email,name));
                 return true;
             }
 
@@ -64,24 +104,24 @@ public class ContactRequest {
 
     protected static class Decline extends Entry {
 
-        protected int contact_id;
+        protected int id;
 
-        protected Decline(int contact_id) {
-            this.contact_id = contact_id;
+        protected Decline(int id) {
+            this.id = id;
         }
 
         protected Decline(String line) {
-            contact_id = Integer.parseInt(line);
+            id = Integer.parseInt(line);
         }
 
         @Override
         protected String getConManString() {
-            return TYPE_CONTACTREQUEST_DECLINE + "" + contact_id;
+            return TYPE_CONTACTREQUEST_DECLINE + "" + id;
         }
 
         @Override
         protected boolean mysql_update() {
-            String resp = connect("contact/request/decline.php", "&contact_id=" + contact_id);
+            String resp = connect("contact/request/decline.php", "&request_id=" + id);
 
             return resp.equals("suc");
         }

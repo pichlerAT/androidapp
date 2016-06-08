@@ -33,4 +33,15 @@ public class TaskListManager {
         }
         return null;
     }
+
+    protected TaskListEntry findEntryById(int entry_id) {
+        for(TaskList t : App.TaskLists) {
+            for(TaskListEntry e : t.entry) {
+                if(e.id == entry_id) {
+                    return e;
+                }
+            }
+        }
+        return null;
+    }
 }

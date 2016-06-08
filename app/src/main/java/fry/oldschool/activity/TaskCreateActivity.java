@@ -28,7 +28,7 @@ import fry.oldschool.utils.TaskListEntry;
 /**
  * Created by Edwin Pichler on 04.05.2016.
  */
-public class TaskCreateActivity extends AppCompatActivity{
+public class TaskCreateActivity extends mAppCompatActivity{
 
     private ViewPager pager = null;
     private TaskCreateAdapter adapter = null;

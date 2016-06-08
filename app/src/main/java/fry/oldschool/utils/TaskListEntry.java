@@ -34,23 +34,25 @@ public class TaskListEntry extends Entry {
     }
 
     protected void create(int table_id) {
-        this.table_id = table_id;
-        App.conMan.add(this);
+        if(id == 0) {
+            this.table_id = table_id;
+            App.conMan.add(this);
+        }
     }
 
     public void change(String description,boolean state) {
         this.description = description;
-        this.state = ( state ? (byte)0 : (byte)1 );
+        this.state = ( state ? (byte)1 : (byte)0 );
         App.conMan.add(this);
     }
 
     public void change(boolean state) {
-        this.state = ( state ? (byte)0 : (byte)1 );
+        this.state = ( state ? (byte)1 : (byte)0 );
         App.conMan.add(this);
     }
 
     public boolean done() {
-        return ( state == 0 );
+        return ( state == 1 );
     }
 
     public boolean owner() {
@@ -66,27 +68,18 @@ public class TaskListEntry extends Entry {
 
     @Override
     protected String getConManString() {
-        if(id == 0) {
-            return null;
-        }
-        return TYPE_TASKLIST_ENTRY_UPDATE + "" + id + ";" + table_id + ";" + user_id + ";" + description + ";" + state;
+        return null;
     }
 
     @Override
     protected boolean mysql_update() {
-        if(id == 0) {
-            String resp = connect("tasklist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
-            if(resp.substring(0,3).equals("suc")) {
-                id = Integer.parseInt(resp.substring(3));
-                return true;
-            }
-        }else {
-            String resp = connect("tasklist/entry/update.php","&entry_id=" + id + "&description=" + description + "&state=" + state);
-            return resp.equals("suc");
+        String resp = connect("tasklist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+        if(resp.substring(0,3).equals("suc")) {
+            id = Integer.parseInt(resp.substring(3));
+            return true;
         }
         return false;
     }
-
 
     protected static class Delete extends Entry {
 
@@ -112,4 +105,34 @@ public class TaskListEntry extends Entry {
         }
 
     }
+
+    protected static class Update extends Entry {
+
+        protected int entry_id;
+
+        protected Update(int entry_id) {
+            this.entry_id = entry_id;
+        }
+
+        protected Update(String line) {
+            entry_id = Integer.parseInt(line);
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            TaskListEntry entry = App.taskMan.findEntryById(entry_id);
+            if(entry == null) {
+                return true;
+            }
+            String resp = connect("tasklist/entry/update.php", "&entry_id=" + entry_id + "&description=" + entry.description + "&state=" + entry.state);
+            return resp.equals("suc");
+        }
+
+        @Override
+        protected String getConManString() {
+            return TYPE_TASKLIST_ENTRY_UPDATE + "" + entry_id;
+        }
+
+    }
+
 }

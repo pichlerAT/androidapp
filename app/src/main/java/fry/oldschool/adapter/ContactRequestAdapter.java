@@ -15,20 +15,21 @@ import java.util.ArrayList;
 import fry.oldschool.R;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.Contact;
+import fry.oldschool.utils.ContactRequest;
 
 /**
  * Created by Edwin Pichler on 21.05.2016.
  */
-public class ContactRequestAdapter extends ArrayAdapter<Contact>{
-    ArrayList<Contact> contactRequests;
+public class ContactRequestAdapter extends ArrayAdapter<ContactRequest>{
+    ArrayList<ContactRequest> contactRequests;
 
-    public ContactRequestAdapter(Context context, int resource, ArrayList<Contact> contactRequests) {
+    public ContactRequestAdapter(Context context, int resource, ArrayList<ContactRequest> contactRequests) {
         super(context, resource, contactRequests);
         this.contactRequests = contactRequests;
     }
 
     @Override
-    public Contact getItem(int position){
+    public ContactRequest getItem(int position){
         return contactRequests.get(position);
     }
 
@@ -53,7 +54,7 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
             res = convertView;
         }
 
-        final Contact sender = getItem(position);
+        final ContactRequest sender = getItem(position);
 
         LinearLayout senderData = (LinearLayout) res.findViewById(R.id.linearlayout_contact_request_sender);
         TextView senderName = (TextView) senderData.getChildAt(0);
@@ -66,7 +67,7 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                App.conLis.acceptRequest(sender);
+                sender.accept();
             }
         });
 
@@ -74,7 +75,7 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
         decline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                App.conLis.declineRequest(sender);
+                sender.decline();
             }
         });
 

@@ -7,9 +7,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 
@@ -49,6 +52,9 @@ public class NetworkStateReciever extends BroadcastReceiver {
             App.hasInternetConnection = hasActiveInternetConnection();
             if(App.hasInternetConnection) {
                 App.conMan.sync();
+                if(App.isAppActive) {
+                    Updater.start();
+                }
             }
             return null;
         }
@@ -68,7 +74,6 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 con.connect();
                 return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
             }catch (IOException ex) {
-                //ex.printStackTrace();
                 return false;
             }
         }
