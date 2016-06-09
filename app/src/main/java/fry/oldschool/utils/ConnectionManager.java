@@ -69,7 +69,6 @@ public class ConnectionManager extends MySQL {
             }
             System.out.println("------------------------------------------");
             br.close();
-            sync();
 
         }catch(IOException ex) {
             ex.printStackTrace();
