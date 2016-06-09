@@ -34,7 +34,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     public ContactAdapter(Context context, ArrayList<ContactGroup> contactGroupList, boolean isTask){
         this.mContext = context;
-        this.contactGroupList = contactGroupList;
+        this.contactGroupList = new ArrayList<>(contactGroupList);
         this.isTask = isTask;
     }
 
@@ -92,7 +92,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             deleteGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    getGroup(groupPosition).delete();
+                    //getGroup(groupPosition).delete(); doesn't work correctly
                     App.conLis.groups.get(groupPosition).delete();
                     notifyDataSetChanged();
                 }
@@ -159,6 +159,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     }
 
     public void filterContacts(String search){
+        contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
         if(!search.isEmpty()) {
             search = search.toLowerCase();
             for (ContactGroup group : contactGroupList) {
@@ -168,14 +169,11 @@ public class ContactAdapter extends BaseExpandableListAdapter {
                         newContacts.add(contact);
                     }
                 }
-                if (newContacts.size() <= 0)
+                if (newContacts.size() > 0)
                     group.setContacts(newContacts);
                 else
                     group.setContacts(new ArrayList<Contact>());
             }
-        }
-        else{
-            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
         }
         notifyDataSetChanged();
     }

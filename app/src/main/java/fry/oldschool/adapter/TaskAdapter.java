@@ -5,7 +5,6 @@ import android.content.Context;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -14,15 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,6 +30,7 @@ import fry.oldschool.utils.App;
 import fry.oldschool.utils.Contact;
 import fry.oldschool.utils.ContactGroup;
 import fry.oldschool.utils.TaskList;
+import fry.oldschool.utils.TaskListEntry;
 
 public class TaskAdapter extends ArrayAdapter<TaskList>{
 
@@ -82,18 +80,31 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
+                final TaskListEntry entry = item.entry.get(i);
                 CheckBox cb = new CheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);
-                cb.setChecked(item.done(i));
+                cb.setChecked(item.isDone(i));
+                cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        entry.change(b);
+                    }
+                });
                 entries.addView(cb);
             }
             int padding = App.pixelToDPScale(10);
             entries.setPadding(padding, padding, padding, padding);
         }
-        else{
-            //entries.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
-        }
+
+        Button done = (Button) res.findViewById(R.id.button_listtemplate_done);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //
+            }
+        });
+
         final Button more = (Button) res.findViewById(R.id.button_listtemplate_more);
         more.setOnClickListener(new View.OnClickListener() {
             @Override
