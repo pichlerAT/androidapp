@@ -108,7 +108,7 @@ public class TaskList extends OnlineEntry {
         return App.conLis.findContactById(user_id);
     }
 
-    public boolean done() {
+    public boolean isDone() {
         return ( state == 1 );
     }
 

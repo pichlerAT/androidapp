@@ -51,16 +51,16 @@ public class TaskListEntry extends Entry {
         App.conMan.add(this);
     }
 
-    public boolean done() {
+    public boolean isDone() {
         return ( state == 1 );
     }
 
-    public boolean owner() {
+    public boolean isOwner() {
         return ( user_id == USER_ID );
     }
 
     public Contact getOwner() {
-        if(owner()) {
+        if(isOwner()) {
             return null;
         }
         return App.conLis.findContactByUserId(user_id);
