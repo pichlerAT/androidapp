@@ -2,13 +2,22 @@ package fry.oldschool.utils;
 
 public class TaskListManager {
 
-    protected void update(TaskList tl) {
+    protected static void moveTaskList(int fromIndex,int toIndex) {
+        TaskList tl = App.TaskLists.remove(fromIndex);
+        if(toIndex < fromIndex) {
+            App.TaskLists.add(toIndex,tl);
+        }else {
+            App.TaskLists.add(toIndex-1,tl);
+        }
+    }
+
+    protected static void update(TaskList tl) {
         if(!has(tl)) {
             App.TaskLists.add(tl);
         }
     }
 
-    protected boolean has(TaskList tl) {
+    protected static boolean has(TaskList tl) {
         if(tl.id == 0) {
             for(TaskList tli : App.TaskLists) {
                 if(tli.equals(tl)) {
@@ -25,7 +34,7 @@ public class TaskListManager {
         return false;
     }
 
-    protected TaskList findTaskListById(int table_id) {
+    protected static TaskList findTaskListById(int table_id) {
         for(TaskList t : App.TaskLists) {
             if(t.id == table_id) {
                 return t;
@@ -34,7 +43,7 @@ public class TaskListManager {
         return null;
     }
 
-    protected TaskListEntry findEntryById(int entry_id) {
+    protected static TaskListEntry findEntryById(int entry_id) {
         for(TaskList t : App.TaskLists) {
             for(TaskListEntry e : t.entry) {
                 if(e.id == entry_id) {

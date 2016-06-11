@@ -27,7 +27,7 @@ public class ConnectionManager extends MySQL {
         Iterator<String> it = resp.iterator();
         if(it.next().equals("suc")) {
             while(it.hasNext()) {
-                App.taskMan.update(new TaskList(it.next()));
+                TaskListManager.update(new TaskList(it.next()));
             }
             return true;
         }

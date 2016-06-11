@@ -120,7 +120,7 @@ public class TaskListEntry extends Entry {
 
         @Override
         protected boolean mysql_update() {
-            TaskListEntry entry = App.taskMan.findEntryById(entry_id);
+            TaskListEntry entry = TaskListManager.findEntryById(entry_id);
             if(entry == null) {
                 return true;
             }

@@ -97,6 +97,10 @@ public class TaskList extends OnlineEntry {
         }
     }
 
+    public void move(int fromIndex,int toIndex) {
+        TaskListManager.moveTaskList(fromIndex,toIndex);
+    }
+
     public boolean isOwner() {
         return ( user_id == Entry.USER_ID );
     }
@@ -262,7 +266,7 @@ public class TaskList extends OnlineEntry {
 
         @Override
         protected boolean mysql_update() {
-            TaskList tl = App.taskMan.findTaskListById(table_id);
+            TaskList tl = TaskListManager.findTaskListById(table_id);
             if(tl == null) {
                 return true;
             }

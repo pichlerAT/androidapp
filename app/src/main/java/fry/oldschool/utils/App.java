@@ -28,8 +28,6 @@ public class App extends Application {
 
     public static ContactList conLis;
 
-    public static TaskListManager taskMan = new TaskListManager();
-
     public static ConnectionManager conMan = new ConnectionManager();
 
     public static Context mContext;
@@ -103,12 +101,7 @@ public class App extends Application {
     public static void fragmentChanged(int id) {
         switch(id) {
             case R.id.nav_contacts: break;
-            case R.id.nav_tasks:
-
-                TaskList tl = taskMan.findTaskListById(5);
-                tl.loadShared();
-
-                break;
+            case R.id.nav_tasks: break;
             case R.id.nav_timetable: break;
         }
     }
