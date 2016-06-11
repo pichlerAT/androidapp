@@ -60,7 +60,7 @@ public class TaskList extends OnlineEntry {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.appContext.getFilesDir(),App.appContext.getResources().getString(R.string.file_tasklist))));
 
             for(TaskList tl : App.TaskLists) {
-                if(tl.owner()) {
+                if(tl.isOwner()) {
                     bw.write(tl.id + S + tl.user_id + S + tl.state + S + tl.name + S + tl.getEntryStrings());
                     bw.newLine();
                 }
@@ -97,12 +97,12 @@ public class TaskList extends OnlineEntry {
         }
     }
 
-    public boolean owner() {
+    public boolean isOwner() {
         return ( user_id == Entry.USER_ID );
     }
 
     public Contact getOwner() {
-        if(owner()) {
+        if(isOwner()) {
             return null;
         }
         return App.conLis.findContactById(user_id);
@@ -178,7 +178,7 @@ public class TaskList extends OnlineEntry {
     }
 
     public boolean isDone(int index) {
-        return entry.get(index).done();
+        return entry.get(index).isDone();
     }
 
     public int length() {
