@@ -7,11 +7,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import fry.oldschool.R;
 
-public class TaskList extends Entry {
+public class TaskList extends OnlineEntry {
 
     protected int id;
 
@@ -22,6 +21,8 @@ public class TaskList extends Entry {
     public String name;
 
     public ArrayList<TaskListEntry> entry = new ArrayList<>();
+
+    public ArrayList<Share> sharedContacts = new ArrayList<>();
 
     public static TaskList create(String name) {
         TaskList tl=new TaskList(name);
@@ -41,8 +42,10 @@ public class TaskList extends Entry {
             String line;
 
             while((line=br.readLine()) != null) {
-                TaskList tl = new TaskList(line);
-                App.TaskLists.add(tl);
+                if(!line.isEmpty()) {
+                    TaskList tl = new TaskList(line);
+                    App.TaskLists.add(tl);
+                }
             }
 
             br.close();
@@ -55,15 +58,11 @@ public class TaskList extends Entry {
     public static void save() {
         try {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(App.appContext.getFilesDir(),App.appContext.getResources().getString(R.string.file_tasklist))));
-            Iterator<TaskList> it = App.TaskLists.iterator();
 
-            if(it.hasNext()) {
-                TaskList tl = it.next();
-                bw.write(tl.id + ";" + tl.user_id + ";" + tl.state + ";" + tl.name + ";" + tl.getEntryStrings());
-                while(it.hasNext()) {
-                    tl = it.next();
+            for(TaskList tl : App.TaskLists) {
+                if(tl.owner()) {
+                    bw.write(tl.id + S + tl.user_id + S + tl.state + S + tl.name + S + tl.getEntryStrings());
                     bw.newLine();
-                    bw.write(tl.id + ";" + tl.user_id + ";" + tl.state + ";" + tl.name + ";" + tl.getEntryStrings());
                 }
             }
 
@@ -75,7 +74,7 @@ public class TaskList extends Entry {
     }
 
     protected TaskList(String line) {
-        String[] r = line.split(";");
+        String[] r = line.split(S);
         if(r.length == 1) {
             user_id = USER_ID;
             state = 0;
@@ -118,23 +117,38 @@ public class TaskList extends Entry {
         App.conMan.add(new Update(id));
     }
 
-    public void addShare(Contact contact) {
-        App.conMan.add(new Share.Create(contact.user_id,id));
+    public void loadShared() {
+        App.conMan.add(new GetShared(id));
     }
 
-    public void addShare(ArrayList<Contact> contacts) {
+    public void addShare(Contact contact,boolean canEdit) {
+        App.conMan.add(new CreateShare(contact.user_id,id,canEdit));
+    }
+
+    public void addShare(ArrayList<Contact> contacts,boolean canEdit) {
         for(Contact contact : contacts) {
-            App.conMan.add(new Share.Create(contact.user_id,id));
+            App.conMan.add(new CreateShare(contact.user_id,id,canEdit));
         }
     }
 
-    public void removeShare(Contact cont) {
-        App.conMan.add(new Share.Delete(cont.id,id));
+    public void removeShare(int index) {
+        Share share = sharedContacts.remove(index);
+        if(share != null) {
+            App.conMan.add(new DeleteShare(share.id));
+        }
     }
 
-    public void removeShare(ArrayList<Contact> contacts) {
-        for(Contact contact : contacts) {
-            App.conMan.add(new Share.Delete(contact.id,id));
+    public void removeShare(Share share) {
+        if(sharedContacts.remove(share)) {
+            App.conMan.add(new DeleteShare(share.id));
+        }
+    }
+
+    public void removeShare(ArrayList<Share> shares) {
+        for(Share share : shares) {
+            if(sharedContacts.remove(share)) {
+                App.conMan.add(new DeleteShare(share.id));
+            }
         }
     }
 
@@ -188,11 +202,6 @@ public class TaskList extends Entry {
         return false;
     }
 
-    @Override
-    protected String getConManString() {
-        return null;
-    }
-
     public void delete() {
         App.TaskLists.remove(this);
         App.conMan.add(new Delete(id));
@@ -209,7 +218,7 @@ public class TaskList extends Entry {
         }
         String s = "";
         for(TaskListEntry e : entry) {
-            s += e.id + ";" + e.user_id + ";" + e.description + ";" + e.state + ";";
+            s += e.id + S + e.user_id + S + e.description + S + e.state + S;
         }
         return s;
     }
@@ -268,65 +277,73 @@ public class TaskList extends Entry {
 
     }
 
-    protected static abstract class Share extends Entry {
+    protected class GetShared extends OnlineEntry {
+
+        protected int table_id;
+
+        protected GetShared(int table_id) {
+            this.table_id = table_id;
+        }
+
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("tasklist/share/get.php","&table_id="+table_id);
+
+            if(!resp.substring(0,3).equals("suc")) {
+                return false;
+            }
+
+            String[] r = resp.substring(3).split(S);
+            sharedContacts = new ArrayList<>();
+            for(int i=2;i<r.length;i+=3) {
+                Contact c = App.conLis.findContactByUserId(Integer.parseInt(r[i-1]));
+                if(c != null) {
+                    sharedContacts.add(new Share(TYPE_TASKLIST_SHARE_UPDATE,Integer.parseInt(r[i-2]),Byte.parseByte(r[i]),c));
+                }
+            }
+
+            sharedContacts.get(0).allowEdit(true);
+
+            return true;
+        }
+
+    }
+
+
+    protected static class CreateShare extends OnlineEntry {
 
         protected int user_id;
 
         protected int table_id;
 
-        protected Share(int user_id,int table_id) {
+        protected byte permission;
+
+        protected CreateShare(int user_id,int table_id,boolean canEdit) {
             this.user_id = user_id;
             this.table_id = table_id;
+            permission = ( canEdit ? (byte)1 : (byte)0 );
         }
 
-        protected Share(String line) {
-            String[] r = line.split(";");
-            user_id = Integer.parseInt(r[0]);
-            table_id = Integer.parseInt(r[1]);
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("tasklist/share/create.php", "&user_id_share=" + user_id + "&table_id=" + table_id);
+            return ( resp.substring(0,3).equals("suc") || resp.equals("err_tsc2") );
         }
 
-        protected static class Create extends Share {
+    }
 
-            protected Create(int user_id,int table_id) {
-                super(user_id,table_id);
-            }
+    protected static class DeleteShare extends OnlineEntry {
 
-            protected Create(String line) {
-                super(line);
-            }
+        protected int share_id;
 
-            @Override
-            protected boolean mysql_update() {
-                String resp = connect("tasklist/share/create.php", "&contact_id=" + user_id + "&table_id=" + table_id);
-                return ( resp.equals("suc") || resp.equals("err_tsc2") );
-            }
-
-            @Override
-            protected String getConManString() {
-                return TYPE_TASKLIST_SHARE_CREATE + "" + user_id + ";" + table_id;
-            }
+        protected DeleteShare(int share_id) {
+            this.share_id = share_id;
         }
 
-        protected static class Delete extends Share {
-
-            protected Delete(int user_id,int table_id) {
-                super(user_id,table_id);
-            }
-
-            protected Delete(String line) {
-                super(line);
-            }
-
-            @Override
-            protected boolean mysql_update() {
-                String resp = connect("tasklist/share/delete.php", "&contact_id=" + user_id + "&table_id=" + table_id);
-                return ( resp.equals("suc") );
-            }
-
-            @Override
-            protected String getConManString() {
-                return TYPE_TASKLIST_SHARE_DELETE + "" + user_id + ";" + table_id;
-            }
+        @Override
+        protected boolean mysql_update() {
+            String resp = connect("tasklist/share/delete.php", "&share_id="+share_id);
+            return resp.equals("suc");
         }
 
     }

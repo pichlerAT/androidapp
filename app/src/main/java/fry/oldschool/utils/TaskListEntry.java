@@ -25,7 +25,7 @@ public class TaskListEntry extends Entry {
     }
 
     protected TaskListEntry(String line) {
-        String[] r = line.split(";");
+        String[] r = line.split(S);
         id = Integer.parseInt(r[0]);
         user_id = Integer.parseInt(r[1]);
         table_id = Integer.parseInt(r[2]);
@@ -63,12 +63,7 @@ public class TaskListEntry extends Entry {
         if(owner()) {
             return null;
         }
-        return App.conLis.findContactById(user_id);
-    }
-
-    @Override
-    protected String getConManString() {
-        return null;
+        return App.conLis.findContactByUserId(user_id);
     }
 
     @Override
@@ -79,6 +74,11 @@ public class TaskListEntry extends Entry {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected String getConManString() {
+        return null;
     }
 
     protected static class Delete extends Entry {

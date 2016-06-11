@@ -17,6 +17,10 @@ public class Contact {
         this.name = name;
     }
 
+    public boolean equals(Share share) {
+        return ( share.user_id == user_id );
+    }
+
     protected static class Delete extends Entry {
 
         protected int id;

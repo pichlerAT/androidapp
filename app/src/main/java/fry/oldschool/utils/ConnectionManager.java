@@ -39,8 +39,8 @@ public class ConnectionManager extends MySQL {
     }
 
     public void sync() {
-        if(syncTask.getStatus()== AsyncTask.Status.PENDING && App.hasInternetConnection) {
-            syncTask.execute();
+        if(syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
+            syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }else {
             NetworkStateReciever.checkInternet();
         }
@@ -55,7 +55,6 @@ public class ConnectionManager extends MySQL {
 
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
-            System.out.println("--------- ConnectionManager#load ---------");
             while((line=br.readLine()) != null) {
 
                 Entry ent = Entry.create(line);
@@ -65,9 +64,7 @@ public class ConnectionManager extends MySQL {
                 }
 
                 entry.add(ent);
-                System.out.println(ent.getConManString());
             }
-            System.out.println("------------------------------------------");
             br.close();
 
         }catch(IOException ex) {
@@ -78,7 +75,6 @@ public class ConnectionManager extends MySQL {
     public void save() {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(App.appContext.getFilesDir(), App.appContext.getResources().getString(R.string.file_sync))));
-            Iterator<Entry> it = entry.iterator();
 
             for(Entry e : entry) {
                 String line = e.getConManString();
@@ -105,7 +101,7 @@ public class ConnectionManager extends MySQL {
     }
 
     protected void notifyMySQLListener() {
-        (new NotifyListener()).execute();
+        (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
     }
 
     protected class Sync extends AsyncTask<String,String,String> {
@@ -125,8 +121,15 @@ public class ConnectionManager extends MySQL {
                     ++i;
                 }
             }
-            syncTask = new Sync();
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            syncTask = new Sync();
+            if(entry.size() > 0) {
+                //sync();
+            }
         }
 
     }

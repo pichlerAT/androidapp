@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 public class Updater extends AsyncTask<String,String,String> {
 
-    public static final int UPDATE_INTERVAL_TIME = 2 * 60 * 1000;
+    public static final int UPDATE_INTERVAL_TIME = 5 * 60 * 1000;
 
     protected static Updater updater = new Updater();
 
@@ -14,7 +14,7 @@ public class Updater extends AsyncTask<String,String,String> {
     protected String doInBackground(String... params) {
         while(App.hasInternetConnection && update) {
 
-            App.performUpdate();
+            //App.performUpdate();
 
             try {
                 Thread.sleep(UPDATE_INTERVAL_TIME);
@@ -31,7 +31,7 @@ public class Updater extends AsyncTask<String,String,String> {
     protected static void start() {
         if(updater.getStatus() == Status.PENDING) {
             updater.update = true;
-            updater.execute();
+            updater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 

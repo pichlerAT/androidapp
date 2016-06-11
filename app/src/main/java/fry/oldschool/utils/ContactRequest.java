@@ -76,7 +76,7 @@ public class ContactRequest {
         }
 
         protected Accept(String line) {
-            String[] r = line.split(";");
+            String[] r = line.split(S);
             id = Integer.parseInt(r[0]);
             user_id = Integer.parseInt(r[1]);
             email = r[2];
@@ -85,7 +85,7 @@ public class ContactRequest {
 
         @Override
         protected String getConManString() {
-            return TYPE_CONTACTREQUEST_ACCEPT + "" + id + ";" + user_id + ";" + email + ";" + name;
+            return TYPE_CONTACTREQUEST_ACCEPT + "" + id + S + user_id + S + email + S + name;
         }
 
         @Override

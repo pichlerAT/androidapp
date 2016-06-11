@@ -12,9 +12,11 @@ import java.util.ArrayList;
 
 public abstract class MySQL {
 
-    public static final String IP_ADDRESS = "62.46.176.7" ;
+    public static final String S = "" + (char)0;
 
-    public static final String PORT = "80";
+    public static final String IP_ADDRESS = "193.81.45.186" ;
+
+    public static final int PORT = 80;
 
     public static final String DIRECTORY = "android";
 
@@ -40,6 +42,14 @@ public abstract class MySQL {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String line=br.readLine();
+
+            if(line.contains("<br")) {
+                System.out.println(line);
+                String newLine;
+                while((newLine=br.readLine())!=null) {
+                    System.out.println(newLine);
+                }
+            }
 
             br.close();
             os.close();
@@ -87,7 +97,7 @@ public abstract class MySQL {
     }
 
     protected void error(String code) {
-        (new Error()).execute(code);
+        (new Error()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     protected class Error extends AsyncTask<String,String,String> {

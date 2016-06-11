@@ -88,7 +88,8 @@ public class TimetableCategory extends Entry {
 
             @Override
             protected String getConManString() {
-                return TYPE_CALENDAR_CATEGORY_SHARE_CREATE + "" + contact_id + ";" + category_id;
+                return null;
+                //return TYPE_CALENDAR_CATEGORY_SHARE_CREATE + "" + contact_id + ";" + category_id;
             }
 
         }
@@ -107,7 +108,8 @@ public class TimetableCategory extends Entry {
 
             @Override
             protected String getConManString() {
-                return TYPE_CALENDAR_CATEGORY_SHARE_DELETE + "" + contact_id + ";" + category_id;
+                return null;
+                //return TYPE_CALENDAR_CATEGORY_SHARE_DELETE + "" + contact_id + ";" + category_id;
             }
 
         }

@@ -2,7 +2,7 @@ package fry.oldschool.utils;
 
 import java.util.ArrayList;
 
-public class ContactGroup extends Entry {
+public class ContactGroup extends OnlineEntry {
 
     protected int id;
 
@@ -11,7 +11,7 @@ public class ContactGroup extends Entry {
     public ArrayList<Contact> contacts=new ArrayList<>();
 
     protected ContactGroup(String line) {
-        String[] r = line.split(";");
+        String[] r = line.split(S);
         if(r.length == 1) {
             name = r[0];
             return;
@@ -106,18 +106,13 @@ public class ContactGroup extends Entry {
         return false;
     }
 
-    @Override
-    protected String getConManString() {
-        return null;
-    }
-
     protected String getContactsString() {
         if(contacts.size() == 0) {
             return "n";
         }
         String s = "";
         for(Contact c : contacts) {
-            s += c.id + ";" ;
+            s += c.user_id + S ;
         }
         return s;
     }

@@ -22,12 +22,7 @@ public abstract class Entry extends MySQL {
 
     protected static final char TYPE_TASKLIST_ENTRY_DELETE = 10 ;
 
-    protected static final char TYPE_TASKLIST_SHARE_CREATE = 11 ;
-
-    protected static final char TYPE_TASKLIST_SHARE_DELETE = 12 ;
-
-
-
+    protected static final char TYPE_TASKLIST_SHARE_UPDATE = 11 ;
 
     protected static final char TYPE_CALENDAR_ENTRY = 13 ;
 
@@ -36,10 +31,6 @@ public abstract class Entry extends MySQL {
     protected static final char TYPE_CALENDAR_CATEGORY = 15 ;
 
     protected static final char TYPE_CALENDAR_CATEGORY_DELETE = 16 ;
-
-    protected static final char TYPE_CALENDAR_CATEGORY_SHARE_CREATE = 17 ;
-
-    protected static final char TYPE_CALENDAR_CATEGORY_SHARE_DELETE = 18 ;
 
     protected static Entry create(String line) {
         if(line == null) {
@@ -54,10 +45,10 @@ public abstract class Entry extends MySQL {
             case TYPE_CONTACTGROUP_DELETE: return new ContactGroup.Delete(line.substring(1));
             case TYPE_TASKLIST_UPDATE: return new TaskList.Update(line.substring(1));
             case TYPE_TASKLIST_DELETE: return new TaskList.Delete(line.substring(1));
-            case TYPE_TASKLIST_ENTRY_UPDATE: return new TaskListEntry(line.substring(1));
+            case TYPE_TASKLIST_ENTRY_UPDATE: return new TaskListEntry.Update(line.substring(1));
             case TYPE_TASKLIST_ENTRY_DELETE: return new TaskListEntry.Delete(line.substring(1));
-            case TYPE_TASKLIST_SHARE_CREATE: return new TaskList.Share.Create(line.substring(1));
-            case TYPE_TASKLIST_SHARE_DELETE: return new TaskList.Share.Delete(line.substring(1));
+            case TYPE_TASKLIST_SHARE_UPDATE:
+                return new Share(line);
         }
         return null;
     }

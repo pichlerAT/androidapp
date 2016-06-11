@@ -95,10 +95,22 @@ public class App extends Application {
     }
 
     public static void save() {
-        System.out.println("--------- App#save ----------");
         save_settings();
         conMan.save();
         TaskList.save();
+    }
+
+    public static void fragmentChanged(int id) {
+        switch(id) {
+            case R.id.nav_contacts: break;
+            case R.id.nav_tasks:
+
+                TaskList tl = taskMan.findTaskListById(5);
+                tl.loadShared();
+
+                break;
+            case R.id.nav_timetable: break;
+        }
     }
 
     protected void delete_local_files() {
@@ -125,7 +137,7 @@ public class App extends Application {
                 return;
             }
 
-            conLis = new ContactList(line.split(";"));
+            conLis = new ContactList(line.split(MySQL.S));
 
             while((line = br.readLine()) != null) {
                 conLis.groups.add(conLis.groups.size()-1,new ContactGroup(line));
@@ -142,7 +154,7 @@ public class App extends Application {
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings))));
 
             for(Contact c : conLis.groups.get(conLis.groups.size()-1).contacts ) {
-                bw.write(c.id + ";" + c.user_id + ";" + c.email + ";" + c.name + ";");
+                bw.write(c.id + MySQL.S + c.user_id + MySQL.S + c.email + MySQL.S + c.name + MySQL.S);
             }
 
             Iterator<ContactGroup> it = conLis.groups.iterator();
@@ -150,7 +162,7 @@ public class App extends Application {
                 ContactGroup g = it.next();
                 while(it.hasNext()) {
                     bw.newLine();
-                    bw.write(g.id + ";" + g.name + ";" + g.getContactsString());
+                    bw.write(g.id + MySQL.S + g.name + MySQL.S + g.getContactsString());
                     g = it.next();
                 }
             }

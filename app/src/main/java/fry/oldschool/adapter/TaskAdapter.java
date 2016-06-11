@@ -205,9 +205,9 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
                                     .setPositiveButton(R.string.share, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            item.addShare(childList);
+                                            //item.addShare(childList); TODO Edwin: adapt
                                             for (ContactGroup group : groupList) {
-                                                item.addShare(group.contacts);
+                                                //item.addShare(group.contacts); TODO Edwin: adapt
                                             }
                                         }
                                     })

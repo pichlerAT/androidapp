@@ -5,23 +5,6 @@ import java.util.Iterator;
 
 public class ContactList extends MySQL {
 
-    public void print() {
-        System.out.println("---------- ContactList#print ----------");
-        System.out.println("------------ ContactGroups ------------");
-        for(ContactGroup g : groups) {
-            System.out.println("|" + g.id + "|" + g.name + "|" + g.getContactsString() + "|");
-        }
-        System.out.println("-------------- Contacts ---------------");
-        for(Contact c : groups.get(groups.size()-1).contacts) {
-            System.out.println("|"+c.id+"|"+c.email+"|"+c.name+"|");
-        }
-        System.out.println("------------ ContactRequests ----------");
-        for(ContactRequest c : contactRequests) {
-            System.out.println("|"+c.id+"|"+c.user_id+"|"+c.email+"|"+c.name+"|");
-        }
-        System.out.println("---------------------------------------");
-    }
-
     public ArrayList<ContactGroup> groups=new ArrayList<>();
 
     public ArrayList<ContactRequest> contactRequests=new ArrayList<>();
@@ -40,8 +23,6 @@ public class ContactList extends MySQL {
         boolean get_contacts = false;
         boolean get_requests = false;
 
-        System.out.println("---------- ContactList#mysql_update ----------");
-
         ArrayList<String> respList=connect_list("contact/get.php","");
 
         Iterator<String> it = respList.iterator();
@@ -49,7 +30,7 @@ public class ContactList extends MySQL {
         if(resp.substring(0,3).equals("suc")) {
             get_contacts = true;
             if(resp.length()>4) {
-                updateContacts(resp.substring(3).split(";"));
+                updateContacts(resp.substring(3).split(S));
             }
             while(it.hasNext()) {
                 ContactGroup g = new ContactGroup(it.next());
@@ -63,7 +44,7 @@ public class ContactList extends MySQL {
         if(resp.substring(0,3).equals("suc")) {
             get_requests = true;
             if(resp.length()>3) {
-                setContactRequests(resp.substring(3).split(";"));
+                setContactRequests(resp.substring(3).split(S));
             }
         }
 

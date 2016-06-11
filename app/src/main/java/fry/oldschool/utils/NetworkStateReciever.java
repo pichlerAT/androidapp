@@ -40,8 +40,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
     public static void checkInternet() {
         if(!App.hasInternetConnection && !checkingForInternet) {
             checkingForInternet = true;
-            (new CheckInternetConnection()).execute();
-            System.out.println("----- NetworkStateReciever#checkInternet");
+            (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
