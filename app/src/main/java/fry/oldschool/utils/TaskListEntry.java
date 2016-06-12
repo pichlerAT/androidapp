@@ -13,7 +13,7 @@ public class TaskListEntry extends Entry {
     public String description;
 
     protected TaskListEntry(String description,boolean state) {
-        this(0,0,USER_ID,description,( state ? (byte)0 : (byte)1 ));
+        this(0,0,USER_ID,description,( state ? (byte)1 : (byte)0 ));
     }
 
     protected TaskListEntry(int id,int table_id,int user_id,String description,byte state) {
