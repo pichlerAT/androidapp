@@ -267,12 +267,11 @@ public class DragableListView extends ListView {
             }
 
             swapElements(App.TaskLists, originalItem, getPositionForView(switchView));
+            mobileView.setVisibility(View.VISIBLE);
             ((TaskAdapter) getAdapter()).notifyDataSetChanged();
 
             final int switchViewStartTop = switchView.getTop();
             mDownY = mLastEventY;
-            mobileView.setVisibility(View.VISIBLE);
-            switchView.setVisibility(View.INVISIBLE);
             updateNeighborViewsForID(mMobileItemId);
 
             final ViewTreeObserver observer = getViewTreeObserver();
@@ -280,6 +279,10 @@ public class DragableListView extends ListView {
                 @Override
                 public boolean onPreDraw() {
                     observer.removeOnPreDrawListener(this);
+                    View mobileView = getViewForID(mMobileItemId);
+                    if (mobileView != null) {
+                        mobileView.setVisibility(View.INVISIBLE);
+                    }
                     View switchView = getViewForID(switchItemID);
                     mTotalOffset += deltaY;
 
