@@ -14,6 +14,8 @@ public class TaskList extends OnlineEntry {
 
     protected int id;
 
+    public int drag_id;
+
     protected int user_id;
 
     protected byte state;

@@ -121,22 +121,38 @@ public class TaskCreateActivity extends mAppCompatActivity{
             String[] entries = tdl.task;
             */
             int count = 1;
-            for(TaskListEntry ent : tdl.entry){
+
+            if (tdl.entry.size() > 0) {
+                for (TaskListEntry ent : tdl.entry) {
+                    entryRow = new TableRow(ctx);
+                    entryState = new CheckBox(ctx);
+                    entryName = createEntryName();
+                    entryName.setText(ent.description);
+                    entryListeners(taskEntries, entryName, entryRow);
+                    entryState.setChecked(ent.isDone());
+
+                    entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                    entryRow.setTag(count);
+                    entryRow.addView(entryState);
+                    entryRow.addView(entryName);
+                    taskEntries.addView(entryRow);
+                    index_list.add(count);
+                    count++;
+                }
+            }
+            else {
+                //Add an empty entry if not entires are available
                 entryRow = new TableRow(ctx);
+                entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                entryRow.setTag(1);
+                index_list.add(1);
                 entryState = new CheckBox(ctx);
                 entryName = createEntryName();
-                entryName.setText(ent.description);
-                entryListeners(taskEntries, entryName, entryRow);
-                entryState.setChecked(ent.done());
-
-                entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                entryRow.setTag(count);
                 entryRow.addView(entryState);
                 entryRow.addView(entryName);
                 taskEntries.addView(entryRow);
-                index_list.add(count);
-                count++;
             }
+
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
             if (args != null && tdl == App.TaskLists.get(index)){

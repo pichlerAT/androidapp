@@ -34,6 +34,7 @@ import fry.oldschool.adapter.ContactAdapter;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.Contact;
 import fry.oldschool.utils.ContactGroup;
+import fry.oldschool.utils.MySQLListener;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.
@@ -189,6 +190,19 @@ public class ContactFragment extends Fragment{
         });
 
         lv.setAdapter(adapter);
+
+        App.setMySQLListener(new MySQLListener() {
+            @Override
+            public void mysql_finished() {
+                if (App.conLis == null){
+                    // Set 'No contacts found'
+                }
+                else{
+                    adapter.notifyDataSetChanged();
+                }
+
+            }
+        });
 
         for (int i=0; i<adapter.getGroupCount(); i++){
             lv.expandGroup(i);

@@ -3,13 +3,18 @@ package fry.oldschool.fragment;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -17,8 +22,8 @@ import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
+import fry.oldschool.utils.DragableListView;
 import fry.oldschool.utils.MySQLListener;
-import fry.oldschool.utils.TaskList;
 
 public class TaskFragment extends ListFragment{
 
@@ -29,10 +34,11 @@ public class TaskFragment extends ListFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_task, container, false);
         setHasOptionsMenu(true);
-        final ListView lv = (ListView) rootView.findViewById(android.R.id.list);
+        final DragableListView lv = (DragableListView) rootView.findViewById(android.R.id.list);
 
         adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, App.TaskLists);
         lv.setAdapter(adapter);
+        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         App.setMySQLListener(new MySQLListener() {
             @Override
@@ -40,12 +46,10 @@ public class TaskFragment extends ListFragment{
                 if (App.TaskLists.size() == 0){
                     TextView text = (TextView) rootView.findViewById(R.id.textview_task_message);
                     text.setText("No tasks found");
-
                 }
                 else{
                     adapter.notifyDataSetChanged();
                 }
-
             }
         });
 

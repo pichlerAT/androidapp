@@ -159,21 +159,25 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     }
 
     public void filterContacts(String search){
-        contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
+
         if(!search.isEmpty()) {
             search = search.toLowerCase();
-            for (ContactGroup group : contactGroupList) {
+
+            for (int i=0; i<App.conLis.groups.size(); i++){
                 ArrayList<Contact> newContacts = new ArrayList<Contact>();
-                for (Contact contact : group.contacts) {
+                for (Contact contact : App.conLis.groups.get(i).contacts) {
                     if (contact.name.toLowerCase().contains(search) || contact.email.toLowerCase().contains(search)) {
                         newContacts.add(contact);
                     }
                 }
                 if (newContacts.size() > 0)
-                    group.setContacts(newContacts);
+                    contactGroupList.get(i).setContacts(newContacts);
                 else
-                    group.setContacts(new ArrayList<Contact>());
+                    contactGroupList.get(i).setContacts(new ArrayList<Contact>());
             }
+        }
+        else{
+            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
         }
         notifyDataSetChanged();
     }

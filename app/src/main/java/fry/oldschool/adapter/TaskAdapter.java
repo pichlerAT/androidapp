@@ -43,6 +43,9 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
+        for (int i = 0; i < list.size(); ++i){
+            list.get(i).drag_id = i;
+        }
     }
 
     @Override
@@ -57,9 +60,17 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        if (position < 0 || position >= list.size()) {
+            return -1;
+        }
+        TaskList item = getItem(position);
+        return item.drag_id;
     }
 
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent){
@@ -70,7 +81,6 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         else{
             res = convertView;
         }
-
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         final TaskList item = getItem(position);
         final String headerText = item.name;
@@ -101,7 +111,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
+                item.change(true);
             }
         });
 
@@ -231,6 +241,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         //Set optical design elements for list item (view)
         res.setBackgroundResource(R.drawable.listview_style);
 
+        res.setId(position);
         return res;
     }
 }

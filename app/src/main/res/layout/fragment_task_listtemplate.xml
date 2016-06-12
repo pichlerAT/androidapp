@@ -4,48 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        android:orientation="horizontal"
-        android:weightSum="1">
+        android:background="@color/colorAccent">
 
         <Button
             android:id="@+id/button_listtemplate_more"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
             android:background="@drawable/ic_more"
-            />
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true" />
 
         <TextView
             android:id="@+id/textview_listtemplate_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/button_listtemplate_more"
+            android:layout_toLeftOf="@+id/button_listtemplate_done"
+            android:layout_centerVertical="true"
             android:padding="10dp"
             android:textColor="@color/colorTextLight"
             android:textStyle="bold"
             android:textSize="22sp"
             android:text="Header"/>
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
-
         <Button
             android:id="@+id/button_listtemplate_done"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="10dp"
             android:background="@drawable/ic_done"
             />
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/linearlayout_listtemplate_id"
