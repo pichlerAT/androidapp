@@ -67,8 +67,8 @@ public class TaskListEntry extends Entry {
     }
 
     @Override
-    protected boolean mysql_update() {
-        String resp = connect("tasklist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+    protected boolean mysql() {
+        String resp = getLine("tasklist/entry/create.php","&table_id="+table_id+"&description="+description+"&state="+state);
         if(resp.substring(0,3).equals("suc")) {
             id = Integer.parseInt(resp.substring(3));
             return true;
@@ -94,8 +94,8 @@ public class TaskListEntry extends Entry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("tasklist/entry/delete.php", "&entry_id=" + entry_id);
+        protected boolean mysql() {
+            String resp = getLine("tasklist/entry/delete.php", "&entry_id=" + entry_id);
             return resp.equals("suc");
         }
 
@@ -119,12 +119,12 @@ public class TaskListEntry extends Entry {
         }
 
         @Override
-        protected boolean mysql_update() {
+        protected boolean mysql() {
             TaskListEntry entry = TaskListManager.findEntryById(entry_id);
             if(entry == null) {
                 return true;
             }
-            String resp = connect("tasklist/entry/update.php", "&entry_id=" + entry_id + "&description=" + entry.description + "&state=" + entry.state);
+            String resp = getLine("tasklist/entry/update.php", "&entry_id=" + entry_id + "&description=" + entry.description + "&state=" + entry.state);
             return resp.equals("suc");
         }
 

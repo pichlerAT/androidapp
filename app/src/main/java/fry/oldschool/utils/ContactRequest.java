@@ -43,8 +43,8 @@ public class ContactRequest {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("contact/request/send.php", "&contact_email=" + email);
+        protected boolean mysql() {
+            String resp = getLine("contact/request/send.php", "&contact_email=" + email);
 
             if(resp.equals("suc")) {
                 return true;
@@ -89,8 +89,8 @@ public class ContactRequest {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("contact/request/accept.php", "&contact_id=" + id);
+        protected boolean mysql() {
+            String resp = getLine("contact/request/accept.php", "&contact_id=" + id);
 
             if (resp.equals("suc")) {
                 int contact_id = Integer.parseInt(resp.substring(3));
@@ -120,8 +120,8 @@ public class ContactRequest {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("contact/request/decline.php", "&request_id=" + id);
+        protected boolean mysql() {
+            String resp = getLine("contact/request/decline.php", "&request_id=" + id);
 
             return resp.equals("suc");
         }

@@ -2,6 +2,12 @@ package fry.oldschool.utils;
 
 public class Share extends Entry {
 
+    public static final byte PERMISSION_VIEW = 0;
+
+    public static final byte PERMISSION_EDIT = 1;
+
+    public static final byte PERMISSION_MORE = 2;
+
     protected int id;
 
     protected byte permission;
@@ -31,8 +37,8 @@ public class Share extends Entry {
     }
 
     @Override
-    public boolean mysql_update() {
-        String resp = connect(getFileUrl(),"&share_id="+id+"&permission="+permission);
+    public boolean mysql() {
+        String resp = getLine(getFileUrl(),"&share_id="+id+"&permission="+permission);
         return resp.equals("suc");
     }
 
@@ -41,8 +47,17 @@ public class Share extends Entry {
         return type + "" + id + S + permission;
     }
 
+    public void setPermission(byte permission) {
+        this.permission = permission;
+        App.conMan.add(this);
+    }
+
+    public boolean canView() {
+        return ( permission >= PERMISSION_VIEW );
+    }
+
     public boolean canEdit() {
-        return ( permission == 1 );
+        return ( permission >= PERMISSION_EDIT );
     }
 
     public void allowEdit(boolean b) {

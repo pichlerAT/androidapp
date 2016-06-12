@@ -2,15 +2,6 @@ package fry.oldschool.utils;
 
 public class TaskListManager {
 
-    protected static void moveTaskList(int fromIndex,int toIndex) {
-        TaskList tl = App.TaskLists.remove(fromIndex);
-        if(toIndex < fromIndex) {
-            App.TaskLists.add(toIndex,tl);
-        }else {
-            App.TaskLists.add(toIndex-1,tl);
-        }
-    }
-
     protected static void update(TaskList tl) {
         if(!has(tl)) {
             App.TaskLists.add(tl);

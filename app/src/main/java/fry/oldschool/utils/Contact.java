@@ -34,8 +34,8 @@ public class Contact {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("contact/delete.php","&contact_id="+id);
+        protected boolean mysql() {
+            String resp = getLine("contact/delete.php","&contact_id="+id);
 
             return resp.equals("suc");
         }

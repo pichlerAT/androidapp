@@ -32,6 +32,45 @@ public class ContactGroup extends OnlineEntry {
         }
     }
 
+    @Override
+    protected boolean mysql() {
+        String resp = getLine("contact/group/create.php","&group_name="+name+"&contacts="+getContactsString());
+        if(resp.substring(0,3).equals("suc")) {
+            id = Integer.parseInt(resp.substring(3));
+            return true;
+        }
+        return false;
+    }
+
+    protected String getContactsString() {
+        if(contacts.size() == 0) {
+            return "n";
+        }
+        String s = "";
+        for(Contact c : contacts) {
+            s += c.user_id + S ;
+        }
+        return s;
+    }
+
+    protected Contact findContactById(int id) {
+        for(Contact c : contacts) {
+            if(c.id == id) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    protected Contact findContactByUserId(int user_id) {
+        for(Contact c : contacts) {
+            if(c.user_id == user_id) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     public void setContacts(ArrayList<Contact> contacts){
         this.contacts = contacts;
     }
@@ -79,44 +118,6 @@ public class ContactGroup extends OnlineEntry {
         }
     }
 
-    protected Contact findContactById(int id) {
-        for(Contact c : contacts) {
-            if(c.id == id) {
-                return c;
-            }
-        }
-        return null;
-    }
-    protected Contact findContactByUserId(int user_id) {
-        for(Contact c : contacts) {
-            if(c.user_id == user_id) {
-                return c;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        String resp = connect("contact/group/create.php","&group_name="+name+"&contacts="+getContactsString());
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
-            return true;
-        }
-        return false;
-    }
-
-    protected String getContactsString() {
-        if(contacts.size() == 0) {
-            return "n";
-        }
-        String s = "";
-        for(Contact c : contacts) {
-            s += c.user_id + S ;
-        }
-        return s;
-    }
-
     protected static class Delete extends Entry {
 
         protected int group_id;
@@ -130,8 +131,8 @@ public class ContactGroup extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("contact/group/delete.php","&group_id="+group_id);
+        protected boolean mysql() {
+            String resp = getLine("contact/group/delete.php","&group_id="+group_id);
 
             return resp.equals("suc");
         }
@@ -155,12 +156,12 @@ public class ContactGroup extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
+        protected boolean mysql() {
             ContactGroup grp = App.conLis.findContactGroupById(id);
             if(grp == null) {
                 return true;
             }
-            String resp = connect("contact/group/update.php","&group_id="+id+"&group_name="+grp.name+"&contacts="+grp.getContactsString());
+            String resp = getLine("contact/group/update.php","&group_id="+id+"&group_name="+grp.name+"&contacts="+grp.getContactsString());
 
             return resp.equals("suc");
         }

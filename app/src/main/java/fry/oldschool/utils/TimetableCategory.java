@@ -26,16 +26,16 @@ public class TimetableCategory extends Entry {
     }
 
     @Override
-    protected boolean mysql_update() {
+    protected boolean mysql() {
         if(id == 0) {
-            String resp = connect("calendar/category/create.php","&name="+name);
+            String resp = getLine("calendar/category/create.php","&name="+name);
             if(resp.substring(0,3).equals("suc")) {
                 id = Integer.parseInt(resp.substring(3));
                 return true;
             }
             return false;
         }
-        String resp = connect("calendar/category/update.php","&category_id="+id+"&name="+name);
+        String resp = getLine("calendar/category/update.php","&category_id="+id+"&name="+name);
         return resp.equals("suc");
     }
 
@@ -57,8 +57,8 @@ public class TimetableCategory extends Entry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("calendar/category/delete.php","&category_id="+id);
+        protected boolean mysql() {
+            String resp = getLine("calendar/category/delete.php","&category_id="+id);
             return resp.equals("suc");
         }
     }
@@ -81,8 +81,8 @@ public class TimetableCategory extends Entry {
             }
 
             @Override
-            protected boolean mysql_update() {
-                String resp = connect("calendar/category/share/create.php","&category_id="+contact_id+"&category_id="+category_id);
+            protected boolean mysql() {
+                String resp = getLine("calendar/category/share/create.php","&category_id="+contact_id+"&category_id="+category_id);
                 return resp.equals("suc");
             }
 
@@ -101,8 +101,8 @@ public class TimetableCategory extends Entry {
             }
 
             @Override
-            protected boolean mysql_update() {
-                String resp = connect("calendar/category/share/delete.php","&category_id="+contact_id+"&category_id="+category_id);
+            protected boolean mysql() {
+                String resp = getLine("calendar/category/share/delete.php","&category_id="+contact_id+"&category_id="+category_id);
                 return resp.equals("suc");
             }
 
