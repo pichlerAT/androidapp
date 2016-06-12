@@ -19,11 +19,11 @@ public class ContactList extends MySQL {
     }
 
     @Override
-    protected boolean mysql_update() {
+    protected boolean mysql() {
         boolean get_contacts = false;
         boolean get_requests = false;
 
-        ArrayList<String> respList=connect_list("contact/get.php","");
+        ArrayList<String> respList=getLines("contact/get.php","");
 
         Iterator<String> it = respList.iterator();
         String resp = it.next();
@@ -40,7 +40,7 @@ public class ContactList extends MySQL {
             }
         }
 
-        resp=connect("contact/request/get.php","");
+        resp=getLine("contact/request/get.php","");
         if(resp.substring(0,3).equals("suc")) {
             get_requests = true;
             if(resp.length()>3) {
@@ -115,6 +115,14 @@ public class ContactList extends MySQL {
         return false;
     }
 
+    protected Contact findContactById(int contact_id) {
+        return groups.get(groups.size()-1).findContactById(contact_id);
+    }
+
+    protected Contact findContactByUserId(int user_id) {
+        return groups.get(groups.size()-1).findContactByUserId(user_id);
+    }
+
     protected ContactGroup findContactGroupById(int group_id) {
         for(ContactGroup g : groups) {
             if(g.id == group_id) {
@@ -122,14 +130,6 @@ public class ContactList extends MySQL {
             }
         }
         return null;
-    }
-
-    protected Contact findContactById(int contact_id) {
-        return groups.get(groups.size()-1).findContactById(contact_id);
-    }
-
-    protected Contact findContactByUserId(int user_id) {
-        return groups.get(groups.size()-1).findContactByUserId(user_id);
     }
 
     public void deleteContact(Contact cont) {

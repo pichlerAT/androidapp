@@ -45,16 +45,16 @@ public class TimetableEntry extends Entry {
     }
 
     @Override
-    protected boolean mysql_update() {
+    protected boolean mysql() {
         if(id == 0) {
-            String resp = connect("calendar/entry/create.php", "&category_id=" + category_id + "&title=" + title + "&description=" + description + "&date_start=" + start.date.getShort() + "&time_start=" + start.time.time + "&duration=" + duration.time + "&repeat=" + repeat);
+            String resp = getLine("calendar/entry/create.php", "&category_id=" + category_id + "&title=" + title + "&description=" + description + "&date_start=" + start.date.getShort() + "&time_start=" + start.time.time + "&duration=" + duration.time + "&repeat=" + repeat);
             if (resp.substring(0, 3).equals("suc")) {
                 id = Integer.parseInt(resp.substring(3));
                 return true;
             }
             return false;
         }
-        String resp = connect("calendar/entry/update.php","&entry_id="+id+"&category_id="+category_id+"&title="+title+"&description="+description+"&date_start="+start.date.getShort()+"&time_start="+start.time.time+"&duration="+duration.time+"&repeat="+repeat);
+        String resp = getLine("calendar/entry/update.php","&entry_id="+id+"&category_id="+category_id+"&title="+title+"&description="+description+"&date_start="+start.date.getShort()+"&time_start="+start.time.time+"&duration="+duration.time+"&repeat="+repeat);
         return resp.equals("suc");
     }
 
@@ -76,8 +76,8 @@ public class TimetableEntry extends Entry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("calendar/entry/delete.php","entry_id="+id);
+        protected boolean mysql() {
+            String resp = getLine("calendar/entry/delete.php","entry_id="+id);
             return resp.equals("suc");
         }
     }

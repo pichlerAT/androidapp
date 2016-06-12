@@ -14,7 +14,7 @@ public abstract class MySQL {
 
     public static final String S = "" + (char)0;
 
-    public static final String IP_ADDRESS = "193.81.45.186" ;
+    public static final String IP_ADDRESS = "93.82.47.101" ;
 
     public static final int PORT = 80;
 
@@ -22,25 +22,36 @@ public abstract class MySQL {
 
     protected static final String ADDRESS="http://"+IP_ADDRESS+":"+PORT+"/"+DIRECTORY+"/";
 
-
     public static int USER_ID = 1;
     //public static String USER_EMAIL = "fragner@gmx.net";
     public static String USER_PASSWORD = "1234";
 
-    protected abstract boolean mysql_update();
+    protected HttpURLConnection connection;
 
-    protected String connect(String addr,String data) {
+    protected OutputStreamWriter outputStreamWriter;
+
+    protected abstract boolean mysql();
+
+    protected BufferedReader connect(String addr,String data) throws IOException {
+        URL url = new URL(ADDRESS + addr);
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
+
+        outputStreamWriter.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
+        outputStreamWriter.flush();
+        connection.connect();
+        return new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    }
+
+    protected void disconnect() throws IOException {
+        outputStreamWriter.close();
+        connection.disconnect();
+    }
+
+    protected String getLine(String addr,String data) {
         try {
-            URL url = new URL(ADDRESS + addr);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
-
-            os.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
-            os.flush();
-            con.connect();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            BufferedReader br = connect(addr,data);
             String line=br.readLine();
 
             if(line.contains("<br")) {
@@ -52,29 +63,19 @@ public abstract class MySQL {
             }
 
             br.close();
-            os.close();
-            con.disconnect();
+            disconnect();
 
             return line;
 
         } catch (IOException ex) {
             ex.printStackTrace();
-            return "err_mysql47";
+            return "err_MySQL#getLine";
         }
     }
 
-    protected ArrayList<String> connect_list(String addr, String data) {
+    protected ArrayList<String> getLines(String addr, String data) {
         try {
-            URL url = new URL(ADDRESS + addr);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
-
-            os.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
-            os.flush();
-            con.connect();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            BufferedReader br = connect(addr,data);
             ArrayList<String> lines = new ArrayList<>();
 
             String line;
@@ -83,15 +84,14 @@ public abstract class MySQL {
             }
 
             br.close();
-            os.close();
-            con.disconnect();
+            disconnect();
 
             return lines;
 
         } catch (IOException ex) {
             ex.printStackTrace();
             ArrayList<String> l = new ArrayList<>();
-            l.add("err_mysql79");
+            l.add("err_Mysql#getLines");
             return l;
         }
     }

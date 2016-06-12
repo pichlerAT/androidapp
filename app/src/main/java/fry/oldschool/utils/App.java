@@ -18,23 +18,30 @@ import fry.oldschool.R;
 
 public class App extends Application {
 
-    protected static boolean PERFORM_UPDATE;
-
-    protected static boolean DELETE_LOCAL_FILES = false;
+    public static boolean PERFORM_UPDATE = false;
 
     public static boolean hasInternetConnection = false;
 
-    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
-
-    public static ContactList conLis;
-
-    public static ConnectionManager conMan = new ConnectionManager();
+    public static boolean isAppActive = true;
 
     public static Context mContext;
 
-    public static boolean isAppActive = true;
+    public static Context appContext;
 
-    protected static Context appContext;
+    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
+
+    public static ConnectionManager conMan = new ConnectionManager();
+
+    public static ContactList conLis;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        appContext = this;
+        PERFORM_UPDATE = true;
+        load();
+        NetworkStateReciever.checkInternet();
+    }
 
     public static void setContext(Context mContext) {
         App.mContext = mContext;
@@ -58,15 +65,6 @@ public class App extends Application {
                 .show();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        appContext = this;
-        PERFORM_UPDATE = true;
-        load();
-        NetworkStateReciever.checkInternet();
-    }
-
     public static void onPause() {
         isAppActive = false;
         Updater.stop();
@@ -83,10 +81,7 @@ public class App extends Application {
         conMan.sync();
     }
 
-    protected void load() {
-        if(DELETE_LOCAL_FILES) {
-            delete_local_files();
-        }
+    public static void load() {
         load_settings();
         conMan.load();
         TaskList.load();
@@ -114,7 +109,7 @@ public class App extends Application {
         }
     }
 
-    protected void load_settings() {
+    public static void load_settings() {
         try{
             File file = new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings));
             if(!file.exists()) {

@@ -15,15 +15,15 @@ import fry.oldschool.R;
 
 public class ConnectionManager extends MySQL {
 
-    protected ArrayList<Entry> entry = new ArrayList<>();
-
     protected Sync syncTask = new Sync();
 
     protected MySQLListener mysql_listener;
 
+    protected ArrayList<Entry> entry = new ArrayList<>();
+
     @Override
-    protected boolean mysql_update() {
-        ArrayList<String> resp = connect_list("tasklist/get.php","");
+    protected boolean mysql() {
+        ArrayList<String> resp = getLines("tasklist/get.php","");
         Iterator<String> it = resp.iterator();
         if(it.next().equals("suc")) {
             while(it.hasNext()) {
@@ -36,6 +36,19 @@ public class ConnectionManager extends MySQL {
 
     protected void setMySQLListener(MySQLListener mysql_listener) {
         this.mysql_listener = mysql_listener;
+    }
+
+    protected void add(Entry entry) {
+        this.entry.add(entry);
+        sync();
+    }
+
+    protected void notifyMySQLListener() {
+        (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
+    }
+
+    protected boolean remove(Entry entry) {
+        return this.entry.remove(entry);
     }
 
     public void sync() {
@@ -91,30 +104,17 @@ public class ConnectionManager extends MySQL {
         }
     }
 
-    protected boolean remove(Entry entry) {
-        return this.entry.remove(entry);
-    }
-
-    protected void add(Entry entry) {
-        this.entry.add(entry);
-        sync();
-    }
-
-    protected void notifyMySQLListener() {
-        (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
-    }
-
     protected class Sync extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... params) {
             if(App.PERFORM_UPDATE) {
                 App.PERFORM_UPDATE = false;
-                App.conLis.mysql_update();
-                mysql_update();
+                App.conLis.mysql();
+                mysql();
             }
             for(int i=0 ; i<entry.size() ; ) {
-                if(entry.get(i).mysql_update()) {
+                if(entry.get(i).mysql()) {
                     entry.remove(i);
                     notifyMySQLListener();
                 }else {

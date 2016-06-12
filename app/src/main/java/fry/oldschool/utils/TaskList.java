@@ -99,8 +99,17 @@ public class TaskList extends OnlineEntry {
         }
     }
 
-    public void move(int fromIndex,int toIndex) {
-        TaskListManager.moveTaskList(fromIndex,toIndex);
+    @Override
+    protected boolean mysql() {
+        String resp = getLine("tasklist/create.php", "&name=" + name + "&state=" + state);
+        if(resp.substring(0,3).equals("suc")) {
+            id = Integer.parseInt(resp.substring(3));
+            for(TaskListEntry e : entry) {
+                e.create(id);
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean isOwner() {
@@ -127,13 +136,29 @@ public class TaskList extends OnlineEntry {
         App.conMan.add(new GetShared(id));
     }
 
-    public void addShare(Contact contact,boolean canEdit) {
-        App.conMan.add(new CreateShare(contact.user_id,id,canEdit));
+    public void addShare(Contact contact) {
+        App.conMan.add(new CreateShare(contact.user_id,id,Share.PERMISSION_VIEW));
     }
 
-    public void addShare(ArrayList<Contact> contacts,boolean canEdit) {
+    public void addShare(ArrayList<Contact> contacts) {
         for(Contact contact : contacts) {
-            App.conMan.add(new CreateShare(contact.user_id,id,canEdit));
+            App.conMan.add(new CreateShare(contact.user_id,id,Share.PERMISSION_VIEW));
+        }
+    }
+
+    public void addShare(Contact contact,byte permission) {
+        App.conMan.add(new CreateShare(contact.user_id,id,permission));
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte permission) {
+        for(Contact contact : contacts) {
+            App.conMan.add(new CreateShare(contact.user_id,id,permission));
+        }
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
+        for(int i=0;i<contacts.size();++i) {
+            App.conMan.add(new CreateShare(contacts.get(i).user_id,id,permissions[i]));
         }
     }
 
@@ -195,19 +220,6 @@ public class TaskList extends OnlineEntry {
         return entry.get(index).description;
     }
 
-    @Override
-    protected boolean mysql_update() {
-        String resp = connect("tasklist/create.php", "&name=" + name);
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
-            for(TaskListEntry e : entry) {
-                e.create(id);
-            }
-            return true;
-        }
-        return false;
-    }
-
     public void delete() {
         App.TaskLists.remove(this);
         App.conMan.add(new Delete(id));
@@ -242,8 +254,8 @@ public class TaskList extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("tasklist/delete.php", "&table_id=" + table_id);
+        protected boolean mysql() {
+            String resp = getLine("tasklist/delete.php", "&table_id=" + table_id);
             return resp.equals("suc");
         }
 
@@ -267,12 +279,12 @@ public class TaskList extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
+        protected boolean mysql() {
             TaskList tl = TaskListManager.findTaskListById(table_id);
             if(tl == null) {
                 return true;
             }
-            String resp = connect("tasklist/update.php", "&table_id=" + table_id + "&name=" + tl.name);
+            String resp = getLine("tasklist/update.php", "&table_id=" + table_id + "&name=" + tl.name + "&state=" + tl.state);
             return resp.equals("suc");
         }
 
@@ -292,8 +304,8 @@ public class TaskList extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("tasklist/share/get.php","&table_id="+table_id);
+        protected boolean mysql() {
+            String resp = getLine("tasklist/share/get.php","&table_id="+table_id);
 
             if(!resp.substring(0,3).equals("suc")) {
                 return false;
@@ -315,7 +327,6 @@ public class TaskList extends OnlineEntry {
 
     }
 
-
     protected static class CreateShare extends OnlineEntry {
 
         protected int user_id;
@@ -324,15 +335,15 @@ public class TaskList extends OnlineEntry {
 
         protected byte permission;
 
-        protected CreateShare(int user_id,int table_id,boolean canEdit) {
+        protected CreateShare(int user_id,int table_id,byte permission) {
             this.user_id = user_id;
             this.table_id = table_id;
-            permission = ( canEdit ? (byte)1 : (byte)0 );
+            this.permission = permission;
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("tasklist/share/create.php", "&user_id_share=" + user_id + "&table_id=" + table_id);
+        protected boolean mysql() {
+            String resp = getLine("tasklist/share/create.php", "&user_id_share=" + user_id + "&table_id=" + table_id);
             return ( resp.substring(0,3).equals("suc") || resp.equals("err_tsc2") );
         }
 
@@ -347,8 +358,8 @@ public class TaskList extends OnlineEntry {
         }
 
         @Override
-        protected boolean mysql_update() {
-            String resp = connect("tasklist/share/delete.php", "&share_id="+share_id);
+        protected boolean mysql() {
+            String resp = getLine("tasklist/share/delete.php", "&share_id="+share_id);
             return resp.equals("suc");
         }
 
