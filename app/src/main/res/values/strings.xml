@@ -27,6 +27,9 @@
     <string name="warning">Warning</string>
     <string name="share">Share</string>
     <string name="mail">Mail</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ok">Ok</string>
 
     <!--              Messages                 -->
 

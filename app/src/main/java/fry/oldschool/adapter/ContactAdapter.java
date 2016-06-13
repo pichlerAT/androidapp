@@ -92,8 +92,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             deleteGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //getGroup(groupPosition).delete(); doesn't work correctly
                     App.conLis.groups.get(groupPosition).delete();
+                    contactGroupList = App.conLis.groups;
                     notifyDataSetChanged();
                 }
             });
@@ -129,6 +129,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         contactEmail.setText(contact.email);
         firstLetter.setText(String.valueOf(childString.charAt(0)).toUpperCase());
 
+
+        convertView.setTag(groupPosition + ";" + childPosition);
         return convertView;
     }
 
@@ -137,12 +139,15 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
+
     public ArrayList<ContactGroup> getGroupList(){
         return contactGroupList;
     }
 
     public void addGroup(String groupName){
         //Add group
+        App.conLis.createContactGroup(groupName);
+        contactGroupList = App.conLis.groups;
         notifyDataSetChanged();
     }
 

@@ -155,10 +155,10 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
                             ExpandableListView lv = (ExpandableListView) taskContactList.findViewById(R.id.listview_task_contact_id);
                             final ContactAdapter adapter = new ContactAdapter(App.mContext, App.conLis.groups, true);
                             lv.setAdapter(adapter);
+
                             for (int i=0; i<adapter.getGroupCount(); i++){
                                 lv.expandGroup(i);
                             }
-
 
                             lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                                 @Override

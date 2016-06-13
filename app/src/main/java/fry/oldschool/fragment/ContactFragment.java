@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -75,21 +76,31 @@ public class ContactFragment extends Fragment{
 
                 if(expandableListView.isItemChecked(index)) {
                     expandableListView.setItemChecked(index, false);
-                    view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPrimary));
-                    childList.remove(adapter.getChild(groupPosition, childPosition));
                 }
                 else {
                     expandableListView.setItemChecked(index, true);
-                    view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorAccent));
-                    childList.add(adapter.getChild(groupPosition, childPosition));
+
                 }
 
                 return false;
             }
         });
+
         lv.setMultiChoiceModeListener(new ExpandableListView.MultiChoiceModeListener() {
             @Override
-            public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
+            public void onItemCheckedStateChanged(ActionMode actionMode, int index, long l, boolean b) {
+                View v = lv.getChildAt(index);
+                String[] positions = ((String) v.getTag()).split(";");
+                int groupPosition = Integer.parseInt(positions[0]);
+                int childPosition = Integer.parseInt(positions[1]);
+                //Vice versa because item is already checked before the if statement
+                if(!lv.isItemChecked(index)) {
+                    childList.remove(adapter.getChild(groupPosition, childPosition));
+                }
+                else {
+                    childList.add(adapter.getChild(groupPosition, childPosition));
+                }
+
                 final int checkedCount = lv.getCheckedItemCount();
                 switch (checkedCount) {
                     case 0:
@@ -118,23 +129,23 @@ public class ContactFragment extends Fragment{
 
             @Override
             public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
-                final SparseBooleanArray checkedItems = lv.getCheckedItemPositions();
+
                 switch(menuItem.getItemId()){
                     case R.id.action_contact_delete:
                         AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(App.mContext);
                         deleteBuilder.setTitle(R.string.warning)
                             .setMessage(R.string.delete_message)
-                            .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     adapter.removeChilds(childList);
                                     onDestroyActionMode(actionMode);
                                 }
                             })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                                    onDestroyActionMode(actionMode);
                                 }
                             })
                             .show();
@@ -154,7 +165,7 @@ public class ContactFragment extends Fragment{
                         AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                         requestBuilder.setTitle(R.string.assign_to_group)
                             .setView(requestView)
-                            .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     for (int j=0; j<layout.getChildCount(); j++){
@@ -163,12 +174,14 @@ public class ContactFragment extends Fragment{
                                             App.conLis.groups.get(j).addContacts(childList);
                                         }
                                     }
+                                    adapter.notifyDataSetChanged();
+                                    onDestroyActionMode(actionMode);
                                 }
                             })
                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                                    onDestroyActionMode(actionMode);
                                 }
                             })
                             .show();
@@ -182,13 +195,8 @@ public class ContactFragment extends Fragment{
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
                 actionMode.finish();
-                for (int i = 0; i < lv.getChildCount(); i++) {
-                    View listItem = lv.getChildAt(i);
-                    listItem.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPrimary));
-                }
             }
         });
-
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
@@ -300,8 +308,8 @@ public class ContactFragment extends Fragment{
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
-                            App.conLis.createContactGroup(groupName);
-                            adapter.notifyDataSetChanged();
+                            adapter.addGroup(groupName);
+
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

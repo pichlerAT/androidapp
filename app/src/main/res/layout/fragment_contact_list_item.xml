@@ -4,7 +4,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@color/colorPrimary"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:paddingTop="2dp"
     android:paddingBottom="5dp"
     android:paddingLeft="5dp"
