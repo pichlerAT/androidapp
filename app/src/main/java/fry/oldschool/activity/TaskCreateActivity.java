@@ -35,7 +35,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
     protected Context ctx = this;
     protected ArrayList<RelativeLayout> layouts;
-    protected int lastPos = -1;
+    protected int lastPos = 0;
     protected boolean swipeSave = false;
 
     @Override
