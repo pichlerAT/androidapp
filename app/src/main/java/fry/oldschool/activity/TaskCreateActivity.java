@@ -35,7 +35,6 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
     protected Context ctx = this;
     protected ArrayList<RelativeLayout> layouts;
-    protected ArrayList<Integer> index_list = new ArrayList<>();
     protected int lastPos = -1;
     protected boolean swipeSave = false;
 
@@ -93,8 +92,6 @@ public class TaskCreateActivity extends mAppCompatActivity{
         //Add an empty entry for the empty task
         TableRow entryRow = new TableRow(ctx);
         entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-        entryRow.setTag(1);
-        index_list.add(1);
         CheckBox entryState = new CheckBox(ctx);
         EditText entryName = createEntryName();
         entryRow.addView(entryState);
@@ -116,12 +113,6 @@ public class TaskCreateActivity extends mAppCompatActivity{
             taskName.setText(tdl.name);
             layouts.add(taskView);
 
-            /*
-            byte[] checked = tdl.state;
-            String[] entries = tdl.task;
-            */
-            int count = 1;
-
             if (tdl.entry.size() > 0) {
                 for (TaskListEntry ent : tdl.entry) {
                     entryRow = new TableRow(ctx);
@@ -132,25 +123,22 @@ public class TaskCreateActivity extends mAppCompatActivity{
                     entryState.setChecked(ent.isDone());
 
                     entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    entryRow.setTag(count);
                     entryRow.addView(entryState);
                     entryRow.addView(entryName);
                     taskEntries.addView(entryRow);
-                    index_list.add(count);
-                    count++;
                 }
             }
+            //Add an empty entry if no entires are available
             else {
-                //Add an empty entry if not entires are available
                 entryRow = new TableRow(ctx);
                 entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                entryRow.setTag(1);
-                index_list.add(1);
                 entryState = new CheckBox(ctx);
                 entryName = createEntryName();
+
                 entryRow.addView(entryState);
                 entryRow.addView(entryName);
                 taskEntries.addView(entryRow);
+                entryListeners(taskEntries, entryName, entryRow);
             }
 
             adapter.addView(taskView);
@@ -162,16 +150,16 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
     }
 
-    protected void taskList(TaskList tdl, int viewPage){
+    protected void taskList(TaskList task, int viewPage){
         RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
 
         if (!header.getText().toString().matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
-            if (tdl == null) {
-                tdl = TaskList.create(header.getText().toString());
-                App.TaskLists.add(tdl);
+            if (task == null) {
+                task = TaskList.create(header.getText().toString());
+                App.TaskLists.add(task);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -181,22 +169,19 @@ public class TaskCreateActivity extends mAppCompatActivity{
                 if (table_view instanceof TableRow) {
 
                     TableRow row = (TableRow) table_view;
+                    CheckBox checkbox = (CheckBox) row.getChildAt(0);
+                    EditText edittext = (EditText) row.getChildAt(1);
 
-                    View view_checkbox = row.getChildAt(0);
-                    View view_edittext = row.getChildAt(1);
-
-                    CheckBox checkbox = (CheckBox) view_checkbox;
-                    EditText edittext = (EditText) view_edittext;
                     String entryText = edittext.getText().toString();
 
                     if (!entryText.isEmpty()) {
                         TaskListEntry entry = null;
-                        if (tdl.entry.size() > i)
-                            entry = tdl.entry.get(i);
-                        if (entry != null && !entry.description.equals(entryText))
+                        if (task.entry.size() > i)
+                            entry = task.entry.get(i);
+                        if (entry != null && (!entry.description.equals(entryText) || entry.isDone() != checkbox.isChecked()))
                             entry.change(entryText, checkbox.isChecked());
                         else if (entry == null)
-                            tdl.addEntry(entryText, checkbox.isChecked());
+                            task.addEntry(entryText, checkbox.isChecked());
                     }
                 }
 
@@ -228,21 +213,17 @@ public class TaskCreateActivity extends mAppCompatActivity{
         entry.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                int curIndex = taskEntries.indexOfChild(curRow);
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     TableRow entryRow = new TableRow(ctx);
                     entryRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    int newPos = index_list.indexOf((Integer) curRow.getTag()) + 1;
-
-                    int newID = index_list.size() + 1;
-                    entryRow.setTag(newID);
-                    index_list.add(newPos, newID);
 
                     CheckBox entryState = new CheckBox(ctx);
                     EditText entryName = createEntryName();
 
                     entryRow.addView(entryState);
                     entryRow.addView(entryName);
-                    taskEntries.addView(entryRow, newPos);
+                    taskEntries.addView(entryRow, curIndex+1);
 
                     //Adds a new listener to the new created entry
                     entryListeners(taskEntries, entryName, entryRow);
@@ -251,13 +232,11 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
                 else if(keyCode == KeyEvent.KEYCODE_DEL){
                     if (entry.getText().toString().matches("")) {
-                        int curIndex = index_list.indexOf(curRow.getTag());
                         if (curIndex != 0) {
                             TableRow aboveRow = (TableRow) taskEntries.getChildAt(curIndex - 1);
                             EditText aboveText = (EditText) aboveRow.getChildAt(1);
 
                             taskEntries.removeView(curRow);
-                            index_list.remove(curIndex);
                             aboveText.setFocusableInTouchMode(true);
                             aboveText.requestFocus();
                         }

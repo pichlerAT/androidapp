@@ -106,12 +106,27 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
             int padding = App.pixelToDPScale(10);
             entries.setPadding(padding, padding, padding, padding);
         }
+        else{
+            entries.setPadding(0, 0, 0, 0);
+        }
 
         Button done = (Button) res.findViewById(R.id.button_listtemplate_done);
+        if (item.isDone()){
+            res.setAlpha(0.65f);
+            done.setBackground(ContextCompat.getDrawable(App.mContext, R.drawable.ic_refresh));
+        }
+        else{
+            res.setAlpha(1);
+            done.setBackground(ContextCompat.getDrawable(App.mContext, R.drawable.ic_done));
+        }
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                item.change(true);
+                if (item.isDone())
+                    item.change(false);
+                else
+                    item.change(true);
+                notifyDataSetChanged();
             }
         });
 
@@ -236,12 +251,6 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
                 popupMenu.show();
             }
         });
-
-
-        //Set optical design elements for list item (view)
-        res.setBackgroundResource(R.drawable.listview_style);
-
-        res.setId(position);
         return res;
     }
 }
