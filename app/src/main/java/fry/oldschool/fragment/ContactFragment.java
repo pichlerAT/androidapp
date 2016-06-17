@@ -56,10 +56,10 @@ public class ContactFragment extends Fragment{
         childList = new ArrayList<>();
         request_number = App.conLis.contactRequests.size();
 
-        ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
+        //ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
 
         final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
-        adapter = new ContactAdapter(App.mContext, contactGroupList, false);
+        adapter = new ContactAdapter(App.mContext, App.conLis.groups, false);
 
         ViewTreeObserver vto = lv.getViewTreeObserver();
 

@@ -8,14 +8,10 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import fry.oldschool.R;
 import fry.oldschool.utils.App;
@@ -93,7 +89,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
                 @Override
                 public void onClick(View view) {
                     App.conLis.groups.get(groupPosition).delete();
-                    contactGroupList = App.conLis.groups;
+                    contactGroupList = new ArrayList<>(App.conLis.groups);
                     notifyDataSetChanged();
                 }
             });
@@ -147,7 +143,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     public void addGroup(String groupName){
         //Add group
         App.conLis.createContactGroup(groupName);
-        contactGroupList = App.conLis.groups;
+        contactGroupList = new ArrayList<>(App.conLis.groups);
         notifyDataSetChanged();
     }
 
@@ -176,13 +172,14 @@ public class ContactAdapter extends BaseExpandableListAdapter {
                     }
                 }
                 if (newContacts.size() > 0)
-                    contactGroupList.get(i).setContacts(newContacts);
-                else
-                    contactGroupList.get(i).setContacts(new ArrayList<Contact>());
+                    contactGroupList.get(i).contacts = newContacts;
+                else{
+                    contactGroupList.get(i).contacts = new ArrayList<>();
+                }
             }
         }
         else{
-            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
+            contactGroupList = new ArrayList<>(App.conLis.groups);
         }
         notifyDataSetChanged();
     }
