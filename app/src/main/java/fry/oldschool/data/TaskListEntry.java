@@ -13,8 +13,13 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
 
     public String description;
 
-    public TasklistEntry(String description, boolean state) {
-        this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
+    public static TasklistEntry createBackup(int id, int table_id, int user_id, byte state, String description) {
+        TasklistEntry ent = new TasklistEntry(id);
+        ent.table_id = table_id;
+        ent.user_id = user_id;
+        ent.state = state;
+        ent.description = description;
+        return ent;
     }
 
     public TasklistEntry(int id, int table_id, int user_id, byte state,String description) {
@@ -27,6 +32,14 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         if(table_id != 0 && id == 0) {
             ConnectionManager.add(this);
         }
+    }
+
+    protected TasklistEntry(String description, boolean state) {
+        this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
+    }
+
+    protected TasklistEntry(int id) {
+        this.id = id;
     }
 
     @Override

@@ -21,7 +21,15 @@ public class Tasklist extends OnlineEntry implements Fryable {
     public ArrayList<Share> sharedContacts = new ArrayList<>();
 
     public static Tasklist create(String name) {
-        return new Tasklist(name);
+        return new Tasklist(0,USER_ID,(byte)0,name);
+    }
+
+    public static Tasklist createBackup(int id,int user_id, byte state,String name) {
+        Tasklist tl = new Tasklist(id);
+        tl.user_id = user_id;
+        tl.state = state;
+        tl.name = name;
+        return tl;
     }
 
     public Tasklist(int id,int user_id, byte state,String name) {
@@ -35,8 +43,8 @@ public class Tasklist extends OnlineEntry implements Fryable {
         }
     }
 
-    public Tasklist(String name) {
-        this(0,USER_ID,(byte)0,name);
+    public Tasklist(int id) {
+        this.id = id;
     }
 
     @Override
