@@ -6,7 +6,7 @@ import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class Tasklist extends OnlineEntry implements Fryable {
+public class TaskList extends OnlineEntry implements Fryable {
 
     public int drag_id;
 
@@ -16,23 +16,23 @@ public class Tasklist extends OnlineEntry implements Fryable {
 
     public String name;
 
-    public ArrayList<TasklistEntry> entries = new ArrayList<>();
+    public ArrayList<TaskListEntry> entries = new ArrayList<>();
 
     public ArrayList<Share> sharedContacts = new ArrayList<>();
 
-    public static Tasklist create(String name) {
-        return new Tasklist(0,USER_ID,(byte)0,name);
+    public static TaskList create(String name) {
+        return new TaskList(0,USER_ID,(byte)0,name);
     }
 
-    public static Tasklist createBackup(int id,int user_id, byte state,String name) {
-        Tasklist tl = new Tasklist(id);
+    public static TaskList createBackup(int id, int user_id, byte state, String name) {
+        TaskList tl = new TaskList(id);
         tl.user_id = user_id;
         tl.state = state;
         tl.name = name;
         return tl;
     }
 
-    public Tasklist(int id,int user_id, byte state,String name) {
+    public TaskList(int id, int user_id, byte state, String name) {
         this.type = TYPE_TASKLIST;
         this.id = id;
         this.user_id = user_id;
@@ -43,7 +43,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
         }
     }
 
-    public Tasklist(int id) {
+    public TaskList(int id) {
         this.id = id;
     }
 
@@ -52,7 +52,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
         String resp = getLine(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state);
         if(resp.substring(0,3).equals("suc")) {
             id = Integer.parseInt(resp.substring(3));
-            for(TasklistEntry ent : entries) {
+            for(TaskListEntry ent : entries) {
                 ent.table_id = id;
                 ConnectionManager.add(ent);
             }
@@ -144,12 +144,12 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public void addEntry(String task,boolean state) {
-        TasklistEntry ent = new TasklistEntry(task,state);
+        TaskListEntry ent = new TaskListEntry(task,state);
         entries.add(ent);
     }
 
     public void addEntry(int index,String task,boolean state) {
-        TasklistEntry ent = new TasklistEntry(task,state);
+        TaskListEntry ent = new TaskListEntry(task,state);
         entries.add(index,ent);
     }
 
@@ -180,7 +180,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public void delete(int index) {
-        TasklistEntry ent = entries.remove(index);
+        TaskListEntry ent = entries.remove(index);
         ConnectionManager.add(new Delete(TYPE_TASKLIST, ent.id));
     }
 
@@ -189,7 +189,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
             return "n";
         }
         String s = "";
-        for(TasklistEntry e : entries) {
+        for(TaskListEntry e : entries) {
             s += e.id + S + e.user_id + S + e.description + S + e.state + S;
         }
         return s;

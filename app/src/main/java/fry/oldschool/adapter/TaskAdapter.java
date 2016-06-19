@@ -30,17 +30,17 @@ import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
 import fry.oldschool.data.Contact;
 import fry.oldschool.data.ContactGroup;
-import fry.oldschool.data.Tasklist;
-import fry.oldschool.data.TasklistEntry;
+import fry.oldschool.data.TaskList;
+import fry.oldschool.data.TaskListEntry;
 
-public class TaskAdapter extends ArrayAdapter<Tasklist>{
+public class TaskAdapter extends ArrayAdapter<TaskList>{
 
-    public ArrayList<Tasklist> list;
+    public ArrayList<TaskList> list;
     protected Context ctx;
     protected ArrayList<Contact> childList = new ArrayList<>();
     protected ArrayList<ContactGroup> groupList = new ArrayList<>();
 
-    public TaskAdapter(Context context, int resourceID, ArrayList<Tasklist> list){
+    public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
         super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
@@ -50,7 +50,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
     }
 
     @Override
-    public Tasklist getItem(int position){
+    public TaskList getItem(int position){
         return list.get(position);
     }
 
@@ -64,7 +64,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         if (position < 0 || position >= list.size()) {
             return -1;
         }
-        Tasklist item = getItem(position);
+        TaskList item = getItem(position);
         return item.drag_id;
     }
 
@@ -83,7 +83,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
             res = convertView;
         }
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        final Tasklist item = getItem(position);
+        final TaskList item = getItem(position);
         final String headerText = item.name;
         header.setText(headerText);
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
@@ -91,7 +91,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
-                final TasklistEntry entry = item.entries.get(i);
+                final TaskListEntry entry = item.entries.get(i);
                 CheckBox cb = new CheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);

@@ -15,8 +15,8 @@ import fry.oldschool.data.ContactGroup;
 import fry.oldschool.data.ContactList;
 import fry.oldschool.data.MySQL;
 import fry.oldschool.data.MySQLListener;
-import fry.oldschool.data.Tasklist;
-import fry.oldschool.data.TasklistManager;
+import fry.oldschool.data.TaskList;
+import fry.oldschool.data.TaskListManager;
 
 public class App extends Application {
 
@@ -30,7 +30,7 @@ public class App extends Application {
 
     public static Context appContext;
 
-    public static ArrayList<Tasklist> Tasklists = new ArrayList<>();
+    public static ArrayList<TaskList> Tasklists = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -111,7 +111,7 @@ public class App extends Application {
             }
 
             if(fry.readNextLine()) {
-                TasklistManager.readFrom(fry);
+                TaskListManager.readFrom(fry);
             }
 
         }catch (IOException ex) {
@@ -128,7 +128,7 @@ public class App extends Application {
         ConnectionManager.writeTo(fry);
         fry.newLine();
 
-        TasklistManager.writeTo(fry);
+        TaskListManager.writeTo(fry);
         fry.newLine();
 
         try {

@@ -8,7 +8,6 @@ import java.util.Iterator;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.NetworkStateReciever;
 import fry.oldschool.utils.FryFile;
-import fry.oldschool.utils.Fryable;
 
 public class ConnectionManager {
 
@@ -208,7 +207,7 @@ public class ConnectionManager {
             Iterator<String> it = resp.iterator();
             if(it.hasNext() && it.next().equals("suc")) {
                 while(it.hasNext()) {
-                    TasklistManager.updateTasklists(it.next().split(MySQL.S));
+                    TaskListManager.updateTasklists(it.next().split(MySQL.S));
                 }
                 return true;
             }

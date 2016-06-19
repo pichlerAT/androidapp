@@ -3,7 +3,7 @@ package fry.oldschool.data;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class TasklistEntry extends OnlineEntry implements Fryable {
+public class TaskListEntry extends OnlineEntry implements Fryable {
 
     public int table_id;
 
@@ -13,8 +13,8 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
 
     public String description;
 
-    public static TasklistEntry createBackup(int id, int table_id, int user_id, byte state, String description) {
-        TasklistEntry ent = new TasklistEntry(id);
+    public static TaskListEntry createBackup(int id, int table_id, int user_id, byte state, String description) {
+        TaskListEntry ent = new TaskListEntry(id);
         ent.table_id = table_id;
         ent.user_id = user_id;
         ent.state = state;
@@ -22,7 +22,7 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         return ent;
     }
 
-    public TasklistEntry(int id, int table_id, int user_id, byte state,String description) {
+    public TaskListEntry(int id, int table_id, int user_id, byte state, String description) {
         this.type = TYPE_TASKLIST_ENTRY;
         this.id = id;
         this.table_id = table_id;
@@ -34,11 +34,11 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         }
     }
 
-    protected TasklistEntry(String description, boolean state) {
+    protected TaskListEntry(String description, boolean state) {
         this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
     }
 
-    protected TasklistEntry(int id) {
+    protected TaskListEntry(int id) {
         this.id = id;
     }
 
