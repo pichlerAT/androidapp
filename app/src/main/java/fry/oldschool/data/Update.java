@@ -1,20 +1,12 @@
 package fry.oldschool.data;
 
-public class Update extends Entry {
+import fry.oldschool.utils.FryFile;
+
+public class Update extends OfflineEntry {
 
     public Update(char type,int id) {
         this.type = (char)(BASETYPE_UPDATE | type);
         this.id = id;
-    }
-
-    public Update(char type,char c1,char c2) {
-        this.type = (char)(BASETYPE_UPDATE | type);
-        id = c1 | (c2 << 16);
-    }
-
-    @Override
-    protected String getConManString() {
-        return type + "" + getString();
     }
 
     @Override
@@ -22,6 +14,12 @@ public class Update extends Entry {
         String[] data = getAddressData();
         String resp = getLine(data[0],data[1]);
         return resp.equals("suc");
+    }
+
+    @Override
+    public void writeTo(FryFile file) {
+        file.write(type);
+        file.write(id);
     }
 
     public String getString() {

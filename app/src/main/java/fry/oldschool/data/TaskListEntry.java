@@ -1,6 +1,9 @@
 package fry.oldschool.data;
 
-public class TasklistEntry extends OnlineEntry {
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
+
+public class TasklistEntry extends OnlineEntry implements Fryable {
 
     public int table_id;
 
@@ -11,10 +14,10 @@ public class TasklistEntry extends OnlineEntry {
     public String description;
 
     public TasklistEntry(String description, boolean state) {
-        this(0,0,USER_ID,description,( state ? (byte)1 : (byte)0 ));
+        this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
     }
 
-    public TasklistEntry(int id, int table_id, int user_id, String description, byte state) {
+    public TasklistEntry(int id, int table_id, int user_id, byte state,String description) {
         this.type = TYPE_TASKLIST_ENTRY;
         this.id = id;
         this.table_id = table_id;
@@ -24,6 +27,24 @@ public class TasklistEntry extends OnlineEntry {
         if(table_id != 0 && id == 0) {
             ConnectionManager.add(this);
         }
+    }
+
+    @Override
+    protected boolean mysql() {
+        String resp = getLine(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+        if(resp.substring(0,3).equals("suc")) {
+            id = Integer.parseInt(resp.substring(3));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void writeTo(FryFile file) {
+        file.write(id);
+        file.write(user_id);
+        file.write(state);
+        file.write(description);
     }
 
     public void change(String description,boolean state) {
@@ -54,16 +75,6 @@ public class TasklistEntry extends OnlineEntry {
             return null;
         }
         return ContactList.findContactByUserId(user_id);
-    }
-
-    @Override
-    protected boolean mysql() {
-        String resp = getLine(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
-            return true;
-        }
-        return false;
     }
 
     public String getUpdateString() {

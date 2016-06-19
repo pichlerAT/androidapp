@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.NetworkStateReciever;
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
 
 public class ConnectionManager {
 
@@ -20,14 +22,21 @@ public class ConnectionManager {
 
     protected static MySQLListener mysql_listener;
 
-    protected static ArrayList<Entry> entries = new ArrayList<>();
+    protected static ArrayList<OnlineEntry> online_entries = new ArrayList<>();
+
+    protected static ArrayList<OfflineEntry> offline_entries = new ArrayList<>();
 
     public static void setMySQLListener(MySQLListener listener) {
         mysql_listener = listener;
     }
 
-    protected static void add(Entry entry) {
-        entries.add(entry);
+    protected static void add(OnlineEntry entry) {
+        online_entries.add(entry);
+        sync();
+    }
+
+    protected static void add(OfflineEntry entry) {
+        offline_entries.add(entry);
         sync();
     }
 
@@ -35,15 +44,41 @@ public class ConnectionManager {
         (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    protected static boolean remove(Entry entry) {
-        return entries.remove(entry);
+    public static boolean hasEntry(int type,int id) {
+        for(int i=0; i<online_entries.size(); ++i) {
+            OnlineEntry ent = online_entries.get(i);
+            if(ent.id == id && (ent.type & type) == type) {
+                return true;
+            }
+        }
+        for(int i=0; i<offline_entries.size(); ++i) {
+            OnlineEntry ent = offline_entries.get(i);
+            if(ent.id == id && (ent.type & type) == type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected static boolean remove(OnlineEntry entry) {
+        return online_entries.remove(entry);
+    }
+
+    protected static boolean remove(OfflineEntry entry) {
+        return offline_entries.remove(entry);
     }
 
     protected static void remove(char type,int id) {
-        for(int i=0; i<entries.size(); ++i) {
-            Entry ent = entries.get(i);
+        for(int i=0; i<online_entries.size(); ++i) {
+            OnlineEntry ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
-                entries.remove(i);
+                online_entries.remove(i);
+            }
+        }
+        for(int i=0; i<offline_entries.size(); ++i) {
+            OnlineEntry ent = offline_entries.get(i);
+            if(ent.id == id && (ent.type & type) == type) {
+                offline_entries.remove(i);
             }
         }
     }
@@ -56,31 +91,16 @@ public class ConnectionManager {
         }
     }
 
-    public static String getLocalSaveString() {
-        if(entries.size() == 0) {
-            return ("" + (char)0);
-        }
-
-        String line = "";
-        for(Entry ent : entries) {
-            String str = ent.getConManString();
-            if(str != null) {
-                line += str;
-            }
-        }
-        return line;
+    public static void writeTo(FryFile file) {
+        file.write(offline_entries.toArray());
     }
 
-    public static void recieveLocalSaveString(String line) {
-        if(line == null) {
-            return;
-        }
-        char[] charArray = line.toCharArray();
-
-        for(int i=2; i<charArray.length; i+=3) {
-            Entry ent = Entry.create(charArray[i-2],charArray[i-1],charArray[i]);
+    public static void readFrom(FryFile file) {
+        int NoEntries = file.getChar();
+        for(int i=0; i<NoEntries; ++i) {
+            OfflineEntry ent = OfflineEntry.create(file.getChar(),file.getInt());
             if(ent != null) {
-                entries.add(ent);
+                offline_entries.add(ent);
             }
         }
     }
@@ -105,23 +125,32 @@ public class ConnectionManager {
         @Override
         protected String doInBackground(String... params) {
             performUpdate();
-            for(int i=0 ; i< entries.size() ; ) {
-                if(entries.get(i).mysql()) {
-                    entries.remove(i);
-                    notifyMySQLListener();
-                }else {
-                    ++i;
+            int on_index = 0;
+            int off_index = 0;
+            do {
+                while(on_index < online_entries.size()) {
+                    if(online_entries.get(on_index).mysql()) {
+                        online_entries.remove(on_index);
+                        notifyMySQLListener();
+                    }else {
+                        ++on_index;
+                    }
                 }
-            }
+                while(off_index < offline_entries.size()) {
+                    if(offline_entries.get(off_index).mysql()) {
+                        offline_entries.remove(off_index);
+                        notifyMySQLListener();
+                    }else {
+                        ++off_index;
+                    }
+                }
+            } while(on_index < online_entries.size() || off_index < offline_entries.size());
             return null;
         }
 
         @Override
         protected void onPostExecute(String result) {
             syncTask = new Sync();
-            if(entries.size() > 0) {
-                //sync();
-            }
         }
 
         protected void performUpdate() {
@@ -144,7 +173,7 @@ public class ConnectionManager {
 
         protected boolean sync_contact() {
             MySQL mysql = new MySQL();
-            ArrayList<String> resp = mysql.getLines("contact/get.php","");
+            ArrayList<String> resp = mysql.getLines(MySQL.DIR_CONTACT + "get.php","");
             Iterator<String> it = resp.iterator();
             if(it.hasNext()) {
                 String line = it.next();

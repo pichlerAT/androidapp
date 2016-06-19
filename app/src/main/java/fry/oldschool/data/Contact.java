@@ -1,6 +1,9 @@
 package fry.oldschool.data;
 
-public class Contact {
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
+
+public class Contact implements Fryable {
 
     public int id;
 
@@ -17,8 +20,15 @@ public class Contact {
         this.name = name;
     }
 
+    @Override
+    public void writeTo(FryFile file) {
+        file.write(id);
+        file.write(user_id);
+        file.write(email);
+        file.write(name);
+    }
+
     public boolean equals(Share share) {
         return ( share.user_id == user_id );
     }
-
 }

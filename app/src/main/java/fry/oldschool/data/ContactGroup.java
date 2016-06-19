@@ -2,7 +2,10 @@ package fry.oldschool.data;
 
 import java.util.ArrayList;
 
-public class ContactGroup extends OnlineEntry {
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
+
+public class ContactGroup extends OnlineEntry implements Fryable {
 
     public String name;
 
@@ -35,8 +38,23 @@ public class ContactGroup extends OnlineEntry {
         return false;
     }
 
+    @Override
+    public void writeTo(FryFile file) {
+        file.write(id);
+        file.write(name);
+        file.write(getUserIdArray());
+    }
+
     protected String getUpdateString() {
         return ("&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
+    }
+
+    public int[] getUserIdArray() {
+        int[] uids = new int[contacts.size()];
+        for(int i=0; i<uids.length; ++i) {
+            uids[i] = contacts.get(i).user_id;
+        }
+        return uids;
     }
 
     public String getContactsString() { // TODO convert int to char

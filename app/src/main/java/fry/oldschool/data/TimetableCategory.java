@@ -1,8 +1,8 @@
 package fry.oldschool.data;
 
-import fry.oldschool.utils.App;
+import fry.oldschool.utils.FryFile;
 
-public class TimetableCategory extends Entry {
+public class TimetableCategory extends OfflineEntry {
 
     protected int id;
 
@@ -23,12 +23,6 @@ public class TimetableCategory extends Entry {
     }
 
     @Override
-    protected String getConManString() {
-        //return TYPE_CALENDAR_CATEGORY + "" + id + ";" + user_id + ";" + name;
-        return null;
-    }
-
-    @Override
     protected boolean mysql() {
         if(id == 0) {
             String resp = getLine("calendar/category/create.php","&name="+name);
@@ -46,7 +40,12 @@ public class TimetableCategory extends Entry {
         //App.conMan.add(new Delete(Entry.TYPE_CALENDAR_CATEGORY_DELETE,id));
     }
 
-    protected abstract static class Share extends Entry {
+    @Override
+    public void writeTo(FryFile file) {
+
+    }
+
+    protected abstract static class Share extends OfflineEntry {
 
         protected int contact_id;
 
@@ -55,6 +54,11 @@ public class TimetableCategory extends Entry {
         protected Share(int contact_id,int category_id) {
             this.contact_id = contact_id;
             this.category_id = category_id;
+        }
+
+        @Override
+        public void writeTo(FryFile file) {
+
         }
 
         protected static class Create extends Share {
@@ -69,12 +73,6 @@ public class TimetableCategory extends Entry {
                 return resp.equals("suc");
             }
 
-            @Override
-            protected String getConManString() {
-                return null;
-                //return TYPE_CALENDAR_CATEGORY_SHARE_CREATE + "" + contact_id + ";" + category_id;
-            }
-
         }
 
         protected static class Delete extends Share {
@@ -87,12 +85,6 @@ public class TimetableCategory extends Entry {
             protected boolean mysql() {
                 String resp = getLine("calendar/category/share/delete.php","&category_id="+contact_id+"&category_id="+category_id);
                 return resp.equals("suc");
-            }
-
-            @Override
-            protected String getConManString() {
-                return null;
-                //return TYPE_CALENDAR_CATEGORY_SHARE_DELETE + "" + contact_id + ";" + category_id;
             }
 
         }

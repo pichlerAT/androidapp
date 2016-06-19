@@ -2,91 +2,42 @@ package fry.oldschool.data;
 
 import java.util.ArrayList;
 
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
+
 public class ContactList {
 
     public static ArrayList<ContactGroup> groups=new ArrayList<>();
 
     public static ArrayList<ContactRequest> contactRequests=new ArrayList<>();
 
-    public static String getLocalSaveString() {
-        ContactGroup all = groups.get(groups.size()-1);
-        if(all.contacts.size() == 0 && groups.size() == 1) {
-            return ((char)0 + "" + (char)0);
-        }
-
-        String line = "";
-
-        line += (char)all.contacts.size();
-        for(Contact cont : all.contacts) {
-            line += (char)(cont.id & 65535) + "" + (char)((cont.id >> 16) & 65535);
-            line += (char)(cont.user_id & 65535) + "" + (char)((cont.user_id >> 16) & 65535);
-            line += (char)cont.email.length() + cont.email;
-            line += (char)cont.name.length() + cont.name;
-        }
-
-        line += (char)(groups.size() - 1);
-        for(int i=0; i<groups.size()-1; ++i) {
-            ContactGroup grp = groups.get(i);
-            line += (char)(grp.id & 65535) + "" + (char)((grp.id >> 16) & 65535);
-            line += (char)grp.name.length() + grp.name;
-            line += (char)grp.contacts.size();
-            for(Contact cont : grp.contacts) {
-                line += (char)(cont.user_id & 65535) + "" + (char)((cont.user_id >> 16) & 65535);
-            }
-        }
-
-        return line;
+    public static void writeTo(FryFile file) {
+        file.write(groups.get(groups.size()-1).contacts.toArray());
+        file.write(groups.subList(0,groups.size()-1).toArray());
     }
 
-    public static void recieveLocalSaveString(String line) {
+    public static void readFrom(FryFile file) {
         ContactGroup all = groups.get(groups.size() - 1);
 
-        if(line == null) {
-            return;
-        }
-        char[] charArray = line.toCharArray();
-
-        int index = 0;
-        int numberOfContacts = charArray[index++];
-        for(int i=0; i<numberOfContacts; ++i) {
-            int id = charArray[index] | (charArray[++index] << 16);
-            int user_id = charArray[++index] | (charArray[++index] << 16);
-
-            int endIndex = charArray[++index] + (++index);
-            String email = "";
-            while(index < endIndex) {
-                email += charArray[index++];
-            }
-
-            endIndex = charArray[index] + (++index);
-            String name = "";
-            while(index < endIndex) {
-                name += charArray[index++];
-            }
-
-            all.contacts.add(new Contact(id,user_id,email,name));
+        int NoContacts = file.getChar();
+        for(int i=0; i<NoContacts; ++i) {
+            all.contacts.add(new Contact(file.getInt(),file.getInt(),file.getString(),file.getString()));
         }
 
-        int numberOfContactGroups = charArray[index++];
-        for(int i=0; i<numberOfContactGroups; ++i) {
+        int NoContactGroups = file.getChar();
+        for(int i=0; i<NoContactGroups; ++i) {
+            int id = file.getInt();
+            String name = file.getString();
 
-            int id = charArray[index++] | (charArray[index++] << 16);
-            int endIndex = charArray[index++] + index;
-            String name = "";
-            while(index < endIndex) {
-                name += charArray[index++];
-            }
+            NoContacts = file.getChar();
+            ArrayList<Contact> conts = new ArrayList<>(NoContacts);
 
-            endIndex = 2*charArray[index++] + index;
-            ArrayList<Contact> conts = new ArrayList<>();
-            while(index < endIndex) {
-                Contact cont = all.findContactByUserId(charArray[index++] | (charArray[index++] << 16));
+            for(int j=0; j<NoContacts; ++j) {
+                Contact cont = findContactById(file.getInt());
                 if(cont != null) {
                     conts.add(cont);
                 }
             }
-
-            groups.add(groups.size() - 1, new ContactGroup(id,name,conts));
         }
     }
 
@@ -105,7 +56,7 @@ public class ContactList {
             int id = Integer.parseInt(r[i-3]);
             Contact cont = cg0.findContactById(id);
             if(cont == null) {
-                if(!hasContactDeleted(id)) {
+                if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT | OnlineEntry.BASETYPE_DELETE,id)) {
                     cont = new Contact(id, Integer.parseInt(r[i-2]), r[i-1], r[i]);
                     cg0.contacts.add(cont);
                 }
@@ -124,7 +75,7 @@ public class ContactList {
 
     protected static void updateContactGroup(String... r) {
         int id = Integer.parseInt(r[0]);
-        if(!hasContactGroup(id) && !hasContactGroupDeleted(id)) {
+        if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT_GROUP | OnlineEntry.BASETYPE_DELETE,id)) {
             ContactGroup grp = new ContactGroup(id,r[1],new ArrayList<Contact>());
             if(!r[2].equals("n")) {
                 for (int i = 2; i < r.length; ++i) {
@@ -148,39 +99,6 @@ public class ContactList {
                 contactRequests.remove(i);
             }
         }
-    }
-
-    protected static boolean hasContactDeleted(int id) {
-        for(Entry e : ConnectionManager.entries) {
-            if(e instanceof Delete) {
-                Delete c = (Delete)e;
-                if(c.id == id) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    protected static boolean hasContactGroupDeleted(int id) {
-        for(Entry e : ConnectionManager.entries) {
-            if(e instanceof Delete) {
-                Delete c = (Delete)e;
-                if(c.id == id) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    protected static boolean hasContactGroup(int group_id) {
-        for(ContactGroup g : groups) {
-            if(g.id == group_id) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static ContactRequest findContactRequestByUserId(int user_id) {
@@ -213,7 +131,7 @@ public class ContactList {
         for(ContactGroup grp : groups) {
             grp.removeContact(cont);
         }
-        ConnectionManager.add(new Delete(Entry.TYPE_CONTACT,cont.id));
+        ConnectionManager.add(new Delete(OfflineEntry.TYPE_CONTACT,cont.id));
     }
 
     public static void sendRequest(String email) {

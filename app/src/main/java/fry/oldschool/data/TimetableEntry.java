@@ -1,10 +1,10 @@
 package fry.oldschool.data;
 
-import fry.oldschool.utils.App;
 import fry.oldschool.utils.DateTime;
+import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Time;
 
-public class TimetableEntry extends Entry {
+public class TimetableEntry extends OfflineEntry {
 
     protected int id;
 
@@ -66,13 +66,6 @@ public class TimetableEntry extends Entry {
         return false;
     }
 
-    @Override
-    protected String getConManString() {
-        return null;
-        //return TYPE_CALENDAR_ENTRY + "" + id + S + category_id + S + user_id + S + title + S + description + S + start.date.getShort() + S + start.time.time
-        //        + S + duration.time + S + repeat;
-    }
-
     public void delete() {
         //App.conMan.add(new Delete(Entry.TYPE_CALENDAR_ENTRY_DELETE,id));
     }
@@ -82,4 +75,8 @@ public class TimetableEntry extends Entry {
                 +start.date.getShort()+"&time_start="+start.time.time+"&duration="+duration.time+"&repeat="+repeat;
     }
 
+    @Override
+    public void writeTo(FryFile file) {
+
+    }
 }

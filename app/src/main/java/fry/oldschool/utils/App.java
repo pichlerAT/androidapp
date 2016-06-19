@@ -6,10 +6,8 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -103,12 +101,20 @@ public class App extends Application {
                 return;
             }
 
-            BufferedReader br=new BufferedReader(new FileReader(file));
+            FryFile fry = new FryFile();
+            fry.load(file);
 
-            ContactList.recieveLocalSaveString(br.readLine());
-            ConnectionManager.recieveLocalSaveString(br.readLine());
-            TasklistManager.recieveLocalSaveString(br.readLine());
-            //Timetable.recieveLocalSaveString(br.readLine().toCharArray());
+            if(fry.readNextLine()) {
+                ContactList.readFrom(fry);
+            }
+
+            if(fry.readNextLine()) {
+                ConnectionManager.readFrom(fry);
+            }
+
+            if(fry.readNextLine()) {
+                TasklistManager.readFrom(fry);
+            }
 
         }catch (IOException ex) {
             ex.printStackTrace();
@@ -116,20 +122,21 @@ public class App extends Application {
     }
 
     public static void save() {
-        try{
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(appContext.getFilesDir(),getFileName())));
+        FryFile fry = new FryFile();
 
-            bw.write(ContactList.getLocalSaveString());
-            bw.newLine();
-            bw.write(ConnectionManager.getLocalSaveString());
-            bw.newLine();
-            bw.write(TasklistManager.getLocalSaveString());
-            //bw.newLine();
-            //bw.write(Timetable.getLocalSaveString());
+        ContactList.writeTo(fry);
+        fry.newLine();
 
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        ConnectionManager.writeTo(fry);
+        fry.newLine();
+
+        TasklistManager.writeTo(fry);
+        fry.newLine();
+
+        try {
+            fry.save(new File(App.appContext.getFilesDir(),getFileName()));
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 

@@ -25,7 +25,7 @@ public class ContactRequest {
 
     public void decline() {
         if(ContactList.contactRequests.remove(this)) {
-            ConnectionManager.add(new Delete(Entry.TYPE_CONTACT_REQUEST,id));
+            ConnectionManager.add(new Delete(OfflineEntry.TYPE_CONTACT_REQUEST,id));
         }
     }
 

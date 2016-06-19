@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class MySQL {
 
-    protected static final String IP_ADDRESS = "193.81.40.139" ;
+    protected static final String IP_ADDRESS = "212.183.125.199" ;
 
     protected static final int PORT = 80;
     protected static final String ADDRESS="http://"+IP_ADDRESS+":"+PORT+"/android/";

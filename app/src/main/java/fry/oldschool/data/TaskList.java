@@ -3,8 +3,10 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.App;
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
 
-public class Tasklist extends OnlineEntry {
+public class Tasklist extends OnlineEntry implements Fryable {
 
     public int drag_id;
 
@@ -51,8 +53,17 @@ public class Tasklist extends OnlineEntry {
         return false;
     }
 
+    @Override
+    public void writeTo(FryFile file) {
+        file.write(id);
+        file.write(user_id);
+        file.write(state);
+        file.write(name);
+        file.write(entries.toArray());
+    }
+
     public boolean isOwner() {
-        return ( user_id == Entry.USER_ID );
+        return ( user_id == OfflineEntry.USER_ID );
     }
 
     public Contact getOwner() {
