@@ -12,18 +12,13 @@ public class Update extends OfflineEntry {
     @Override
     protected boolean mysql() {
         String[] data = getAddressData();
-        String resp = getLine(data[0],data[1]);
-        return resp.equals("suc");
+        return (getLine(data[0],data[1]) != null);
     }
 
     @Override
     public void writeTo(FryFile file) {
         file.write(type);
         file.write(id);
-    }
-
-    public String getString() {
-        return ( (char)(id & 65535) + "" + (char)((id >> 16) & 65535) );
     }
 
     public String[] getAddressData() {

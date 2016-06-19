@@ -18,17 +18,32 @@ public class Share extends OnlineEntry {
 
     public String name;
 
-    protected Share(char type,int id,int share_id,byte permission,Contact contact) {
+    public Share(int id, int share_id,int user_id) {
         this.id = id;
-        this.permission = permission;
-        this.type = (char)(BASETYPE_SHARE | BASETYPE_UPDATE | type);
         this.share_id = share_id;
-        user_id = contact.user_id;
+        this.user_id = user_id;
+        type = (char)(BASETYPE_SHARE | BASETYPE_UPDATE);
+        if(id == 0) {
+            type |= BASETYPE_CREATE;
+        }
+    }
+
+    public Share(int share_id,Contact cont) {
+        this(0, share_id, cont.user_id);
+        email = cont.email;
+        name = cont.name;
+    }
+
+    public Share(int id,int share_id, int user_id, byte permission) {
+        this(id, share_id, user_id);
+        this.permission = permission;
+    }
+
+    protected Share(char type,int id,int share_id,byte permission,Contact contact) {
+        this(id, share_id, contact.user_id,permission);
+        this.type |= type;
         email = contact.email;
         name = contact.name;
-        if(id == 0) {
-            this.type |= BASETYPE_CREATE;
-        }
     }
 
     protected Share(char type,int share_id, byte permission,Contact contact) {
@@ -43,15 +58,14 @@ public class Share extends OnlineEntry {
     public boolean mysql() {
         if(id == 0) {
             String resp = getLine(getFileUrl(type), "&share_user_id=" + user_id + "&share_id=" + share_id + "&permission=" + permission);
-            if(resp.substring(0,3).equals("suc")) {
-                id = Integer.parseInt(resp.substring(4));
+            if(resp != null) {
+                id = Integer.parseInt(resp);
                 type &= ~BASETYPE_CREATE;
                 return true;
             }
             return false;
         }
-        String resp = getLine(getFileUrl(type), "&id=" + id + "&permission=" + permission);
-        return resp.equals("suc");
+        return (getLine(getFileUrl(type), "&id=" + id + "&permission=" + permission) != null);
     }
 
     protected void delete() {
@@ -74,14 +88,6 @@ public class Share extends OnlineEntry {
 
     public boolean canMore() {
         return ( permission >= PERMISSION_MORE );
-    }
-
-    public void allowEdit(boolean b) {
-        byte p = ( b ? (byte)1 : 0 );
-        if(p != permission) {
-            permission = p;
-            ConnectionManager.add(this);
-        }
     }
 
     public boolean equals(Contact contact) {

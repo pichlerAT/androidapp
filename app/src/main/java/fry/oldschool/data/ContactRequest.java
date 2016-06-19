@@ -41,15 +41,17 @@ public class ContactRequest {
         @Override
         protected boolean mysql() {
             String resp = getLine(DIR_CONTACT_REQUEST + "send.php", "&contact_email=" + email);
-
-            if(resp.equals("suc")) {
-                return true;
+            if(resp != null) {
+                if(resp.equals("err_crs1")) {
+                    // TODO user not found
+                }else if(resp.equals("err_crs2")) {
+                    // TODO contact already exists
+                }else if(resp.equals("err_crs3")) {
+                    // TODO contact request already exists
+                }else {
+                    return true;
+                }
             }
-
-            if(resp.equals("err_crs2") || resp.equals("err_crs3") || resp.equals("err_crs4")) {
-                return true;
-            }
-
             return false;
         }
     }
@@ -66,9 +68,10 @@ public class ContactRequest {
         @Override
         protected boolean mysql() {
             String resp = getLine(DIR_CONTACT_REQUEST + "accept.php", "&id=" + id);
-            if(resp.equals("suc")) {
+            if(resp != null) {
                 ContactList.removeContactRequest(id);
                 ConnectionManager.sync_contact = true;
+                ConnectionManager.sync();
                 return true;
             }
             return false;

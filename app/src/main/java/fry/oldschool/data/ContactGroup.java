@@ -9,30 +9,35 @@ public class ContactGroup extends OnlineEntry implements Fryable {
 
     public String name;
 
-    public ArrayList<Contact> contacts;
+    public ArrayList<Contact> contacts = new ArrayList<>();
 
+    /**
+     * Used for the "All Contacts" ContactGroup
+     * @param name Name of the ContactGroup
+     */
     public ContactGroup(String name) {
         this.name = name;
-        type = TYPE_CONTACT_GROUP;
-        id = 0;
-        contacts = new ArrayList<>();
     }
 
-    public ContactGroup(int id,String name,ArrayList<Contact> contacts) {
+    public ContactGroup(int id, String name) {
         this.type = TYPE_CONTACT_GROUP;
         this.id = id;
         this.name = name;
-        this.contacts = contacts;
         if(id == 0) {
             ConnectionManager.add(this);
         }
     }
 
+    public ContactGroup(int id,String name,ArrayList<Contact> contacts) {
+        this(id, name);
+        this.contacts = contacts;
+    }
+
     @Override
     protected boolean mysql() {
         String resp = getLine(DIR_CONTACT_GROUP + "create.php","&group_name="+name+"&contacts="+getContactsString());
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
+        if(resp != null) {
+            id = Integer.parseInt(resp);
             return true;
         }
         return false;
@@ -58,12 +63,9 @@ public class ContactGroup extends OnlineEntry implements Fryable {
     }
 
     public String getContactsString() {
-        if(contacts.size() == 0) {
-            return "n";
-        }
-        String s = "";
+        String s = "" + contacts.size();
         for(Contact c : contacts) {
-            s += c.user_id + S ;
+            s += S + c.user_id ;
         }
         return s;
     }

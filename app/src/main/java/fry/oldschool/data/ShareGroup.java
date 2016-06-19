@@ -6,16 +6,19 @@ public class ShareGroup {
 
     public String name;
 
-    public ArrayList<Share> contacts;
+    public ArrayList<Share> contacts = new ArrayList<>();
 
     public ShareGroup(String name) {
         this.name = name;
     }
 
-    public void setPermission(byte permission) {
+    public Share findShareByUserId(int id) {
         for(Share s : contacts) {
-            s.setPermission(permission);
+            if(s.id == id) {
+                return s;
+            }
         }
+        return null;
     }
 
 }

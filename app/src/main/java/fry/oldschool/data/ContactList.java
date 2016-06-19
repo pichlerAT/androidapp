@@ -26,28 +26,70 @@ public class ContactList {
 
         int NoContactGroups = file.getChar();
         for(int i=0; i<NoContactGroups; ++i) {
-            int id = file.getInt();
-            String name = file.getString();
+            ContactGroup grp = new ContactGroup(file.getInt(),file.getString());
 
             NoContacts = file.getChar();
-            ArrayList<Contact> conts = new ArrayList<>(NoContacts);
-
             for(int j=0; j<NoContacts; ++j) {
                 Contact cont = findContactById(file.getInt());
                 if(cont != null) {
-                    conts.add(cont);
+                    grp.contacts.add(cont);
                 }
             }
         }
     }
 
+    public static void synchronizeContactsFromMySQL(String... r) {
+        ContactGroup all = groups.get(groups.size() - 1);
+        int index = 0;
+
+        int NoContacts = Integer.parseInt(r[index++]);
+        for(int i=0; i<NoContacts; ++i) {
+            Contact on = new Contact(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++],r[index++]);
+            Contact off = all.findContactByUserId(on.user_id);
+
+            if(off != null) {
+                off.email = on.email;
+                off.name = on.name;
+            }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT | OnlineEntry.BASETYPE_DELETE, on.id)) {
+                all.contacts.add(on);
+            }
+        }
+
+        int NoContactGroups = Integer.parseInt(r[index++]);
+        for(int i=0; i<NoContactGroups; ++i) {
+            ContactGroup on = new ContactGroup(Integer.parseInt(r[index++]),r[index++]);
+
+            NoContacts = Integer.parseInt(r[index++]);
+            for(int j=0; j<NoContacts; ++j) {
+                Contact cont = all.findContactByUserId(Integer.parseInt(r[index++]));
+                if(cont != null) {
+                    on.contacts.add(cont);
+                }
+            }
+
+            ContactGroup off = ContactList.findContactGroupById(on.id);
+            if(off != null) {
+                // TODO ContactGroup: choose OFF or ON
+            }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT_GROUP | OnlineEntry.BASETYPE_DELETE, on.id)) {
+                groups.add(groups.size() - 1, on);
+            }
+        }
+    }
+
+    public static void synchronizeContactRequestsFromMySQL(String... r) {
+        contactRequests=new ArrayList<>();
+        for(int i=3; i<r.length; i+=4) {
+            contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
+        }
+    }
+/*
     protected static void setContactRequests(String... r) {
         contactRequests=new ArrayList<>();
         for(int i=3;i<r.length;i+=4) {
             contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
         }
     }
-
+/*
     protected static void updateContacts(String... r) {
         ContactGroup cg0=groups.get(groups.size()-1);
         boolean[] online = new boolean[cg0.contacts.size()];
@@ -88,7 +130,7 @@ public class ContactList {
             groups.add(groups.size()-1, grp);
         }
     }
-
+*/
     public static boolean isEmpty() {
         return (groups.get(groups.size() - 1).contacts.size() == 0);
     }
@@ -99,15 +141,6 @@ public class ContactList {
                 contactRequests.remove(i);
             }
         }
-    }
-
-    public static ContactRequest findContactRequestByUserId(int user_id) {
-        for(ContactRequest cont : contactRequests) {
-            if(cont.user_id == user_id) {
-                return cont;
-            }
-        }
-        return null;
     }
 
     protected static Contact findContactById(int contact_id) {

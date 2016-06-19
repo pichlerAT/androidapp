@@ -2,7 +2,6 @@ package fry.oldschool.data;
 
 import java.util.ArrayList;
 
-import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
@@ -54,8 +53,8 @@ public class Tasklist extends OnlineEntry implements Fryable {
     @Override
     protected boolean mysql() {
         String resp = getLine(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state);
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
+        if(resp != null) {
+            id = Integer.parseInt(resp);
             for(TasklistEntry ent : entries) {
                 ent.table_id = id;
                 ConnectionManager.add(ent);
@@ -93,15 +92,42 @@ public class Tasklist extends OnlineEntry implements Fryable {
         this.name = name;
         ConnectionManager.add(new Update(TYPE_TASKLIST,id));
     }
-
+/*
     public void loadShared() {
         ConnectionManager.add(new GetShared(id));
     }
-
+*/
     public ArrayList<ShareGroup> getShared() {
         ArrayList<ShareGroup> grpList = new ArrayList<>(ContactList.groups.size());
-        ContactGroup all = ContactList.groups.get(ContactList.groups.size()-1);
-        return null;
+        ContactGroup allc = ContactList.groups.get(ContactList.groups.size()-1);
+        ShareGroup alls = new ShareGroup(allc.name);
+
+        for(Contact cont : allc.contacts) {
+            Share s = new Share(id, cont);
+            alls.contacts.add(s);
+        }
+
+        for(Share s : sharedContacts) {
+            Share si = alls.findShareByUserId(s.user_id);
+            if(si != null) {
+                si.id = s.id;
+                si.permission = s.permission;
+            }
+        }
+
+        for(ContactGroup grpc : ContactList.groups) {
+            ShareGroup grps = new ShareGroup(grpc.name);
+            for(Contact cont : grpc.contacts) {
+                Share s = alls.findShareByUserId(cont.user_id);
+                if(s != null) {
+                    grps.contacts.add(s);
+                }
+            }
+            if(grps.contacts.size() > 0) {
+                grpList.add(grps);
+            }
+        }
+        return grpList;
     }
 
     public void addShare(Contact contact) {
@@ -206,9 +232,22 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public String getUpdateString() {
-        return ("&table_id="+id+"&name="+name+"&state="+state);
+        return ("&id=" + id + "&name=" + name + "&state=" + state);
     }
 
+    public boolean equals(Tasklist tl) {
+        if(state != tl.state || entries.size() != tl.entries.size() || !name.equals(tl.name)) {
+            return false;
+        }
+        for(int i=0; i<entries.size(); ++i) {
+            if(!entries.get(i).equals(tl.entries.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
     protected class GetShared extends OnlineEntry {
 
         protected GetShared(int table_id) {
@@ -238,5 +277,5 @@ public class Tasklist extends OnlineEntry implements Fryable {
         }
 
     }
-
+*/
 }

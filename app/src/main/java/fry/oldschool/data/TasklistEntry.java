@@ -45,8 +45,8 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
     @Override
     protected boolean mysql() {
         String resp = getLine(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
-        if(resp.substring(0,3).equals("suc")) {
-            id = Integer.parseInt(resp.substring(3));
+        if(resp != null) {
+            id = Integer.parseInt(resp);
             return true;
         }
         return false;
@@ -91,7 +91,11 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
     }
 
     public String getUpdateString() {
-        return ("&entry_id=" + id + "&description=" + description + "&state=" + state);
+        return ("&id=" + id + "&description=" + description + "&state=" + state);
+    }
+
+    public boolean equals(TasklistEntry ent) {
+        return (id == ent.id && table_id == ent.table_id && user_id == ent.user_id && state == ent.state && description.equals(ent.description));
     }
 
 }

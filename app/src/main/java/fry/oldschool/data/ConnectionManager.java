@@ -172,19 +172,10 @@ public class ConnectionManager {
 
         protected boolean sync_contact() {
             MySQL mysql = new MySQL();
-            ArrayList<String> resp = mysql.getLines(MySQL.DIR_CONTACT + "get.php","");
-            Iterator<String> it = resp.iterator();
-            if(it.hasNext()) {
-                String line = it.next();
-                if(line.substring(0,3).equals("suc")) {
-                    if(line.length() > 3) {
-                        ContactList.updateContacts(line.substring(3).split(MySQL.S));
-                    }
-                    while(it.hasNext()) {
-                        ContactList.updateContactGroup(it.next().split(MySQL.S));
-                    }
-                    return true;
-                }
+            String resp = mysql.getLine(MySQL.DIR_CONTACT + "get.php","");
+            if(resp != null) {
+                ContactList.synchronizeContactsFromMySQL(resp.split(MySQL.S));
+                return true;
             }
             return false;
         }
@@ -192,10 +183,8 @@ public class ConnectionManager {
         protected boolean sync_request() {
             MySQL mysql = new MySQL();
             String resp = mysql.getLine(MySQL.DIR_CONTACT_REQUEST + "get.php","");
-            if(resp.substring(0,3).equals("suc")) {
-                if(resp.length() > 3) {
-                    ContactList.setContactRequests(resp.substring(3).split(MySQL.S));
-                }
+            if(resp != null) {
+                ContactList.synchronizeContactRequestsFromMySQL(resp.split(MySQL.S));
                 return true;
             }
             return false;
@@ -203,13 +192,9 @@ public class ConnectionManager {
 
         protected boolean sync_tasklist() {
             MySQL mysql = new MySQL();
-            ArrayList<String> resp = mysql.getLines(MySQL.DIR_TASKLIST + "get.php","");
-            Iterator<String> it = resp.iterator();
-            if(it.hasNext() && it.next().equals("suc")) {
-                while(it.hasNext()) {
-                    TasklistManager.updateTasklists(it.next().split(MySQL.S));
-                }
-                return true;
+            String resp = mysql.getLine(MySQL.DIR_TASKLIST + "get.php","");
+            if(resp != null) {
+                TasklistManager.synchronizeTasklistsFromMySQL(resp.split(MySQL.S));
             }
             return false;
         }
