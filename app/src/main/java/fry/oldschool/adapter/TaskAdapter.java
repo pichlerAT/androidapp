@@ -26,20 +26,21 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.activity.TaskCreateActivity;
+import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.Contact;
-import fry.oldschool.utils.ContactGroup;
-import fry.oldschool.utils.TaskList;
-import fry.oldschool.utils.TaskListEntry;
+import fry.oldschool.data.Contact;
+import fry.oldschool.data.ContactGroup;
+import fry.oldschool.data.Tasklist;
+import fry.oldschool.data.TasklistEntry;
 
-public class TaskAdapter extends ArrayAdapter<TaskList>{
+public class TaskAdapter extends ArrayAdapter<Tasklist>{
 
-    public ArrayList<TaskList> list;
+    public ArrayList<Tasklist> list;
     protected Context ctx;
     protected ArrayList<Contact> childList = new ArrayList<>();
     protected ArrayList<ContactGroup> groupList = new ArrayList<>();
 
-    public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
+    public TaskAdapter(Context context, int resourceID, ArrayList<Tasklist> list){
         super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
@@ -49,7 +50,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
     }
 
     @Override
-    public TaskList getItem(int position){
+    public Tasklist getItem(int position){
         return list.get(position);
     }
 
@@ -63,7 +64,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         if (position < 0 || position >= list.size()) {
             return -1;
         }
-        TaskList item = getItem(position);
+        Tasklist item = getItem(position);
         return item.drag_id;
     }
 
@@ -82,7 +83,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
             res = convertView;
         }
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        final TaskList item = getItem(position);
+        final Tasklist item = getItem(position);
         final String headerText = item.name;
         header.setText(headerText);
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
@@ -90,7 +91,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
-                final TaskListEntry entry = item.entry.get(i);
+                final TasklistEntry entry = item.entries.get(i);
                 CheckBox cb = new CheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);
@@ -153,7 +154,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
                         else if (menuItem.getTitle().equals(App.mContext.getResources().getString(R.string.share))) {
                             View taskContactList = View.inflate(App.mContext, R.layout.fragment_task_contact_list, null);
                             ExpandableListView lv = (ExpandableListView) taskContactList.findViewById(R.id.listview_task_contact_id);
-                            final ContactAdapter adapter = new ContactAdapter(App.mContext, App.conLis.groups, true);
+                            final ContactAdapter adapter = new ContactAdapter(App.mContext, ContactList.groups, true);
                             lv.setAdapter(adapter);
 
                             for (int i=0; i<adapter.getGroupCount(); i++){

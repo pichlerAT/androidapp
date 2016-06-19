@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,9 +20,9 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
+import fry.oldschool.data.Tasklist;
+import fry.oldschool.data.TasklistEntry;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.TaskList;
-import fry.oldschool.utils.TaskListEntry;
 
 /**
  * Created by Edwin Pichler on 04.05.2016.
@@ -106,15 +105,15 @@ public class TaskCreateActivity extends mAppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(TaskList tdl : App.TaskLists){
+        for(Tasklist tdl : App.Tasklists){
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
             taskName.setText(tdl.name);
             layouts.add(taskView);
 
-            if (tdl.entry.size() > 0) {
-                for (TaskListEntry ent : tdl.entry) {
+            if (tdl.entries.size() > 0) {
+                for (TasklistEntry ent : tdl.entries) {
                     entryRow = new TableRow(ctx);
                     entryState = new CheckBox(ctx);
                     entryName = createEntryName();
@@ -143,14 +142,14 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == App.TaskLists.get(index)){
+            if (args != null && tdl == App.Tasklists.get(index)){
                 setCurrentPage(taskView);
             }
         }
 
     }
 
-    protected void taskList(TaskList task, int viewPage){
+    protected void taskList(Tasklist task, int viewPage){
         RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
 
@@ -158,8 +157,8 @@ public class TaskCreateActivity extends mAppCompatActivity{
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
-                task = TaskList.create(header.getText().toString());
-                App.TaskLists.add(task);
+                task = new Tasklist(header.getText().toString());
+                App.Tasklists.add(task);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -175,9 +174,9 @@ public class TaskCreateActivity extends mAppCompatActivity{
                     String entryText = edittext.getText().toString();
 
                     if (!entryText.isEmpty()) {
-                        TaskListEntry entry = null;
-                        if (task.entry.size() > i)
-                            entry = task.entry.get(i);
+                        TasklistEntry entry = null;
+                        if (task.entries.size() > i)
+                            entry = task.entries.get(i);
                         if (entry != null && (!entry.description.equals(entryText) || entry.isDone() != checkbox.isChecked()))
                             entry.change(entryText, checkbox.isChecked());
                         else if (entry == null)
@@ -199,7 +198,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
             position = adapter.getItemPosition(getCurrentPage()) -1;
 
         if (position >= 0) {
-            TaskList tdl = App.TaskLists.get(position);
+            Tasklist tdl = App.Tasklists.get(position);
             taskList(tdl, position+1);
         }
         else

@@ -1,6 +1,4 @@
-package fry.oldschool.utils;
-
-import android.os.AsyncTask;
+package fry.oldschool.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,27 +8,29 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public abstract class MySQL {
+public class MySQL {
+
+    protected static final String IP_ADDRESS = "193.81.40.139" ;
+
+    protected static final int PORT = 80;
+    protected static final String ADDRESS="http://"+IP_ADDRESS+":"+PORT+"/android/";
+
+    public static final String DIR_TASKLIST          = "tasklist/";
+    public static final String DIR_TASKLIST_ENTRY    = DIR_TASKLIST + "entry/";
+    public static final String DIR_TASKLIST_SHARE    = DIR_TASKLIST + "share/";
+    public static final String DIR_CONTACT           = "contact/";
+    public static final String DIR_CONTACT_GROUP     = DIR_CONTACT + "group/";
+    public static final String DIR_CONTACT_REQUEST   = DIR_CONTACT + "request/";
 
     public static final String S = "" + (char)0;
 
-    public static final String IP_ADDRESS = "93.82.47.101" ;
-
-    public static final int PORT = 80;
-
-    public static final String DIRECTORY = "android";
-
-    protected static final String ADDRESS="http://"+IP_ADDRESS+":"+PORT+"/"+DIRECTORY+"/";
-
     public static int USER_ID = 1;
-    //public static String USER_EMAIL = "fragner@gmx.net";
+    public static String USER_EMAIL = "fragner@gmx.net";
     public static String USER_PASSWORD = "1234";
 
     protected HttpURLConnection connection;
 
     protected OutputStreamWriter outputStreamWriter;
-
-    protected abstract boolean mysql();
 
     protected BufferedReader connect(String addr,String data) throws IOException {
         URL url = new URL(ADDRESS + addr);
@@ -95,7 +95,7 @@ public abstract class MySQL {
             return l;
         }
     }
-
+/*
     protected void error(String code) {
         (new Error()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -115,4 +115,5 @@ public abstract class MySQL {
             App.errorDialog("error",msg);
         }
     }
+    */
 }

@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fry.oldschool.R;
+import fry.oldschool.data.Contact;
+import fry.oldschool.data.ContactGroup;
+import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.Contact;
-import fry.oldschool.utils.ContactGroup;
 
 /**
  * Created by Edwin Pichler on 13.05.2016.
@@ -88,8 +89,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             deleteGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    App.conLis.groups.get(groupPosition).delete();
-                    contactGroupList = new ArrayList<>(App.conLis.groups);
+                    ContactList.groups.get(groupPosition).delete();
+                    contactGroupList = new ArrayList<>(ContactList.groups);
                     notifyDataSetChanged();
                 }
             });
@@ -142,8 +143,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     public void addGroup(String groupName){
         //Add group
-        App.conLis.createContactGroup(groupName);
-        contactGroupList = new ArrayList<>(App.conLis.groups);
+        ContactList.createContactGroup(groupName);
+        contactGroupList = new ArrayList<>(ContactList.groups);
         notifyDataSetChanged();
     }
 
@@ -153,8 +154,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     public void removeChilds(ArrayList<Contact> contacts){
         for (Contact contact : contacts){
-            App.conLis.deleteContact(contact);
-            contactGroupList = new ArrayList<ContactGroup>(App.conLis.groups);
+            ContactList.deleteContact(contact);
+            contactGroupList = new ArrayList<ContactGroup>(ContactList.groups);
         }
         notifyDataSetChanged();
     }
@@ -164,9 +165,9 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         if(!search.isEmpty()) {
             search = search.toLowerCase();
 
-            for (int i=0; i<App.conLis.groups.size(); i++){
+            for (int i=0; i<ContactList.groups.size(); i++){
                 ArrayList<Contact> newContacts = new ArrayList<Contact>();
-                for (Contact contact : App.conLis.groups.get(i).contacts) {
+                for (Contact contact : ContactList.groups.get(i).contacts) {
                     if (contact.name.toLowerCase().contains(search) || contact.email.toLowerCase().contains(search)) {
                         newContacts.add(contact);
                     }
@@ -179,7 +180,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             }
         }
         else{
-            contactGroupList = new ArrayList<>(App.conLis.groups);
+            contactGroupList = new ArrayList<>(ContactList.groups);
         }
         notifyDataSetChanged();
     }

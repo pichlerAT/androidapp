@@ -54,12 +54,12 @@
     <string name="assign_to_group">Assign to group</string>
     <string name="name_of_group">Name of group</string>
 
-    <!--              Time.class               -->
+    <!--                 Time                   -->
 
     <string name="time_am">AM</string>
     <string name="time_pm">PM</string>
 
-    <!--             Date.class                -->
+    <!--                 Date                   -->
 
     <string name="year_leapyear">Leap Year</string>
 
@@ -83,37 +83,5 @@
     <string name="weekday_fri">Friday</string>
     <string name="weekday_sat">Saturday</string>
     <string name="weekday_sun">Sunday</string>
-
-    <!--             local files                -->
-
-    <string name="file_settings">settings.txt</string>
-    <string name="file_sync">sync.txt</string>
-    <string name="file_tasklist">tasklist.txt</string>
-
-    <!--             MySQL.class                -->
-
-    <string name="err">Error: </string>
-    <string name="err_">An error occured</string>
-    <string name="err_con0">Error when trying to log in</string>
-    <string name="err_con1">User not found</string>
-    <string name="err_con2">Wrong password</string>
-    <string name="err_reg0">Error when trying to register: err_reg0</string>
-    <string name="err_reg1">email already in use</string>
-    <string name="err_reg2">Error when trying to register: err_reg2</string>
-    <string name="err_tc0">Error when trying to create the ToDoList: err_tc0</string>
-    <string name="err_tc1">Error when trying to create the ToDoList: err_tc1</string>
-    <string name="err_tu0">Error when trying to update the ToDoList: err_tu0</string>
-    <string name="err_tu1">Error when trying to update the ToDoList: err_tu1</string>
-    <string name="err_tg0">Unable to load ToDoList</string>
-    <string name="err_td0">Error when trying to delete the ToDoList: err_td0</string>
-    <string name="err_td1">Error when trying to delete the ToDoList: err_td1</string>
-    <string name="err_tec0">Error when trying to create entry: err_tec0</string>
-    <string name="err_tec1">Error when trying to create entry: err_tec1</string>
-    <string name="err_teu0">Error when trying to create entry: err_teu0</string>
-    <string name="err_teu1">Error when trying to create entry: err_teu1</string>
-    <string name="err_teg0">Error when trying to create entry: err_teg0</string>
-    <string name="err_teg1">Error when trying to create entry: err_teg1</string>
-    <string name="err_ted0">Error when trying to create entry: err_ted0</string>
-    <string name="err_ted1">Error when trying to create entry: err_ted1</string>
 
 </resources>

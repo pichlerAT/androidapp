@@ -14,7 +14,7 @@ public class Updater extends AsyncTask<String,String,String> {
     protected String doInBackground(String... params) {
         while(App.hasInternetConnection && update) {
 
-            //App.performUpdate();
+            App.performUpdate();
 
             try {
                 Thread.sleep(UPDATE_INTERVAL_TIME);

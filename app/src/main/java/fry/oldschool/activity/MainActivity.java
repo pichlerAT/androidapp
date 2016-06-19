@@ -11,7 +11,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import fry.oldschool.fragment.ContactFragment;
 import fry.oldschool.fragment.TaskFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.TaskList;
 
 public class MainActivity extends mAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

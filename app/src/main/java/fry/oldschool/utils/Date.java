@@ -31,7 +31,7 @@ public class Date {
         day = Integer.parseInt(r[0]);
     }
 
-    protected short getShort() {
+    public short getShort() {
         return (short)( day + (month<<5) + ( (year - YEAR_OFFSET)<<9 ) );
     }
 

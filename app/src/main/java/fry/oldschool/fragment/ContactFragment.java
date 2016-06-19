@@ -32,10 +32,10 @@ import java.util.ArrayList;
 import fry.oldschool.R;
 import fry.oldschool.activity.MainActivity;
 import fry.oldschool.adapter.ContactAdapter;
+import fry.oldschool.data.Contact;
+import fry.oldschool.data.ContactList;
+import fry.oldschool.data.MySQLListener;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.Contact;
-import fry.oldschool.utils.ContactGroup;
-import fry.oldschool.utils.MySQLListener;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.
@@ -54,12 +54,12 @@ public class ContactFragment extends Fragment{
         setHasOptionsMenu(true);
 
         childList = new ArrayList<>();
-        request_number = App.conLis.contactRequests.size();
+        request_number = ContactList.contactRequests.size();
 
         //ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
 
         final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
-        adapter = new ContactAdapter(App.mContext, App.conLis.groups, false);
+        adapter = new ContactAdapter(App.mContext, ContactList.groups, false);
 
         ViewTreeObserver vto = lv.getViewTreeObserver();
 
@@ -90,7 +90,7 @@ public class ContactFragment extends Fragment{
             @Override
             public void onItemCheckedStateChanged(ActionMode actionMode, int index, long l, boolean b) {
                 View v = lv.getChildAt(index);
-                String[] positions = ((String) v.getTag()).split(";");
+                String[] positions = ((String) v.getTag()).split(";"); // TODO NullPointerException: siehe Discord (bei onLongTouch auf Gruppe)
                 int groupPosition = Integer.parseInt(positions[0]);
                 int childPosition = Integer.parseInt(positions[1]);
                 //Vice versa because item is already checked before the if statement
@@ -155,8 +155,8 @@ public class ContactFragment extends Fragment{
                         View requestView = View.inflate(App.mContext, R.layout.fragment_contact_groupassign, null);
                         final LinearLayout layout = (LinearLayout) requestView.findViewById(R.id.linearlayout_contact_groupassign);
 
-                        for(int i=0; i < App.conLis.groups.size()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
-                            String groupName = App.conLis.groups.get(i).name;
+                        for(int i=0; i < ContactList.groups.size()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
+                            String groupName = ContactList.groups.get(i).name;
                             CheckBox cb = new CheckBox(App.mContext);
                             cb.setText(groupName);
                             layout.addView(cb);
@@ -171,7 +171,7 @@ public class ContactFragment extends Fragment{
                                     for (int j=0; j<layout.getChildCount(); j++){
                                         CheckBox cb = (CheckBox)layout.getChildAt(j);
                                         if(cb.isChecked()){
-                                            App.conLis.groups.get(j).addContacts(childList);
+                                            ContactList.groups.get(j).addContacts(childList);
                                         }
                                     }
                                     adapter.notifyDataSetChanged();
@@ -202,7 +202,7 @@ public class ContactFragment extends Fragment{
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (App.conLis == null){
+                if (ContactList.isEmpty()){
                     // Set 'No contacts found'
                 }
                 else{
@@ -284,7 +284,7 @@ public class ContactFragment extends Fragment{
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String email = ((EditText) requestView.findViewById(R.id.edittext_contact_email)).getText().toString();
                             if (!email.isEmpty())
-                                App.conLis.sendRequest(email);
+                                ContactList.sendRequest(email);
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

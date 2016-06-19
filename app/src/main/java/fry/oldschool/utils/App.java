@@ -12,9 +12,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import fry.oldschool.R;
+import fry.oldschool.data.ConnectionManager;
+import fry.oldschool.data.ContactGroup;
+import fry.oldschool.data.ContactList;
+import fry.oldschool.data.MySQL;
+import fry.oldschool.data.MySQLListener;
+import fry.oldschool.data.Tasklist;
+import fry.oldschool.data.TasklistManager;
 
 public class App extends Application {
 
@@ -28,19 +34,20 @@ public class App extends Application {
 
     public static Context appContext;
 
-    public static ArrayList<TaskList> TaskLists=new ArrayList<>();
-
-    public static ConnectionManager conMan = new ConnectionManager();
-
-    public static ContactList conLis;
+    public static ArrayList<Tasklist> Tasklists = new ArrayList<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
         appContext = this;
-        PERFORM_UPDATE = true;
+        init();
         load();
+        PERFORM_UPDATE = true;
         NetworkStateReciever.checkInternet();
+    }
+
+    public static void init() {
+        ContactList.groups.add(new ContactGroup("All Contacts"));
     }
 
     public static void setContext(Context mContext) {
@@ -48,7 +55,7 @@ public class App extends Application {
     }
 
     public static void setMySQLListener(MySQLListener mysql_Listener) {
-        conMan.setMySQLListener(mysql_Listener);
+        ConnectionManager.setMySQLListener(mysql_Listener);
     }
 
     public static void errorDialog(String title,String message) {
@@ -78,19 +85,7 @@ public class App extends Application {
 
     public static void performUpdate() {
         PERFORM_UPDATE = true;
-        conMan.sync();
-    }
-
-    public static void load() {
-        load_settings();
-        conMan.load();
-        TaskList.load();
-    }
-
-    public static void save() {
-        save_settings();
-        conMan.save();
-        TaskList.save();
+        ConnectionManager.sync();
     }
 
     public static void fragmentChanged(int id) {
@@ -101,64 +96,45 @@ public class App extends Application {
         }
     }
 
-    protected void delete_local_files() {
-        int[] files = {R.string.file_settings,R.string.file_sync,R.string.file_tasklist};
-        for(int i : files) {
-            File f = new File(appContext.getFilesDir(), appContext.getResources().getString(i));
-            f.delete();
-        }
-    }
-
-    public static void load_settings() {
+    public static void load() {
         try{
-            File file = new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings));
+            File file = new File(appContext.getFilesDir(),getFileName());
             if(!file.exists()) {
-                conLis = new ContactList();
                 return;
             }
 
             BufferedReader br=new BufferedReader(new FileReader(file));
 
-            String line=br.readLine();
-            if(line == null) {
-                conLis = new ContactList();
-                return;
-            }
-
-            conLis = new ContactList(line.split(MySQL.S));
-
-            while((line = br.readLine()) != null) {
-                conLis.groups.add(conLis.groups.size()-1,new ContactGroup(line));
-            }
+            ContactList.recieveLocalSaveString(br.readLine());
+            ConnectionManager.recieveLocalSaveString(br.readLine());
+            TasklistManager.recieveLocalSaveString(br.readLine());
+            //Timetable.recieveLocalSaveString(br.readLine().toCharArray());
 
         }catch (IOException ex) {
-            conLis=new ContactList();
             ex.printStackTrace();
         }
     }
 
-    public static void save_settings() {
+    public static void save() {
         try{
-            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(appContext.getFilesDir(),appContext.getResources().getString(R.string.file_settings))));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(appContext.getFilesDir(),getFileName())));
 
-            for(Contact c : conLis.groups.get(conLis.groups.size()-1).contacts ) {
-                bw.write(c.id + MySQL.S + c.user_id + MySQL.S + c.email + MySQL.S + c.name + MySQL.S);
-            }
-
-            Iterator<ContactGroup> it = conLis.groups.iterator();
-            if(it.hasNext()) {
-                ContactGroup g = it.next();
-                while(it.hasNext()) {
-                    bw.newLine();
-                    bw.write(g.id + MySQL.S + g.name + MySQL.S + g.getContactsString());
-                    g = it.next();
-                }
-            }
+            bw.write(ContactList.getLocalSaveString());
+            bw.newLine();
+            bw.write(ConnectionManager.getLocalSaveString());
+            bw.newLine();
+            bw.write(TasklistManager.getLocalSaveString());
+            //bw.newLine();
+            //bw.write(Timetable.getLocalSaveString());
 
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getFileName() {
+        return MySQL.USER_EMAIL.replace(".","_") + ".fry";
     }
 
     public static int pixelToDPScale(int dp){

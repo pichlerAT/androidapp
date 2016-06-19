@@ -1,4 +1,4 @@
-package fry.oldschool.utils;
+package fry.oldschool.data;
 
 public abstract class OnlineEntry extends Entry {
 

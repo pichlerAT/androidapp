@@ -1,4 +1,6 @@
-package fry.oldschool.utils;
+package fry.oldschool.data;
+
+import fry.oldschool.utils.App;
 
 public class TimetableCategory extends Entry {
 
@@ -10,7 +12,7 @@ public class TimetableCategory extends Entry {
 
     public static TimetableCategory create(String name) {
         TimetableCategory cat=new TimetableCategory(0,USER_ID,name);
-        App.conMan.add(cat);
+        ConnectionManager.add(cat);
         return cat;
     }
 
@@ -22,7 +24,8 @@ public class TimetableCategory extends Entry {
 
     @Override
     protected String getConManString() {
-        return TYPE_CALENDAR_CATEGORY + "" + id + ";" + user_id + ";" + name;
+        //return TYPE_CALENDAR_CATEGORY + "" + id + ";" + user_id + ";" + name;
+        return null;
     }
 
     @Override
@@ -35,32 +38,12 @@ public class TimetableCategory extends Entry {
             }
             return false;
         }
-        String resp = getLine("calendar/category/update.php","&category_id="+id+"&name="+name);
+        String resp = getLine("calendar/category/updateTasklists.php","&category_id="+id+"&name="+name);
         return resp.equals("suc");
     }
 
     public void delete() {
-        App.conMan.add(new Delete(id));
-    }
-
-    protected static class Delete extends Entry {
-
-        protected int id;
-
-        protected Delete(int id) {
-            this.id = id;
-        }
-
-        @Override
-        protected String getConManString() {
-            return TYPE_CALENDAR_CATEGORY_DELETE + "" + id;
-        }
-
-        @Override
-        protected boolean mysql() {
-            String resp = getLine("calendar/category/delete.php","&category_id="+id);
-            return resp.equals("suc");
-        }
+        //App.conMan.add(new Delete(Entry.TYPE_CALENDAR_CATEGORY_DELETE,id));
     }
 
     protected abstract static class Share extends Entry {

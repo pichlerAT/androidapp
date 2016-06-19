@@ -6,16 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import fry.oldschool.R;
-import fry.oldschool.utils.App;
-import fry.oldschool.utils.Contact;
-import fry.oldschool.utils.ContactRequest;
+import fry.oldschool.data.ContactRequest;
 
 /**
  * Created by Edwin Pichler on 21.05.2016.

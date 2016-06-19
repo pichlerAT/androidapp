@@ -11,10 +11,9 @@ import android.widget.TextView;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.ContactRequestAdapter;
-import fry.oldschool.adapter.TaskAdapter;
+import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.MySQLListener;
-import fry.oldschool.utils.TaskList;
+import fry.oldschool.data.MySQLListener;
 
 /**
  * Created by Edwin Pichler on 19.05.2016.
@@ -27,13 +26,13 @@ public class ContactRequestFragment extends Fragment{
         final View rootView = inflater.inflate(R.layout.fragment_contact_request, container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, App.conLis.contactRequests);
+        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, ContactList.contactRequests);
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (App.conLis.contactRequests.size() == 0){
+                if (ContactList.contactRequests.size() == 0){
                     TextView text = (TextView) rootView.findViewById(R.id.textview_contact_message);
                     text.setText("No contact requests available");
 
