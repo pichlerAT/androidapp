@@ -15,7 +15,7 @@ import fry.oldschool.data.ContactGroup;
 import fry.oldschool.data.ContactList;
 import fry.oldschool.data.MySQL;
 import fry.oldschool.data.MySQLListener;
-import fry.oldschool.data.TaskList;
+import fry.oldschool.data.Taskist;
 import fry.oldschool.data.TaskListManager;
 
 public class App extends Application {
@@ -30,7 +30,7 @@ public class App extends Application {
 
     public static Context appContext;
 
-    public static ArrayList<TaskList> Tasklists = new ArrayList<>();
+    public static ArrayList<Taskist> Tasklists = new ArrayList<>();
 
     @Override
     public void onCreate() {

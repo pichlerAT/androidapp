@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
-import fry.oldschool.data.TaskList;
+import fry.oldschool.data.Taskist;
 import fry.oldschool.data.TaskListEntry;
 import fry.oldschool.utils.App;
 
@@ -105,7 +105,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(TaskList tdl : App.Tasklists){
+        for(Taskist tdl : App.Tasklists){
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
@@ -149,7 +149,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
     }
 
-    protected void taskList(TaskList task, int viewPage){
+    protected void taskList(Taskist task, int viewPage){
         RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
 
@@ -157,7 +157,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
-                task = TaskList.create(header.getText().toString());
+                task = Taskist.create(header.getText().toString());
                 App.Tasklists.add(task);
             }
 
@@ -198,7 +198,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
             position = adapter.getItemPosition(getCurrentPage()) -1;
 
         if (position >= 0) {
-            TaskList tdl = App.Tasklists.get(position);
+            Taskist tdl = App.Tasklists.get(position);
             taskList(tdl, position+1);
         }
         else

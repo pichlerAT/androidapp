@@ -30,17 +30,17 @@ import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
 import fry.oldschool.data.Contact;
 import fry.oldschool.data.ContactGroup;
-import fry.oldschool.data.TaskList;
+import fry.oldschool.data.Taskist;
 import fry.oldschool.data.TaskListEntry;
 
-public class TaskAdapter extends ArrayAdapter<TaskList>{
+public class TaskAdapter extends ArrayAdapter<Taskist>{
 
-    public ArrayList<TaskList> list;
+    public ArrayList<Taskist> list;
     protected Context ctx;
     protected ArrayList<Contact> childList = new ArrayList<>();
     protected ArrayList<ContactGroup> groupList = new ArrayList<>();
 
-    public TaskAdapter(Context context, int resourceID, ArrayList<TaskList> list){
+    public TaskAdapter(Context context, int resourceID, ArrayList<Taskist> list){
         super(context, resourceID, list);
         this.list = list;
         this.ctx = context;
@@ -50,7 +50,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
     }
 
     @Override
-    public TaskList getItem(int position){
+    public Taskist getItem(int position){
         return list.get(position);
     }
 
@@ -64,7 +64,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
         if (position < 0 || position >= list.size()) {
             return -1;
         }
-        TaskList item = getItem(position);
+        Taskist item = getItem(position);
         return item.drag_id;
     }
 
@@ -83,7 +83,7 @@ public class TaskAdapter extends ArrayAdapter<TaskList>{
             res = convertView;
         }
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
-        final TaskList item = getItem(position);
+        final Taskist item = getItem(position);
         final String headerText = item.name;
         header.setText(headerText);
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);

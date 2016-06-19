@@ -43,7 +43,7 @@ public class Update extends OfflineEntry {
             return new String[]{DIR_TASKLIST_ENTRY + "update.php", ent.getUpdateString()};
 
         }else if((type & TYPE_TASKLIST) > 0) {
-            TaskList tl = TaskListManager.findTasklistById(id);
+            Taskist tl = TaskListManager.findTasklistById(id);
             if (tl == null) {
                 return null;
             }
