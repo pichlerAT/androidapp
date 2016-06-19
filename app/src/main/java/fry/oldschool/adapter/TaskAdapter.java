@@ -31,7 +31,7 @@ import fry.oldschool.utils.App;
 import fry.oldschool.data.Contact;
 import fry.oldschool.data.ContactGroup;
 import fry.oldschool.data.Tasklist;
-import fry.oldschool.data.TaskListEntry;
+import fry.oldschool.data.TaskistEntry;
 
 public class TaskAdapter extends ArrayAdapter<Tasklist>{
 
@@ -91,7 +91,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
-                final TaskListEntry entry = item.entries.get(i);
+                final TaskistEntry entry = item.entries.get(i);
                 CheckBox cb = new CheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);

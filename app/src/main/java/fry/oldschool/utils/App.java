@@ -16,7 +16,7 @@ import fry.oldschool.data.ContactList;
 import fry.oldschool.data.MySQL;
 import fry.oldschool.data.MySQLListener;
 import fry.oldschool.data.Tasklist;
-import fry.oldschool.data.TaskListManager;
+import fry.oldschool.data.TaskistManager;
 
 public class App extends Application {
 
@@ -111,7 +111,7 @@ public class App extends Application {
             }
 
             if(fry.readNextLine()) {
-                TaskListManager.readFrom(fry);
+                TaskistManager.readFrom(fry);
             }
 
         }catch (IOException ex) {
@@ -128,7 +128,7 @@ public class App extends Application {
         ConnectionManager.writeTo(fry);
         fry.newLine();
 
-        TaskListManager.writeTo(fry);
+        TaskistManager.writeTo(fry);
         fry.newLine();
 
         try {

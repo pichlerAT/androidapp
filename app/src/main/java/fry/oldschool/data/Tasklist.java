@@ -16,7 +16,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
 
     public String name;
 
-    public ArrayList<TaskListEntry> entries = new ArrayList<>();
+    public ArrayList<TaskistEntry> entries = new ArrayList<>();
 
     public ArrayList<Share> sharedContacts = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
         String resp = getLine(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state);
         if(resp.substring(0,3).equals("suc")) {
             id = Integer.parseInt(resp.substring(3));
-            for(TaskListEntry ent : entries) {
+            for(TaskistEntry ent : entries) {
                 ent.table_id = id;
                 ConnectionManager.add(ent);
             }
@@ -144,12 +144,12 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public void addEntry(String task,boolean state) {
-        TaskListEntry ent = new TaskListEntry(task,state);
+        TaskistEntry ent = new TaskistEntry(task,state);
         entries.add(ent);
     }
 
     public void addEntry(int index,String task,boolean state) {
-        TaskListEntry ent = new TaskListEntry(task,state);
+        TaskistEntry ent = new TaskistEntry(task,state);
         entries.add(index,ent);
     }
 
@@ -180,7 +180,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public void delete(int index) {
-        TaskListEntry ent = entries.remove(index);
+        TaskistEntry ent = entries.remove(index);
         ConnectionManager.add(new Delete(TYPE_TASKLIST, ent.id));
     }
 
@@ -189,7 +189,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
             return "n";
         }
         String s = "";
-        for(TaskListEntry e : entries) {
+        for(TaskistEntry e : entries) {
             s += e.id + S + e.user_id + S + e.description + S + e.state + S;
         }
         return s;

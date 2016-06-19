@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
 
-public class TaskListManager {
+public class TaskistManager {
 
     public static ArrayList<Tasklist> TasklistBackup;
 
@@ -24,7 +24,7 @@ public class TaskListManager {
 
             int NoEntries = file.getChar();
             for(int j=0; j<NoEntries; ++j) {
-                tl.entries.add(new TaskListEntry(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
+                tl.entries.add(new TaskistEntry(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
             }
 
             App.Tasklists.add(tl);
@@ -39,7 +39,7 @@ public class TaskListManager {
 
             int NoEntries = file.getChar();
             for(int j=0; j<NoEntries; ++j) {
-                tl.entries.add(TaskListEntry.createBackup(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
+                tl.entries.add(TaskistEntry.createBackup(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
             }
 
             TasklistBackup.add(tl);
@@ -55,7 +55,7 @@ public class TaskListManager {
 
         Tasklist tl_on = new Tasklist(id,Integer.parseInt(r[1]),Byte.parseByte(r[2]),r[3]);
         for(int i=7; i<r.length; i+=4) {
-            TaskListEntry e = new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),Byte.parseByte(r[i]),r[i-1]);
+            TaskistEntry e = new TaskistEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),Byte.parseByte(r[i]),r[i-1]);
             tl_on.entries.add(e);
         }
         if(tl_off == null) {
@@ -75,9 +75,9 @@ public class TaskListManager {
         return null;
     }
 
-    protected static TaskListEntry findTasklistEntryById(int id) {
+    protected static TaskistEntry findTasklistEntryById(int id) {
         for(Tasklist t : App.Tasklists) {
-            for(TaskListEntry e : t.entries) {
+            for(TaskistEntry e : t.entries) {
                 if(e.id == id) {
                     return e;
                 }

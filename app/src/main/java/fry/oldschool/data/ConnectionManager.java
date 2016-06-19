@@ -207,7 +207,7 @@ public class ConnectionManager {
             Iterator<String> it = resp.iterator();
             if(it.hasNext() && it.next().equals("suc")) {
                 while(it.hasNext()) {
-                    TaskListManager.updateTasklists(it.next().split(MySQL.S));
+                    TaskistManager.updateTasklists(it.next().split(MySQL.S));
                 }
                 return true;
             }

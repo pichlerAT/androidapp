@@ -36,14 +36,14 @@ public class Update extends OfflineEntry {
             return new String[]{DIR_CONTACT_GROUP + "update.php",grp.getUpdateString()};
 
         }else if((type & TYPE_TASKLIST_ENTRY) > 0) {
-            TaskListEntry ent = TaskListManager.findTasklistEntryById(id);
+            TaskistEntry ent = TaskistManager.findTasklistEntryById(id);
             if (ent == null) {
                 return null;
             }
             return new String[]{DIR_TASKLIST_ENTRY + "update.php", ent.getUpdateString()};
 
         }else if((type & TYPE_TASKLIST) > 0) {
-            Tasklist tl = TaskListManager.findTasklistById(id);
+            Tasklist tl = TaskistManager.findTasklistById(id);
             if (tl == null) {
                 return null;
             }
