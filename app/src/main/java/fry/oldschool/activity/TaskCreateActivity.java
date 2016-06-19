@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
 import fry.oldschool.data.Tasklist;
-import fry.oldschool.data.TaskistEntry;
+import fry.oldschool.data.TasklistEntry;
 import fry.oldschool.utils.App;
 
 /**
@@ -113,7 +113,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
             layouts.add(taskView);
 
             if (tdl.entries.size() > 0) {
-                for (TaskistEntry ent : tdl.entries) {
+                for (TasklistEntry ent : tdl.entries) {
                     entryRow = new TableRow(ctx);
                     entryState = new CheckBox(ctx);
                     entryName = createEntryName();
@@ -174,7 +174,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
                     String entryText = edittext.getText().toString();
 
                     if (!entryText.isEmpty()) {
-                        TaskistEntry entry = null;
+                        TasklistEntry entry = null;
                         if (task.entries.size() > i)
                             entry = task.entries.get(i);
                         if (entry != null && (!entry.description.equals(entryText) || entry.isDone() != checkbox.isChecked()))
