@@ -7,7 +7,7 @@ import fry.oldschool.utils.FryFile;
 
 public class TaskListManager {
 
-    public static ArrayList<Taskist> TasklistBackup;
+    public static ArrayList<Tasklist> TasklistBackup;
 
     public static void writeTo(FryFile file) {
         file.write(App.Tasklists.toArray());
@@ -20,7 +20,7 @@ public class TaskListManager {
         int NoTasklists = file.getChar();
         for(int i=0; i<NoTasklists; ++i) {
             int table_id = file.getInt();
-            Taskist tl = new Taskist(table_id,file.getInt(),file.getByte(),file.getString());
+            Tasklist tl = new Tasklist(table_id,file.getInt(),file.getByte(),file.getString());
 
             int NoEntries = file.getChar();
             for(int j=0; j<NoEntries; ++j) {
@@ -35,7 +35,7 @@ public class TaskListManager {
         NoTasklists = file.getChar();
         for(int i=0; i<NoTasklists; ++i) {
             int table_id = file.getInt();
-            Taskist tl = Taskist.createBackup(table_id,file.getInt(),file.getByte(),file.getString());
+            Tasklist tl = Tasklist.createBackup(table_id,file.getInt(),file.getByte(),file.getString());
 
             int NoEntries = file.getChar();
             for(int j=0; j<NoEntries; ++j) {
@@ -51,9 +51,9 @@ public class TaskListManager {
         if(ConnectionManager.hasEntry(OnlineEntry.TYPE_TASKLIST | OnlineEntry.BASETYPE_DELETE, id)) {
             return;
         }
-        Taskist tl_off = findTasklistById(id);
+        Tasklist tl_off = findTasklistById(id);
 
-        Taskist tl_on = new Taskist(id,Integer.parseInt(r[1]),Byte.parseByte(r[2]),r[3]);
+        Tasklist tl_on = new Tasklist(id,Integer.parseInt(r[1]),Byte.parseByte(r[2]),r[3]);
         for(int i=7; i<r.length; i+=4) {
             TaskListEntry e = new TaskListEntry(Integer.parseInt(r[i-3]),id,Integer.parseInt(r[i-2]),Byte.parseByte(r[i]),r[i-1]);
             tl_on.entries.add(e);
@@ -66,8 +66,8 @@ public class TaskListManager {
         }
     }
 
-    protected static Taskist findTasklistById(int id) {
-        for(Taskist t : App.Tasklists) {
+    protected static Tasklist findTasklistById(int id) {
+        for(Tasklist t : App.Tasklists) {
             if(t.id == id) {
                 return t;
             }
@@ -76,7 +76,7 @@ public class TaskListManager {
     }
 
     protected static TaskListEntry findTasklistEntryById(int id) {
-        for(Taskist t : App.Tasklists) {
+        for(Tasklist t : App.Tasklists) {
             for(TaskListEntry e : t.entries) {
                 if(e.id == id) {
                     return e;

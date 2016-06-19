@@ -6,7 +6,7 @@ import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class Taskist extends OnlineEntry implements Fryable {
+public class Tasklist extends OnlineEntry implements Fryable {
 
     public int drag_id;
 
@@ -20,19 +20,19 @@ public class Taskist extends OnlineEntry implements Fryable {
 
     public ArrayList<Share> sharedContacts = new ArrayList<>();
 
-    public static Taskist create(String name) {
-        return new Taskist(0,USER_ID,(byte)0,name);
+    public static Tasklist create(String name) {
+        return new Tasklist(0,USER_ID,(byte)0,name);
     }
 
-    public static Taskist createBackup(int id, int user_id, byte state, String name) {
-        Taskist tl = new Taskist(id);
+    public static Tasklist createBackup(int id, int user_id, byte state, String name) {
+        Tasklist tl = new Tasklist(id);
         tl.user_id = user_id;
         tl.state = state;
         tl.name = name;
         return tl;
     }
 
-    public Taskist(int id, int user_id, byte state, String name) {
+    public Tasklist(int id, int user_id, byte state, String name) {
         this.type = TYPE_TASKLIST;
         this.id = id;
         this.user_id = user_id;
@@ -43,7 +43,7 @@ public class Taskist extends OnlineEntry implements Fryable {
         }
     }
 
-    public Taskist(int id) {
+    public Tasklist(int id) {
         this.id = id;
     }
 

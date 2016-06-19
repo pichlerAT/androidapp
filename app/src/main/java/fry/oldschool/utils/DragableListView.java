@@ -24,7 +24,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import fry.oldschool.adapter.TaskAdapter;
-import fry.oldschool.data.Taskist;
+import fry.oldschool.data.Tasklist;
 
 /**
  * Created by Edwin Pichler on 11.06.2016.
@@ -61,7 +61,7 @@ public class DragableListView extends ListView {
     private boolean mIsWaitingForScrollFinish = false;
     private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-    private Taskist mTask;
+    private Tasklist mTask;
     private int mPositionFrom;
     private int mPositionTo;
 
@@ -302,7 +302,7 @@ public class DragableListView extends ListView {
 
     }
 
-    private void swapElements(ArrayList<Taskist> taskLists, int originalItem, int positionForView) {
+    private void swapElements(ArrayList<Tasklist> taskLists, int originalItem, int positionForView) {
         mTask = taskLists.get(originalItem);
         taskLists.set(originalItem, taskLists.get(positionForView));
         taskLists.set(positionForView, mTask);
