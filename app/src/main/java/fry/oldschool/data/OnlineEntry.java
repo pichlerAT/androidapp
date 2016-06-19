@@ -22,19 +22,17 @@ public abstract class OnlineEntry extends MySQL {
 
     public static final char TYPE_TASKLIST_ENTRY    = 0x0100;
 
+    public static final char TYPE_CALENDAR          = 0x0200;
+
+    public static final char TYPE_CALENDAR_CATEGORY = 0x0400;
+
+    public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
+
+
     protected char type;
 
     protected int id;
 
     protected abstract boolean mysql();
 
-/*
-    @Override
-    protected String getConManString() {
-        return null;
-    }
-
-    @Override
-    public void writeTo(SaveFile file) { }
-*/
 }

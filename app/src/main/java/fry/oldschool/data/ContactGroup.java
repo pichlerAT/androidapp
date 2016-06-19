@@ -57,7 +57,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
         return uids;
     }
 
-    public String getContactsString() { // TODO convert int to char
+    public String getContactsString() {
         if(contacts.size() == 0) {
             return "n";
         }

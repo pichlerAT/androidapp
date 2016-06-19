@@ -2,11 +2,11 @@ package fry.oldschool.data;
 
 public class Share extends OnlineEntry {
 
-    public static final byte PERMISSION_VIEW = 0;
+    public static final byte PERMISSION_VIEW = 1;
 
-    public static final byte PERMISSION_EDIT = 1;
+    public static final byte PERMISSION_EDIT = 2;
 
-    public static final byte PERMISSION_MORE = 2;
+    public static final byte PERMISSION_MORE = 3;
 
     protected byte permission;
 
