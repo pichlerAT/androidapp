@@ -7,7 +7,7 @@ import fry.oldschool.utils.FryFile;
 
 public class TasklistManager {
 
-    public static ArrayList<Tasklist> TasklistBackup;
+    public static ArrayList<Tasklist> TasklistBackup = new ArrayList<>();
 
     public static void writeTo(FryFile file) {
         file.write(App.Tasklists.toArray());
@@ -60,9 +60,28 @@ public class TasklistManager {
         }
         if(tl_off == null) {
             App.Tasklists.add(tl_on);
+            TasklistBackup.add(Tasklist.createBackup(tl_on));
         }else {
             // TODO Update: take offline or online data?
 
+        }
+    }
+
+    public static void addTasklist(Tasklist tl) {
+        App.Tasklists.add(tl);
+        TasklistBackup.add(Tasklist.createBackup(tl));
+    }
+
+    public static void removeTasklist(int id) {
+        for(int i=0; i<App.Tasklists.size(); ++i) {
+            if(App.Tasklists.get(i).id == id) {
+                App.Tasklists.remove(i);
+            }
+        }
+        for(int i=0; i<TasklistBackup.size(); ++i) {
+            if(TasklistBackup.get(i).id == id) {
+                TasklistBackup.remove(i);
+            }
         }
     }
 

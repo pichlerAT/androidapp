@@ -32,6 +32,10 @@ public class Tasklist extends OnlineEntry implements Fryable {
         return tl;
     }
 
+    public static Tasklist createBackup(Tasklist tl) {
+        return createBackup(tl.id, tl.user_id, tl.state, tl.name);
+    }
+
     public Tasklist(int id, int user_id, byte state, String name) {
         this.type = TYPE_TASKLIST;
         this.id = id;
@@ -92,6 +96,12 @@ public class Tasklist extends OnlineEntry implements Fryable {
 
     public void loadShared() {
         ConnectionManager.add(new GetShared(id));
+    }
+
+    public ArrayList<ShareGroup> getShared() {
+        ArrayList<ShareGroup> grpList = new ArrayList<>(ContactList.groups.size());
+        ContactGroup all = ContactList.groups.get(ContactList.groups.size()-1);
+        return null;
     }
 
     public void addShare(Contact contact) {
@@ -175,7 +185,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public void delete() {
-        App.Tasklists.remove(this);
+        TasklistManager.removeTasklist(id);
         ConnectionManager.add(new Delete(TYPE_TASKLIST,id));
     }
 
