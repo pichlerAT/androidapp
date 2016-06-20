@@ -81,7 +81,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
         if(isOwner()) {
             return null;
         }
-        return ContactList.findContactById(user_id);
+        return ContactList.getContactByUserId(user_id);
     }
 
     public boolean isDone() {
@@ -92,11 +92,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
         this.name = name;
         ConnectionManager.add(new Update(TYPE_TASKLIST,id));
     }
-/*
-    public void loadShared() {
-        ConnectionManager.add(new GetShared(id));
-    }
-*/
+
     public ArrayList<ShareGroup> getShared() {
         ArrayList<ShareGroup> grpList = new ArrayList<>(ContactList.groups.size());
         ContactGroup allc = ContactList.groups.get(ContactList.groups.size()-1);
@@ -247,35 +243,4 @@ public class Tasklist extends OnlineEntry implements Fryable {
         return true;
     }
 
-    /*
-    protected class GetShared extends OnlineEntry {
-
-        protected GetShared(int table_id) {
-            this.id = id;
-        }
-
-        @Override
-        protected boolean mysql() {
-            String resp = getLine(DIR_TASKLIST_SHARE + "get.php","&table_id="+id);
-
-            if(!resp.substring(0,3).equals("suc")) {
-                return false;
-            }
-
-            String[] r = resp.substring(3).split(S);
-            sharedContacts = new ArrayList<>();
-            for(int i=2;i<r.length;i+=3) {
-                Contact c = ContactList.findContactByUserId(Integer.parseInt(r[i-1]));
-                if(c != null) {
-                    sharedContacts.add(new Share(TYPE_TASKLIST,Integer.parseInt(r[i-2]),Byte.parseByte(r[i]),c));
-                }
-            }
-
-            sharedContacts.get(0).allowEdit(true);
-
-            return true;
-        }
-
-    }
-*/
 }

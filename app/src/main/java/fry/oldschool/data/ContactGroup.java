@@ -47,19 +47,28 @@ public class ContactGroup extends OnlineEntry implements Fryable {
     public void writeTo(FryFile file) {
         file.write(id);
         file.write(name);
-        file.write(getUserIdArray());
+
+        int[] uids = new int[contacts.size()];
+        for(int i=0; i<uids.length; ++i) {
+            uids[i] = contacts.get(i).user_id;
+        }
+        file.write(uids);
     }
 
     protected String getUpdateString() {
         return ("&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
     }
 
-    public int[] getUserIdArray() {
-        int[] uids = new int[contacts.size()];
-        for(int i=0; i<uids.length; ++i) {
-            uids[i] = contacts.get(i).user_id;
+    public boolean equals(ContactGroup grp) {
+        if(grp.id != id || grp.contacts.size()!=contacts.size() || !grp.name.equals(name)) {
+            return false;
         }
-        return uids;
+        for(int i=0; i<grp.contacts.size(); ++i) {
+            if(grp.contacts.get(i).user_id != contacts.get(i).user_id) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getContactsString() {
@@ -70,16 +79,16 @@ public class ContactGroup extends OnlineEntry implements Fryable {
         return s;
     }
 
-    public Contact findContactById(int id) {
-        for(Contact c : contacts) {
-            if(c.id == id) {
-                return c;
+    public int getContactIndexByUserId(int user_id) {
+        for(int i=0; i<contacts.size(); ++i) {
+            if(contacts.get(i).user_id == user_id) {
+                return i;
             }
         }
-        return null;
+        return -1;
     }
 
-    public Contact findContactByUserId(int user_id) {
+    public Contact getContactByUserId(int user_id) {
         for(Contact c : contacts) {
             if(c.user_id == user_id) {
                 return c;
@@ -101,7 +110,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
 
     public void addContacts(ArrayList<Contact> contacts) {
         for(Contact c : contacts) {
-            if(findContactById(c.id) == null) {
+            if(getContactByUserId(c.user_id) == null) {
                 this.contacts.add(c);
             }
         }

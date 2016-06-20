@@ -3,7 +3,6 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
-import fry.oldschool.utils.Fryable;
 
 public class ContactList {
 
@@ -30,7 +29,7 @@ public class ContactList {
 
             NoContacts = file.getChar();
             for(int j=0; j<NoContacts; ++j) {
-                Contact cont = findContactById(file.getInt());
+                Contact cont = all.getContactByUserId(file.getInt());
                 if(cont != null) {
                     grp.contacts.add(cont);
                 }
@@ -40,20 +39,33 @@ public class ContactList {
 
     public static void synchronizeContactsFromMySQL(String... r) {
         ContactGroup all = groups.get(groups.size() - 1);
+        boolean[] offIsOn = new boolean[all.contacts.size()];
         int index = 0;
 
         int NoContacts = Integer.parseInt(r[index++]);
         for(int i=0; i<NoContacts; ++i) {
             Contact on = new Contact(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++],r[index++]);
-            Contact off = all.findContactByUserId(on.user_id);
+            int off_index = all.getContactIndexByUserId(on.user_id);
 
-            if(off != null) {
+            if(off_index >= 0) {
+                offIsOn[off_index] = true;
+                Contact off = all.contacts.get(off_index);
                 off.email = on.email;
                 off.name = on.name;
             }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT | OnlineEntry.BASETYPE_DELETE, on.id)) {
                 all.contacts.add(on);
             }
         }
+        for(int i=offIsOn.length-1; i>=0; --i) {
+            if(!offIsOn[i]) {
+                all.contacts.remove(i);
+            }
+        }
+
+        offIsOn = new boolean[groups.size()-1];
+        ContactGroup[] onBackup = new ContactGroup[groups.size()-1];
+        int[] onIndex = new int[groups.size()-1];
+        int lastIndex = 0;
 
         int NoContactGroups = Integer.parseInt(r[index++]);
         for(int i=0; i<NoContactGroups; ++i) {
@@ -61,17 +73,35 @@ public class ContactList {
 
             NoContacts = Integer.parseInt(r[index++]);
             for(int j=0; j<NoContacts; ++j) {
-                Contact cont = all.findContactByUserId(Integer.parseInt(r[index++]));
+                Contact cont = all.getContactByUserId(Integer.parseInt(r[index++]));
                 if(cont != null) {
                     on.contacts.add(cont);
                 }
             }
 
-            ContactGroup off = ContactList.findContactGroupById(on.id);
-            if(off != null) {
-                // TODO ContactGroup: choose OFF or ON
+            int off_index = getContactGroupIndexById(on.id);
+            if(off_index >= 0) {
+                offIsOn[off_index] = true;
+                ContactGroup off = groups.get(off_index);
+                if(!off.equals(on)) {
+                    onBackup[lastIndex] = on;
+                    onIndex[lastIndex] = off_index;
+                    ++lastIndex;
+                }
             }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT_GROUP | OnlineEntry.BASETYPE_DELETE, on.id)) {
                 groups.add(groups.size() - 1, on);
+            }
+        }
+        // TODO accept online or offline?
+        /*
+        if(acceptOnline) ->
+        for(int i=0; i<lastIndex; ++i) {
+            groups.set(onIndex[i],onBackup[i]);
+        }
+        */
+        for(int i=offIsOn.length-1; i>=0; --i) {
+            if(!offIsOn[i] && groups.get(i).id != 0) {
+                groups.remove(i);
             }
         }
     }
@@ -82,55 +112,7 @@ public class ContactList {
             contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
         }
     }
-/*
-    protected static void setContactRequests(String... r) {
-        contactRequests=new ArrayList<>();
-        for(int i=3;i<r.length;i+=4) {
-            contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
-        }
-    }
-/*
-    protected static void updateContacts(String... r) {
-        ContactGroup cg0=groups.get(groups.size()-1);
-        boolean[] online = new boolean[cg0.contacts.size()];
-        int onlineIndex = 0;
-        for(int i=3; i<r.length; i+=4) {
-            int id = Integer.parseInt(r[i-3]);
-            Contact cont = cg0.findContactById(id);
-            if(cont == null) {
-                if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT | OnlineEntry.BASETYPE_DELETE,id)) {
-                    cont = new Contact(id, Integer.parseInt(r[i-2]), r[i-1], r[i]);
-                    cg0.contacts.add(cont);
-                }
-            }else {
-                cont.email = r[i-1];
-                cont.name = r[i];
-                online[onlineIndex++] = true;
-            }
-        }
-        for(int i=online.length-1;i>=0;--i) {
-            if(!online[i]) {
-                cg0.contacts.remove(i);
-            }
-        }
-    }
 
-    protected static void updateContactGroup(String... r) {
-        int id = Integer.parseInt(r[0]);
-        if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT_GROUP | OnlineEntry.BASETYPE_DELETE,id)) {
-            ContactGroup grp = new ContactGroup(id,r[1],new ArrayList<Contact>());
-            if(!r[2].equals("n")) {
-                for (int i = 2; i < r.length; ++i) {
-                    Contact cont = findContactByUserId(Integer.parseInt(r[i]));
-                    if (cont != null) {
-                        grp.contacts.add(cont);
-                    }
-                }
-            }
-            groups.add(groups.size()-1, grp);
-        }
-    }
-*/
     public static boolean isEmpty() {
         return (groups.get(groups.size() - 1).contacts.size() == 0);
     }
@@ -143,15 +125,20 @@ public class ContactList {
         }
     }
 
-    protected static Contact findContactById(int contact_id) {
-        return groups.get(groups.size()-1).findContactById(contact_id);
+    public static int getContactGroupIndexById(int group_id) {
+        for(int i=0; i<groups.size(); ++i) {
+            if(groups.get(i).id == group_id) {
+                return i;
+            }
+        }
+        return -1;
     }
 
-    protected static Contact findContactByUserId(int user_id) {
-        return groups.get(groups.size()-1).findContactByUserId(user_id);
+    protected static Contact getContactByUserId(int user_id) {
+        return groups.get(groups.size()-1).getContactByUserId(user_id);
     }
 
-    protected static ContactGroup findContactGroupById(int group_id) {
+    protected static ContactGroup getContactGroupById(int group_id) {
         for(ContactGroup g : groups) {
             if(g.id == group_id) {
                 return g;

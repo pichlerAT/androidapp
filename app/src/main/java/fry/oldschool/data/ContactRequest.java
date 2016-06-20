@@ -43,11 +43,11 @@ public class ContactRequest {
             String resp = getLine(DIR_CONTACT_REQUEST + "send.php", "&contact_email=" + email);
             if(resp != null) {
                 if(resp.equals("err_crs1")) {
-                    // TODO user not found
+                    // TODO Edwin: user not found
                 }else if(resp.equals("err_crs2")) {
-                    // TODO contact already exists
+                    // TODO Edwin: contact already exists
                 }else if(resp.equals("err_crs3")) {
-                    // TODO contact request already exists
+                    // TODO Edwin: contact request already exists
                 }else {
                     return true;
                 }

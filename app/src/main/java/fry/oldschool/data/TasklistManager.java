@@ -48,6 +48,7 @@ public class TasklistManager {
 
     public static void synchronizeTasklistsFromMySQL(String... r) {
         int index = 0;
+        boolean[] isOnline = new boolean[App.Tasklists.size()];
         while(index < r.length) {
             Tasklist on = new Tasklist(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),Byte.parseByte(r[index++]),r[index++]);
 
@@ -67,9 +68,12 @@ public class TasklistManager {
             int off_index = getTasklistIndexById(on.id);
 
             if(off_index >= 0) {
+                isOnline[off_index] = true;
                 Tasklist backup = TasklistBackup.remove(findBackupTasklistIndexById(on.id));
                 if(on.equals(backup)) {
-                    // TODO upload tasklist
+                    Tasklist off = App.Tasklists.get(off_index);
+                    ConnectionManager.add(off);
+                    TasklistBackup.add(off);
                 }else {
                     App.Tasklists.set(off_index,on);
                     TasklistBackup.add(Tasklist.createBackup(on));
@@ -77,6 +81,11 @@ public class TasklistManager {
             }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_TASKLIST | OnlineEntry.BASETYPE_DELETE, on.id)) {
                 App.Tasklists.add(on);
                 TasklistBackup.add(Tasklist.createBackup(on));
+            }
+        }
+        for(int i=isOnline.length-1; i>=0; --i) {
+            if(!isOnline[i] && App.Tasklists.get(i).id != 0) {
+                App.Tasklists.remove(i);
             }
         }
     }
@@ -90,37 +99,6 @@ public class TasklistManager {
         return -1;
     }
 
-/*
-    protected static void updateTasklists(String... r) {
-        int id = Integer.parseInt(r[0]);
-        if(ConnectionManager.hasEntry(OnlineEntry.TYPE_TASKLIST | OnlineEntry.BASETYPE_DELETE, id)) {
-            return;
-        }
-        Tasklist tl_off = findTasklistById(id);
-
-        Tasklist tl_on = new Tasklist(id,Integer.parseInt(r[1]),Byte.parseByte(r[2]),r[3]);
-        int index = 5;
-
-        int NoEntries = Integer.parseInt(r[4]);
-        for(int i=0; i<NoEntries; ++i) {
-            TasklistEntry e = new TasklistEntry(Integer.parseInt(r[index++]),id,Integer.parseInt(r[index++]),Byte.parseByte(r[index++]),r[index++]);
-            tl_on.entries.add(e);
-        }
-
-        int NoShares = Integer.parseInt(r[index++]);
-        for (int i = 0; i < NoShares; ++i) {
-            Share s = new Share(Integer.parseInt(r[index++]), id, Integer.parseInt(r[index++]), Byte.parseByte(r[index++]));
-            tl_on.sharedContacts.add(s);
-        }
-
-        if(tl_off == null) {
-            App.Tasklists.add(tl_on);
-            TasklistBackup.add(Tasklist.createBackup(tl_on));
-        }else {
-            // TODO Update: take offline or online data?
-        }
-    }
-*/
     public static void removeTasklist(int id) {
         for(int i=0; i<App.Tasklists.size(); ++i) {
             if(App.Tasklists.get(i).id == id) {

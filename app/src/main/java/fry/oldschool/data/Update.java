@@ -24,7 +24,7 @@ public class Update extends OfflineEntry {
     public String[] getAddressData() {
 
         if((type & TYPE_CONTACT_GROUP) > 0) {
-            ContactGroup grp = ContactList.findContactGroupById(id);
+            ContactGroup grp = ContactList.getContactGroupById(id);
             if(grp == null) {
                 return null;
             }

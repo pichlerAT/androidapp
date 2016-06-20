@@ -87,7 +87,7 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         if(isOwner()) {
             return null;
         }
-        return ContactList.findContactByUserId(user_id);
+        return ContactList.getContactByUserId(user_id);
     }
 
     public String getUpdateString() {
