@@ -4,20 +4,16 @@ public class DateTime {
 
     public Date date;
 
-    public Time.Short time;
+    public Time time;
 
     public DateTime(short date,short time) {
         this.date = new Date(date);
-        this.time = new Time.Short(time);
+        this.time = new Time(time);
     }
 
-    public DateTime(Date date,Time.Short time) {
+    public DateTime(Date date,Time time) {
         this.date = date.copy();
         this.time = time.copy();
-    }
-
-    public void add(int time) {
-        date.add(this.time.add(time));
     }
 
     public String getString() {
@@ -27,4 +23,13 @@ public class DateTime {
     public DateTime copy() {
         return new DateTime(date,time);
     }
+
+    public boolean smallerThen(DateTime dt) {
+        return (!date.greaterThen(dt.date) && time.time < dt.time.time);
+    }
+
+    public boolean greaterThen(DateTime dt) {
+        return (!date.smallerThen(dt.date) && time.time > dt.time.time);
+    }
+
 }

@@ -28,7 +28,4 @@ public class Contact implements Fryable {
         file.write(name);
     }
 
-    public boolean equals(Share share) {
-        return ( share.user_id == user_id );
-    }
 }

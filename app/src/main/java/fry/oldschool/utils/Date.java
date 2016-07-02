@@ -6,6 +6,10 @@ public class Date {
 
     public static final int YEAR_OFFSET = 2000;
 
+    public static Date getToday() {
+        return new Date(28,6,2016);
+    }
+
     protected int day;
 
     protected int month;
@@ -26,9 +30,17 @@ public class Date {
 
     public Date(String date) {
         String[] r = date.split("-");
-        year = Integer.parseInt(r[2]);
-        month = Integer.parseInt(r[1]);
         day = Integer.parseInt(r[0]);
+        month = Integer.parseInt(r[1]);
+        year = Integer.parseInt(r[2]);
+    }
+
+    public boolean smallerThen(Date date) {
+        return (year < date.year && month < date.month && day < date.day);
+    }
+
+    public boolean greaterThen(Date date) {
+        return (year > date.year && month > date.month && day > date.day);
     }
 
     public short getShort() {

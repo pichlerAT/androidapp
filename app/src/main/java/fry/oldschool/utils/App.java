@@ -17,6 +17,9 @@ import fry.oldschool.data.MySQL;
 import fry.oldschool.data.MySQLListener;
 import fry.oldschool.data.Tasklist;
 import fry.oldschool.data.TasklistManager;
+import fry.oldschool.data.Timetable;
+import fry.oldschool.data.TimetableCategory;
+import fry.oldschool.data.TimetableEntry;
 
 public class App extends Application {
 
@@ -88,7 +91,29 @@ public class App extends Application {
         switch(id) {
             case R.id.nav_contacts: break;
             case R.id.nav_tasks: break;
-            case R.id.nav_timetable: break;
+            case R.id.nav_timetable:
+                System.out.println("::::: ------- Categories -------");
+                for(TimetableCategory c : Timetable.categories) {
+                    System.out.println("::::: "+c.name+"["+c.id+"]");
+                }
+                System.out.println("::::: -------  Entries   -------");
+                for(TimetableEntry e : Timetable.getEntries()) {
+                    System.out.println(":::::"+e.title+"["+e.id+"], cat="+e.category_id);
+                }
+                System.out.println("::::: --------------------------");
+
+/*
+                Time time = new Time(60*12);
+                DateTime datetime= new DateTime(Date.getToday(),time);
+                time = new Time(58);
+
+                TimetableCategory cat = TimetableCategory.create("off cat");
+
+                TimetableEntry.create("test1","te1dis",datetime,time,(byte)0,cat);
+                TimetableEntry.create("test2","blablabla",datetime,time,(byte)0,cat);
+*/
+
+                break;
         }
     }
 
@@ -100,19 +125,12 @@ public class App extends Application {
             }
 
             FryFile fry = new FryFile();
-            fry.load(file);
+            fry.loadUTF8(file);
 
-            if(fry.readNextLine()) {
-                ContactList.readFrom(fry);
-            }
-
-            if(fry.readNextLine()) {
-                ConnectionManager.readFrom(fry);
-            }
-
-            if(fry.readNextLine()) {
-                TasklistManager.readFrom(fry);
-            }
+            ContactList.readFrom(fry);
+            ConnectionManager.readFrom(fry);
+            TasklistManager.readFrom(fry);
+            Timetable.readFrom(fry);
 
         }catch (IOException ex) {
             ex.printStackTrace();
@@ -123,16 +141,12 @@ public class App extends Application {
         FryFile fry = new FryFile();
 
         ContactList.writeTo(fry);
-        fry.newLine();
-
         ConnectionManager.writeTo(fry);
-        fry.newLine();
-
         TasklistManager.writeTo(fry);
-        fry.newLine();
+        Timetable.writeTo(fry);
 
         try {
-            fry.save(new File(App.appContext.getFilesDir(),getFileName()));
+            fry.saveUTF8(new File(App.appContext.getFilesDir(),getFileName()));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

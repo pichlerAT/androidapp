@@ -96,17 +96,29 @@ public class Share extends OnlineEntry {
 
     protected String getFileUrl(char type) {
         if((type & BASETYPE_CREATE) > 0) {
-            if((type & TYPE_TASKLIST) > 0) {
-                return (DIR_TASKLIST_SHARE + "create.php");
-            }
+            return (getPathUrl(type) + "create.php");
+
         }else if((type & BASETYPE_DELETE) > 0) {
-            if((type & TYPE_TASKLIST) > 0) {
-                return (DIR_TASKLIST_SHARE + "delete.php");
-            }
+            return (getPathUrl(type) + "update.php");
+
         }else if((type & BASETYPE_UPDATE) > 0) {
-            if ((type & TYPE_TASKLIST) > 0) {
-                return (DIR_TASKLIST_SHARE + "update.php");
-            }
+            return (getPathUrl(type) + "delete.php");
+        }
+        return null;
+    }
+
+    protected String getPathUrl(char type) {
+        if((type & TYPE_TASKLIST) > 0) {
+            return DIR_TASKLIST_SHARE;
+
+        }else if((type & TYPE_CALENDAR) > 0) {
+            return DIR_CALENDAR_SHARE;
+
+        }else if((type & TYPE_CALENDAR_CATEGORY) > 0) {
+            return DIR_CALENDAR_CATEGORY_SHARE;
+
+        }else if((type & TYPE_CALENDAR_ENTRY) > 0) {
+            return DIR_CALENDAR_ENTRY_SHARE;
         }
         return null;
     }

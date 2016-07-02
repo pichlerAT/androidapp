@@ -9,17 +9,23 @@ import java.net.URL;
 
 public class MySQL {
 
-    protected static final String IP_ADDRESS = "212.183.125.199" ;
+    protected static final String IP_ADDRESS = "193.81.52.23" ;
     protected static final int PORT = 80;
 
     protected static final String ADDRESS="http://" + IP_ADDRESS + ":" + PORT + "/android/";
 
-    public static final String DIR_TASKLIST          =                "tasklist/";
-    public static final String DIR_TASKLIST_ENTRY    = DIR_TASKLIST + "entry/";
-    public static final String DIR_TASKLIST_SHARE    = DIR_TASKLIST + "share/";
-    public static final String DIR_CONTACT           =                "contact/";
-    public static final String DIR_CONTACT_GROUP     = DIR_CONTACT +  "group/";
-    public static final String DIR_CONTACT_REQUEST   = DIR_CONTACT +  "request/";
+    public static final String DIR_TASKLIST                 =                         "tasklist/"  ;
+    public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"     ;
+    public static final String DIR_TASKLIST_SHARE           = DIR_TASKLIST          + "share/"     ;
+    public static final String DIR_CONTACT                  =                         "contact/"   ;
+    public static final String DIR_CONTACT_GROUP            = DIR_CONTACT           + "group/"     ;
+    public static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"   ;
+    public static final String DIR_CALENDAR                 =                         "calendar/"  ;
+    public static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"     ;
+    public static final String DIR_CALENDAR_CATEGORY        = DIR_CALENDAR          + "category/"  ;
+    public static final String DIR_CALENDAR_CATEGORY_SHARE  = DIR_CALENDAR_CATEGORY + "share/"     ;
+    public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"     ;
+    public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"     ;
 
     public static final String S = "" + (char)0;
 
@@ -44,7 +50,7 @@ public class MySQL {
             if(line == null) {
                 return "";
             }
-            if(line.substring(0,4).equals("err_")) {
+            if(line.length()>3 && line.substring(0,4).equals("err_")) {
                 return null;
             }
             if(line.contains("<br")) {

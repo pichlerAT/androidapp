@@ -1,93 +1,79 @@
 package fry.oldschool.data;
 
+import java.util.ArrayList;
+
 import fry.oldschool.utils.FryFile;
 
 public class TimetableCategory extends OfflineEntry {
 
-    protected int id;
+    public int user_id;
 
-    protected int user_id;
+    public String name;
 
-    protected String name;
+    public ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
 
     public static TimetableCategory create(String name) {
-        TimetableCategory cat=new TimetableCategory(0,USER_ID,name);
-        ConnectionManager.add(cat);
+        TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
+        Timetable.categories.add(cat);
         return cat;
     }
 
     protected TimetableCategory(int id,int user_id,String name) {
+        type = TYPE_CALENDAR_CATEGORY;
         this.id = id;
         this.user_id = user_id;
         this.name = name;
+        if(id == 0) {
+            ConnectionManager.add(this);
+        }
     }
 
     @Override
     protected boolean mysql() {
-        if(id == 0) {
-            String resp = getLine("calendar/category/create.php","&name="+name);
-            if(resp.substring(0,3).equals("suc")) {
-                id = Integer.parseInt(resp.substring(3));
-                return true;
+        String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php","&name=" + name);
+        if(resp != null) {
+            id = Integer.parseInt(resp);
+            for(int i=offline_entries.size()-1; i>=0; --i) {
+                TimetableEntry ent = offline_entries.remove(i);
+                ent.category_id = id;
+                ConnectionManager.add(ent);
             }
-            return false;
+            return true;
         }
-        String resp = getLine("calendar/category/updateTasklists.php","&category_id="+id+"&name="+name);
-        return resp.equals("suc");
-    }
-
-    public void delete() {
-        //App.conMan.add(new Delete(Entry.TYPE_CALENDAR_CATEGORY_DELETE,id));
+        return false;
     }
 
     @Override
     public void writeTo(FryFile file) {
-
+        file.write(id);
+        file.write(user_id);
+        file.write(name);
+        file.write(offline_entries.toArray());
     }
 
-    protected abstract static class Share extends OfflineEntry {
+    public void addOfflineEntry(TimetableEntry entry) {
+        offline_entries.add(entry);
+    }
 
-        protected int contact_id;
+    public String getUpdateString() {
+        return ("&category_id=" + id + "&name=" + name);
+    }
 
-        protected int category_id;
+    public void shareWith(Contact cont) {
+        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, id, cont));
+    }
 
-        protected Share(int contact_id,int category_id) {
-            this.contact_id = contact_id;
-            this.category_id = category_id;
-        }
+    public void shareWith(Contact cont, byte permission) {
+        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, id, permission, cont));
+    }
 
-        @Override
-        public void writeTo(FryFile file) {
+    public void rename(String name) {
+        this.name = name;
+        ConnectionManager.add(new Update(TYPE_CALENDAR_CATEGORY, id));
+    }
 
-        }
-
-        protected static class Create extends Share {
-
-            protected Create(int contact_id,int category_id) {
-                super(contact_id,category_id);
-            }
-
-            @Override
-            protected boolean mysql() {
-                String resp = getLine("calendar/category/share/create.php","&category_id="+contact_id+"&category_id="+category_id);
-                return resp.equals("suc");
-            }
-
-        }
-
-        protected static class Delete extends Share {
-
-            protected Delete(int contact_id,int category_id) {
-                super(contact_id,category_id);
-            }
-
-            @Override
-            protected boolean mysql() {
-                String resp = getLine("calendar/category/share/delete.php","&category_id="+contact_id+"&category_id="+category_id);
-                return resp.equals("suc");
-            }
-
-        }
+    public void delete() {
+        ConnectionManager.add(new Delete(TYPE_CALENDAR_CATEGORY, id));
     }
 
 }

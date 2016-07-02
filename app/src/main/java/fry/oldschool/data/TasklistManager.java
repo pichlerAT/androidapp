@@ -84,7 +84,7 @@ public class TasklistManager {
             }
         }
         for(int i=isOnline.length-1; i>=0; --i) {
-            if(!isOnline[i] && App.Tasklists.get(i).id != 0) {
+            if(!isOnline[i] && App.Tasklists.get(i).id > 0) {
                 App.Tasklists.remove(i);
             }
         }
@@ -121,7 +121,7 @@ public class TasklistManager {
         return -1;
     }
 
-    protected static Tasklist findTasklistById(int id) {
+    protected static Tasklist getTasklistById(int id) {
         for(Tasklist t : App.Tasklists) {
             if(t.id == id) {
                 return t;
@@ -130,7 +130,7 @@ public class TasklistManager {
         return null;
     }
 
-    protected static TasklistEntry findTasklistEntryById(int id) {
+    protected static TasklistEntry getTasklistEntryById(int id) {
         for(Tasklist t : App.Tasklists) {
             for(TasklistEntry e : t.entries) {
                 if(e.id == id) {

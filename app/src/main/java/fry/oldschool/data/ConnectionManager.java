@@ -3,7 +3,6 @@ package fry.oldschool.data;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.NetworkStateReciever;
@@ -14,6 +13,8 @@ public class ConnectionManager {
     protected static boolean sync_contact = false;
 
     protected static boolean sync_requests = false;
+
+    protected static boolean sync_calendar = false;
 
     protected static boolean sync_tasklist = false;
 
@@ -29,27 +30,35 @@ public class ConnectionManager {
         mysql_listener = listener;
     }
 
-    protected static void add(OnlineEntry entry) {
-        online_entries.add(entry);
-        sync();
+    public static void add(OnlineEntry entry) {
+        if(entry.id == 0 || !hasOnlineEntry(entry.type, entry.id)) {
+            online_entries.add(entry);
+            sync();
+        }
     }
 
-    protected static void add(OfflineEntry entry) {
-        offline_entries.add(entry);
-        sync();
+    public static void add(OfflineEntry entry) {
+        if(entry.id == 0 || !hasOfflineEntry(entry.type, entry.id)) {
+            offline_entries.add(entry);
+            sync();
+        }
     }
 
     protected static void notifyMySQLListener() {
         (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static boolean hasEntry(int type,int id) {
+    public static boolean hasOnlineEntry(int type,int id) {
         for(int i=0; i<online_entries.size(); ++i) {
             OnlineEntry ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
                 return true;
             }
         }
+        return false;
+    }
+
+    public static boolean hasOfflineEntry(int type,int id) {
         for(int i=0; i<offline_entries.size(); ++i) {
             OnlineEntry ent = offline_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
@@ -59,15 +68,19 @@ public class ConnectionManager {
         return false;
     }
 
-    protected static boolean remove(OnlineEntry entry) {
+    public static boolean hasEntry(int type,int id) {
+        return (hasOfflineEntry(type,id) || hasOnlineEntry(type,id));
+    }
+
+    public static boolean remove(OnlineEntry entry) {
         return online_entries.remove(entry);
     }
 
-    protected static boolean remove(OfflineEntry entry) {
+    public static boolean remove(OfflineEntry entry) {
         return offline_entries.remove(entry);
     }
 
-    protected static void remove(char type,int id) {
+    public static void remove(char type,int id) {
         for(int i=0; i<online_entries.size(); ++i) {
             OnlineEntry ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
@@ -90,21 +103,25 @@ public class ConnectionManager {
         }
     }
 
-    public static void writeTo(FryFile file) {
-        file.write(offline_entries.toArray());
+    public static void writeTo(FryFile fry) {
+        fry.write((char)offline_entries.size());
+        for(OfflineEntry ent : offline_entries) {
+            fry.write(ent.type);
+            fry.write(ent.id);
+        }
     }
 
-    public static void readFrom(FryFile file) {
-        int NoEntries = file.getChar();
+    public static void readFrom(FryFile fry) {
+        int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            OfflineEntry ent = OfflineEntry.create(file.getChar(),file.getInt());
+            OfflineEntry ent = OfflineEntry.create(fry.getChar(),fry.getInt());
             if(ent != null) {
                 offline_entries.add(ent);
             }
         }
     }
 
-    protected static class NotifyListener extends AsyncTask<String,String,String> {
+    public static class NotifyListener extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... args) {
@@ -119,7 +136,7 @@ public class ConnectionManager {
         }
     }
 
-    protected static class Sync extends AsyncTask<String,String,String> {
+    public static class Sync extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -157,6 +174,7 @@ public class ConnectionManager {
                 App.PERFORM_UPDATE = false;
                 sync_contact = true;
                 sync_requests = true;
+                sync_calendar = true;
                 sync_tasklist = true;
             }
             if(sync_contact) {
@@ -164,6 +182,9 @@ public class ConnectionManager {
             }
             if(sync_requests) {
                 sync_requests = !sync_request();
+            }
+            if(sync_calendar) {
+                sync_calendar = sync_calendar();
             }
             if(sync_tasklist) {
                 sync_tasklist = !sync_tasklist();
@@ -186,6 +207,15 @@ public class ConnectionManager {
             if(resp != null) {
                 ContactList.synchronizeContactRequestsFromMySQL(resp.split(MySQL.S));
                 return true;
+            }
+            return false;
+        }
+
+        protected boolean sync_calendar() {
+            MySQL mysql = new MySQL();
+            String resp = mysql.getLine(MySQL.DIR_CALENDAR + "get.php","");
+            if(resp != null) {
+                Timetable.synchronizeFromMySQL(resp.split(MySQL.S));
             }
             return false;
         }

@@ -12,7 +12,7 @@ public class Update extends OfflineEntry {
     @Override
     protected boolean mysql() {
         String[] data = getAddressData();
-        return (getLine(data[0],data[1]) != null);
+        return (getLine(data[0] + "update.php", data[1]) != null);
     }
 
     @Override
@@ -28,22 +28,35 @@ public class Update extends OfflineEntry {
             if(grp == null) {
                 return null;
             }
-            return new String[]{DIR_CONTACT_GROUP + "update.php",grp.getUpdateString()};
+            return new String[]{DIR_CONTACT_GROUP,grp.getUpdateString()};
 
         }else if((type & TYPE_TASKLIST_ENTRY) > 0) {
-            TasklistEntry ent = TasklistManager.findTasklistEntryById(id);
+            TasklistEntry ent = TasklistManager.getTasklistEntryById(id);
             if (ent == null) {
                 return null;
             }
-            return new String[]{DIR_TASKLIST_ENTRY + "update.php", ent.getUpdateString()};
+            return new String[]{DIR_TASKLIST_ENTRY, ent.getUpdateString()};
 
         }else if((type & TYPE_TASKLIST) > 0) {
-            Tasklist tl = TasklistManager.findTasklistById(id);
+            Tasklist tl = TasklistManager.getTasklistById(id);
             if (tl == null) {
                 return null;
             }
-            return new String[]{DIR_TASKLIST + "update.php", tl.getUpdateString()};
+            return new String[]{DIR_TASKLIST, tl.getUpdateString()};
 
+        }else if((type & TYPE_CALENDAR_CATEGORY) > 0) {
+            TimetableCategory cat = Timetable.getCategoryById(id);
+            if(cat == null) {
+                return null;
+            }
+            return new String[]{DIR_CALENDAR_CATEGORY, cat.getUpdateString()};
+
+        }else if((type & TYPE_CALENDAR_ENTRY) > 0) {
+            TimetableEntry ent = Timetable.getEntryById(id);
+            if(ent == null) {
+                return null;
+            }
+            return new String[]{DIR_CALENDAR_ENTRY, ent.getUpdateString()};
         }
         return null;
     }

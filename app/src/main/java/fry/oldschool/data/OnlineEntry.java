@@ -31,7 +31,7 @@ public abstract class OnlineEntry extends MySQL {
 
     protected char type;
 
-    protected int id;
+    public int id;
 
     protected abstract boolean mysql();
 
