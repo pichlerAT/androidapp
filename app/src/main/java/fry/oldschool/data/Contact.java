@@ -42,6 +42,7 @@ public class Contact implements Fryable, Searchable {
     @Override
     public boolean search(String... keyWords) {
         for(String keyWord : keyWords) {
+            String name = this.name.toLowerCase();
             if(name.contains(keyWord)) {
                 return true;
             }
