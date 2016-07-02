@@ -12,30 +12,24 @@ public class Timetable {
 
     protected static ArrayList<TimetableEntry> entries = new ArrayList<>();
 
-
-
     public static void writeTo(FryFile file) {
         file.write(categories.toArray());
         file.write(entries.toArray());
     }
 
-    public static void readFrom(FryFile file) {
-        int NoCategories = file.getChar();
+    public static void readFrom(FryFile fry) {
+        int NoCategories = fry.getChar();
         for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory(file.getInt(),file.getInt(),file.getString());
-
-            int NoOffEntries = file.getChar();
-            for(int k=0; k<NoOffEntries; ++k) {
-                cat.offline_entries.add(new TimetableEntry(file.getInt(),file.getInt(),file.getInt(),file.getString(),file.getString(),
-                        file.getShort(),file.getShort(),file.getInt(),file.getByte()));
-            }
-
+            TimetableCategory cat = new TimetableCategory();
+            cat.readFrom(fry);
             categories.add(cat);
         }
 
-        int NoEntries = file.getChar();
+        int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            entries.add(new TimetableEntry(file.getInt(),file.getInt(),file.getInt(),file.getString(),file.getString(),file.getShort(),file.getShort(),file.getInt(),file.getByte()));
+            TimetableEntry ent = new TimetableEntry();
+            ent.readFrom(fry);
+            entries.add(ent);
         }
     }
 

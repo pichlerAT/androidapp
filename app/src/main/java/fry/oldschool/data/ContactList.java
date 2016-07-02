@@ -3,6 +3,7 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.SearchableList;
 
 public class ContactList {
 
@@ -11,29 +12,25 @@ public class ContactList {
     public static ArrayList<ContactRequest> contactRequests=new ArrayList<>();
 
     public static void writeTo(FryFile file) {
-        file.write(groups.get(groups.size()-1).contacts.toArray());
+        file.write(groups.get(groups.size()-1).contacts);
         file.write(groups.subList(0,groups.size()-1).toArray());
     }
 
-    public static void readFrom(FryFile file) {
+    public static void readFrom(FryFile fry) {
         ContactGroup all = groups.get(groups.size() - 1);
 
-        int NoContacts = file.getChar();
+        int NoContacts = fry.getChar();
         for(int i=0; i<NoContacts; ++i) {
-            all.contacts.add(new Contact(file.getInt(),file.getInt(),file.getString(),file.getString()));
+            Contact cont = new Contact();
+            cont.readFrom(fry);
+            all.contacts.add(cont);
         }
 
-        int NoContactGroups = file.getChar();
+        int NoContactGroups = fry.getChar();
         for(int i=0; i<NoContactGroups; ++i) {
-            ContactGroup grp = new ContactGroup(file.getInt(),file.getString());
-
-            NoContacts = file.getChar();
-            for(int j=0; j<NoContacts; ++j) {
-                Contact cont = all.getContactByUserId(file.getInt());
-                if(cont != null) {
-                    grp.contacts.add(cont);
-                }
-            }
+            ContactGroup grp = new ContactGroup();
+            grp.readFrom(fry);
+            groups.add(grp);
         }
     }
 
@@ -159,7 +156,13 @@ public class ContactList {
     }
 
     public static void createContactGroup(String name) {
-        ContactGroup grp=new ContactGroup(0,name,new ArrayList<Contact>());
+        ContactGroup grp=new ContactGroup(0,name,new SearchableList<Contact>());
         groups.add(groups.size()-1,grp);
+    }
+
+    public static void search(String... keyWords) {
+        for(ContactGroup grp : groups) {
+            grp.contacts.search(keyWords);
+        }
     }
 }

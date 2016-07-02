@@ -1,5 +1,6 @@
 package fry.oldschool.data;
 
+import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
 public abstract class OfflineEntry extends OnlineEntry implements Fryable {
@@ -11,6 +12,18 @@ public abstract class OfflineEntry extends OnlineEntry implements Fryable {
             return new Delete(type,id);
         }
         return null;
+    }
+
+    @Override
+    public void writeTo(FryFile fry) {
+        fry.write(type);
+        fry.write(id);
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        type = fry.getChar();
+        id = fry.getInt();
     }
 
 }

@@ -1,6 +1,5 @@
 package fry.oldschool.data;
 
-import fry.oldschool.utils.FryFile;
 
 public class Update extends OfflineEntry {
 
@@ -13,12 +12,6 @@ public class Update extends OfflineEntry {
     protected boolean mysql() {
         String[] data = getAddressData();
         return (getLine(data[0] + "update.php", data[1]) != null);
-    }
-
-    @Override
-    public void writeTo(FryFile file) {
-        file.write(type);
-        file.write(id);
     }
 
     public String[] getAddressData() {

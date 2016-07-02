@@ -1,9 +1,10 @@
 package fry.oldschool.utils;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Collection;
 
-public class SearchableList<E> {
+public class SearchableList<E> extends AbstractList<E> {
 
     protected int length;
 
@@ -27,7 +28,7 @@ public class SearchableList<E> {
         showItems = new Searchable[minLength];
     }
 
-    public SearchableList(ArrayList<? extends E> items) {
+    public SearchableList(Collection<? extends E> items) {
         baseItems = (Searchable[])items.toArray();
         length = baseItems.length;
         showLength = length;
@@ -97,10 +98,12 @@ public class SearchableList<E> {
         return length;
     }
 
-    public int length() {
+    @Override
+    public int size() {
         return showLength;
     }
 
+    @Override
     public boolean isEmpty() {
         return (length == 0);
     }
@@ -109,6 +112,7 @@ public class SearchableList<E> {
         return (indexOfBase(o) >= 0);
     }
 
+    @Override
     public boolean contains(Object o) {
         return (indexOf(o) >= 0);
     }
@@ -130,6 +134,7 @@ public class SearchableList<E> {
         return -1;
     }
 
+    @Override
     public int indexOf(Object o) {
         if(o == null) {
             for(int i=0; i<showLength; ++i) {
@@ -164,6 +169,7 @@ public class SearchableList<E> {
         return -1;
     }
 
+    @Override
     public int lastIndexOf(Object o) {
         if(o == null) {
             for(int i=showLength-1; i>=0; --i) {
@@ -181,6 +187,7 @@ public class SearchableList<E> {
         return -1;
     }
 
+    @Override
     public SearchableList<E> clone() {
         try {
             @SuppressWarnings("unchecked")
@@ -208,13 +215,15 @@ public class SearchableList<E> {
         return baseItems(index);
     }
 
+    @Override
     public E get(int index) {
         rangeCheckShow(index);
 
         return showItems(index);
     }
 
-    public void add(E item) {
+    @Override
+    public boolean add(E item) {
         ensureCapacity(length + 1);
 
         baseItems[length] = (Searchable) item;
@@ -222,6 +231,8 @@ public class SearchableList<E> {
         ++length;
 
         updateSearchItems();
+
+        return true;
     }
 
     public void addToBase(int index, E item) {
@@ -234,13 +245,15 @@ public class SearchableList<E> {
         updateSearchItems();
     }
 
+    @Override
     public void add(int index, E item) {
         rangeCheckShow(index);
         ensureCapacity(length + 1);
         addToBase(indexOfBase(showItems[index]), item);
     }
 
-    public boolean remove(E item) {
+    @Override
+    public boolean remove(Object item) {
         int index = indexOfBase(item);
         if(index < 0) {
             return false;
@@ -265,6 +278,7 @@ public class SearchableList<E> {
         return item;
     }
 
+    @Override
     public E remove(int index) {
         rangeCheckShow(index);
         return removeFromBase(indexOfBase(showItems[index]));
@@ -281,6 +295,7 @@ public class SearchableList<E> {
         return old;
     }
 
+    @Override
     public E set(int index, E item) {
         rangeCheckShow(index);
         return setBase(indexOfBase(showItems[index]), item);
@@ -313,10 +328,14 @@ public class SearchableList<E> {
             return;
         }
 
-        searchText = Arrays.copyOf(keyWords, keyWords.length);
+        searchText = new String[keyWords.length];
+        for(int i=0; i<keyWords.length; ++i) {
+            searchText[i] = keyWords[i].toLowerCase();
+        }
+
         showLength = 0;
         for(int i=0; i<length; ++i) {
-            if(baseItems[i].search(keyWords)) {
+            if(baseItems[i].search(searchText)) {
                 showItems[showLength++] = baseItems[i];
             }
         }

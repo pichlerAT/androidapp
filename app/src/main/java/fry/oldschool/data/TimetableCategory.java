@@ -3,8 +3,9 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
 
-public class TimetableCategory extends OfflineEntry {
+public class TimetableCategory extends OnlineEntry implements Fryable {
 
     public int user_id;
 
@@ -17,6 +18,8 @@ public class TimetableCategory extends OfflineEntry {
         Timetable.categories.add(cat);
         return cat;
     }
+
+    protected TimetableCategory() { }
 
     protected TimetableCategory(int id,int user_id,String name) {
         type = TYPE_CALENDAR_CATEGORY;
@@ -44,11 +47,25 @@ public class TimetableCategory extends OfflineEntry {
     }
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(user_id);
-        file.write(name);
-        file.write(offline_entries.toArray());
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(user_id);
+        fry.write(name);
+        fry.write(offline_entries.toArray());
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        user_id = fry.getInt();
+        name = fry.getString();
+
+        int NoEntries = fry.getChar();
+        for(int i=0; i<NoEntries; ++i) {
+            TimetableEntry ent = new TimetableEntry();
+            ent.readFrom(fry);
+            offline_entries.add(ent);
+        }
     }
 
     public void addOfflineEntry(TimetableEntry entry) {

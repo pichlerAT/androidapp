@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
+import fry.oldschool.utils.Searchable;
+import fry.oldschool.utils.SearchableList;
 
 public class ContactGroup extends OnlineEntry implements Fryable {
 
     public String name;
 
-    public ArrayList<Contact> contacts = new ArrayList<>();
+    public SearchableList<Contact> contacts = new SearchableList<>();
+
+    protected ContactGroup() { }
 
     /**
      * Used for the "All Contacts" ContactGroup
@@ -28,7 +32,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
         }
     }
 
-    public ContactGroup(int id,String name,ArrayList<Contact> contacts) {
+    public ContactGroup(int id,String name,SearchableList<Contact> contacts) {
         this(id, name);
         this.contacts = contacts;
     }
@@ -44,15 +48,30 @@ public class ContactGroup extends OnlineEntry implements Fryable {
     }
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(name);
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(name);
 
         int[] uids = new int[contacts.size()];
         for(int i=0; i<uids.length; ++i) {
             uids[i] = contacts.get(i).user_id;
         }
-        file.write(uids);
+        fry.write(uids);
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        name = fry.getString();
+
+        ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
+        int NoContacts = fry.getChar();
+        for(int i=0; i<NoContacts; ++i) {
+            Contact cont = all.getContactByUserId(fry.getInt());
+            if(cont != null) {
+                contacts.add(cont);
+            }
+        }
     }
 
     protected String getUpdateString() {
@@ -97,7 +116,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
         return null;
     }
 
-    public void setContacts(ArrayList<Contact> contacts){
+    public void setContacts(SearchableList<Contact> contacts){
         this.contacts = contacts;
     }
 

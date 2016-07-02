@@ -2,9 +2,10 @@ package fry.oldschool.data;
 
 import fry.oldschool.utils.DateTime;
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Time;
 
-public class TimetableEntry extends OfflineEntry {
+public class TimetableEntry extends OnlineEntry implements Fryable {
 
     public int user_id;
 
@@ -30,6 +31,8 @@ public class TimetableEntry extends OfflineEntry {
         }
         return ent;
     }
+
+    protected TimetableEntry() { }
 
     protected TimetableEntry(int id,int user_id,int category_id,String title,String description,short date_start,short time_start,int duration,byte addition) {
         this(id,user_id,category_id,title,description,new DateTime(date_start,time_start),new Time(duration),addition);
@@ -60,16 +63,28 @@ public class TimetableEntry extends OfflineEntry {
 
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(user_id);
-        file.write(category_id);
-        file.write(title);
-        file.write(description);
-        file.write(start.date.getShort());
-        file.write(start.time.getShort());
-        file.write(duration.time);
-        file.write(addition);
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(user_id);
+        fry.write(category_id);
+        fry.write(title);
+        fry.write(description);
+        fry.write(start.date.getShort());
+        fry.write(start.time.getShort());
+        fry.write(duration.time);
+        fry.write(addition);
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        user_id = fry.getInt();
+        category_id = fry.getInt();
+        title = fry.getString();
+        description = fry.getString();
+        start = new DateTime(fry.getShort(), fry.getShort());
+        duration = new Time(fry.getInt());
+        addition = fry.getByte();
     }
 
     public String getUpdateString() {

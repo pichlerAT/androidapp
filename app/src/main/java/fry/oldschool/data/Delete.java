@@ -1,7 +1,5 @@
 package fry.oldschool.data;
 
-import fry.oldschool.utils.FryFile;
-
 public class Delete extends OfflineEntry {
 
     public Delete(char type,int id) {
@@ -12,12 +10,6 @@ public class Delete extends OfflineEntry {
     @Override
     protected boolean mysql() {
         return (getLine(getAddress() + "delete.php", "&id=" + id) != null);
-    }
-
-    @Override
-    public void writeTo(FryFile file) {
-        file.write(type);
-        file.write(id);
     }
 
     public String getAddress() {

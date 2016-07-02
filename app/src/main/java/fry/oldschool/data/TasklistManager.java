@@ -14,36 +14,25 @@ public class TasklistManager {
         file.write(TasklistBackup.toArray());
     }
 
-    public static void readFrom(FryFile file) {
+    public static void readFrom(FryFile fry) {
+
         App.Tasklists = new ArrayList<>();
-
-        int NoTasklists = file.getChar();
+        int NoTasklists = fry.getChar();
         for(int i=0; i<NoTasklists; ++i) {
-            int table_id = file.getInt();
-            Tasklist tl = new Tasklist(table_id,file.getInt(),file.getByte(),file.getString());
-
-            int NoEntries = file.getChar();
-            for(int j=0; j<NoEntries; ++j) {
-                tl.entries.add(new TasklistEntry(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
-            }
-
+            Tasklist tl = new Tasklist();
+            tl.readFrom(fry);
             App.Tasklists.add(tl);
         }
 
         TasklistBackup = new ArrayList<>();
-
-        NoTasklists = file.getChar();
+        NoTasklists = fry.getChar();
         for(int i=0; i<NoTasklists; ++i) {
-            int table_id = file.getInt();
-            Tasklist tl = Tasklist.createBackup(table_id,file.getInt(),file.getByte(),file.getString());
-
-            int NoEntries = file.getChar();
-            for(int j=0; j<NoEntries; ++j) {
-                tl.entries.add(TasklistEntry.createBackup(file.getInt(),table_id,file.getInt(),file.getByte(),file.getString()));
-            }
-
+            Tasklist tl = new Tasklist();
+            tl.readFrom(fry);
+            App.Tasklists.add(tl);
             TasklistBackup.add(tl);
         }
+
     }
 
     public static void synchronizeTasklistsFromMySQL(String... r) {

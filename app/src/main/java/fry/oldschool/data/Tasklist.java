@@ -35,6 +35,8 @@ public class Tasklist extends OnlineEntry implements Fryable {
         return createBackup(tl.id, tl.user_id, tl.state, tl.name);
     }
 
+    protected Tasklist() { }
+
     public Tasklist(int id, int user_id, byte state, String name) {
         this.type = TYPE_TASKLIST;
         this.id = id;
@@ -65,12 +67,28 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(user_id);
-        file.write(state);
-        file.write(name);
-        file.write(entries.toArray());
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(user_id);
+        fry.write(state);
+        fry.write(name);
+        fry.write(entries.toArray());
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        user_id = fry.getInt();
+        state = fry.getByte();
+        name = fry.getString();
+
+        int NoEntries = fry.getChar();
+        for(int i=0; i<NoEntries; ++i) {
+            TasklistEntry ent = new TasklistEntry();
+            ent.readFrom(fry);
+            ent.table_id = id;
+            entries.add(ent);
+        }
     }
 
     public boolean isOwner() {

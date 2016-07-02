@@ -22,6 +22,8 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         return ent;
     }
 
+    protected TasklistEntry() { }
+
     public TasklistEntry(int id, int table_id, int user_id, byte state, String description) {
         this.type = TYPE_TASKLIST_ENTRY;
         this.id = id;
@@ -53,11 +55,19 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
     }
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(user_id);
-        file.write(state);
-        file.write(description);
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(user_id);
+        fry.write(state);
+        fry.write(description);
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        user_id = fry.getInt();
+        state = fry.getByte();
+        description = fry.getString();
     }
 
     public void change(String description,boolean state) {

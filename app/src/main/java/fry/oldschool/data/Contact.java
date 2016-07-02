@@ -14,6 +14,8 @@ public class Contact implements Fryable, Searchable {
 
     public String name;
 
+    protected Contact() { }
+
     protected Contact(int id,int user_id,String email,String name) {
         this.id = id;
         this.user_id = user_id;
@@ -22,11 +24,19 @@ public class Contact implements Fryable, Searchable {
     }
 
     @Override
-    public void writeTo(FryFile file) {
-        file.write(id);
-        file.write(user_id);
-        file.write(email);
-        file.write(name);
+    public void writeTo(FryFile fry) {
+        fry.write(id);
+        fry.write(user_id);
+        fry.write(email);
+        fry.write(name);
+    }
+
+    @Override
+    public void readFrom(FryFile fry) {
+        id = fry.getInt();
+        user_id = fry.getInt();
+        email = fry.getString();
+        name = fry.getString();
     }
 
     @Override
@@ -38,4 +48,5 @@ public class Contact implements Fryable, Searchable {
         }
         return false;
     }
+
 }

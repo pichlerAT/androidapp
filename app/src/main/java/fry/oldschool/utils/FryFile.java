@@ -227,4 +227,18 @@ public class FryFile {
         writeLine.setCharAt(index, (char)length);
     }
 
+    public void write(final SearchableList<?> list) {
+        int index = writeLine.length();
+        write((char)list.baseLength());
+        int length = 0;
+        for(int i=0; i<list.baseLength(); ++i) {
+            Object obj = list.getBase(i);
+            if(obj instanceof Fryable) {
+                ((Fryable)obj).writeTo(this);
+                ++length;
+            }
+        }
+        writeLine.setCharAt(index, (char)length);
+    }
+
 }
