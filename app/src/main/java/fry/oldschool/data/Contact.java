@@ -2,8 +2,9 @@ package fry.oldschool.data;
 
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
+import fry.oldschool.utils.Searchable;
 
-public class Contact implements Fryable {
+public class Contact implements Fryable, Searchable {
 
     public int id;
 
@@ -28,4 +29,13 @@ public class Contact implements Fryable {
         file.write(name);
     }
 
+    @Override
+    public boolean search(String... keyWords) {
+        for(String keyWord : keyWords) {
+            if(name.contains(keyWord)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
