@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class TimetableCategory extends OnlineEntry implements Fryable {
+public class TimetableCategory extends MySQL implements Fryable {
 
     public int user_id;
 
@@ -16,6 +16,7 @@ public class TimetableCategory extends OnlineEntry implements Fryable {
     public static TimetableCategory create(String name) {
         TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
         Timetable.categories.add(cat);
+        ConnectionManager.add(cat);
         return cat;
     }
 
@@ -26,9 +27,6 @@ public class TimetableCategory extends OnlineEntry implements Fryable {
         this.id = id;
         this.user_id = user_id;
         this.name = name;
-        if(id == 0) {
-            ConnectionManager.add(this);
-        }
     }
 
     @Override
@@ -86,11 +84,11 @@ public class TimetableCategory extends OnlineEntry implements Fryable {
 
     public void rename(String name) {
         this.name = name;
-        ConnectionManager.add(new Update(TYPE_CALENDAR_CATEGORY, id));
+        OfflineEntry.update(TYPE_CALENDAR_CATEGORY, id);
     }
 
     public void delete() {
-        ConnectionManager.add(new Delete(TYPE_CALENDAR_CATEGORY, id));
+        OfflineEntry.delete(TYPE_CALENDAR_CATEGORY, id);
     }
 
 }

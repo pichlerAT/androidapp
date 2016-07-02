@@ -1,6 +1,6 @@
 package fry.oldschool.data;
 
-public class Share extends OnlineEntry {
+public class Share extends MySQL {
 
     public static final byte PERMISSION_VIEW = 1;
 
@@ -10,9 +10,9 @@ public class Share extends OnlineEntry {
 
     protected byte permission;
 
-    protected int user_id;
-
     protected int share_id;
+
+    protected int user_id;
 
     public String email;
 
@@ -121,6 +121,12 @@ public class Share extends OnlineEntry {
             return DIR_CALENDAR_ENTRY_SHARE;
         }
         return null;
+    }
+
+    public Share backup() {
+        Share share = new Share(id, share_id, user_id, permission);
+        share.type = type;
+        return share;
     }
 
 }

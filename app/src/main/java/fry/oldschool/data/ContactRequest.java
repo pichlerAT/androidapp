@@ -25,11 +25,11 @@ public class ContactRequest {
 
     public void decline() {
         if(ContactList.contactRequests.remove(this)) {
-            ConnectionManager.add(new Delete(OfflineEntry.TYPE_CONTACT_REQUEST,id));
+            OfflineEntry.delete(MySQL.TYPE_CONTACT_REQUEST, id);
         }
     }
 
-    protected static class Send extends OnlineEntry {
+    protected static class Send extends MySQL {
 
         protected String email;
 
@@ -56,7 +56,7 @@ public class ContactRequest {
         }
     }
 
-    protected static class Accept extends OnlineEntry {
+    protected static class Accept extends MySQL {
 
         protected int id;
 

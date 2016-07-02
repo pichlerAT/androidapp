@@ -49,7 +49,7 @@ public class ContactList {
                 Contact off = all.contacts.get(off_index);
                 off.email = on.email;
                 off.name = on.name;
-            }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT | OnlineEntry.BASETYPE_DELETE, on.id)) {
+            }else if(!ConnectionManager.hasEntry(MySQL.TYPE_CONTACT | MySQL.BASETYPE_DELETE, on.id)) {
                 all.contacts.add(on);
             }
         }
@@ -85,7 +85,7 @@ public class ContactList {
                     onIndex[lastIndex] = off_index;
                     ++lastIndex;
                 }
-            }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CONTACT_GROUP | OnlineEntry.BASETYPE_DELETE, on.id)) {
+            }else if(!ConnectionManager.hasEntry(MySQL.TYPE_CONTACT_GROUP | MySQL.BASETYPE_DELETE, on.id)) {
                 groups.add(groups.size() - 1, on);
             }
         }
@@ -148,7 +148,7 @@ public class ContactList {
         for(ContactGroup grp : groups) {
             grp.removeContact(cont);
         }
-        ConnectionManager.add(new Delete(OfflineEntry.TYPE_CONTACT,cont.id));
+        OfflineEntry.delete(MySQL.TYPE_CONTACT, cont.id);
     }
 
     public static void sendRequest(String email) {
@@ -156,7 +156,8 @@ public class ContactList {
     }
 
     public static void createContactGroup(String name) {
-        ContactGroup grp=new ContactGroup(0,name,new SearchableList<Contact>());
+        ContactGroup grp=new ContactGroup(name);
+        ConnectionManager.add(grp);
         groups.add(groups.size()-1,grp);
     }
 

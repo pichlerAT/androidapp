@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class Tasklist extends OnlineEntry implements Fryable {
+public class Tasklist extends MySQL implements Fryable {
 
     public int drag_id;
 
@@ -20,19 +20,9 @@ public class Tasklist extends OnlineEntry implements Fryable {
     public ArrayList<Share> sharedContacts = new ArrayList<>();
 
     public static Tasklist create(String name) {
-        return new Tasklist(0,USER_ID,(byte)0,name);
-    }
-
-    public static Tasklist createBackup(int id, int user_id, byte state, String name) {
-        Tasklist tl = new Tasklist(id);
-        tl.user_id = user_id;
-        tl.state = state;
-        tl.name = name;
+        Tasklist tl = new Tasklist(0,USER_ID,(byte)0,name);
+        ConnectionManager.add(tl);
         return tl;
-    }
-
-    public static Tasklist createBackup(Tasklist tl) {
-        return createBackup(tl.id, tl.user_id, tl.state, tl.name);
     }
 
     protected Tasklist() { }
@@ -46,10 +36,6 @@ public class Tasklist extends OnlineEntry implements Fryable {
         if(id == 0) {
             ConnectionManager.add(this);
         }
-    }
-
-    public Tasklist(int id) {
-        this.id = id;
     }
 
     @Override
@@ -92,7 +78,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
     }
 
     public boolean isOwner() {
-        return ( user_id == OfflineEntry.USER_ID );
+        return ( user_id == MySQL.USER_ID );
     }
 
     public Contact getOwner() {
@@ -108,7 +94,7 @@ public class Tasklist extends OnlineEntry implements Fryable {
 
     public void rename(String name) {
         this.name = name;
-        ConnectionManager.add(new Update(TYPE_TASKLIST,id));
+        OfflineEntry.update(TYPE_TASKLIST, id);
     }
 
     public ArrayList<ShareGroup> getShared() {
@@ -196,11 +182,17 @@ public class Tasklist extends OnlineEntry implements Fryable {
     public void addEntry(String task,boolean state) {
         TasklistEntry ent = new TasklistEntry(task,state);
         entries.add(ent);
+        if(id > 0) {
+            ConnectionManager.add(ent);
+        }
     }
 
     public void addEntry(int index,String task,boolean state) {
         TasklistEntry ent = new TasklistEntry(task,state);
         entries.add(index,ent);
+        if(id > 0) {
+            ConnectionManager.add(ent);
+        }
     }
 
     public void change(boolean state) {
@@ -226,12 +218,12 @@ public class Tasklist extends OnlineEntry implements Fryable {
 
     public void delete() {
         TasklistManager.removeTasklist(id);
-        ConnectionManager.add(new Delete(TYPE_TASKLIST,id));
+        OfflineEntry.delete(TYPE_TASKLIST, id);
     }
 
     public void delete(int index) {
         TasklistEntry ent = entries.remove(index);
-        ConnectionManager.add(new Delete(TYPE_TASKLIST, ent.id));
+        OfflineEntry.delete(TYPE_TASKLIST, id);
     }
 
     protected String getEntryStrings() {
@@ -259,6 +251,17 @@ public class Tasklist extends OnlineEntry implements Fryable {
             }
         }
         return true;
+    }
+
+    public Tasklist backup() {
+        Tasklist tl = new Tasklist(id, user_id, state, name);
+        for(TasklistEntry ent : entries) {
+            tl.entries.add(ent.backup());
+        }
+        for(Share share : sharedContacts) {
+            tl.sharedContacts.add(share.backup());
+        }
+        return tl;
     }
 
 }

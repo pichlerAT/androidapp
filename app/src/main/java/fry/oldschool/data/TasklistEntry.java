@@ -3,7 +3,7 @@ package fry.oldschool.data;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class TasklistEntry extends OnlineEntry implements Fryable {
+public class TasklistEntry extends MySQL implements Fryable {
 
     public int table_id;
 
@@ -12,15 +12,6 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
     public byte state;
 
     public String description;
-
-    public static TasklistEntry createBackup(int id, int table_id, int user_id, byte state, String description) {
-        TasklistEntry ent = new TasklistEntry(id);
-        ent.table_id = table_id;
-        ent.user_id = user_id;
-        ent.state = state;
-        ent.description = description;
-        return ent;
-    }
 
     protected TasklistEntry() { }
 
@@ -31,17 +22,10 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         this.user_id = user_id;
         this.description = description;
         this.state = state;
-        if(table_id != 0 && id == 0) {
-            ConnectionManager.add(this);
-        }
     }
 
     protected TasklistEntry(String description, boolean state) {
         this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
-    }
-
-    protected TasklistEntry(int id) {
-        this.id = id;
     }
 
     @Override
@@ -74,14 +58,14 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
         this.description = description;
         this.state = ( state ? (byte)1 : (byte)0 );
         if(table_id != 0) {
-            ConnectionManager.add(new Update(TYPE_TASKLIST_ENTRY,id));
+            OfflineEntry.update(TYPE_TASKLIST_ENTRY, id);
         }
     }
 
     public void change(boolean state) {
         this.state = ( state ? (byte)1 : (byte)0 );
         if(table_id != 0) {
-            ConnectionManager.add(new Update(TYPE_TASKLIST_ENTRY,id));
+            OfflineEntry.update(TYPE_TASKLIST_ENTRY, id);
         }
     }
 
@@ -106,6 +90,10 @@ public class TasklistEntry extends OnlineEntry implements Fryable {
 
     public boolean equals(TasklistEntry ent) {
         return (id == ent.id && table_id == ent.table_id && user_id == ent.user_id && state == ent.state && description.equals(ent.description));
+    }
+
+    public TasklistEntry backup() {
+        return new TasklistEntry(id, table_id, user_id, state, description);
     }
 
 }

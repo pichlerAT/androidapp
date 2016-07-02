@@ -7,7 +7,7 @@ import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Searchable;
 import fry.oldschool.utils.SearchableList;
 
-public class ContactGroup extends OnlineEntry implements Fryable {
+public class ContactGroup extends MySQL implements Fryable {
 
     public String name;
 
@@ -27,14 +27,6 @@ public class ContactGroup extends OnlineEntry implements Fryable {
         this.type = TYPE_CONTACT_GROUP;
         this.id = id;
         this.name = name;
-        if(id == 0) {
-            ConnectionManager.add(this);
-        }
-    }
-
-    public ContactGroup(int id,String name,SearchableList<Contact> contacts) {
-        this(id, name);
-        this.contacts = contacts;
     }
 
     @Override
@@ -123,7 +115,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
     public void rename(String name) {
         this.name = name;
         if(id != 0) {
-            ConnectionManager.add(new Update(TYPE_CONTACT_GROUP,id));
+            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
         }
     }
 
@@ -134,14 +126,14 @@ public class ContactGroup extends OnlineEntry implements Fryable {
             }
         }
         if(id != 0) {
-            ConnectionManager.add(new Update(TYPE_CONTACT_GROUP,id));
+            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
         }
     }
 
     public void removeContact(Contact contact) {
         contacts.remove(contact);
         if(id != 0) {
-            ConnectionManager.add(new Update(TYPE_CONTACT_GROUP,id));
+            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
         }
     }
 
@@ -150,7 +142,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
             this.contacts.remove(c);
         }
         if(id != 0) {
-            ConnectionManager.add(new Update(TYPE_CONTACT_GROUP,id));
+            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
         }
     }
 
@@ -160,7 +152,7 @@ public class ContactGroup extends OnlineEntry implements Fryable {
             ConnectionManager.remove(this);
         }else {
             ConnectionManager.remove(TYPE_CONTACT_GROUP,id);
-            ConnectionManager.add(new Delete(TYPE_CONTACT_GROUP,id));
+            OfflineEntry.delete(TYPE_CONTACT_GROUP, id);
         }
     }
 

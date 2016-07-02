@@ -5,7 +5,7 @@ import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Time;
 
-public class TimetableEntry extends OnlineEntry implements Fryable {
+public class TimetableEntry extends MySQL implements Fryable {
 
     public int user_id;
 
@@ -101,6 +101,11 @@ public class TimetableEntry extends OnlineEntry implements Fryable {
     }
 
     public void delete() {
-        ConnectionManager.add(new Delete(type, id));
+        OfflineEntry.delete(TYPE_CALENDAR_ENTRY, id);
     }
+
+    public TimetableEntry backup() {
+        return new TimetableEntry(id, user_id, category_id, title, description, start.date.getShort(), start.time.getShort(), duration.time, addition);
+    }
+
 }

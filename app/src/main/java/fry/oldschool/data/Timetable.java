@@ -10,11 +10,17 @@ public class Timetable {
 
     public static ArrayList<TimetableCategory> categories = new ArrayList<>();
 
+    protected static ArrayList<TimetableCategory> categoriesBackup = new ArrayList<>();
+
     protected static ArrayList<TimetableEntry> entries = new ArrayList<>();
+
+    protected static ArrayList<TimetableEntry> entriesBackup = new ArrayList<>();
 
     public static void writeTo(FryFile file) {
         file.write(categories.toArray());
+        file.write(categoriesBackup.toArray());
         file.write(entries.toArray());
+        file.write(entriesBackup.toArray());
     }
 
     public static void readFrom(FryFile fry) {
@@ -25,11 +31,25 @@ public class Timetable {
             categories.add(cat);
         }
 
+        NoCategories = fry.getChar();
+        for(int i=0; i<NoCategories; ++i) {
+            TimetableCategory cat = new TimetableCategory();
+            cat.readFrom(fry);
+            categoriesBackup.add(cat);
+        }
+
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
             TimetableEntry ent = new TimetableEntry();
             ent.readFrom(fry);
             entries.add(ent);
+        }
+
+        NoEntries = fry.getChar();
+        for(int i=0; i<NoEntries; ++i) {
+            TimetableEntry ent = new TimetableEntry();
+            ent.readFrom(fry);
+            entriesBackup.add(ent);
         }
     }
 
@@ -41,7 +61,7 @@ public class Timetable {
         for(int i=0; i<NoCategories; ++i) {
             TimetableCategory on = new TimetableCategory(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++]);
 
-            if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_CALENDAR_CATEGORY | OnlineEntry.BASETYPE_DELETE, on.id)) {
+            if(!ConnectionManager.hasEntry(MySQL.TYPE_CALENDAR_CATEGORY | MySQL.BASETYPE_DELETE, on.id)) {
 
                 int off_index = getCategoryIndexById(on.id);
                 if (off_index < 0) {
@@ -137,11 +157,11 @@ public class Timetable {
     }
 
     public static void shareWith(Contact cont) {
-        ConnectionManager.add(new Share(OfflineEntry.TYPE_CALENDAR, MySQL.USER_ID, cont));
+        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, MySQL.USER_ID, cont));
     }
 
     public static void shareWith(Contact cont, byte permission) {
-        ConnectionManager.add(new Share(OfflineEntry.TYPE_CALENDAR, MySQL.USER_ID, permission, cont));
+        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, MySQL.USER_ID, permission, cont));
     }
 
 }

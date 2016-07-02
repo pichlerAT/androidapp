@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class MySQL {
+public abstract class MySQL {
 
     protected static final String IP_ADDRESS = "193.81.52.23" ;
     protected static final int PORT = 80;
@@ -33,7 +33,44 @@ public class MySQL {
     public static String USER_EMAIL = "fragner@gmx.net";
     public static String USER_PASSWORD = "1234";
 
-    protected String getLine(String addr,String data) {
+
+    public static final char BASETYPE_CREATE    = 0x0001;
+
+    public static final char BASETYPE_UPDATE    = 0x0002;
+
+    public static final char BASETYPE_DELETE    = 0x0004;
+
+    public static final char BASETYPE_SHARE     = 0x0008;
+
+
+
+    public static final char TYPE_CONTACT           = 0x0010;
+
+    public static final char TYPE_CONTACT_GROUP     = 0x0020;
+
+    public static final char TYPE_CONTACT_REQUEST   = 0x0040;
+
+    public static final char TYPE_TASKLIST          = 0x0080;
+
+    public static final char TYPE_TASKLIST_ENTRY    = 0x0100;
+
+    public static final char TYPE_CALENDAR          = 0x0200;
+
+    public static final char TYPE_CALENDAR_CATEGORY = 0x0400;
+
+    public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
+
+
+
+    protected char type;
+
+    public int id;
+
+    protected abstract boolean mysql();
+
+
+
+    protected static String getLine(String addr,String data) {
         try {
             URL url = new URL(ADDRESS + addr);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -74,25 +111,4 @@ public class MySQL {
         }
     }
 
-/*
-    protected void error(String code) {
-        (new Error()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    protected class Error extends AsyncTask<String,String,String> {
-
-        protected String msg;
-
-        @Override
-        protected String doInBackground(String... args) {
-            msg = args[0];
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            App.errorDialog("error",msg);
-        }
-    }
-    */
 }

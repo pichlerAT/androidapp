@@ -44,7 +44,7 @@ public class TasklistManager {
             int NoEntries = Integer.parseInt(r[index++]);
             for(int i=0; i<NoEntries; ++i) {
                 TasklistEntry ent = new TasklistEntry(Integer.parseInt(r[index++]), on.id, Integer.parseInt(r[index++]), Byte.parseByte(r[index++]),r[index++]);
-                if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_TASKLIST_ENTRY | OnlineEntry.BASETYPE_DELETE, ent.id)) {
+                if(!ConnectionManager.hasEntry(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE, ent.id)) {
                     on.entries.add(ent);
                 }
             }
@@ -65,11 +65,11 @@ public class TasklistManager {
                     TasklistBackup.add(off);
                 }else {
                     App.Tasklists.set(off_index,on);
-                    TasklistBackup.add(Tasklist.createBackup(on));
+                    TasklistBackup.add(on.backup());
                 }
-            }else if(!ConnectionManager.hasEntry(OnlineEntry.TYPE_TASKLIST | OnlineEntry.BASETYPE_DELETE, on.id)) {
+            }else if(!ConnectionManager.hasEntry(MySQL.TYPE_TASKLIST | MySQL.BASETYPE_DELETE, on.id)) {
                 App.Tasklists.add(on);
-                TasklistBackup.add(Tasklist.createBackup(on));
+                TasklistBackup.add(on.backup());
             }
         }
         for(int i=isOnline.length-1; i>=0; --i) {

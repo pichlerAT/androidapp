@@ -22,7 +22,7 @@ public class ConnectionManager {
 
     protected static MySQLListener mysql_listener;
 
-    protected static ArrayList<OnlineEntry> online_entries = new ArrayList<>();
+    protected static ArrayList<MySQL> online_entries = new ArrayList<>();
 
     protected static ArrayList<OfflineEntry> offline_entries = new ArrayList<>();
 
@@ -30,7 +30,7 @@ public class ConnectionManager {
         mysql_listener = listener;
     }
 
-    public static void add(OnlineEntry entry) {
+    public static void add(MySQL entry) {
         if(entry.id == 0 || !hasOnlineEntry(entry.type, entry.id)) {
             online_entries.add(entry);
             sync();
@@ -50,7 +50,7 @@ public class ConnectionManager {
 
     public static boolean hasOnlineEntry(int type,int id) {
         for(int i=0; i<online_entries.size(); ++i) {
-            OnlineEntry ent = online_entries.get(i);
+            MySQL ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
                 return true;
             }
@@ -60,7 +60,7 @@ public class ConnectionManager {
 
     public static boolean hasOfflineEntry(int type,int id) {
         for(int i=0; i<offline_entries.size(); ++i) {
-            OnlineEntry ent = offline_entries.get(i);
+            OfflineEntry ent = offline_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
                 return true;
             }
@@ -72,7 +72,7 @@ public class ConnectionManager {
         return (hasOfflineEntry(type,id) || hasOnlineEntry(type,id));
     }
 
-    public static boolean remove(OnlineEntry entry) {
+    public static boolean remove(MySQL entry) {
         return online_entries.remove(entry);
     }
 
@@ -82,13 +82,13 @@ public class ConnectionManager {
 
     public static void remove(char type,int id) {
         for(int i=0; i<online_entries.size(); ++i) {
-            OnlineEntry ent = online_entries.get(i);
+            MySQL ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
                 online_entries.remove(i);
             }
         }
         for(int i=0; i<offline_entries.size(); ++i) {
-            OnlineEntry ent = offline_entries.get(i);
+            OfflineEntry ent = offline_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
                 offline_entries.remove(i);
             }
@@ -114,10 +114,7 @@ public class ConnectionManager {
     public static void readFrom(FryFile fry) {
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            OfflineEntry ent = OfflineEntry.create(fry.getChar(),fry.getInt());
-            if(ent != null) {
-                offline_entries.add(ent);
-            }
+            offline_entries.add(new OfflineEntry(fry.getChar(),fry.getInt()));
         }
     }
 
@@ -192,8 +189,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_contact() {
-            MySQL mysql = new MySQL();
-            String resp = mysql.getLine(MySQL.DIR_CONTACT + "get.php","");
+            String resp = MySQL.getLine(MySQL.DIR_CONTACT + "get.php","");
             if(resp != null) {
                 ContactList.synchronizeContactsFromMySQL(resp.split(MySQL.S));
                 return true;
@@ -202,8 +198,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_request() {
-            MySQL mysql = new MySQL();
-            String resp = mysql.getLine(MySQL.DIR_CONTACT_REQUEST + "get.php","");
+            String resp = MySQL.getLine(MySQL.DIR_CONTACT_REQUEST + "get.php","");
             if(resp != null) {
                 ContactList.synchronizeContactRequestsFromMySQL(resp.split(MySQL.S));
                 return true;
@@ -212,8 +207,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_calendar() {
-            MySQL mysql = new MySQL();
-            String resp = mysql.getLine(MySQL.DIR_CALENDAR + "get.php","");
+            String resp = MySQL.getLine(MySQL.DIR_CALENDAR + "get.php","");
             if(resp != null) {
                 Timetable.synchronizeFromMySQL(resp.split(MySQL.S));
             }
@@ -221,8 +215,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_tasklist() {
-            MySQL mysql = new MySQL();
-            String resp = mysql.getLine(MySQL.DIR_TASKLIST + "get.php","");
+            String resp = MySQL.getLine(MySQL.DIR_TASKLIST + "get.php","");
             if(resp != null) {
                 TasklistManager.synchronizeTasklistsFromMySQL(resp.split(MySQL.S));
             }
