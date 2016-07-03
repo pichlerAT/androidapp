@@ -44,7 +44,7 @@ public class ShareList {
         return groupList;
     }
 
-    protected void add(int user_id, int share_id, byte permission) {
+    protected void add(byte permission, int user_id, int share_id) {
         sharedList.add(new ShareStorage(permission, user_id, share_id));
     }
 

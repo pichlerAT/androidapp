@@ -1,5 +1,7 @@
 package fry.oldschool.data;
 
+import java.util.ArrayList;
+
 import fry.oldschool.utils.Date;
 import fry.oldschool.utils.DateSpan;
 import fry.oldschool.utils.FryFile;
@@ -17,6 +19,8 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     protected String description;
 
     protected DateSpan span;
+
+    protected ShareList shareList;
 
     public static TimetableEntry create(byte addition, String title, String description, DateSpan span, TimetableCategory category) {
         TimetableEntry ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span);
@@ -36,19 +40,27 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         title = fry.getString();
         description = fry.getString();
         span = new DateSpan(fry);
+
+        if(id != 0) {
+            shareList = new ShareList(TYPE_CALENDAR_ENTRY, id);
+        }
     }
 
-    protected TimetableEntry(int id, int user_id, int category_id, String title, String description, short date_start, short time_start, int duration, byte addition) {
+    protected TimetableEntry(int id, int user_id, byte addition, short date_start, short time_start, int duration, int category_id, String title, String description) {
         super(TYPE_CALENDAR_ENTRY, id, user_id);
         this.addition = addition;
         this.category_id = category_id;
         this.title = title;
         this.description = description;
         this.span = new DateSpan(date_start, time_start, duration);
+
+        if(id != 0) {
+            shareList = new ShareList(TYPE_CALENDAR_ENTRY, id);
+        }
     }
 
     protected TimetableEntry(int id, int user_id, byte addition, int category_id, String title, String description, DateSpan span) {
-        this(id, user_id, category_id, title, description, span.getDateStart(), span.getTimeStart(), span.getDuration(), addition);
+        this(id, user_id, addition, span.getDateStart(), span.getTimeStart(), span.getDuration(), category_id, title, description);
     }
 
     @Override
@@ -71,6 +83,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
                 +"&date_start="+span.getDateStart()+"&time_start="+span.getTimeStart()+"&duration="+span.getDuration()+"&addition="+addition);
         if(resp != null) {
             id = Integer.parseInt(resp);
+
+            if(id != 0) {
+                shareList = new ShareList(TYPE_CALENDAR_ENTRY, id);
+            }
             return true;
         }
         return false;
@@ -139,6 +155,56 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public boolean isSpanOverlapping(DateSpan span) {
         return span.isOverlapping(span);
+    }
+
+    public boolean isSharedWithUserId(int id) {
+        return shareList.hasUserId(id);
+    }
+
+    public ArrayList<ContactGroup> getShared() {
+        return shareList.getShareList();
+    }
+
+    public void addShare(Contact contact) {
+        Share share = new Share(TYPE_CALENDAR_CATEGORY, id, contact);
+        shareList.addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public void addShare(ArrayList<Contact> contacts) {
+        for(Contact contact : contacts) {
+            addShare(contact);
+        }
+    }
+
+    public void addShare(Contact contact,byte permission) {
+        Share share = new Share(TYPE_CALENDAR_CATEGORY, permission, id, contact);
+        addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte permission) {
+        for(Contact contact : contacts) {
+            addShare(contact,permission);
+        }
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
+        for(int i=0;i<contacts.size();++i) {
+            addShare(contacts.get(i),permissions[i]);
+        }
+    }
+
+    public void removeShare(Share share) {
+        if(shareList.remove(share)) {
+            share.delete();
+        }
+    }
+
+    public void removeShare(ArrayList<Share> shares) {
+        for(Share share : shares) {
+            removeShare(share);
+        }
     }
 
 }

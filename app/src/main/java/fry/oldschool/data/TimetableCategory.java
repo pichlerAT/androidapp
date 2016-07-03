@@ -11,6 +11,8 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
 
+    protected ShareList shareList;
+
     public static TimetableCategory create(String name) {
         TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
         cat.create();
@@ -25,11 +27,19 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         for(int i=0; i<NoEntries; ++i) {
             offline_entries.add(new TimetableEntry(fry));
         }
+
+        if(id != 0) {
+            shareList = new ShareList(TYPE_TASKLIST, id);
+        }
     }
 
     protected TimetableCategory(int id,int user_id,String name) {
         super(TYPE_CALENDAR_CATEGORY, id, user_id);
         this.name = name;
+
+        if(id != 0) {
+            shareList = new ShareList(TYPE_TASKLIST, id);
+        }
     }
 
     @Override
@@ -51,6 +61,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php", "&name="+name);
         if(resp != null) {
             id = Integer.parseInt(resp);
+            shareList = new ShareList(TYPE_CALENDAR_CATEGORY, id);
 
             for(TimetableEntry ent : offline_entries) {
                 ent.category_id = id;
@@ -98,14 +109,6 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         offline_entries.add(entry);
     }
 
-    public void shareWith(Contact cont) {
-        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, id, cont));
-    }
-
-    public void shareWith(Contact cont, byte permission) {
-        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, permission, id, cont));
-    }
-
     public void setName(String name) {
         this.name = name;
         update();
@@ -114,6 +117,56 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     public void delete() {
         super.delete();
         Timetable.categories.remove(this);
+    }
+
+    public boolean isSharedWithUserId(int id) {
+        return shareList.hasUserId(id);
+    }
+
+    public ArrayList<ContactGroup> getShared() {
+        return shareList.getShareList();
+    }
+
+    public void addShare(Contact contact) {
+        Share share = new Share(TYPE_CALENDAR_CATEGORY, id, contact);
+        shareList.addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public void addShare(ArrayList<Contact> contacts) {
+        for(Contact contact : contacts) {
+            addShare(contact);
+        }
+    }
+
+    public void addShare(Contact contact,byte permission) {
+        Share share = new Share(TYPE_CALENDAR_CATEGORY, permission, id, contact);
+        addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte permission) {
+        for(Contact contact : contacts) {
+            addShare(contact,permission);
+        }
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
+        for(int i=0;i<contacts.size();++i) {
+            addShare(contacts.get(i),permissions[i]);
+        }
+    }
+
+    public void removeShare(Share share) {
+        if(shareList.remove(share)) {
+            share.delete();
+        }
+    }
+
+    public void removeShare(ArrayList<Share> shares) {
+        for(Share share : shares) {
+            removeShare(share);
+        }
     }
 
 }

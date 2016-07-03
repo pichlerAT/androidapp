@@ -12,6 +12,8 @@ public class Timetable {
 
     protected static BackupList<TimetableEntry> entries = new BackupList<>();
 
+    protected static ShareList shareList = new ShareList(MySQL.TYPE_CALENDAR, MySQL.USER_ID);
+
     public static void writeTo(FryFile file) {
         file.write(categories.getList());
         file.write(categories.getBackupList());
@@ -48,17 +50,36 @@ public class Timetable {
     public static void synchronizeFromMySQL(String... r) {
         int index = 0;
 
+        int NoShares = Integer.parseInt(r[index++]);
+        for(int k=0; k<NoShares; ++k) {
+            shareList.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+        }
+
         ArrayList<TimetableCategory> catList = new ArrayList<>();
         int NoCategories = Integer.parseInt(r[index++]);
         for(int i=0; i<NoCategories; ++i) {
-            catList.add(new TimetableCategory(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++]));
+            TimetableCategory cat = new TimetableCategory(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++]);
+
+            NoShares = Integer.parseInt(r[index++]);
+            for(int k=0; k<NoShares; ++k) {
+                cat.shareList.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+            }
+
+            catList.add(cat);
         }
         categories.synchronizeWith(catList);
 
         ArrayList<TimetableEntry> entList = new ArrayList<>();
         while(index < r.length) {
-            entList.add(new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++],
-                                        Short.parseShort(r[index++]), Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++])));
+            TimetableEntry ent = new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), Short.parseShort(r[index++]),
+                                    Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++]);
+
+            NoShares = Integer.parseInt(r[index++]);
+            for(int k=0; k<NoShares; ++k) {
+                ent.shareList.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+            }
+
+            entries.add(ent);
         }
         entries.synchronizeWith(entList);
     }
@@ -135,12 +156,55 @@ public class Timetable {
         return null;
     }
 
-    public static void shareWith(Contact cont) {
-        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, MySQL.USER_ID, cont));
+    public static boolean isSharedWithUserId(int id) {
+        return shareList.hasUserId(id);
     }
 
-    public static void shareWith(Contact cont, byte permission) {
-        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, permission, MySQL.USER_ID, cont));
+    public static ArrayList<ContactGroup> getShared() {
+        return shareList.getShareList();
     }
+
+    public static void addShare(Contact contact) {
+        Share share = new Share(MySQL.TYPE_CALENDAR, MySQL.USER_ID, contact);
+        shareList.addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public static void addShare(ArrayList<Contact> contacts) {
+        for(Contact contact : contacts) {
+            addShare(contact);
+        }
+    }
+
+    public static void addShare(Contact contact,byte permission) {
+        Share share = new Share(MySQL.TYPE_CALENDAR, permission, MySQL.USER_ID, contact);
+        addShare(share);
+        ConnectionManager.add(share);
+    }
+
+    public static void addShare(ArrayList<Contact> contacts,byte permission) {
+        for(Contact contact : contacts) {
+            addShare(contact,permission);
+        }
+    }
+
+    public static void addShare(ArrayList<Contact> contacts,byte[] permissions) {
+        for(int i=0;i<contacts.size();++i) {
+            addShare(contacts.get(i),permissions[i]);
+        }
+    }
+
+    public static void removeShare(Share share) {
+        if(shareList.remove(share)) {
+            share.delete();
+        }
+    }
+
+    public static void removeShare(ArrayList<Share> shares) {
+        for(Share share : shares) {
+            removeShare(share);
+        }
+    }
+
 
 }

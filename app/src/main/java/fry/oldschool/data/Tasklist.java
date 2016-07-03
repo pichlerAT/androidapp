@@ -45,6 +45,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         super(TYPE_TASKLIST, id, user_id);
         this.state = state;
         this.name = name;
+
         if(id != 0) {
             shareList = new ShareList(TYPE_TASKLIST, id);
         }
