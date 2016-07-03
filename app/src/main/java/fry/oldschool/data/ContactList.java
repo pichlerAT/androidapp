@@ -7,9 +7,15 @@ import fry.oldschool.utils.SearchableList;
 
 public class ContactList {
 
-    public static ArrayList<ContactGroup> groups=new ArrayList<>();
+    protected static ArrayList<ContactGroup> groups=new ArrayList<>();
 
-    public static ArrayList<ContactRequest> contactRequests=new ArrayList<>();
+    protected static ArrayList<ContactRequest> contactRequests=new ArrayList<>();
+
+    static {
+
+        groups.add(new ContactGroup("All Contacts"));
+
+    }
 
     public static void writeTo(FryFile file) {
         file.write(groups.get(groups.size()-1).contacts);
@@ -114,7 +120,7 @@ public class ContactList {
         return (groups.get(groups.size() - 1).contacts.size() == 0);
     }
 
-    public static void removeContactRequest(int id) {
+    protected static void removeContactRequestById(int id) {
         for(int i=0; i<contactRequests.size(); ++i) {
             if(contactRequests.get(i).id == id) {
                 contactRequests.remove(i);
@@ -166,4 +172,37 @@ public class ContactList {
             grp.contacts.search(keyWords);
         }
     }
+
+    public static ContactGroup getAllContactsGroup() {
+        return groups.get(groups.size() - 1);
+    }
+
+    public static SearchableList<Contact> getAllContacts() {
+        return getAllContactsGroup().contacts;
+    }
+
+    public static ArrayList<ContactGroup> getGroups() {
+        return groups;
+    }
+
+    public static int getNoContacts() {
+        return getAllContacts().size();
+    }
+
+    public static int getNoGroups() {
+        return groups.size();
+    }
+
+    public static ContactGroup getGroup(int index) {
+        return groups.get(index);
+    }
+
+    public static int getNoRequests() {
+        return contactRequests.size();
+    }
+
+    public static ArrayList<ContactRequest> getRequests() {
+        return contactRequests;
+    }
+
 }

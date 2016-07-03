@@ -7,19 +7,17 @@ import fry.oldschool.utils.Time;
 
 public class TimetableEntry extends MySQL implements Fryable {
 
-    public int user_id;
+    protected int category_id;
 
-    public int category_id;
+    protected String title;
 
-    public String title;
+    protected String description;
 
-    public String description;
+    protected DateTime start;
 
-    public DateTime start;
+    protected Time duration;
 
-    public Time duration;
-
-    public byte addition;
+    protected byte addition;
 
     public static TimetableEntry create(String title, String description, DateTime start, Time duration, byte addition, TimetableCategory category) {
         TimetableEntry ent = new TimetableEntry(0,USER_ID,category.id,title,description,start,duration,addition);
@@ -32,22 +30,36 @@ public class TimetableEntry extends MySQL implements Fryable {
         return ent;
     }
 
-    protected TimetableEntry() { }
+    protected TimetableEntry() {
+        super(TYPE_CALENDAR_ENTRY, 0 ,0);
+    }
 
     protected TimetableEntry(int id,int user_id,int category_id,String title,String description,short date_start,short time_start,int duration,byte addition) {
         this(id,user_id,category_id,title,description,new DateTime(date_start,time_start),new Time(duration),addition);
     }
 
     protected TimetableEntry(int id,int user_id,int category_id,String title,String description,DateTime start,Time duration,byte addition) {
-        this.id = id;
-        this.user_id = user_id;
+        super(TYPE_CALENDAR_ENTRY, id, user_id);
         this.category_id = category_id;
         this.title = title;
         this.description = description;
         this.start = start;
         this.duration = duration;
         this.addition = addition;
-        type = TYPE_CALENDAR_ENTRY;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof TimetableEntry) {
+            TimetableEntry e = (TimetableEntry) o;
+            return (e.id == id && e.title.equals(title) && e.description.equals(description) && e.start.equals(start) && e.duration.equals(duration) && e.addition == addition);
+        }
+        return false;
+    }
+
+    @Override
+    public TimetableEntry backup() {
+        return new TimetableEntry(id, user_id, category_id, title, description, start.date.getShort(), start.time.getShort(), duration.time, addition);
     }
 
     @Override
@@ -59,6 +71,21 @@ public class TimetableEntry extends MySQL implements Fryable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+        TimetableEntry e = (TimetableEntry) mysql;
+        title = e.title;
+        description = e.description;
+        start = e.start;
+        duration = e.duration;
+        addition = e.addition;
+    }
+
+    @Override
+    public boolean canEdit() {
+        return isOwner();
     }
 
 
@@ -87,7 +114,7 @@ public class TimetableEntry extends MySQL implements Fryable {
         addition = fry.getByte();
     }
 
-    public String getUpdateString() {
+    protected String getUpdateString() {
         return ("&entry_id="+id+"&category_id="+category_id+"&title="+title+"&description="+description
                 +"&date_start="+start.date.getShort()+"&time_start="+start.time.time+"&duration="+duration.time+"&addition="+addition);
     }
@@ -101,11 +128,23 @@ public class TimetableEntry extends MySQL implements Fryable {
     }
 
     public void delete() {
-        OfflineEntry.delete(TYPE_CALENDAR_ENTRY, id);
+        OfflineEntry.delete(this);
     }
 
-    public TimetableEntry backup() {
-        return new TimetableEntry(id, user_id, category_id, title, description, start.date.getShort(), start.time.getShort(), duration.time, addition);
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public DateTime getStart() {
+        return start;
+    }
+
+    public Time getDuration() {
+        return duration;
     }
 
 }

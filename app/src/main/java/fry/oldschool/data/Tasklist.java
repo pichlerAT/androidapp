@@ -9,33 +9,58 @@ public class Tasklist extends MySQL implements Fryable {
 
     public int drag_id;
 
-    protected int user_id;
-
     protected byte state;
 
-    public String name;
+    protected String name;
 
-    public ArrayList<TasklistEntry> entries = new ArrayList<>();
+    protected ArrayList<TasklistEntry> entries = new ArrayList<>();
 
-    public ArrayList<Share> sharedContacts = new ArrayList<>();
+    protected ArrayList<Share> sharedContacts = new ArrayList<>();
 
     public static Tasklist create(String name) {
         Tasklist tl = new Tasklist(0,USER_ID,(byte)0,name);
+        TasklistManager.Tasklists.add(tl);
         ConnectionManager.add(tl);
         return tl;
     }
 
-    protected Tasklist() { }
+    protected Tasklist() {
+        super(TYPE_TASKLIST, 0, 0);
+    }
 
-    public Tasklist(int id, int user_id, byte state, String name) {
-        this.type = TYPE_TASKLIST;
-        this.id = id;
-        this.user_id = user_id;
+    protected Tasklist(int id, int user_id, byte state, String name) {
+        super(TYPE_TASKLIST, id, user_id);
         this.state = state;
         this.name = name;
-        if(id == 0) {
-            ConnectionManager.add(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Tasklist) {
+            Tasklist t = (Tasklist) o;
+            if(t.id != id || t.state != state || !t.name.equals(name) || t.entries.size() != entries.size()) {
+                return false;
+            }
+            for(int i=0; i<entries.size(); ++i) {
+                if(!t.entries.get(i).equals(entries.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public Tasklist backup() {
+        Tasklist tl = new Tasklist(id, user_id, state, name);
+        for(TasklistEntry ent : entries) {
+            tl.entries.add(ent.backup());
+        }
+        for(Share share : sharedContacts) {
+            tl.sharedContacts.add((Share) share.backup());
+        }
+        return tl;
     }
 
     @Override
@@ -50,6 +75,19 @@ public class Tasklist extends MySQL implements Fryable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+        Tasklist t = (Tasklist) mysql;
+        state = t.state;
+        name = t.name;
+        entries = t.entries;
+    }
+
+    @Override
+    public boolean canEdit() {
+        return (isOwner() || hasShareByUserId(USER_ID));
     }
 
     @Override
@@ -77,8 +115,16 @@ public class Tasklist extends MySQL implements Fryable {
         }
     }
 
-    public boolean isOwner() {
-        return ( user_id == MySQL.USER_ID );
+    public int getNoEntries() {
+        return entries.size();
+    }
+
+    public TasklistEntry getEntry(int index) {
+        return entries.get(index);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Contact getOwner() {
@@ -88,13 +134,26 @@ public class Tasklist extends MySQL implements Fryable {
         return ContactList.getContactByUserId(user_id);
     }
 
+    public ArrayList<TasklistEntry> getEntries() {
+        return entries;
+    }
+
     public boolean isDone() {
         return ( state == 1 );
     }
 
     public void rename(String name) {
         this.name = name;
-        OfflineEntry.update(TYPE_TASKLIST, id);
+        OfflineEntry.update(this);
+    }
+
+    public boolean hasShareByUserId(int id) {
+        for(Share s : sharedContacts) {
+            if(s.user_id == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public ArrayList<ShareGroup> getShared() {
@@ -218,12 +277,12 @@ public class Tasklist extends MySQL implements Fryable {
 
     public void delete() {
         TasklistManager.removeTasklist(id);
-        OfflineEntry.delete(TYPE_TASKLIST, id);
+        OfflineEntry.delete(this);
     }
 
     public void delete(int index) {
         TasklistEntry ent = entries.remove(index);
-        OfflineEntry.delete(TYPE_TASKLIST, id);
+        OfflineEntry.delete(this);
     }
 
     protected String getEntryStrings() {
@@ -251,17 +310,6 @@ public class Tasklist extends MySQL implements Fryable {
             }
         }
         return true;
-    }
-
-    public Tasklist backup() {
-        Tasklist tl = new Tasklist(id, user_id, state, name);
-        for(TasklistEntry ent : entries) {
-            tl.entries.add(ent.backup());
-        }
-        for(Share share : sharedContacts) {
-            tl.sharedContacts.add(share.backup());
-        }
-        return tl;
     }
 
 }

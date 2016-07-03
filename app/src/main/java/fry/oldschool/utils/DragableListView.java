@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.adapter.TaskAdapter;
 import fry.oldschool.data.Tasklist;
+import fry.oldschool.data.TasklistManager;
 
 /**
  * Created by Edwin Pichler on 11.06.2016.
@@ -267,7 +268,7 @@ public class DragableListView extends ListView {
                 return;
             }
 
-            swapElements(App.Tasklists, originalItem, getPositionForView(switchView));
+            swapElements(TasklistManager.getTasklists(), originalItem, getPositionForView(switchView));
             mobileView.setVisibility(View.VISIBLE);
             ((TaskAdapter) getAdapter()).notifyDataSetChanged();
 

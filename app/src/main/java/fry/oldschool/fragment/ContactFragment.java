@@ -54,12 +54,12 @@ public class ContactFragment extends Fragment{
         setHasOptionsMenu(true);
 
         childList = new ArrayList<>();
-        request_number = ContactList.contactRequests.size();
+        request_number = ContactList.getNoRequests();
 
         //ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
 
         final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
-        adapter = new ContactAdapter(App.mContext, ContactList.groups, false);
+        adapter = new ContactAdapter(App.mContext, ContactList.getGroups(), false);
 
         ViewTreeObserver vto = lv.getViewTreeObserver();
 
@@ -155,8 +155,8 @@ public class ContactFragment extends Fragment{
                         View requestView = View.inflate(App.mContext, R.layout.fragment_contact_groupassign, null);
                         final LinearLayout layout = (LinearLayout) requestView.findViewById(R.id.linearlayout_contact_groupassign);
 
-                        for(int i=0; i < ContactList.groups.size()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
-                            String groupName = ContactList.groups.get(i).name;
+                        for(int i=0; i < ContactList.getNoGroups()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
+                            String groupName = ContactList.getGroup(i).getName();
                             CheckBox cb = new CheckBox(App.mContext);
                             cb.setText(groupName);
                             layout.addView(cb);
@@ -171,7 +171,7 @@ public class ContactFragment extends Fragment{
                                     for (int j=0; j<layout.getChildCount(); j++){
                                         CheckBox cb = (CheckBox)layout.getChildAt(j);
                                         if(cb.isChecked()){
-                                            ContactList.groups.get(j).addContacts(childList);
+                                            ContactList.getGroup(j).addContacts(childList);
                                         }
                                     }
                                     adapter.notifyDataSetChanged();

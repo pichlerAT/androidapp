@@ -9,7 +9,7 @@ import java.net.URL;
 
 public abstract class MySQL {
 
-    protected static final String IP_ADDRESS = "193.81.52.23" ;
+    protected static final String IP_ADDRESS = "62.47.228.187" ;
     protected static final int PORT = 80;
 
     protected static final String ADDRESS="http://" + IP_ADDRESS + ":" + PORT + "/android/";
@@ -34,6 +34,8 @@ public abstract class MySQL {
     public static String USER_PASSWORD = "1234";
 
 
+    public static final char BASETYPE           = 0x000F;
+
     public static final char BASETYPE_CREATE    = 0x0001;
 
     public static final char BASETYPE_UPDATE    = 0x0002;
@@ -43,6 +45,8 @@ public abstract class MySQL {
     public static final char BASETYPE_SHARE     = 0x0008;
 
 
+
+    public static final char TYPE                   = 0xFFF0;
 
     public static final char TYPE_CONTACT           = 0x0010;
 
@@ -59,14 +63,6 @@ public abstract class MySQL {
     public static final char TYPE_CALENDAR_CATEGORY = 0x0400;
 
     public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
-
-
-
-    protected char type;
-
-    public int id;
-
-    protected abstract boolean mysql();
 
 
 
@@ -109,6 +105,39 @@ public abstract class MySQL {
             ex.printStackTrace();
             return null;
         }
+    }
+
+
+
+    protected char type;
+
+    protected int id;
+
+    protected int user_id;
+
+    protected MySQL(char type, int id, int user_id) {
+        this.type = type;
+        this.id = id;
+        this.user_id = user_id;
+    }
+
+    @Override
+    public abstract boolean equals(Object o);
+
+    public abstract Object backup();
+
+    protected abstract boolean mysql();
+
+    protected abstract void synchronize(MySQL mysql);
+
+    public abstract boolean canEdit();
+
+    public boolean isOwner() {
+        return (user_id == USER_ID);
+    }
+
+    public char getType() {
+        return (char)(type & TYPE);
     }
 
 }

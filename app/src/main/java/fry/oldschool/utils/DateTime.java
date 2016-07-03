@@ -32,4 +32,13 @@ public class DateTime {
         return (!date.smallerThen(dt.date) && time.time > dt.time.time);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof DateTime) {
+            DateTime d = (DateTime) o;
+            return (d.date.equals(date) && d.time.equals(time));
+        }
+        return false;
+    }
+
 }

@@ -12,46 +12,45 @@ public class Share extends MySQL {
 
     protected int share_id;
 
-    protected int user_id;
+    protected String email;
 
-    public String email;
+    protected String name;
 
-    public String name;
-
-    public Share(int id, int share_id,int user_id) {
-        this.id = id;
+    public Share(char type, int id, int user_id, byte permission, int share_id, String email, String name) {
+        super((char)(BASETYPE_SHARE | BASETYPE_UPDATE | type), id, user_id);
+        this.permission = permission;
         this.share_id = share_id;
-        this.user_id = user_id;
-        type = (char)(BASETYPE_SHARE | BASETYPE_UPDATE);
+        this.email = email;
+        this.name = name;
         if(id == 0) {
-            type |= BASETYPE_CREATE;
+            this.type |= BASETYPE_CREATE;
         }
     }
 
     public Share(int share_id,Contact cont) {
-        this(0, share_id, cont.user_id);
-        email = cont.email;
-        name = cont.name;
+        this((char)0, 0, cont.user_id, PERMISSION_VIEW, share_id, cont.email, cont.name);
     }
 
     public Share(int id,int share_id, int user_id, byte permission) {
-        this(id, share_id, user_id);
-        this.permission = permission;
-    }
-
-    protected Share(char type,int id,int share_id,byte permission,Contact contact) {
-        this(id, share_id, contact.user_id,permission);
-        this.type |= type;
-        email = contact.email;
-        name = contact.name;
+        this((char)0, id, user_id, permission, share_id, null, null);
     }
 
     protected Share(char type,int share_id, byte permission,Contact contact) {
-        this(type,0,share_id,permission,contact);
+        this(type, 0, contact.user_id, permission, share_id, contact.email, contact.name);
     }
 
     protected Share(char type,int share_id,Contact contact) {
-        this(type,0,share_id,PERMISSION_VIEW,contact);
+        this(type, 0, contact.user_id, PERMISSION_VIEW, share_id, contact.email, contact.name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return false;
+    }
+
+    @Override
+    public Share backup() {
+        return new Share(type, id, user_id, permission, share_id, email, name);
     }
 
     @Override
@@ -68,9 +67,20 @@ public class Share extends MySQL {
         return (getLine(getFileUrl(type), "&id=" + id + "&permission=" + permission) != null);
     }
 
+    @Override
+    protected void synchronize(MySQL mysql) { }
+
     protected void delete() {
         this.type |= BASETYPE_DELETE;
         ConnectionManager.add(this);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setPermission(byte permission) {
@@ -121,12 +131,6 @@ public class Share extends MySQL {
             return DIR_CALENDAR_ENTRY_SHARE;
         }
         return null;
-    }
-
-    public Share backup() {
-        Share share = new Share(id, share_id, user_id, permission);
-        share.type = type;
-        return share;
     }
 
 }

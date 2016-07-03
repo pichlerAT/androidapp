@@ -5,10 +5,11 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.App;
-import fry.oldschool.utils.NetworkStateReciever;
 import fry.oldschool.utils.FryFile;
 
 public class ConnectionManager {
+
+    protected static boolean PERFORM_UPDATE = true;
 
     protected static boolean sync_contact = false;
 
@@ -30,14 +31,14 @@ public class ConnectionManager {
         mysql_listener = listener;
     }
 
-    public static void add(MySQL entry) {
+    protected static void add(MySQL entry) {
         if(entry.id == 0 || !hasOnlineEntry(entry.type, entry.id)) {
             online_entries.add(entry);
             sync();
         }
     }
 
-    public static void add(OfflineEntry entry) {
+    protected static void add(OfflineEntry entry) {
         if(entry.id == 0 || !hasOfflineEntry(entry.type, entry.id)) {
             offline_entries.add(entry);
             sync();
@@ -46,6 +47,11 @@ public class ConnectionManager {
 
     protected static void notifyMySQLListener() {
         (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void performUpdate() {
+        PERFORM_UPDATE = true;
+        sync();
     }
 
     public static boolean hasOnlineEntry(int type,int id) {
@@ -72,15 +78,15 @@ public class ConnectionManager {
         return (hasOfflineEntry(type,id) || hasOnlineEntry(type,id));
     }
 
-    public static boolean remove(MySQL entry) {
+    protected static boolean remove(MySQL entry) {
         return online_entries.remove(entry);
     }
 
-    public static boolean remove(OfflineEntry entry) {
+    protected static boolean remove(OfflineEntry entry) {
         return offline_entries.remove(entry);
     }
 
-    public static void remove(char type,int id) {
+    protected static void remove(char type,int id) {
         for(int i=0; i<online_entries.size(); ++i) {
             MySQL ent = online_entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
@@ -95,7 +101,7 @@ public class ConnectionManager {
         }
     }
 
-    public static void sync() {
+    protected static void sync() {
         if(syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
             syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }else {
@@ -118,7 +124,7 @@ public class ConnectionManager {
         }
     }
 
-    public static class NotifyListener extends AsyncTask<String,String,String> {
+    protected static class NotifyListener extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... args) {
@@ -133,7 +139,7 @@ public class ConnectionManager {
         }
     }
 
-    public static class Sync extends AsyncTask<String,String,String> {
+    protected static class Sync extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -167,8 +173,8 @@ public class ConnectionManager {
         }
 
         protected void performUpdate() {
-            if(App.PERFORM_UPDATE) {
-                App.PERFORM_UPDATE = false;
+            if(PERFORM_UPDATE) {
+                PERFORM_UPDATE = false;
                 sync_contact = true;
                 sync_requests = true;
                 sync_calendar = true;

@@ -7,11 +7,9 @@ import fry.oldschool.utils.Fryable;
 
 public class TimetableCategory extends MySQL implements Fryable {
 
-    public int user_id;
+    protected String name;
 
-    public String name;
-
-    public ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
+    protected ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
 
     public static TimetableCategory create(String name) {
         TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
@@ -20,13 +18,27 @@ public class TimetableCategory extends MySQL implements Fryable {
         return cat;
     }
 
-    protected TimetableCategory() { }
+    protected TimetableCategory() {
+        super(TYPE_CALENDAR_CATEGORY, 0, 0);
+    }
 
     protected TimetableCategory(int id,int user_id,String name) {
-        type = TYPE_CALENDAR_CATEGORY;
-        this.id = id;
-        this.user_id = user_id;
+        super(TYPE_CALENDAR_CATEGORY, id, user_id);
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof TimetableCategory) {
+            TimetableCategory c = (TimetableCategory) o;
+            return (c.id == id && c.name.equals(name));
+        }
+        return false;
+    }
+
+    @Override
+    public TimetableCategory backup() {
+        return new TimetableCategory(id, user_id, name);
     }
 
     @Override
@@ -42,6 +54,17 @@ public class TimetableCategory extends MySQL implements Fryable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+        TimetableCategory c = (TimetableCategory) mysql;
+        name = c.name;
+    }
+
+    @Override
+    public boolean canEdit() {
+        return isOwner();
     }
 
     @Override
@@ -66,11 +89,15 @@ public class TimetableCategory extends MySQL implements Fryable {
         }
     }
 
-    public void addOfflineEntry(TimetableEntry entry) {
+    public String getName() {
+        return name;
+    }
+
+    protected void addOfflineEntry(TimetableEntry entry) {
         offline_entries.add(entry);
     }
 
-    public String getUpdateString() {
+    protected String getUpdateString() {
         return ("&category_id=" + id + "&name=" + name);
     }
 
@@ -84,11 +111,11 @@ public class TimetableCategory extends MySQL implements Fryable {
 
     public void rename(String name) {
         this.name = name;
-        OfflineEntry.update(TYPE_CALENDAR_CATEGORY, id);
+        OfflineEntry.update(this);
     }
 
     public void delete() {
-        OfflineEntry.delete(TYPE_CALENDAR_CATEGORY, id);
+        OfflineEntry.delete(this);
     }
 
 }

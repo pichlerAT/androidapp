@@ -1,4 +1,4 @@
-package fry.oldschool.utils;
+package fry.oldschool.data;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import fry.oldschool.data.ConnectionManager;
+import fry.oldschool.utils.App;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 

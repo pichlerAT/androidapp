@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import fry.oldschool.activity.TaskCreateActivity;
+import fry.oldschool.data.TasklistManager;
 import fry.oldschool.utils.App;
 import fry.oldschool.R;
 import fry.oldschool.adapter.TaskAdapter;
@@ -31,14 +32,14 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final DragableListView lv = (DragableListView) rootView.findViewById(android.R.id.list);
 
-        adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, App.Tasklists);
+        adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
         lv.setAdapter(adapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (App.Tasklists.size() == 0){
+                if (TasklistManager.size() == 0){
                     TextView text = (TextView) rootView.findViewById(R.id.textview_task_message);
                     text.setText("No tasks found");
                 }

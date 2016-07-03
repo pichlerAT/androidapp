@@ -42,7 +42,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return contactGroupList.get(groupPosition).contacts.size();
+        return contactGroupList.get(groupPosition).getNoContacts();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Contact getChild(int groupPosition, int childPosition) {
-        return contactGroupList.get(groupPosition).contacts.get(childPosition);
+        return contactGroupList.get(groupPosition).getContact(childPosition);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        String headerString = (String) getGroup(groupPosition).name;
+        String headerString = (String) getGroup(groupPosition).getName();
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_contact_list_header, parent, false);
@@ -89,8 +89,8 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             deleteGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ContactList.groups.get(groupPosition).delete();
-                    contactGroupList = new ArrayList<>(ContactList.groups);
+                    ContactList.getGroup(groupPosition).delete();
+                    contactGroupList = new ArrayList<>(ContactList.getGroups());
                     notifyDataSetChanged();
                 }
             });
@@ -113,7 +113,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         Contact contact = getChild(groupPosition, childPosition);
-        String childString = contact.name;
+        String childString = contact.getName();
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_contact_list_item, parent, false);
@@ -123,7 +123,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         TextView contactEmail = (TextView) convertView.findViewById(R.id.textview_contact_email);
         TextView firstLetter = (TextView) convertView.findViewById(R.id.textview_contact_icon);
         contactName.setText(childString);
-        contactEmail.setText(contact.email);
+        contactEmail.setText(contact.getEmail());
         firstLetter.setText(String.valueOf(childString.charAt(0)).toUpperCase());
 
 
@@ -144,7 +144,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     public void addGroup(String groupName){
         //Add group
         ContactList.createContactGroup(groupName);
-        contactGroupList = new ArrayList<>(ContactList.groups);
+        contactGroupList = new ArrayList<>(ContactList.getGroups());
         notifyDataSetChanged();
     }
 
@@ -155,33 +155,36 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     public void removeChilds(ArrayList<Contact> contacts){
         for (Contact contact : contacts){
             ContactList.deleteContact(contact);
-            contactGroupList = new ArrayList<ContactGroup>(ContactList.groups);
+            contactGroupList = new ArrayList<ContactGroup>(ContactList.getGroups());
         }
         notifyDataSetChanged();
     }
 
     public void filterContacts(String search){
-
+        /*
         if(!search.isEmpty()) {
             search = search.toLowerCase();
 
-            for (int i=0; i<ContactList.groups.size(); i++){
+            for (int i=0; i<ContactList.getNoGroups(); i++){
                 ArrayList<Contact> newContacts = new ArrayList<Contact>();
                 for (Contact contact : ContactList.groups.get(i).contacts) {
                     if (contact.name.toLowerCase().contains(search) || contact.email.toLowerCase().contains(search)) {
                         newContacts.add(contact);
                     }
                 }
+
                 if (newContacts.size() > 0)
                     contactGroupList.get(i).contacts = newContacts;
                 else{
                     contactGroupList.get(i).contacts = new ArrayList<>();
                 }
+
             }
         }
         else{
             contactGroupList = new ArrayList<>(ContactList.groups);
         }
         notifyDataSetChanged();
+        */
     }
 }

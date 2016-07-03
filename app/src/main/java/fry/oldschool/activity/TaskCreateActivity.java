@@ -22,6 +22,7 @@ import fry.oldschool.R;
 import fry.oldschool.adapter.TaskCreateAdapter;
 import fry.oldschool.data.Tasklist;
 import fry.oldschool.data.TasklistEntry;
+import fry.oldschool.data.TasklistManager;
 import fry.oldschool.utils.App;
 
 /**
@@ -105,19 +106,19 @@ public class TaskCreateActivity extends mAppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(Tasklist tdl : App.Tasklists){
+        for(Tasklist tdl : TasklistManager.getTasklists()){
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
-            taskName.setText(tdl.name);
+            taskName.setText(tdl.getName());
             layouts.add(taskView);
 
-            if (tdl.entries.size() > 0) {
-                for (TasklistEntry ent : tdl.entries) {
+            if (tdl.getNoEntries() > 0) {
+                for (TasklistEntry ent : tdl.getEntries()) {
                     entryRow = new TableRow(ctx);
                     entryState = new CheckBox(ctx);
                     entryName = createEntryName();
-                    entryName.setText(ent.description);
+                    entryName.setText(ent.getDescription());
                     entryListeners(taskEntries, entryName, entryRow);
                     entryState.setChecked(ent.isDone());
 
@@ -142,7 +143,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == App.Tasklists.get(index)){
+            if (args != null && tdl == TasklistManager.get(index)){
                 setCurrentPage(taskView);
             }
         }
@@ -158,7 +159,6 @@ public class TaskCreateActivity extends mAppCompatActivity{
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
                 task = Tasklist.create(header.getText().toString());
-                App.Tasklists.add(task);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -175,10 +175,10 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
                     if (!entryText.isEmpty()) {
                         TasklistEntry entry = null;
-                        if (task.entries.size() > i)
-                            entry = task.entries.get(i);
-                        if (entry != null && (!entry.description.equals(entryText) || entry.isDone() != checkbox.isChecked()))
-                            entry.change(entryText, checkbox.isChecked());
+                        if (task.getNoEntries() > i)
+                            entry = task.getEntry(i);
+                        if (entry != null && (!entry.getDescription().equals(entryText) || entry.isDone() != checkbox.isChecked()))
+                            entry.set(entryText, checkbox.isChecked());
                         else if (entry == null)
                             task.addEntry(entryText, checkbox.isChecked());
                     }
@@ -198,7 +198,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
             position = adapter.getItemPosition(getCurrentPage()) -1;
 
         if (position >= 0) {
-            Tasklist tdl = App.Tasklists.get(position);
+            Tasklist tdl = TasklistManager.get(position);
             taskList(tdl, position+1);
         }
         else

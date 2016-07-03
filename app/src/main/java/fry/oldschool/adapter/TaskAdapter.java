@@ -84,14 +84,14 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         }
         TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
         final Tasklist item = getItem(position);
-        final String headerText = item.name;
+        final String headerText = item.getName();
         header.setText(headerText);
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
-                final TasklistEntry entry = item.entries.get(i);
+                final TasklistEntry entry = item.getEntry(i);
                 CheckBox cb = new CheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);
@@ -99,7 +99,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                 cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        entry.change(b);
+                        entry.setState(b);
                     }
                 });
                 entries.addView(cb);
@@ -154,7 +154,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                         else if (menuItem.getTitle().equals(App.mContext.getResources().getString(R.string.share))) {
                             View taskContactList = View.inflate(App.mContext, R.layout.fragment_task_contact_list, null);
                             ExpandableListView lv = (ExpandableListView) taskContactList.findViewById(R.id.listview_task_contact_id);
-                            final ContactAdapter adapter = new ContactAdapter(App.mContext, ContactList.groups, true);
+                            final ContactAdapter adapter = new ContactAdapter(App.mContext, ContactList.getGroups(), true);
                             lv.setAdapter(adapter);
 
                             for (int i=0; i<adapter.getGroupCount(); i++){

@@ -16,6 +16,15 @@ public class Time {
         time = 60 * hours + minutes;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Time) {
+            Time t = (Time) o;
+            return (t.time == time);
+        }
+        return false;
+    }
+
     public void add(int time) {
         this.time += time;
     }

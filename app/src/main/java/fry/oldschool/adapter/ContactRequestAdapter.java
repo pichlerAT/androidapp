@@ -57,8 +57,8 @@ public class ContactRequestAdapter extends ArrayAdapter<ContactRequest>{
         TextView senderName = (TextView) senderData.getChildAt(0);
         TextView senderEmail = (TextView) senderData.getChildAt(1);
 
-        senderName.setText(sender.name);
-        senderEmail.setText(sender.email);
+        senderName.setText(sender.getName());
+        senderEmail.setText(sender.getEmail());
 
         Button accept = (Button) res.findViewById(R.id.imagebutton_contact_request_accept);
         accept.setOnClickListener(new View.OnClickListener() {

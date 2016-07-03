@@ -9,24 +9,47 @@ import fry.oldschool.utils.SearchableList;
 
 public class ContactGroup extends MySQL implements Fryable {
 
-    public String name;
+    protected String name;
 
-    public SearchableList<Contact> contacts = new SearchableList<>();
+    protected SearchableList<Contact> contacts = new SearchableList<>();
 
-    protected ContactGroup() { }
+    protected ContactGroup() {
+        super(TYPE_CONTACT_GROUP, 0, USER_ID);
+    }
 
-    /**
-     * Used for the "All Contacts" ContactGroup
-     * @param name Name of the ContactGroup
-     */
-    public ContactGroup(String name) {
+    protected ContactGroup(int id, String name) {
+        super(TYPE_CONTACT_GROUP, id, USER_ID);
         this.name = name;
     }
 
-    public ContactGroup(int id, String name) {
-        this.type = TYPE_CONTACT_GROUP;
-        this.id = id;
-        this.name = name;
+    protected ContactGroup(String name) {
+        this(0, name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof ContactGroup) {
+            ContactGroup g = (ContactGroup) o;
+            if(g.id != id || !g.name.equals(name) || g.contacts.size() != contacts.size()) {
+                return false;
+            }
+            for(int i=0; i<contacts.size(); ++i) {
+                if(!g.contacts.get(i).equals(contacts.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public ContactGroup backup() {
+        ContactGroup grp = new ContactGroup(id, name);
+        grp.type = type;
+        grp.user_id = user_id;
+        grp.contacts = contacts.clone();
+        return grp;
     }
 
     @Override
@@ -37,6 +60,18 @@ public class ContactGroup extends MySQL implements Fryable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+        ContactGroup g = (ContactGroup) mysql;
+        name = g.name;
+        contacts = g.contacts;
+    }
+
+    @Override
+    public boolean canEdit() {
+        return true;
     }
 
     @Override
@@ -70,18 +105,6 @@ public class ContactGroup extends MySQL implements Fryable {
         return ("&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
     }
 
-    public boolean equals(ContactGroup grp) {
-        if(grp.id != id || grp.contacts.size()!=contacts.size() || !grp.name.equals(name)) {
-            return false;
-        }
-        for(int i=0; i<grp.contacts.size(); ++i) {
-            if(grp.contacts.get(i).user_id != contacts.get(i).user_id) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public String getContactsString() {
         String s = "" + contacts.size();
         for(Contact c : contacts) {
@@ -112,10 +135,10 @@ public class ContactGroup extends MySQL implements Fryable {
         this.contacts = contacts;
     }
 
-    public void rename(String name) {
+    public void setName(String name) {
         this.name = name;
         if(id != 0) {
-            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
+            OfflineEntry.update(this);
         }
     }
 
@@ -126,14 +149,14 @@ public class ContactGroup extends MySQL implements Fryable {
             }
         }
         if(id != 0) {
-            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
+            OfflineEntry.update(this);
         }
     }
 
     public void removeContact(Contact contact) {
         contacts.remove(contact);
         if(id != 0) {
-            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
+            OfflineEntry.update(this);
         }
     }
 
@@ -142,7 +165,7 @@ public class ContactGroup extends MySQL implements Fryable {
             this.contacts.remove(c);
         }
         if(id != 0) {
-            OfflineEntry.update(TYPE_CONTACT_GROUP, id);
+            OfflineEntry.update(this);
         }
     }
 
@@ -152,8 +175,20 @@ public class ContactGroup extends MySQL implements Fryable {
             ConnectionManager.remove(this);
         }else {
             ConnectionManager.remove(TYPE_CONTACT_GROUP,id);
-            OfflineEntry.delete(TYPE_CONTACT_GROUP, id);
+            OfflineEntry.delete(this);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getNoContacts() {
+        return contacts.size();
+    }
+
+    public Contact getContact(int index) {
+        return contacts.get(index);
     }
 
 }

@@ -26,13 +26,13 @@ public class ContactRequestFragment extends Fragment{
         final View rootView = inflater.inflate(R.layout.fragment_contact_request, container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, ContactList.contactRequests);
+        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, ContactList.getRequests());
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (ContactList.contactRequests.size() == 0){
+                if (ContactList.getNoRequests() == 0){
                     TextView text = (TextView) rootView.findViewById(R.id.textview_contact_message);
                     text.setText("No contact requests available");
 

@@ -5,27 +5,39 @@ import fry.oldschool.utils.Fryable;
 
 public class TasklistEntry extends MySQL implements Fryable {
 
-    public int table_id;
+    protected int table_id;
 
-    public int user_id;
+    protected byte state;
 
-    public byte state;
+    protected String description;
 
-    public String description;
+    protected TasklistEntry() {
+        super(TYPE_TASKLIST_ENTRY, 0, 0);
+    }
 
-    protected TasklistEntry() { }
-
-    public TasklistEntry(int id, int table_id, int user_id, byte state, String description) {
-        this.type = TYPE_TASKLIST_ENTRY;
-        this.id = id;
+    protected TasklistEntry(int id, int table_id, int user_id, byte state, String description) {
+        super(TYPE_TASKLIST_ENTRY, id, user_id);
         this.table_id = table_id;
-        this.user_id = user_id;
         this.description = description;
         this.state = state;
     }
 
     protected TasklistEntry(String description, boolean state) {
         this(0,0,USER_ID,( state ? (byte)1 : (byte)0 ),description);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof TasklistEntry) {
+            TasklistEntry e = (TasklistEntry) o;
+            return (e.id == id && e.state == state && e.description.equals(description));
+        }
+        return false;
+    }
+
+    @Override
+    public TasklistEntry backup() {
+        return new TasklistEntry(id, table_id, user_id, state, description);
     }
 
     @Override
@@ -36,6 +48,18 @@ public class TasklistEntry extends MySQL implements Fryable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+        TasklistEntry e = (TasklistEntry) mysql;
+        state = e.state;
+        description = e.description;
+    }
+
+    @Override
+    public boolean canEdit() {
+        return (isOwner() || TasklistManager.getTasklistById(table_id).hasShareByUserId(USER_ID));
     }
 
     @Override
@@ -54,27 +78,34 @@ public class TasklistEntry extends MySQL implements Fryable {
         description = fry.getString();
     }
 
-    public void change(String description,boolean state) {
+    public void set(String description,boolean state) {
         this.description = description;
         this.state = ( state ? (byte)1 : (byte)0 );
         if(table_id != 0) {
-            OfflineEntry.update(TYPE_TASKLIST_ENTRY, id);
+            OfflineEntry.update(this);
         }
     }
 
-    public void change(boolean state) {
+    public void setDescription(String description,boolean state) {
+        this.description = description;
+        if(table_id != 0) {
+            OfflineEntry.update(this);
+        }
+    }
+
+    public void setState(boolean state) {
         this.state = ( state ? (byte)1 : (byte)0 );
         if(table_id != 0) {
-            OfflineEntry.update(TYPE_TASKLIST_ENTRY, id);
+            OfflineEntry.update(this);
         }
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public boolean isDone() {
         return ( state == 1 );
-    }
-
-    public boolean isOwner() {
-        return ( user_id == USER_ID );
     }
 
     public Contact getOwner() {
@@ -90,10 +121,6 @@ public class TasklistEntry extends MySQL implements Fryable {
 
     public boolean equals(TasklistEntry ent) {
         return (id == ent.id && table_id == ent.table_id && user_id == ent.user_id && state == ent.state && description.equals(ent.description));
-    }
-
-    public TasklistEntry backup() {
-        return new TasklistEntry(id, table_id, user_id, state, description);
     }
 
 }

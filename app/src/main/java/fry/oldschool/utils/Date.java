@@ -35,6 +35,15 @@ public class Date {
         year = Integer.parseInt(r[2]);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Date) {
+            Date d = (Date) o;
+            return (d.day == day && d.month == month && d.year == year);
+        }
+        return false;
+    }
+
     public boolean smallerThen(Date date) {
         return (year < date.year && month < date.month && day < date.day);
     }

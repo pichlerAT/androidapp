@@ -6,9 +6,9 @@ public class ContactRequest {
 
     protected int user_id;
 
-    public String email;
+    protected String email;
 
-    public String name;
+    protected String name;
 
     protected ContactRequest(int id,int user_id,String email,String name) {
         this.id = id;
@@ -29,13 +29,31 @@ public class ContactRequest {
         }
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     protected static class Send extends MySQL {
 
         protected String email;
 
         protected Send(String email) {
-            this.type = TYPE_CONTACT_REQUEST;
+            super(TYPE_CONTACT_REQUEST, 0, USER_ID);
             this.email = email;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return false;
+        }
+
+        @Override
+        public Object backup() {
+            return null;
         }
 
         @Override
@@ -54,6 +72,14 @@ public class ContactRequest {
             }
             return false;
         }
+
+        @Override
+        protected void synchronize(MySQL mysql) { }
+
+        @Override
+        public boolean canEdit() {
+            return false;
+        }
     }
 
     protected static class Accept extends MySQL {
@@ -61,19 +87,36 @@ public class ContactRequest {
         protected int id;
 
         protected Accept(int id) {
-            this.type = TYPE_CONTACT_REQUEST;
-            this.id = id;
+            super(TYPE_CONTACT_REQUEST, id, 0);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return false;
+        }
+
+        @Override
+        public Object backup() {
+            return null;
         }
 
         @Override
         protected boolean mysql() {
             String resp = getLine(DIR_CONTACT_REQUEST + "accept.php", "&id=" + id);
             if(resp != null) {
-                ContactList.removeContactRequest(id);
+                ContactList.removeContactRequestById(id);
                 ConnectionManager.sync_contact = true;
                 ConnectionManager.sync();
                 return true;
             }
+            return false;
+        }
+
+        @Override
+        protected void synchronize(MySQL mysql) { }
+
+        @Override
+        public boolean canEdit() {
             return false;
         }
     }

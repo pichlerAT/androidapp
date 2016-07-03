@@ -6,13 +6,13 @@ import fry.oldschool.utils.Searchable;
 
 public class Contact implements Fryable, Searchable {
 
-    public int id;
+    protected int id;
 
-    public int user_id;
+    protected int user_id;
 
-    public String email;
+    protected String email;
 
-    public String name;
+    protected String name;
 
     protected Contact() { }
 
@@ -48,6 +48,23 @@ public class Contact implements Fryable, Searchable {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Contact) {
+            Contact c = (Contact) o;
+            return (c.id == id && c.user_id == user_id && c.email.equals(email) && c.name.equals(name));
+        }
+        return false;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

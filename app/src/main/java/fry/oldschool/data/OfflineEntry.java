@@ -9,19 +9,50 @@ public class OfflineEntry extends MySQL implements Fryable {
         ConnectionManager.add(new OfflineEntry((char)(type | BASETYPE_DELETE), id));
     }
 
+    public static void delete(MySQL mysql) {
+        delete(mysql.getType(), mysql.id);
+    }
+
     public static void update(char type, int id) {
         ConnectionManager.add(new OfflineEntry((char)(type | BASETYPE_UPDATE), id));
     }
 
+    public static void update(MySQL mysql) {
+        update(mysql.getType(), mysql.id);
+    }
+
     protected OfflineEntry(char type, int id) {
-        this.type = type;
-        this.id = id;
+        super(type, id, 0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof OfflineEntry) {
+            OfflineEntry e = (OfflineEntry) o;
+            return (e.id == id && e.type == type);
+        }
+        return false;
+    }
+
+    @Override
+    public OfflineEntry backup() {
+        return new OfflineEntry(type, id);
     }
 
     @Override
     protected boolean mysql() {
         String[] data = getAddressData();
         return (getLine(data[0] + "update.php", data[1]) != null);
+    }
+
+    @Override
+    protected void synchronize(MySQL mysql) {
+
+    }
+
+    @Override
+    public boolean canEdit() {
+        return false;
     }
 
     @Override
