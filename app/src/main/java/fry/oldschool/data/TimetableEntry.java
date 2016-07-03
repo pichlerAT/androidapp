@@ -38,7 +38,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         span = new DateSpan(fry);
     }
 
-    protected TimetableEntry(int id, int user_id, byte addition, short date_start, short time_start, int duration, int category_id, String title, String description) {
+    protected TimetableEntry(int id, int user_id, int category_id, String title, String description, short date_start, short time_start, int duration, byte addition) {
         super(TYPE_CALENDAR_ENTRY, id, user_id);
         this.addition = addition;
         this.category_id = category_id;
@@ -48,7 +48,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     protected TimetableEntry(int id, int user_id, byte addition, int category_id, String title, String description, DateSpan span) {
-        this(id, user_id, addition, span.getDateStart(), span.getTimeStart(), span.getDuration(), category_id, title, description);
+        this(id, user_id, category_id, title, description, span.getDateStart(), span.getTimeStart(), span.getDuration(), addition);
     }
 
     @Override

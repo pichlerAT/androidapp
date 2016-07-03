@@ -57,8 +57,8 @@ public class Timetable {
 
         ArrayList<TimetableEntry> entList = new ArrayList<>();
         while(index < r.length) {
-            entList.add(new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), Short.parseShort(r[index++]),
-                                    Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++]));
+            entList.add(new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++],
+                                        Short.parseShort(r[index++]), Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++])));
         }
         entries.synchronizeWith(entList);
     }

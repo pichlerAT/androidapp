@@ -71,7 +71,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
 
     @Override
     public boolean canEdit() {
-        return (isOwner() || TasklistManager.getTasklistById(table_id).hasShareByUserId(USER_ID));
+        return (isOwner() || TasklistManager.getTasklistById(table_id).isSharedWithUserId(USER_ID));
     }
 
     @Override

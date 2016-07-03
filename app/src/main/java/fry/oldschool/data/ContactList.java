@@ -177,8 +177,12 @@ public class ContactList {
         return getAllContactsGroup().contacts;
     }
 
-    public static ArrayList<ContactGroup> getGroups() {
+    public static ArrayList<ContactGroup> getAllGroups() {
         return groups;
+    }
+
+    public static ArrayList<ContactGroup> getGroups() {
+        return (ArrayList<ContactGroup>) groups.subList(0, groups.size() - 1);
     }
 
     public static int getNoContacts() {

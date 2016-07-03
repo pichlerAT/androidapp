@@ -15,7 +15,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     protected ArrayList<TasklistEntry> entries = new ArrayList<>();
 
-    protected ArrayList<Share> sharedContacts = new ArrayList<>();
+    protected ShareList shareList;
 
     public static Tasklist create(String name) {
         Tasklist tl = new Tasklist(0,USER_ID,(byte)0,name);
@@ -35,12 +35,19 @@ public class Tasklist extends MySQLEntry implements Fryable {
             ent.table_id = id;
             entries.add(ent);
         }
+
+        if(id != 0) {
+            shareList = new ShareList(TYPE_TASKLIST, id);
+        }
     }
 
     protected Tasklist(int id, int user_id, byte state, String name) {
         super(TYPE_TASKLIST, id, user_id);
         this.state = state;
         this.name = name;
+        if(id != 0) {
+            shareList = new ShareList(TYPE_TASKLIST, id);
+        }
     }
 
     @Override
@@ -66,9 +73,6 @@ public class Tasklist extends MySQLEntry implements Fryable {
         for(TasklistEntry ent : entries) {
             tl.entries.add(ent.backup());
         }
-        for(Share share : sharedContacts) {
-            tl.sharedContacts.add(new Share(share));
-        }
         return tl;
     }
 
@@ -77,6 +81,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         String resp = getLine(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state);
         if(resp != null) {
             id = Integer.parseInt(resp);
+            shareList = new ShareList(TYPE_TASKLIST, id);
             for(TasklistEntry ent : entries) {
                 ent.table_id = id;
                 ent.create();
@@ -105,7 +110,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     @Override
     public boolean canEdit() {
-        return (isOwner() || hasShareByUserId(USER_ID));
+        return (isOwner() || isSharedWithUserId(USER_ID));
     }
 
     @Override
@@ -148,50 +153,17 @@ public class Tasklist extends MySQLEntry implements Fryable {
         update();
     }
 
-    public boolean hasShareByUserId(int id) {
-        for(Share s : sharedContacts) {
-            if(s.user_id == id) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isSharedWithUserId(int id) {
+        return shareList.hasUserId(id);
     }
 
     public ArrayList<ContactGroup> getShared() {
-        ArrayList<ContactGroup> grpList = new ArrayList<>(ContactList.groups.size());
-        ContactGroup allContacts = ContactList.getAllContactsGroup();
-        ContactGroup allShares = new ContactGroup(allContacts.id, allContacts.name);
-
-        for(Contact cont : allContacts.contacts) {
-            Share s = new Share(id, cont);
-            allShares.contacts.add(s);
-        }
-
-        for(Share s : sharedContacts) {
-            Share si = (Share) allShares.getContactByUserId(s.user_id);
-            if(si != null) {
-                si.id = s.id;
-                si.permission = s.permission;
-            }
-        }
-
-        for(int i=0; i<ContactList.getNoGroups()-1; ++i) {
-            ContactGroup grpc = ContactList.getGroup(i);
-            ContactGroup grps = new ContactGroup(grpc.id, grpc.name);
-            for(Contact cont : grpc.contacts) {
-                grps.contacts.add(allShares.getContactByUserId(cont.user_id));
-            }
-            grpList.add(grps);
-        }
-
-        grpList.add(allShares);
-
-        return grpList;
+        return shareList.getShareList();
     }
 
     public void addShare(Contact contact) {
         Share share = new Share(TYPE_TASKLIST,id,contact);
-        sharedContacts.add(share);
+        shareList.addShare(share);
         ConnectionManager.add(share);
     }
 
@@ -203,7 +175,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public void addShare(Contact contact,byte permission) {
         Share share = new Share(TYPE_TASKLIST, permission, id, contact);
-        sharedContacts.add(share);
+        shareList.addShare(share);
         ConnectionManager.add(share);
     }
 
@@ -219,15 +191,8 @@ public class Tasklist extends MySQLEntry implements Fryable {
         }
     }
 
-    public void removeShare(int index) {
-        Share share = sharedContacts.remove(index);
-        if(share != null) {
-            share.delete();
-        }
-    }
-
     public void removeShare(Share share) {
-        if(sharedContacts.remove(share)) {
+        if(shareList.remove(share)) {
             share.delete();
         }
     }

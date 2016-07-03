@@ -44,7 +44,7 @@ public class TasklistManager {
 
             int NoShares = Integer.parseInt(r[index++]);
             for(int i=0; i<NoShares; ++i) {
-                tl.sharedContacts.add(new Share(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), tl.id));
+                tl.shareList.add(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]));
             }
 
             list.add(tl);

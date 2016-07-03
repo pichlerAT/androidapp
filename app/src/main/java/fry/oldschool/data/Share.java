@@ -28,7 +28,7 @@ public class Share extends Contact {
         this((char)0, id, user_id, permission, share_id, null, null);
     }
 
-    protected Share(char type, byte permission, int share_id,Contact contact) {
+    protected Share(char type, byte permission, int share_id, Contact contact) {
         this(type, 0, contact.user_id, permission, share_id, contact.email, contact.name);
     }
 
