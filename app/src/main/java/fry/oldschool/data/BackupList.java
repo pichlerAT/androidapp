@@ -3,7 +3,7 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BackupList<E extends MySQL> {
+public class BackupList<E extends MySQLEntry> {
 
     protected int length;
 
@@ -103,7 +103,7 @@ public class BackupList<E extends MySQL> {
             }else {
                 if(online.canEdit()) {
                     // delete online
-                    OfflineEntry.delete(online);
+                    online.delete();
 
                 }else {
                     // delete share

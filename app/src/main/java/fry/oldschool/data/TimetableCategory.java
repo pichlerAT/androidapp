@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 
-public class TimetableCategory extends MySQL implements Fryable {
+public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected String name;
 
@@ -13,13 +13,18 @@ public class TimetableCategory extends MySQL implements Fryable {
 
     public static TimetableCategory create(String name) {
         TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
+        cat.create();
         Timetable.categories.add(cat);
-        ConnectionManager.add(cat);
         return cat;
     }
 
-    protected TimetableCategory() {
-        super(TYPE_CALENDAR_CATEGORY, 0, 0);
+    protected TimetableCategory(FryFile fry) {
+        super(fry);
+
+        int NoEntries = fry.getChar();
+        for(int i=0; i<NoEntries; ++i) {
+            offline_entries.add(new TimetableEntry(fry));
+        }
     }
 
     protected TimetableCategory(int id,int user_id,String name) {
@@ -42,18 +47,29 @@ public class TimetableCategory extends MySQL implements Fryable {
     }
 
     @Override
-    protected boolean mysql() {
-        String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php","&name=" + name);
+    protected boolean mysql_create() {
+        String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php", "&name="+name);
         if(resp != null) {
             id = Integer.parseInt(resp);
-            for(int i=offline_entries.size()-1; i>=0; --i) {
-                TimetableEntry ent = offline_entries.remove(i);
+
+            for(TimetableEntry ent : offline_entries) {
                 ent.category_id = id;
-                ConnectionManager.add(ent);
+                ent.create();
             }
+            offline_entries = new ArrayList<>();
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected boolean mysql_update() {
+        return (getLine(DIR_CALENDAR_CATEGORY + "update.php", "&category_id="+id+"&name="+name) != null);
+    }
+
+    @Override
+    protected boolean mysql_delete() {
+        return (getLine(DIR_CALENDAR_CATEGORY + "delete.php", "&id="+id) != null);
     }
 
     @Override
@@ -69,24 +85,9 @@ public class TimetableCategory extends MySQL implements Fryable {
 
     @Override
     public void writeTo(FryFile fry) {
-        fry.write(id);
-        fry.write(user_id);
+        super.writeTo(fry);
         fry.write(name);
-        fry.write(offline_entries.toArray());
-    }
-
-    @Override
-    public void readFrom(FryFile fry) {
-        id = fry.getInt();
-        user_id = fry.getInt();
-        name = fry.getString();
-
-        int NoEntries = fry.getChar();
-        for(int i=0; i<NoEntries; ++i) {
-            TimetableEntry ent = new TimetableEntry();
-            ent.readFrom(fry);
-            offline_entries.add(ent);
-        }
+        fry.write(offline_entries);
     }
 
     public String getName() {
@@ -97,25 +98,22 @@ public class TimetableCategory extends MySQL implements Fryable {
         offline_entries.add(entry);
     }
 
-    protected String getUpdateString() {
-        return ("&category_id=" + id + "&name=" + name);
-    }
-
     public void shareWith(Contact cont) {
         ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, id, cont));
     }
 
     public void shareWith(Contact cont, byte permission) {
-        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, id, permission, cont));
+        ConnectionManager.add(new Share(TYPE_CALENDAR_CATEGORY, permission, id, cont));
     }
 
-    public void rename(String name) {
+    public void setName(String name) {
         this.name = name;
-        OfflineEntry.update(this);
+        update();
     }
 
     public void delete() {
-        OfflineEntry.delete(this);
+        super.delete();
+        Timetable.categories.remove(this);
     }
 
 }

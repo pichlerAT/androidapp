@@ -23,24 +23,15 @@ public class ConnectionManager {
 
     protected static MySQLListener mysql_listener;
 
-    protected static ArrayList<MySQL> online_entries = new ArrayList<>();
-
-    protected static ArrayList<OfflineEntry> offline_entries = new ArrayList<>();
+    protected static ArrayList<MySQL> entries = new ArrayList<>();
 
     public static void setMySQLListener(MySQLListener listener) {
         mysql_listener = listener;
     }
 
     protected static void add(MySQL entry) {
-        if(entry.id == 0 || !hasOnlineEntry(entry.type, entry.id)) {
-            online_entries.add(entry);
-            sync();
-        }
-    }
-
-    protected static void add(OfflineEntry entry) {
-        if(entry.id == 0 || !hasOfflineEntry(entry.type, entry.id)) {
-            offline_entries.add(entry);
+        if(entry.id == 0 || !hasEntry(entry.type, entry.id)) {
+            entries.add(entry);
             sync();
         }
     }
@@ -54,49 +45,25 @@ public class ConnectionManager {
         sync();
     }
 
-    public static boolean hasOnlineEntry(int type,int id) {
-        for(int i=0; i<online_entries.size(); ++i) {
-            MySQL ent = online_entries.get(i);
-            if(ent.id == id && (ent.type & type) == type) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean hasOfflineEntry(int type,int id) {
-        for(int i=0; i<offline_entries.size(); ++i) {
-            OfflineEntry ent = offline_entries.get(i);
-            if(ent.id == id && (ent.type & type) == type) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static boolean hasEntry(int type,int id) {
-        return (hasOfflineEntry(type,id) || hasOnlineEntry(type,id));
+        for(int i=0; i<entries.size(); ++i) {
+            MySQL ent = entries.get(i);
+            if(ent.id == id && (ent.type & type) == type) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected static boolean remove(MySQL entry) {
-        return online_entries.remove(entry);
-    }
-
-    protected static boolean remove(OfflineEntry entry) {
-        return offline_entries.remove(entry);
+        return entries.remove(entry);
     }
 
     protected static void remove(char type,int id) {
-        for(int i=0; i<online_entries.size(); ++i) {
-            MySQL ent = online_entries.get(i);
+        for(int i=0; i<entries.size(); ++i) {
+            MySQL ent = entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
-                online_entries.remove(i);
-            }
-        }
-        for(int i=0; i<offline_entries.size(); ++i) {
-            OfflineEntry ent = offline_entries.get(i);
-            if(ent.id == id && (ent.type & type) == type) {
-                offline_entries.remove(i);
+                entries.remove(i);
             }
         }
     }
@@ -110,17 +77,26 @@ public class ConnectionManager {
     }
 
     public static void writeTo(FryFile fry) {
-        fry.write((char)offline_entries.size());
-        for(OfflineEntry ent : offline_entries) {
-            fry.write(ent.type);
-            fry.write(ent.id);
+        ArrayList<MySQL> writeList = new ArrayList<>(entries.size());
+        for(MySQL m : entries) {
+            if(m instanceof MySQLEntry && m.id > 0) {
+                writeList.add(m);
+            }
+        }
+        fry.write((char)writeList.size());
+        for(MySQL m : writeList) {
+            fry.write(m.type);
+            fry.write(m.id);
         }
     }
 
     public static void readFrom(FryFile fry) {
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            offline_entries.add(new OfflineEntry(fry.getChar(),fry.getInt()));
+            MySQL entry = MySQLEntry.load(fry.getChar(),fry.getInt());
+            if(entry != null) {
+                entries.add(entry);
+            }
         }
     }
 
@@ -144,26 +120,15 @@ public class ConnectionManager {
         @Override
         protected String doInBackground(String... params) {
             performUpdate();
-            int on_index = 0;
-            int off_index = 0;
-            do {
-                while(on_index < online_entries.size()) {
-                    if(online_entries.get(on_index).mysql()) {
-                        online_entries.remove(on_index);
-                        notifyMySQLListener();
-                    }else {
-                        ++on_index;
-                    }
+            int index = 0;
+            while(index < entries.size()) {
+                if(entries.get(index).mysql()) {
+                    entries.remove(index);
+                    notifyMySQLListener();
+                }else {
+                    ++index;
                 }
-                while(off_index < offline_entries.size()) {
-                    if(offline_entries.get(off_index).mysql()) {
-                        offline_entries.remove(off_index);
-                        notifyMySQLListener();
-                    }else {
-                        ++off_index;
-                    }
-                }
-            } while(on_index < online_entries.size() || off_index < offline_entries.size());
+            }
             return null;
         }
 

@@ -7,7 +7,10 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public abstract class MySQL {
+import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Fryable;
+
+public abstract class MySQL implements Fryable {
 
     protected static final String IP_ADDRESS = "62.47.228.187" ;
     protected static final int PORT = 80;
@@ -121,23 +124,61 @@ public abstract class MySQL {
         this.user_id = user_id;
     }
 
+    protected MySQL(FryFile fry) {
+        this(fry.getChar(), fry.getInt(), fry.getInt());
+    }
+
     @Override
-    public abstract boolean equals(Object o);
+    public void writeTo(FryFile fry) {
+        fry.write(type);
+        fry.write(id);
+        fry.write(user_id);
+    }
 
-    public abstract Object backup();
+    protected abstract boolean mysql_create();
 
-    protected abstract boolean mysql();
+    protected abstract boolean mysql_update();
 
-    protected abstract void synchronize(MySQL mysql);
+    protected abstract boolean mysql_delete();
 
-    public abstract boolean canEdit();
+    protected final void create() {
+        type = (char)((type & TYPE) | BASETYPE_CREATE);
+        ConnectionManager.add(this);
+    }
 
-    public boolean isOwner() {
+    protected final void update() {
+        if(id != 0) {
+            type = (char)((type & TYPE) | BASETYPE_UPDATE);
+            ConnectionManager.add(this);
+        }
+    }
+
+    public void delete() {
+        if(id != 0) {
+            type = (char)((type & TYPE) | BASETYPE_DELETE);
+            ConnectionManager.add(this);
+        }
+    }
+
+    protected final boolean mysql() {
+        switch(getBaseType()) {
+            case BASETYPE_CREATE: return mysql_create();
+            case BASETYPE_UPDATE: return mysql_update();
+            case BASETYPE_DELETE: return mysql_delete();
+        }
+        return true;
+    }
+
+    public final boolean isOwner() {
         return (user_id == USER_ID);
     }
 
-    public char getType() {
-        return (char)(type & TYPE);
+    public final char getBaseType() {
+        return (char)(type & BASETYPE);
+    }
+
+    public final char getType() {
+        return (char) (type & TYPE);
     }
 
 }

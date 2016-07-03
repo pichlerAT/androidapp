@@ -1,42 +1,46 @@
 package fry.oldschool.data;
 
+import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Searchable;
 
-public class Contact implements Fryable, Searchable {
-
-    protected int id;
-
-    protected int user_id;
+public class Contact extends MySQL implements Fryable, Searchable {
 
     protected String email;
 
     protected String name;
 
-    protected Contact() { }
+    protected static Contact createRequest(String email) {
+        if(!App.hasInternetConnection) {
+            return null;
+        }
+        Contact cont = new Contact(TYPE_CONTACT_REQUEST, 0, 0, email, null);
+        cont.create();
+        return cont;
+    }
 
-    protected Contact(int id,int user_id,String email,String name) {
-        this.id = id;
-        this.user_id = user_id;
+    protected Contact(FryFile fry) {
+        super(fry);
+        email = fry.getString();
+        name = fry.getString();
+    }
+
+    protected Contact(char type, int id, int user_id, String email, String name) {
+        super(type, id, user_id);
         this.email = email;
         this.name = name;
     }
 
-    @Override
-    public void writeTo(FryFile fry) {
-        fry.write(id);
-        fry.write(user_id);
-        fry.write(email);
-        fry.write(name);
+    protected Contact(int id,int user_id,String email,String name) {
+        this(TYPE_CONTACT, id, user_id, email, name);
     }
 
     @Override
-    public void readFrom(FryFile fry) {
-        id = fry.getInt();
-        user_id = fry.getInt();
-        email = fry.getString();
-        name = fry.getString();
+    public void writeTo(FryFile fry) {
+        super.writeTo(fry);
+        fry.write(email);
+        fry.write(name);
     }
 
     @Override
@@ -51,12 +55,28 @@ public class Contact implements Fryable, Searchable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o instanceof Contact) {
-            Contact c = (Contact) o;
-            return (c.id == id && c.user_id == user_id && c.email.equals(email) && c.name.equals(name));
+    protected boolean mysql_create() { // contact request send
+        return (getLine(DIR_CONTACT_REQUEST+"send.php", "&email="+email) != null);
+    }
+
+    @Override
+    protected boolean mysql_update() { // contact request accept
+        String resp = getLine(DIR_CONTACT_REQUEST+"accept.php", "&id="+id);
+        if(resp != null) {
+            // TODO get data from resp (id, user_id, name)
+            return true;
         }
         return false;
+    }
+
+    @Override
+    protected boolean mysql_delete() { // contact request decline
+        return (getLine(DIR_CONTACT_REQUEST+"decline.php", "&id="+id) != null);
+    }
+
+    public void decline() {
+        delete();
+        ContactList.contactRequests.remove(this);
     }
 
     public String getEmail() {

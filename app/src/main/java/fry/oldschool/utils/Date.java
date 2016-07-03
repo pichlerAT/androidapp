@@ -1,13 +1,15 @@
 package fry.oldschool.utils;
 
+import java.util.Calendar;
+
 import fry.oldschool.R;
 
-public class Date {
+public class Date implements Fryable {
 
     public static final int YEAR_OFFSET = 2000;
 
     public static Date getToday() {
-        return new Date(28,6,2016);
+        return new Date(Calendar.getInstance());
     }
 
     protected int day;
@@ -16,23 +18,38 @@ public class Date {
 
     protected int year;
 
+    public Date(FryFile fry) {
+        this(fry.getShort());
+    }
+
+    public Date(Calendar cal) {
+        day = cal.get(Calendar.DAY_OF_MONTH);
+        month = cal.get(Calendar.MONTH);
+        year = cal.get(Calendar.YEAR);
+    }
+
     public Date(short date) {
-        day = date&31;
-        month = (date>>5)&15;
-        year = (date>>9)&127 + YEAR_OFFSET;
+        day = date & 31;
+        month = (date >> 5) & 15;
+        year = (date >> 9) & 127 + YEAR_OFFSET;
     }
 
     public Date(int day,int month,int year) {
-        this.day = day;
+        this.day   = day;
         this.month = month;
-        this.year = year;
+        this.year  = year;
     }
 
     public Date(String date) {
         String[] r = date.split("-");
-        day = Integer.parseInt(r[0]);
+        day   = Integer.parseInt(r[0]);
         month = Integer.parseInt(r[1]);
-        year = Integer.parseInt(r[2]);
+        year  = Integer.parseInt(r[2]);
+    }
+
+    @Override
+    public void writeTo(FryFile fry) {
+        fry.write(getShort());
     }
 
     @Override
@@ -44,42 +61,91 @@ public class Date {
         return false;
     }
 
-    public boolean smallerThen(Date date) {
+    public boolean isSmallerThen(Date date) {
         return (year < date.year && month < date.month && day < date.day);
     }
 
-    public boolean greaterThen(Date date) {
+    public boolean isGreaterThen(Date date) {
         return (year > date.year && month > date.month && day > date.day);
     }
 
     public short getShort() {
-        return (short)( day + (month<<5) + ( (year - YEAR_OFFSET)<<9 ) );
+        return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
     }
 
-    public void add(int days) {
+    public void addDays(int days) {
         day += days;
-        while( day>getDaysOfMonth() || month>12) {
+        int dom = getDaysOfMonth();
+        while( day > dom || month > 12) {
             if(month > 12) {
                 day -= 31;
                 month = 1;
                 year++;
+                dom = getDaysOfMonth();
             }
-            if(day > getDaysOfMonth()) {
-                day -= getDaysOfMonth();
+            if(day > dom) {
+                day -= dom;
                 month++;
+                dom = getDaysOfMonth();
             }
         }
     }
 
-    public boolean leapYear() {
-        return ( (year%4)== 0 );
+    public boolean isLeapYear() {
+        return isLeapYear(year);
     }
 
     public int getDaysOfMonth() {
-        return getDaysOfMonth(month);
+        return getDaysOfMonth(month, year);
     }
 
-    public int getDaysOfMonth(int month) {
+    public int getDaysOfYear() {
+        return getDaysOfYear(year);
+    }
+
+    public int getTotalDays() {
+        return getDaysUntilYear(year) + getDaysUntilMonth(month, year) + day + 4;
+    }
+
+    public int getDaysUntil(Date date) {
+        return ( getTotalDaysUntil(date) - getTotalDaysUntil(this) );
+    }
+
+    public int getDayOfWeek() {
+        return (getTotalDaysUntil(this) % 7);
+    }
+
+    public String getString() {
+        return (day + "-" + month + "-" + year);
+    }
+
+    public String getMonthName() {
+        return getMonthName(month);
+    }
+
+    public String getWeekdayName() {
+        return getWeekdayName(getDayOfWeek());
+    }
+
+    public Date copy() {
+        return new Date(day, month, year);
+    }
+
+    public static boolean isLeapYear(int year) {
+        return ( (year%4)== 0 );
+    }
+
+    public static int getDaysOfYear(int year) {
+        return (isLeapYear(year) ? 366 : 365);
+    }
+
+    public static int getDaysUntilYear(int year) {
+        int y = year - 2000;
+        int yp4 = y%4;
+        return (y/4)*(4*365+1) + yp4*365 + ( yp4==0 ? 0 : 1 );
+    }
+
+    public static int getDaysOfMonth(int month, int year) {
         switch(month) {
             case 1:
             case 3:
@@ -90,7 +156,7 @@ public class Date {
             case 12:
                 return 31;
             case 2:
-                if(leapYear()) {
+                if(isLeapYear(year)) {
                     return 29;
                 }else {
                     return 28;
@@ -104,15 +170,11 @@ public class Date {
         }
     }
 
-    public int getDaysOfYear() {
-        return getDaysOfYear(year);
+    public static int getTotalDaysUntil(Date date) {
+        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.year, date.month) + date.day + 4;
     }
 
-    public int getDaysOfYear(int year) {
-        return (leapYear() ? 366 : 365);
-    }
-
-    public int getDaysUntilMonth(int month) {
+    public static int getDaysUntilMonth(int month, int year) {
         int days;
         switch(month) {
             case 1: return 0;
@@ -129,39 +191,26 @@ public class Date {
             case 12: days = 334; break;
             default: return 0;
         }
-        if(leapYear()) {
+        if(isLeapYear(year)) {
             ++days;
         }
         return days;
     }
 
-    public int getDaysUntilYear(int year) {
-        int y = year - 2000;
-        int yp4 = y%4;
-        return (y/4)*(4*365+1) + yp4*365 + ( yp4==0 ? 0 : 1 );
+    public static String getWeekdayName(int weekday) {
+        switch(weekday) {
+            case 0: return App.mContext.getResources().getString(R.string.weekday_mon);
+            case 1: return App.mContext.getResources().getString(R.string.weekday_tue);
+            case 2: return App.mContext.getResources().getString(R.string.weekday_wed);
+            case 3: return App.mContext.getResources().getString(R.string.weekday_thu);
+            case 4: return App.mContext.getResources().getString(R.string.weekday_fri);
+            case 5: return App.mContext.getResources().getString(R.string.weekday_sat);
+            case 6: return App.mContext.getResources().getString(R.string.weekday_sun);
+            default: return "";
+        }
     }
 
-    public int getTotalDaysUntil(Date date) {
-        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.month) + date.day + 4;
-    }
-
-    public int getDaysUntil(Date date) {
-        return ( getTotalDaysUntil(date) - getTotalDaysUntil(this) );
-    }
-
-    public int getDayOfWeek() {
-        return (getTotalDaysUntil(this)%7);
-    }
-
-    public String getString() {
-        return day + "-" + month + "-" + year;
-    }
-
-    public String getMonth() {
-        return getMonth(month);
-    }
-
-    public String getMonth(int month) {
+    public static String getMonthName(int month) {
         switch(month) {
             case 1: return App.mContext.getResources().getString(R.string.month_jan);
             case 2: return App.mContext.getResources().getString(R.string.month_feb);
@@ -179,24 +228,4 @@ public class Date {
         }
     }
 
-    public String getWeekday() {
-        return getWeekday(getDayOfWeek());
-    }
-
-    public String getWeekday(int weekday) {
-        switch(weekday) {
-            case 0: return App.mContext.getResources().getString(R.string.weekday_mon);
-            case 1: return App.mContext.getResources().getString(R.string.weekday_tue);
-            case 2: return App.mContext.getResources().getString(R.string.weekday_wed);
-            case 3: return App.mContext.getResources().getString(R.string.weekday_thu);
-            case 4: return App.mContext.getResources().getString(R.string.weekday_fri);
-            case 5: return App.mContext.getResources().getString(R.string.weekday_sat);
-            case 6: return App.mContext.getResources().getString(R.string.weekday_sun);
-            default: return "";
-        }
-    }
-
-    public Date copy() {
-        return new Date(day,month,year);
-    }
 }

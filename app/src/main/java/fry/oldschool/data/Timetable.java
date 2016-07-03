@@ -2,6 +2,8 @@ package fry.oldschool.data;
 
 import java.util.ArrayList;
 
+import fry.oldschool.utils.Date;
+import fry.oldschool.utils.DateSpan;
 import fry.oldschool.utils.FryFile;
 
 public class Timetable {
@@ -22,32 +24,24 @@ public class Timetable {
 
         int NoCategories = fry.getChar();
         for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory();
-            cat.readFrom(fry);
-            categories.add(cat);
+            categories.add(new TimetableCategory(fry));
         }
 
         NoCategories = fry.getChar();
         for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory();
-            cat.readFrom(fry);
-            categories.addBackup(cat);
+            categories.addBackup(new TimetableCategory(fry));
         }
 
         entries = new BackupList<>();
 
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            TimetableEntry ent = new TimetableEntry();
-            ent.readFrom(fry);
-            entries.add(ent);
+            entries.add(new TimetableEntry(fry));
         }
 
         NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
-            TimetableEntry ent = new TimetableEntry();
-            ent.readFrom(fry);
-            entries.addBackup(ent);
+            entries.addBackup(new TimetableEntry(fry));
         }
     }
 
@@ -63,8 +57,8 @@ public class Timetable {
 
         ArrayList<TimetableEntry> entList = new ArrayList<>();
         while(index < r.length) {
-            entList.add(new TimetableEntry(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),
-                    r[index++],r[index++],Short.parseShort(r[index++]),Short.parseShort(r[index++]),Integer.parseInt(r[index++]),Byte.parseByte(r[index++])));
+            entList.add(new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), Short.parseShort(r[index++]),
+                                    Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++]));
         }
         entries.synchronizeWith(entList);
     }
@@ -76,6 +70,46 @@ public class Timetable {
                 list.add(ent);
             }
         }
+        return list;
+    }
+
+    public static ArrayList<TimetableEntry> getEntries(int month, int year) {
+        ArrayList<TimetableEntry> list = new ArrayList<>();
+        DateSpan span = new DateSpan(new Date(1, month, year), new Date(Date.getDaysOfMonth(year, month), month, year));
+
+        for(TimetableEntry ent : entries.getList()) {
+            if(ent.isSpanOverlapping(span)) {
+                list.add(ent);
+            }
+        }
+        for(TimetableCategory cat : categories.getList()) {
+            for(TimetableEntry ent : cat.offline_entries) {
+                if(ent.isSpanOverlapping(span)) {
+                    list.add(ent);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public static ArrayList<TimetableEntry> getEntries(int day, int month, int year) {
+        ArrayList<TimetableEntry> list = new ArrayList<>();
+        Date date = new Date(day, month, year);
+
+        for(TimetableEntry ent : entries.getList()) {
+            if(ent.isDateInsideSpan(date)) {
+                list.add(ent);
+            }
+        }
+        for(TimetableCategory cat : categories.getList()) {
+            for(TimetableEntry ent : cat.offline_entries) {
+                if(ent.isDateInsideSpan(date)) {
+                    list.add(ent);
+                }
+            }
+        }
+
         return list;
     }
 
@@ -106,7 +140,7 @@ public class Timetable {
     }
 
     public static void shareWith(Contact cont, byte permission) {
-        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, MySQL.USER_ID, permission, cont));
+        ConnectionManager.add(new Share(MySQL.TYPE_CALENDAR, permission, MySQL.USER_ID, cont));
     }
 
 }

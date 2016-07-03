@@ -1,10 +1,18 @@
 package fry.oldschool.utils;
 
-public class Time {
+public class Time implements Fryable {
 
-    public int time;
+    public static final short MIN_TIME = 0;
 
-    public Time(int time) {
+    public static final short MAX_TIME = 1440;
+
+    public short time;
+
+    public Time(FryFile fry) {
+        this(fry.getShort());
+    }
+
+    public Time(short time) {
         this.time = time;
     }
 
@@ -13,7 +21,12 @@ public class Time {
     }
 
     public Time(int hours, int minutes) {
-        time = 60 * hours + minutes;
+        time = (short)(60 * hours + minutes);
+    }
+
+    @Override
+    public void writeTo(FryFile fry) {
+        fry.write(time);
     }
 
     @Override
@@ -25,16 +38,14 @@ public class Time {
         return false;
     }
 
-    public void add(int time) {
-        this.time += time;
+    public int add(int time) {
+        int t = this.time + time;
+        this.time = (short)(t % MAX_TIME);
+        return (t / MAX_TIME);
     }
 
-    public void add(Time time) {
-        add(time.time);
-    }
-
-    public short getShort() {
-        return (short)time;
+    public int add(Time time) {
+        return add(time.time);
     }
 
     public int getHours() {
@@ -46,16 +57,11 @@ public class Time {
     }
 
     public String getString() {
-        if(time > 1440) {
-            int days = time/1440;
-            int t = time%1440;
-            return ( days + "days, " + (t/60) + "hours, " + (t%60) + "minutes" );
-        }
         return ( time/60 + ":" + time%60 );
     }
 
     public Time copy() {
-            return new Time(time);
-        }
+        return new Time(time);
+    }
 
 }

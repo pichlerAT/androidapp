@@ -1,6 +1,8 @@
 package fry.oldschool.data;
 
-public class Share extends MySQL {
+import fry.oldschool.utils.FryFile;
+
+public class Share extends Contact {
 
     public static final byte PERMISSION_VIEW = 1;
 
@@ -12,30 +14,21 @@ public class Share extends MySQL {
 
     protected int share_id;
 
-    protected String email;
-
-    protected String name;
-
     public Share(char type, int id, int user_id, byte permission, int share_id, String email, String name) {
-        super((char)(BASETYPE_SHARE | BASETYPE_UPDATE | type), id, user_id);
+        super((char)(BASETYPE_SHARE | type), id, user_id, email, name);
         this.permission = permission;
         this.share_id = share_id;
-        this.email = email;
-        this.name = name;
-        if(id == 0) {
-            this.type |= BASETYPE_CREATE;
-        }
     }
 
     public Share(int share_id,Contact cont) {
         this((char)0, 0, cont.user_id, PERMISSION_VIEW, share_id, cont.email, cont.name);
     }
 
-    public Share(int id,int share_id, int user_id, byte permission) {
+    public Share(int id, int user_id, byte permission, int share_id) {
         this((char)0, id, user_id, permission, share_id, null, null);
     }
 
-    protected Share(char type,int share_id, byte permission,Contact contact) {
+    protected Share(char type, byte permission, int share_id,Contact contact) {
         this(type, 0, contact.user_id, permission, share_id, contact.email, contact.name);
     }
 
@@ -43,60 +36,58 @@ public class Share extends MySQL {
         this(type, 0, contact.user_id, PERMISSION_VIEW, share_id, contact.email, contact.name);
     }
 
+    protected Share(Share share) {
+        this(share.type, share.id, share.user_id, share.permission, share.share_id, share.email, share.name);
+    }
+
+    protected Share(FryFile fry) {
+        super(fry);
+        permission = fry.getByte();
+        share_id = fry.getInt();
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean mysql_create() {
+        String resp = getLine(getFileUrl()+"create.php", "&share_user_id=" + user_id + "&share_id=" + share_id + "&permission=" + permission);
+        if(resp != null) {
+            id = Integer.parseInt(resp);
+            type &= ~BASETYPE_CREATE;
+            return true;
+        }
         return false;
     }
 
     @Override
-    public Share backup() {
-        return new Share(type, id, user_id, permission, share_id, email, name);
+    public boolean mysql_update() {
+        return (getLine(getFileUrl()+"update.php", "&id="+id+"&permission="+permission) != null);
     }
 
     @Override
-    public boolean mysql() {
-        if(id == 0) {
-            String resp = getLine(getFileUrl(type), "&share_user_id=" + user_id + "&share_id=" + share_id + "&permission=" + permission);
-            if(resp != null) {
-                id = Integer.parseInt(resp);
-                type &= ~BASETYPE_CREATE;
-                return true;
-            }
-            return false;
-        }
-        return (getLine(getFileUrl(type), "&id=" + id + "&permission=" + permission) != null);
+    public boolean mysql_delete() {
+        return (getLine(getFileUrl()+"delete.php", "&id="+id) != null);
     }
 
     @Override
-    protected void synchronize(MySQL mysql) { }
-
-    protected void delete() {
-        this.type |= BASETYPE_DELETE;
-        ConnectionManager.add(this);
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
+    public void writeTo(FryFile fry) {
+        super.writeTo(fry);
+        fry.write(permission);
+        fry.write(share_id);
     }
 
     public void setPermission(byte permission) {
         this.permission = permission;
-        ConnectionManager.add(this);
+        update();
     }
 
-    public boolean canView() {
+    public boolean hasPermissionView() {
         return ( permission >= PERMISSION_VIEW );
     }
 
-    public boolean canEdit() {
+    public boolean hasPermissionEdit() {
         return ( permission >= PERMISSION_EDIT );
     }
 
-    public boolean canMore() {
+    public boolean hasPermissionMore() {
         return ( permission >= PERMISSION_MORE );
     }
 
@@ -104,31 +95,21 @@ public class Share extends MySQL {
         return ( contact.user_id == user_id );
     }
 
-    protected String getFileUrl(char type) {
-        if((type & BASETYPE_CREATE) > 0) {
-            return (getPathUrl(type) + "create.php");
+    protected String getFileUrl() {
+        switch(getType()) {
 
-        }else if((type & BASETYPE_DELETE) > 0) {
-            return (getPathUrl(type) + "update.php");
+            case TYPE_TASKLIST:
+                return DIR_TASKLIST_SHARE;
 
-        }else if((type & BASETYPE_UPDATE) > 0) {
-            return (getPathUrl(type) + "delete.php");
-        }
-        return null;
-    }
+            case TYPE_CALENDAR:
+                return DIR_CALENDAR_SHARE;
 
-    protected String getPathUrl(char type) {
-        if((type & TYPE_TASKLIST) > 0) {
-            return DIR_TASKLIST_SHARE;
+            case TYPE_CALENDAR_CATEGORY:
+                return DIR_CALENDAR_CATEGORY_SHARE;
 
-        }else if((type & TYPE_CALENDAR) > 0) {
-            return DIR_CALENDAR_SHARE;
+            case TYPE_CALENDAR_ENTRY:
+                return DIR_CALENDAR_ENTRY_SHARE;
 
-        }else if((type & TYPE_CALENDAR_CATEGORY) > 0) {
-            return DIR_CALENDAR_CATEGORY_SHARE;
-
-        }else if((type & TYPE_CALENDAR_ENTRY) > 0) {
-            return DIR_CALENDAR_ENTRY_SHARE;
         }
         return null;
     }

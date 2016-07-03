@@ -9,7 +9,7 @@ public class ContactList {
 
     protected static ArrayList<ContactGroup> groups=new ArrayList<>();
 
-    protected static ArrayList<ContactRequest> contactRequests=new ArrayList<>();
+    protected static ArrayList<Contact> contactRequests=new ArrayList<>();
 
     static {
 
@@ -18,7 +18,7 @@ public class ContactList {
     }
 
     public static void writeTo(FryFile file) {
-        file.write(groups.get(groups.size()-1).contacts);
+        file.write(getAllContacts());
         file.write(groups.subList(0,groups.size()-1).toArray());
     }
 
@@ -27,16 +27,12 @@ public class ContactList {
 
         int NoContacts = fry.getChar();
         for(int i=0; i<NoContacts; ++i) {
-            Contact cont = new Contact();
-            cont.readFrom(fry);
-            all.contacts.add(cont);
+            all.contacts.add(new Contact(fry));
         }
 
         int NoContactGroups = fry.getChar();
         for(int i=0; i<NoContactGroups; ++i) {
-            ContactGroup grp = new ContactGroup();
-            grp.readFrom(fry);
-            groups.add(grp);
+            groups.add(groups.size()-1, new ContactGroup(fry));
         }
     }
 
@@ -112,7 +108,7 @@ public class ContactList {
     public static void synchronizeContactRequestsFromMySQL(String... r) {
         contactRequests=new ArrayList<>();
         for(int i=3; i<r.length; i+=4) {
-            contactRequests.add(new ContactRequest(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
+            contactRequests.add(new Contact(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
         }
     }
 
@@ -154,17 +150,17 @@ public class ContactList {
         for(ContactGroup grp : groups) {
             grp.removeContact(cont);
         }
-        OfflineEntry.delete(MySQL.TYPE_CONTACT, cont.id);
+        cont.delete();
     }
 
     public static void sendRequest(String email) {
-        ConnectionManager.add(new ContactRequest.Send(email));
+        Contact.createRequest(email);
     }
 
     public static void createContactGroup(String name) {
         ContactGroup grp=new ContactGroup(name);
         ConnectionManager.add(grp);
-        groups.add(groups.size()-1,grp);
+        groups.add(groups.size()-1, grp);
     }
 
     public static void search(String... keyWords) {
@@ -201,7 +197,7 @@ public class ContactList {
         return contactRequests.size();
     }
 
-    public static ArrayList<ContactRequest> getRequests() {
+    public static ArrayList<Contact> getRequests() {
         return contactRequests;
     }
 

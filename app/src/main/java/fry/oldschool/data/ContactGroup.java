@@ -7,14 +7,23 @@ import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Searchable;
 import fry.oldschool.utils.SearchableList;
 
-public class ContactGroup extends MySQL implements Fryable {
+public class ContactGroup extends MySQLEntry {
 
     protected String name;
 
     protected SearchableList<Contact> contacts = new SearchableList<>();
 
-    protected ContactGroup() {
-        super(TYPE_CONTACT_GROUP, 0, USER_ID);
+    protected ContactGroup(FryFile fry) {
+        super(fry);
+
+        ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
+        int NoContacts = fry.getChar();
+        for(int i=0; i<NoContacts; ++i) {
+            Contact cont = all.getContactByUserId(fry.getInt());
+            if(cont != null) {
+                contacts.add(cont);
+            }
+        }
     }
 
     protected ContactGroup(int id, String name) {
@@ -53,13 +62,23 @@ public class ContactGroup extends MySQL implements Fryable {
     }
 
     @Override
-    protected boolean mysql() {
-        String resp = getLine(DIR_CONTACT_GROUP + "create.php","&group_name="+name+"&contacts="+getContactsString());
+    protected boolean mysql_create() {
+        String resp = getLine(DIR_CONTACT_GROUP+"create.php","&group_name="+name+"&contacts="+getContactsString());
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected boolean mysql_update() {
+        return (getLine(DIR_CONTACT_GROUP+"update.php", "&group_id="+id+"&group_name="+name+"&contacts="+getContactsString()) != null);
+    }
+
+    @Override
+    protected boolean mysql_delete() {
+        return (getLine(DIR_CONTACT_GROUP+"delete.php", "&id="+id) != null);
     }
 
     @Override
@@ -76,7 +95,7 @@ public class ContactGroup extends MySQL implements Fryable {
 
     @Override
     public void writeTo(FryFile fry) {
-        fry.write(id);
+        super.writeTo(fry);
         fry.write(name);
 
         int[] uids = new int[contacts.size()];
@@ -84,25 +103,6 @@ public class ContactGroup extends MySQL implements Fryable {
             uids[i] = contacts.get(i).user_id;
         }
         fry.write(uids);
-    }
-
-    @Override
-    public void readFrom(FryFile fry) {
-        id = fry.getInt();
-        name = fry.getString();
-
-        ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
-        int NoContacts = fry.getChar();
-        for(int i=0; i<NoContacts; ++i) {
-            Contact cont = all.getContactByUserId(fry.getInt());
-            if(cont != null) {
-                contacts.add(cont);
-            }
-        }
-    }
-
-    protected String getUpdateString() {
-        return ("&group_id="+id+"&group_name="+name+"&contacts="+getContactsString());
     }
 
     public String getContactsString() {
@@ -137,9 +137,7 @@ public class ContactGroup extends MySQL implements Fryable {
 
     public void setName(String name) {
         this.name = name;
-        if(id != 0) {
-            OfflineEntry.update(this);
-        }
+        update();
     }
 
     public void addContacts(ArrayList<Contact> contacts) {
@@ -148,35 +146,25 @@ public class ContactGroup extends MySQL implements Fryable {
                 this.contacts.add(c);
             }
         }
-        if(id != 0) {
-            OfflineEntry.update(this);
-        }
+        update();
     }
 
     public void removeContact(Contact contact) {
         contacts.remove(contact);
-        if(id != 0) {
-            OfflineEntry.update(this);
-        }
+        update();
     }
 
     public void removeContacts(ArrayList<Contact> contacts) {
         for(Contact c : contacts) {
             this.contacts.remove(c);
         }
-        if(id != 0) {
-            OfflineEntry.update(this);
-        }
+        update();
     }
 
+    @Override
     public void delete() {
+        super.delete();
         ContactList.groups.remove(this);
-        if(id == 0) {
-            ConnectionManager.remove(this);
-        }else {
-            ConnectionManager.remove(TYPE_CONTACT_GROUP,id);
-            OfflineEntry.delete(this);
-        }
     }
 
     public String getName() {

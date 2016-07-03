@@ -4,6 +4,4 @@ public interface Fryable {
 
     void writeTo(FryFile fry);
 
-    void readFrom(FryFile fry);
-
 }

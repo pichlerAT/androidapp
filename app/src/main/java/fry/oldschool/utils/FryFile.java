@@ -195,10 +195,14 @@ public class FryFile {
     }
 
     public void write(final Fryable[] fry) {
+        int index = writeLine.length();
         write((char)fry.length);
-        for(final Fryable f : fry) {
-            f.writeTo(this);
+        int length = 0;
+        for(final Fryable obj : fry) {
+            obj.writeTo(this);
+            ++length;
         }
+        writeLine.setCharAt(index, (char)length);
     }
 
     public void write(final Object[] fry) {

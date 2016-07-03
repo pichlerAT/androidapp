@@ -12,7 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import fry.oldschool.R;
-import fry.oldschool.data.ContactRequest;
 
 /**
  * Created by Edwin Pichler on 21.05.2016.

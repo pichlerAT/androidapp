@@ -18,16 +18,12 @@ public class TasklistManager {
 
         int NoTasklists = fry.getChar();
         for(int i=0; i<NoTasklists; ++i) {
-            Tasklist tl = new Tasklist();
-            tl.readFrom(fry);
-            Tasklists.add(tl);
+            Tasklists.add(new Tasklist(fry));
         }
 
         NoTasklists = fry.getChar();
         for(int i=0; i<NoTasklists; ++i) {
-            Tasklist tl = new Tasklist();
-            tl.readFrom(fry);
-            Tasklists.addBackup(tl);
+            Tasklists.addBackup(new Tasklist(fry));
         }
 
     }
@@ -40,7 +36,7 @@ public class TasklistManager {
 
             int NoEntries = Integer.parseInt(r[index++]);
             for(int i=0; i<NoEntries; ++i) {
-                TasklistEntry ent = new TasklistEntry(Integer.parseInt(r[index++]), tl.id, Integer.parseInt(r[index++]), Byte.parseByte(r[index++]),r[index++]);
+                TasklistEntry ent = new TasklistEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), tl.id,r[index++]);
                 if(!ConnectionManager.hasEntry(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE, ent.id)) {
                     tl.entries.add(ent);
                 }
@@ -48,7 +44,7 @@ public class TasklistManager {
 
             int NoShares = Integer.parseInt(r[index++]);
             for(int i=0; i<NoShares; ++i) {
-                tl.sharedContacts.add(new Share(Integer.parseInt(r[index++]), tl.id, Integer.parseInt(r[index++]), Byte.parseByte(r[index++])));
+                tl.sharedContacts.add(new Share(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), tl.id));
             }
 
             list.add(tl);
