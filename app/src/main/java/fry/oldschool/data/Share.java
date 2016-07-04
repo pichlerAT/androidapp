@@ -4,6 +4,8 @@ import fry.oldschool.utils.FryFile;
 
 public class Share extends Contact {
 
+    public static final byte PERMISSION_NONE = 0;
+
     public static final byte PERMISSION_VIEW = 1;
 
     public static final byte PERMISSION_EDIT = 2;
@@ -87,7 +89,11 @@ public class Share extends Contact {
 
     public void setPermission(byte permission) {
         this.permission = permission;
-        update();
+        if(id == 0) {
+            create();
+        }else {
+            update();
+        }
     }
 
     public boolean hasPermissions() {
