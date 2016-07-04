@@ -90,6 +90,10 @@ public class Share extends Contact {
         update();
     }
 
+    public boolean hasPermissions() {
+        return (permission > 0);
+    }
+
     public boolean hasPermissionView() {
         return ( permission >= PERMISSION_VIEW );
     }
