@@ -199,8 +199,13 @@ public class ContactGroup extends MySQLEntry {
     }
 
     public Contact getContact(int index) {
-        Logger.Log("ContactGroup#getContact()");
+        Logger.Log("ContactGroup#getContact(int)");
         return contacts.get(index);
+    }
+
+    public SearchableList<Contact> getContacts() {
+        Logger.Log("ContactGroup#getContacts()");
+        return contacts;
     }
 
 }

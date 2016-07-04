@@ -9,6 +9,7 @@ public class Date implements Fryable {
     public static final int YEAR_OFFSET = 2000;
 
     public static Date getToday() {
+        Logger.Log("Date#Date");
         return new Date(Calendar.getInstance());
     }
 
@@ -20,27 +21,32 @@ public class Date implements Fryable {
 
     public Date(FryFile fry) {
         this(fry.getShort());
+        Logger.Log("Date#Date");
     }
 
     public Date(Calendar cal) {
+        Logger.Log("Date#Date");
         day = cal.get(Calendar.DAY_OF_MONTH);
         month = cal.get(Calendar.MONTH);
         year = cal.get(Calendar.YEAR);
     }
 
     public Date(short date) {
+        Logger.Log("Date#Date");
         day = date & 31;
         month = (date >> 5) & 15;
         year = (date >> 9) & 127 + YEAR_OFFSET;
     }
 
     public Date(int day,int month,int year) {
+        Logger.Log("Date#Date");
         this.day   = day;
         this.month = month;
         this.year  = year;
     }
 
     public Date(String date) {
+        Logger.Log("Date#Date");
         String[] r = date.split("-");
         day   = Integer.parseInt(r[0]);
         month = Integer.parseInt(r[1]);
@@ -49,11 +55,13 @@ public class Date implements Fryable {
 
     @Override
     public void writeTo(FryFile fry) {
+        Logger.Log("Date#Date");
         fry.write(getShort());
     }
 
     @Override
     public boolean equals(Object o) {
+        Logger.Log("Date#Date");
         if(o instanceof Date) {
             Date d = (Date) o;
             return (d.day == day && d.month == month && d.year == year);
@@ -62,18 +70,22 @@ public class Date implements Fryable {
     }
 
     public boolean isSmallerThen(Date date) {
+        Logger.Log("Date#Date");
         return (year < date.year && month < date.month && day < date.day);
     }
 
     public boolean isGreaterThen(Date date) {
+        Logger.Log("Date#Date");
         return (year > date.year && month > date.month && day > date.day);
     }
 
     public short getShort() {
+        Logger.Log("Date#Date");
         return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
     }
 
     public void addDays(int days) {
+        Logger.Log("Date#Date");
         day += days;
         int dom = getDaysOfMonth();
         while( day > dom || month > 12) {
@@ -92,14 +104,17 @@ public class Date implements Fryable {
     }
 
     public boolean isLeapYear() {
+        Logger.Log("Date#Date");
         return isLeapYear(year);
     }
 
     public int getDaysOfMonth() {
+        Logger.Log("Date#Date");
         return getDaysOfMonth(month, year);
     }
 
     public int getDaysOfYear() {
+        Logger.Log("Date#Date");
         return getDaysOfYear(year);
     }
 
@@ -108,44 +123,54 @@ public class Date implements Fryable {
     }
 
     public int getDaysUntil(Date date) {
+        Logger.Log("Date#getDaysUntil(Date)");
         return ( getTotalDaysUntil(date) - getTotalDaysUntil(this) );
     }
 
     public int getDayOfWeek() {
+        Logger.Log("Date#getDayOfWeek()");
         return (getTotalDaysUntil(this) % 7);
     }
 
     public String getString() {
+        Logger.Log("Date#getString()");
         return (day + "-" + month + "-" + year);
     }
 
     public String getMonthName() {
+        Logger.Log("Date#getMonthName()");
         return getMonthName(month);
     }
 
     public String getWeekdayName() {
+        Logger.Log("Date#getWeekdayName()");
         return getWeekdayName(getDayOfWeek());
     }
 
     public Date copy() {
+        Logger.Log("Date#copy()");
         return new Date(day, month, year);
     }
 
     public static boolean isLeapYear(int year) {
+        Logger.Log("Date#isLeapYear(int)");
         return ( (year%4)== 0 );
     }
 
     public static int getDaysOfYear(int year) {
+        Logger.Log("Date#getDaysOfYear(int)");
         return (isLeapYear(year) ? 366 : 365);
     }
 
     public static int getDaysUntilYear(int year) {
+        Logger.Log("Date#getDaysUntilYear(int)");
         int y = year - 2000;
         int yp4 = y%4;
         return (y/4)*(4*365+1) + yp4*365 + ( yp4==0 ? 0 : 1 );
     }
 
     public static int getDaysOfMonth(int month, int year) {
+        Logger.Log("Date#getDaysOfMonth(int,int)");
         switch(month) {
             case 1:
             case 3:
@@ -171,10 +196,12 @@ public class Date implements Fryable {
     }
 
     public static int getTotalDaysUntil(Date date) {
+        Logger.Log("Date#getTotalDaysUntil(Date)");
         return getDaysUntilYear(date.year) + getDaysUntilMonth(date.year, date.month) + date.day + 4;
     }
 
     public static int getDaysUntilMonth(int month, int year) {
+        Logger.Log("Date#getDaysUntilMonth(int,int)");
         int days;
         switch(month) {
             case 1: return 0;
@@ -198,6 +225,7 @@ public class Date implements Fryable {
     }
 
     public static String getWeekdayName(int weekday) {
+        Logger.Log("Date#getWeekdayName(int)");
         switch(weekday) {
             case 0: return App.mContext.getResources().getString(R.string.weekday_mon);
             case 1: return App.mContext.getResources().getString(R.string.weekday_tue);
@@ -211,6 +239,7 @@ public class Date implements Fryable {
     }
 
     public static String getMonthName(int month) {
+        Logger.Log("Date#getMonthName(int)");
         switch(month) {
             case 1: return App.mContext.getResources().getString(R.string.month_jan);
             case 2: return App.mContext.getResources().getString(R.string.month_feb);
