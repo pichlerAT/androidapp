@@ -21,7 +21,7 @@ public class Logger {
     }
 
     public static String getString() {
-        String log = logs[index];
+        String log = "";
 
         for(int i=index+1; i!=index; ++i) {
             if(i == MaxLogs) {
@@ -30,7 +30,7 @@ public class Logger {
             if(logs[i] == null) {
                 continue;
             }
-            log += "\n" + logs[i];
+            log += logs[i] + "\n";
         }
 
         return log;

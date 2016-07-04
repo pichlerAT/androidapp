@@ -1,6 +1,8 @@
 package fry.oldschool.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.SearchableList;
@@ -181,8 +183,8 @@ public class ContactList {
         return groups;
     }
 
-    public static ArrayList<ContactGroup> getGroups() {
-        return (ArrayList<ContactGroup>) groups.subList(0, groups.size() - 1);
+    public static List<ContactGroup> getGroups() {
+        return groups.subList(0, groups.size() - 1);
     }
 
     public static int getNoContacts() {
