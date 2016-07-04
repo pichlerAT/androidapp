@@ -30,6 +30,23 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="ok">Ok</string>
+    <string name="description">Description</string>
+    <string name="none">None</string>
+
+    <string-array name="colors">
+        <item>#ff3232</item>
+        <item>#ff0000</item>
+        <item>#cc0000</item>
+        <item>#7f0000</item>
+        <item>#3273ff</item>
+        <item>#0051ff</item>
+        <item>#0040cc</item>
+        <item>#003099</item>
+        <item>#8bff32</item>
+        <item>#6fff00</item>
+        <item>#58cc00</item>
+        <item>#429900</item>
+    </string-array>
 
     <!--              Messages                 -->
 
@@ -38,6 +55,16 @@
     <!--              Timetable                -->
 
     <string name="timetable">Timetable</string>
+    <string name="calendar">Calendar</string>
+    <string name="month">Month</string>
+    <string name="week">Week</string>
+    <string name="events">Events</string>
+    <string name="event">Event</string>
+    <string name="whole_day">Whole day</string>
+    <string name="repeat">Repeat</string>
+    <string name="once">Once</string>
+    <string name="no_participants">No participants</string>
+    <string name="notification">Notification</string>
 
     <!--                Task                   -->
 

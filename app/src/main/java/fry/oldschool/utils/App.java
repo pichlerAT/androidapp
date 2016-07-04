@@ -3,6 +3,7 @@ package fry.oldschool.utils;
 import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 
 import java.io.File;
@@ -148,4 +149,34 @@ public class App extends Application {
         return (int) (dp*scale + 0.5f);
     }
 
+    public static String getMonthName(int month, Resources resources){
+        String month_name = null;
+
+        if (month == 0)
+            month_name = resources.getString(R.string.month_jan);
+        else if (month == 1)
+            month_name = resources.getString(R.string.month_feb);
+        else if (month == 2)
+            month_name = resources.getString(R.string.month_mar);
+        else if (month == 3)
+            month_name = resources.getString(R.string.month_apr);
+        else if (month == 4)
+            month_name = resources.getString(R.string.month_may);
+        else if (month == 5)
+            month_name = resources.getString(R.string.month_jun);
+        else if (month == 6)
+            month_name = resources.getString(R.string.month_jul);
+        else if (month == 7)
+            month_name = resources.getString(R.string.month_aug);
+        else if (month == 8)
+            month_name = resources.getString(R.string.month_sep);
+        else if (month == 9)
+            month_name = resources.getString(R.string.month_oct);
+        else if (month == 10)
+            month_name = resources.getString(R.string.month_nov);
+        else if (month == 11)
+            month_name = resources.getString(R.string.month_dec);
+
+        return month_name;
+    }
 }

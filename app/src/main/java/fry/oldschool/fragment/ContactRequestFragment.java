@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import fry.oldschool.R;
+import fry.oldschool.activity.MainActivity;
 import fry.oldschool.adapter.ContactRequestAdapter;
 import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
@@ -45,5 +46,13 @@ public class ContactRequestFragment extends Fragment{
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MainActivity.fab.isShown()){
+            MainActivity.fab.hide();
+        }
     }
 }

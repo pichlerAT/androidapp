@@ -1,17 +1,17 @@
 package fry.oldschool.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
-import android.util.SparseBooleanArray;
 import android.view.ActionMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -40,7 +41,7 @@ import fry.oldschool.utils.App;
 /**
  * Created by Edwin Pichler on 28.04.2016.
  */
-public class ContactFragment extends Fragment{
+public class ContactFragment extends Fragment {
 
     protected SearchView mSearch;
     protected ContactAdapter adapter;
@@ -57,16 +58,24 @@ public class ContactFragment extends Fragment{
         request_number = ContactList.getNoRequests();
 
         //ArrayList<ContactGroup> contactGroupList = new ArrayList<>(App.conLis.groups);
+        MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fab.setVisibility(View.INVISIBLE);
+                MainActivity.fab.setClickable(false);
+                ContactFABMenu();
+            }
+        });
 
         final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
-        adapter = new ContactAdapter(App.mContext, ContactList.getGroups(), false);
+        adapter = new ContactAdapter();
 
         ViewTreeObserver vto = lv.getViewTreeObserver();
 
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                lv.setIndicatorBounds(lv.getRight()- App.pixelToDPScale(40), lv.getWidth());
+                lv.setIndicatorBounds(lv.getRight() - App.pixelToDPScale(40), lv.getWidth());
             }
         });
         lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -74,10 +83,9 @@ public class ContactFragment extends Fragment{
             public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long l) {
                 int index = expandableListView.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
 
-                if(expandableListView.isItemChecked(index)) {
+                if (expandableListView.isItemChecked(index)) {
                     expandableListView.setItemChecked(index, false);
-                }
-                else {
+                } else {
                     expandableListView.setItemChecked(index, true);
 
                 }
@@ -94,10 +102,9 @@ public class ContactFragment extends Fragment{
                 int groupPosition = Integer.parseInt(positions[0]);
                 int childPosition = Integer.parseInt(positions[1]);
                 //Vice versa because item is already checked before the if statement
-                if(!lv.isItemChecked(index)) {
+                if (!lv.isItemChecked(index)) {
                     childList.remove(adapter.getChild(groupPosition, childPosition));
-                }
-                else {
+                } else {
                     childList.add(adapter.getChild(groupPosition, childPosition));
                 }
 
@@ -130,32 +137,32 @@ public class ContactFragment extends Fragment{
             @Override
             public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
 
-                switch(menuItem.getItemId()){
+                switch (menuItem.getItemId()) {
                     case R.id.action_contact_delete:
                         AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(App.mContext);
                         deleteBuilder.setTitle(R.string.warning)
-                            .setMessage(R.string.delete_message)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    adapter.removeChilds(childList);
-                                    onDestroyActionMode(actionMode);
-                                }
-                            })
-                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    onDestroyActionMode(actionMode);
-                                }
-                            })
-                            .show();
+                                .setMessage(R.string.delete_message)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        adapter.removeChilds(childList);
+                                        onDestroyActionMode(actionMode);
+                                    }
+                                })
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        onDestroyActionMode(actionMode);
+                                    }
+                                })
+                                .show();
 
                         return true;
                     case R.id.action_assign_to_group:
                         View requestView = View.inflate(App.mContext, R.layout.fragment_contact_groupassign, null);
                         final LinearLayout layout = (LinearLayout) requestView.findViewById(R.id.linearlayout_contact_groupassign);
 
-                        for(int i=0; i < ContactList.getNoGroups()-1; i++){// -1 because user shouldn't assign contact to 'all contacts'
+                        for (int i = 0; i < ContactList.getNoGroups() - 1; i++) {// -1 because user shouldn't assign contact to 'all contacts'
                             String groupName = ContactList.getGroup(i).getName();
                             CheckBox cb = new CheckBox(App.mContext);
                             cb.setText(groupName);
@@ -164,27 +171,27 @@ public class ContactFragment extends Fragment{
 
                         AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                         requestBuilder.setTitle(R.string.assign_to_group)
-                            .setView(requestView)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    for (int j=0; j<layout.getChildCount(); j++){
-                                        CheckBox cb = (CheckBox)layout.getChildAt(j);
-                                        if(cb.isChecked()){
-                                            ContactList.getGroup(j).addContacts(childList);
+                                .setView(requestView)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        for (int j = 0; j < layout.getChildCount(); j++) {
+                                            CheckBox cb = (CheckBox) layout.getChildAt(j);
+                                            if (cb.isChecked()) {
+                                                ContactList.getGroup(j).addContacts(childList);
+                                            }
                                         }
+                                        adapter.notifyDataSetChanged();
+                                        onDestroyActionMode(actionMode);
                                     }
-                                    adapter.notifyDataSetChanged();
-                                    onDestroyActionMode(actionMode);
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    onDestroyActionMode(actionMode);
-                                }
-                            })
-                            .show();
+                                })
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        onDestroyActionMode(actionMode);
+                                    }
+                                })
+                                .show();
 
                         return true;
                     default:
@@ -202,17 +209,16 @@ public class ContactFragment extends Fragment{
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (ContactList.isEmpty()){
+                if (ContactList.isEmpty()) {
                     // Set 'No contacts found'
-                }
-                else{
+                } else {
                     adapter.notifyDataSetChanged();
                 }
 
             }
         });
 
-        for (int i=0; i<adapter.getGroupCount(); i++){
+        for (int i = 0; i < adapter.getGroupCount(); i++) {
             lv.expandGroup(i);
         }
 
@@ -238,6 +244,13 @@ public class ContactFragment extends Fragment{
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!MainActivity.fab.isShown()) {
+            MainActivity.fab.show();
+        }
+    }
 
     @Override
     public void onCreateOptionsMenu(
@@ -256,6 +269,7 @@ public class ContactFragment extends Fragment{
         });
 
     }
+
     public void updateRequestCount(final int request_number) {
         if (request_number_text == null) return;
 
@@ -267,11 +281,26 @@ public class ContactFragment extends Fragment{
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public void ContactFABMenu(){
+        final FABDialog dialog = new FABDialog(App.mContext);
+        // it remove the dialog title
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // set the laytout in the dialog
+        dialog.setContentView(R.layout.fab_menu_contact);
+        // set the background partial transparent
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(0));
+        //window.setDimAmount(0f);
+        WindowManager.LayoutParams param = window.getAttributes();
+        // set the layout at right bottom
+        param.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        // it dismiss the dialog when click outside the dialog frame
+        dialog.setCanceledOnTouchOutside(true);
 
-        switch (item.getItemId()){
-            case R.id.action_send_request:
+        FloatingActionButton contact_request = (FloatingActionButton) dialog.findViewById(R.id.fab_contact_request);
+        contact_request.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
                 TextView title = (TextView) requestView.findViewById(R.id.textview_contact_dialog_title);
                 title.setText(R.string.contact_request);
@@ -279,24 +308,31 @@ public class ContactFragment extends Fragment{
                 mail.setHint(R.string.mail);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
                 requestBuilder.setView(requestView)
-                    .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            String email = ((EditText) requestView.findViewById(R.id.edittext_contact_email)).getText().toString();
-                            if (!email.isEmpty())
-                                ContactList.sendRequest(email);
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                        .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String email = ((EditText) requestView.findViewById(R.id.edittext_contact_email)).getText().toString();
+                                if (!email.isEmpty())
+                                    ContactList.sendRequest(email);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                        }
-                    })
-                    .show();
-                return true;
+                            }
+                        })
+                        .show();
 
-            case R.id.action_new_group:
+                dialog.dismiss();
+            }
+        });
+
+        FloatingActionButton add_group = (FloatingActionButton) dialog.findViewById(R.id.fab_contact_add_group);
+        add_group.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fab.setVisibility(View.VISIBLE);
                 final View groupView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
                 TextView titleGroup = (TextView) groupView.findViewById(R.id.textview_contact_dialog_title);
                 titleGroup.setText(R.string.new_group);
@@ -304,25 +340,48 @@ public class ContactFragment extends Fragment{
                 group.setHint(R.string.name_of_group);
                 AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.mContext);
                 newGroupBuilder.setView(groupView)
-                    .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
-                            adapter.addGroup(groupName);
+                        .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
+                                adapter.addGroup(groupName);
 
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                        }
-                    })
-                    .show();
-                return true;
+                            }
+                        })
+                        .show();
 
-            default:
-                return super.onOptionsItemSelected(item);
+                dialog.dismiss();
+            }
+        });
+
+        FloatingActionButton fab_cancel = (FloatingActionButton) dialog.findViewById(R.id.fab_contact_cancel);
+        fab_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+
+            }
+        });
+        dialog.show();
+    }
+
+    private class FABDialog extends Dialog {
+
+        public FABDialog(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void dismiss(){
+            super.dismiss();
+            MainActivity.fab.setVisibility(View.VISIBLE);
+            MainActivity.fab.setClickable(true);
         }
     }
 

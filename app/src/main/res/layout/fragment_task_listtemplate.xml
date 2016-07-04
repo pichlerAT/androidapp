@@ -8,6 +8,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/relativelayout_fragment_task_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorAccent">
@@ -25,13 +26,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/button_listtemplate_more"
-            android:layout_toLeftOf="@+id/button_listtemplate_done"
+            android:layout_toLeftOf="@+id/button_listtemplate_color"
             android:layout_centerVertical="true"
             android:padding="10dp"
             android:textColor="@color/colorTextLight"
             android:textStyle="bold"
             android:textSize="22sp"
             android:text="Header"/>
+
+        <Button
+            android:id="@+id/button_listtemplate_color"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/button_listtemplate_done"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/ic_color"
+            />
 
         <Button
             android:id="@+id/button_listtemplate_done"

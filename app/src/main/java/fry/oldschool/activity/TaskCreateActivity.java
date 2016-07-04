@@ -28,7 +28,7 @@ import fry.oldschool.utils.App;
 /**
  * Created by Edwin Pichler on 04.05.2016.
  */
-public class TaskCreateActivity extends mAppCompatActivity{
+public class TaskCreateActivity extends mAppCompatActivity {
 
     private ViewPager pager = null;
     private TaskCreateAdapter adapter = null;
@@ -106,7 +106,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for(Tasklist tdl : TasklistManager.getTasklists()){
+        for (Tasklist tdl : TasklistManager.getTasklists()) {
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
@@ -143,22 +143,25 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == TasklistManager.get(index)){
+            if (args != null && tdl == TasklistManager.get(index)) {
                 setCurrentPage(taskView);
             }
         }
 
     }
 
-    protected void taskList(Tasklist task, int viewPage){
+    protected void taskList(Tasklist task, int viewPage) {
         RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
+        String headerString = header.getText().toString();
 
-        if (!header.getText().toString().matches("")) {
+        if (!headerString.matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
                 task = Tasklist.create(header.getText().toString());
+            } else {
+                task.rename(headerString);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -189,26 +192,25 @@ public class TaskCreateActivity extends mAppCompatActivity{
     }
 
     //This method saves the current task to the database
-    protected void saveList(){
+    protected void saveList() {
         //Get data from the current displayed view
         int position = 0;
         if (swipeSave)
             position = lastPos - 1;
         else
-            position = adapter.getItemPosition(getCurrentPage()) -1;
+            position = adapter.getItemPosition(getCurrentPage()) - 1;
 
         if (position >= 0) {
             Tasklist tdl = TasklistManager.get(position);
-            taskList(tdl, position+1);
-        }
-        else
+            taskList(tdl, position + 1);
+        } else
             taskList(null, 0);
 
         swipeSave = false;
     }
 
     //This method adds a new empty entry to the actual task
-    protected void entryListeners(final TableLayout taskEntries, final EditText entry, final TableRow curRow){
+    protected void entryListeners(final TableLayout taskEntries, final EditText entry, final TableRow curRow) {
         entry.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -222,14 +224,12 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
                     entryRow.addView(entryState);
                     entryRow.addView(entryName);
-                    taskEntries.addView(entryRow, curIndex+1);
+                    taskEntries.addView(entryRow, curIndex + 1);
 
                     //Adds a new listener to the new created entry
                     entryListeners(taskEntries, entryName, entryRow);
                     return true;
-                }
-
-                else if(keyCode == KeyEvent.KEYCODE_DEL){
+                } else if (keyCode == KeyEvent.KEYCODE_DEL) {
                     if (entry.getText().toString().matches("")) {
                         if (curIndex != 0) {
                             TableRow aboveRow = (TableRow) taskEntries.getChildAt(curIndex - 1);
@@ -248,7 +248,7 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
     }
 
-    protected EditText createEntryName(){
+    protected EditText createEntryName() {
         EditText text = new EditText(ctx);
         text.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1f));
         text.setBackgroundColor(0);
@@ -257,26 +257,27 @@ public class TaskCreateActivity extends mAppCompatActivity{
 
         return text;
     }
-/*
-    public void addView(View v){
-        int index = adapter.addView(v);
 
-        //if view is a new list
-        //pager.setCurrentItem(index, true
-    }
+    /*
+        public void addView(View v){
+            int index = adapter.addView(v);
 
-    public void removeView(View v){
-        int index = adapter.removeView(pager, v);
-        if (index == adapter.getCount())
-            index--;
-        pager.setCurrentItem(index);
-    }
-*/
-    public View getCurrentPage(){
+            //if view is a new list
+            //pager.setCurrentItem(index, true
+        }
+
+        public void removeView(View v){
+            int index = adapter.removeView(pager, v);
+            if (index == adapter.getCount())
+                index--;
+            pager.setCurrentItem(index);
+        }
+    */
+    public View getCurrentPage() {
         return adapter.getView(pager.getCurrentItem());
     }
 
-    public void setCurrentPage(View v){
+    public void setCurrentPage(View v) {
         pager.setCurrentItem(adapter.getItemPosition(v), true);
     }
 
@@ -303,4 +304,12 @@ public class TaskCreateActivity extends mAppCompatActivity{
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MainActivity.fab.isShown()) {
+            MainActivity.fab.hide();
+        }
+    }
 }
+

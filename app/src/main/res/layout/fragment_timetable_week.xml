@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearlayout_timetable_week"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <GridView
+            android:id="@+id/gridview_timetable_dates"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:numColumns="7"
+            android:verticalSpacing="1dp"
+            android:gravity="center"
+            android:background="@color/colorBackground"
+            android:stretchMode="columnWidth"
+            />
+    </HorizontalScrollView>
+
+</LinearLayout>
