@@ -26,13 +26,13 @@ public class FryFile {
         os.write(writeLine.toString());
         os.close();
     }
-
+/*
     public void save(File file) throws IOException {
         BufferedWriter bw=new BufferedWriter(new FileWriter(file));
         bw.write(writeLine.toString());
         bw.close();
     }
-
+*/
     public void loadUTF8(File file) throws IOException {
         InputStreamReader is = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8").newDecoder());
 
@@ -46,7 +46,7 @@ public class FryFile {
                     bufferLine += buffer[k];
                 }
             }else {
-                bufferLine += buffer;
+                bufferLine += new String(buffer);
             }
         }
         readLine = bufferLine.toCharArray();
@@ -57,13 +57,13 @@ public class FryFile {
         */
         is.close();
     }
-
+/*
     public void load(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
         readLine = br.readLine().toCharArray();
         br.close();
     }
-
+*/
     public boolean moreToRead() {
         return (readLine != null && readIndex < readLine.length);
     }
@@ -189,7 +189,7 @@ public class FryFile {
 
     public void write(final String[] str) {
         write((char)str.length);
-        for(final String stri : str) {
+        for(String stri : str) {
             write(stri);
         }
     }
@@ -198,7 +198,7 @@ public class FryFile {
         int index = writeLine.length();
         write((char)fry.length);
         int length = 0;
-        for(final Fryable obj : fry) {
+        for(Fryable obj : fry) {
             obj.writeTo(this);
             ++length;
         }
@@ -209,7 +209,7 @@ public class FryFile {
         int index = writeLine.length();
         write((char)fry.length);
         int length = 0;
-        for(final Object obj : fry) {
+        for(Object obj : fry) {
             if(obj instanceof Fryable) {
                 ((Fryable)obj).writeTo(this);
                 ++length;
@@ -222,7 +222,7 @@ public class FryFile {
         int index = writeLine.length();
         write((char)list.size());
         int length = 0;
-        for(final Object obj : list) {
+        for(Object obj : list) {
             if(obj instanceof Fryable) {
                 ((Fryable)obj).writeTo(this);
                 ++length;

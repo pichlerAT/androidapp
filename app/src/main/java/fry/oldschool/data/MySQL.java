@@ -12,7 +12,7 @@ import fry.oldschool.utils.Fryable;
 
 public abstract class MySQL implements Fryable {
 
-    protected static final String IP_ADDRESS = "62.47.228.187" ;
+    protected static final String IP_ADDRESS = "192.164.221.19" ;
     protected static final int PORT = 80;
 
     protected static final String ADDRESS="http://" + IP_ADDRESS + ":" + PORT + "/android/";
@@ -141,6 +141,15 @@ public abstract class MySQL implements Fryable {
 
     protected abstract boolean mysql_delete();
 
+    protected final boolean mysql() {
+        switch(getBaseType()) {
+            case BASETYPE_CREATE: return mysql_create();
+            case BASETYPE_UPDATE: return mysql_update();
+            case BASETYPE_DELETE: return mysql_delete();
+        }
+        return true;
+    }
+
     protected final void create() {
         type = (char)((type & TYPE) | BASETYPE_CREATE);
         ConnectionManager.add(this);
@@ -158,15 +167,6 @@ public abstract class MySQL implements Fryable {
             type = (char)((type & TYPE) | BASETYPE_DELETE);
             ConnectionManager.add(this);
         }
-    }
-
-    protected final boolean mysql() {
-        switch(getBaseType()) {
-            case BASETYPE_CREATE: return mysql_create();
-            case BASETYPE_UPDATE: return mysql_update();
-            case BASETYPE_DELETE: return mysql_delete();
-        }
-        return true;
     }
 
     public final boolean isOwner() {

@@ -74,6 +74,11 @@ public class Contact extends MySQL implements Fryable, Searchable {
         return (getLine(DIR_CONTACT_REQUEST+"decline.php", "&id="+id) != null);
     }
 
+    public void accept() {
+        create();
+        ContactList.contactRequests.remove(this);
+    }
+
     public void decline() {
         delete();
         ContactList.contactRequests.remove(this);

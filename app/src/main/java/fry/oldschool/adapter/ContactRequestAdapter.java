@@ -12,20 +12,21 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import fry.oldschool.R;
+import fry.oldschool.data.Contact;
 
 /**
  * Created by Edwin Pichler on 21.05.2016.
  */
-public class ContactRequestAdapter extends ArrayAdapter<ContactRequest>{
-    ArrayList<ContactRequest> contactRequests;
+public class ContactRequestAdapter extends ArrayAdapter<Contact>{
+    ArrayList<Contact> contactRequests;
 
-    public ContactRequestAdapter(Context context, int resource, ArrayList<ContactRequest> contactRequests) {
+    public ContactRequestAdapter(Context context, int resource, ArrayList<Contact> contactRequests) {
         super(context, resource, contactRequests);
         this.contactRequests = contactRequests;
     }
 
     @Override
-    public ContactRequest getItem(int position){
+    public Contact getItem(int position){
         return contactRequests.get(position);
     }
 
@@ -50,7 +51,7 @@ public class ContactRequestAdapter extends ArrayAdapter<ContactRequest>{
             res = convertView;
         }
 
-        final ContactRequest sender = getItem(position);
+        final Contact sender = getItem(position);
 
         LinearLayout senderData = (LinearLayout) res.findViewById(R.id.linearlayout_contact_request_sender);
         TextView senderName = (TextView) senderData.getChildAt(0);

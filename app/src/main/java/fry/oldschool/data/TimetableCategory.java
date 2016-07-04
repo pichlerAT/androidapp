@@ -22,6 +22,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected TimetableCategory(FryFile fry) {
         super(fry);
+        name = fry.getString();
 
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
@@ -114,6 +115,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         update();
     }
 
+    @Override
     public void delete() {
         super.delete();
         Timetable.categories.remove(this);
