@@ -9,7 +9,7 @@ public class Date implements Fryable {
     public static final int YEAR_OFFSET = 2000;
 
     public static Date getToday() {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#getToday()");
         return new Date(Calendar.getInstance());
     }
 
@@ -21,47 +21,53 @@ public class Date implements Fryable {
 
     public Date(FryFile fry) {
         this(fry.getShort());
-        Logger.Log("Date#Date");
+        Logger.Log("Date#Date(FryFile)");
     }
 
     public Date(Calendar cal) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#Date(Calendar)");
         day = cal.get(Calendar.DAY_OF_MONTH);
         month = cal.get(Calendar.MONTH);
         year = cal.get(Calendar.YEAR);
     }
 
     public Date(short date) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#Date(short)");
         day = date & 31;
         month = (date >> 5) & 15;
         year = (date >> 9) & 127 + YEAR_OFFSET;
     }
 
     public Date(int day,int month,int year) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#Date(int,int,int)");
         this.day   = day;
         this.month = month;
         this.year  = year;
     }
 
     public Date(String date) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#Date(String)");
         String[] r = date.split("-");
         day   = Integer.parseInt(r[0]);
         month = Integer.parseInt(r[1]);
         year  = Integer.parseInt(r[2]);
     }
 
+    public Date(Date date) {
+        day = date.day;
+        month = date.month;
+        year = date.year;
+    }
+
     @Override
     public void writeTo(FryFile fry) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#writeTo(FryFile)");
         fry.write(getShort());
     }
 
     @Override
     public boolean equals(Object o) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#equals(Object)");
         if(o instanceof Date) {
             Date d = (Date) o;
             return (d.day == day && d.month == month && d.year == year);
@@ -70,22 +76,22 @@ public class Date implements Fryable {
     }
 
     public boolean isSmallerThen(Date date) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#isSmallerThen(Date)");
         return (year < date.year && month < date.month && day < date.day);
     }
 
     public boolean isGreaterThen(Date date) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#isGreaterThen(Date)");
         return (year > date.year && month > date.month && day > date.day);
     }
 
     public short getShort() {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#getShort()");
         return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
     }
 
     public void addDays(int days) {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#addDays(int)");
         day += days;
         int dom = getDaysOfMonth();
         while( day > dom || month > 12) {
@@ -104,21 +110,22 @@ public class Date implements Fryable {
     }
 
     public boolean isLeapYear() {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#isLeapYear()");
         return isLeapYear(year);
     }
 
     public int getDaysOfMonth() {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#getDaysOfMonth()");
         return getDaysOfMonth(month, year);
     }
 
     public int getDaysOfYear() {
-        Logger.Log("Date#Date");
+        Logger.Log("Date#getDaysOfYear()");
         return getDaysOfYear(year);
     }
 
     public int getTotalDays() {
+        Logger.Log("Date#getTotalDays()");
         return getDaysUntilYear(year) + getDaysUntilMonth(month, year) + day + 4;
     }
 
