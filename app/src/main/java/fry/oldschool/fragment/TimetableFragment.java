@@ -62,12 +62,12 @@ public class TimetableFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (i<6) // This prevents from clicking on the weekdays (first line in gridview)
                     return;
-                View events_view = View.inflate(App.mContext, R.layout.fragment_timetable_events_daily, null);
+                View events_view = View.inflate(App.getContext(), R.layout.fragment_timetable_events_daily, null);
                 ExpandableListView events_listview = (ExpandableListView) events_view.findViewById(R.id.listview_timetable_events_daily);
                 TimetableEventsAdapter events_adapter = new TimetableEventsAdapter();
 
                 events_listview.setAdapter(events_adapter);
-                AlertDialog.Builder builder = new AlertDialog.Builder(App.mContext);
+                AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
                 builder.setView(events_listview)
 
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -111,7 +111,7 @@ public class TimetableFragment extends Fragment {
 
     private DatePickerDialog createDialogWithoutDateField() {
         Calendar today = Calendar.getInstance();
-        DatePickerDialog dialog = new DatePickerDialog(App.mContext, mDateSetListener, today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog dialog = new DatePickerDialog(App.getContext(), mDateSetListener, today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
 
         try {
             Field[] datePickerDialogFields = dialog.getClass().getDeclaredFields();
@@ -146,8 +146,8 @@ public class TimetableFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        int stringId = App.mContext.getApplicationInfo().labelRes;
-        getActivity().setTitle(App.mContext.getString(stringId));
+        int stringId = App.getContext().getApplicationInfo().labelRes;
+        getActivity().setTitle(App.getContext().getString(stringId));
     }
 
     @Override

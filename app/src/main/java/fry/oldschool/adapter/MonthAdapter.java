@@ -185,15 +185,15 @@ public class MonthAdapter extends BaseAdapter {
         if (date != null) {
             if (convertView == null)
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_timetable_grid_date, parent, false);
-            convertView.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPrimary));
+            convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPrimary));
             gridItemText = (TextView) convertView.findViewById(R.id.textview_timetable_grid_date);
             gridItemText.setHeight(mDayHeight);
             if (date[1] != mMonth) {
-                convertView.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPreviousMonth));
+                convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPreviousMonth));
             } else {
                 // current month
                 if (isToday(date[0], date[1], date[2] )) {
-                    convertView.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorToday));
+                    convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorToday));
                 }
             }
         }

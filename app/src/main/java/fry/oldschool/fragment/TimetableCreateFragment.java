@@ -77,7 +77,7 @@ public class TimetableCreateFragment extends Fragment {
         int hours = cal.get(Calendar.HOUR);
         int minutes = cal.get(Calendar.MINUTE);
 
-        TimePickerDialog dialog = new TimePickerDialog(App.mContext, mTimeSetListener, hours, minutes, true); //true for 24 hours view
+        TimePickerDialog dialog = new TimePickerDialog(App.getContext(), mTimeSetListener, hours, minutes, true); //true for 24 hours view
         dialog.show();
     }
 
@@ -101,7 +101,7 @@ public class TimetableCreateFragment extends Fragment {
 
 
         DatePickerDialog dialog =
-                new DatePickerDialog(App.mContext, mDateSetListener, maxYear , maxMonth , maxDay);
+                new DatePickerDialog(App.getContext(), mDateSetListener, maxYear , maxMonth , maxDay);
 
         DatePicker picker = dialog.getDatePicker();
         picker.setCalendarViewShown(true);

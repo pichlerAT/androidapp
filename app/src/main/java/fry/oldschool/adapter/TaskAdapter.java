@@ -121,11 +121,11 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         Button done = (Button) res.findViewById(R.id.button_listtemplate_done);
         if (item.isDone()){
             res.setAlpha(0.65f);
-            done.setBackground(ContextCompat.getDrawable(App.mContext, R.drawable.ic_refresh));
+            done.setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_refresh));
         }
         else{
             res.setAlpha(1);
-            done.setBackground(ContextCompat.getDrawable(App.mContext, R.drawable.ic_done));
+            done.setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_done));
         }
         done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,24 +142,24 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PopupMenu popupMenu = new PopupMenu(App.mContext, more);
+                PopupMenu popupMenu = new PopupMenu(App.getContext(), more);
                 popupMenu.getMenuInflater().inflate(R.menu.task_options_popup, popupMenu.getMenu());
 
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        if (menuItem.getTitle().equals(App.mContext.getResources().getString(R.string.edit))){
+                        if (menuItem.getTitle().equals(App.getContext().getResources().getString(R.string.edit))){
                             Intent intent = new Intent(ctx, TaskCreateActivity.class);
                             intent.putExtra("index", position);
                             ctx.startActivity(intent);
                         }
-                        else if (menuItem.getTitle().equals(App.mContext.getResources().getString(R.string.delete))){
+                        else if (menuItem.getTitle().equals(App.getContext().getResources().getString(R.string.delete))){
                             item.delete();
                             notifyDataSetChanged();
                         }
 
-                        else if (menuItem.getTitle().equals(App.mContext.getResources().getString(R.string.share))) {
-                            View taskSharelist = View.inflate(App.mContext, R.layout.fragment_task_sharelist, null);
+                        else if (menuItem.getTitle().equals(App.getContext().getResources().getString(R.string.share))) {
+                            View taskSharelist = View.inflate(App.getContext(), R.layout.fragment_task_sharelist, null);
                             ExpandableListView lv = (ExpandableListView) taskSharelist.findViewById(R.id.listview_task_sharelist);
 
                             ArrayList<ContactGroup> shared_groups = item.sharedContacts.getShareList();
@@ -181,23 +181,23 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                                     if(permission != null && expandableListView.isItemChecked(index)) {
                                         if (permission == "R") {
                                             view.setTag("W");
-                                            view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPermission2));
+                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission2));
                                         }
                                         else if (permission == "W") {
                                             view.setTag("E");
-                                            view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPermission3));
+                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission3));
                                         }
                                         else if (permission == "E"){
                                             view.setTag("");
                                             expandableListView.setItemChecked(index, false);
-                                            view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPrimary));
+                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPrimary));
                                             childList.remove(adapter.getChild(groupPosition, childPosition));
                                         }
 
                                     }
                                     else {
                                         expandableListView.setItemChecked(index, true);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPermission1));
+                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission1));
                                         view.setTag("R");
                                         childList.add(adapter.getChild(groupPosition, childPosition));
                                     }
@@ -212,12 +212,12 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
 
                                     if(expandableListView.isItemChecked(index)) {
                                         expandableListView.setItemChecked(index, false);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorPrimary));
+                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPrimary));
                                         groupList.remove(adapter.getGroup(groupPosition));
                                     }
                                     else {
                                         expandableListView.setItemChecked(index, true);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.mContext, R.color.colorAccent));
+                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorAccent));
                                         groupList.add(adapter.getGroup(groupPosition));
                                     }
 
@@ -251,7 +251,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                                 }
                             });
 */
-                            AlertDialog.Builder builder = new AlertDialog.Builder(App.mContext);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
                             builder.setView(taskSharelist)
                                     .setPositiveButton(R.string.share, new DialogInterface.OnClickListener() {
                                         @Override
@@ -282,13 +282,13 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         colors.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View colorDialog = View.inflate(App.mContext, R.layout.color_dialog, null);
+                View colorDialog = View.inflate(App.getContext(), R.layout.color_dialog, null);
                 GridView color_gridview = (GridView) colorDialog.findViewById(R.id.gridview_color_dialog);
-                ColorAdapter color_adapter = new ColorAdapter(App.mContext, R.layout.color_dialog_item, App.mContext.getResources().getStringArray(R.array.colors),
+                ColorAdapter color_adapter = new ColorAdapter(App.getContext(), R.layout.color_dialog_item, App.getContext().getResources().getStringArray(R.array.colors),
                         String.format("#%06X", (0xFFFFFF & ((ColorDrawable)color_header.getBackground()).getColor())));
 
                 color_gridview.setAdapter(color_adapter);
-                AlertDialog.Builder builder = new AlertDialog.Builder(App.mContext);
+                AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
                 builder.setView(color_gridview)
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override

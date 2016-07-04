@@ -139,7 +139,7 @@ public class ContactFragment extends Fragment {
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_contact_delete:
-                        AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(App.mContext);
+                        AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(App.getContext());
                         deleteBuilder.setTitle(R.string.warning)
                                 .setMessage(R.string.delete_message)
                                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -159,17 +159,17 @@ public class ContactFragment extends Fragment {
 
                         return true;
                     case R.id.action_assign_to_group:
-                        View requestView = View.inflate(App.mContext, R.layout.fragment_contact_groupassign, null);
+                        View requestView = View.inflate(App.getContext(), R.layout.fragment_contact_groupassign, null);
                         final LinearLayout layout = (LinearLayout) requestView.findViewById(R.id.linearlayout_contact_groupassign);
 
                         for (int i = 0; i < ContactList.getNoGroups() - 1; i++) {// -1 because user shouldn't assign contact to 'all contacts'
                             String groupName = ContactList.getGroup(i).getName();
-                            CheckBox cb = new CheckBox(App.mContext);
+                            CheckBox cb = new CheckBox(App.getContext());
                             cb.setText(groupName);
                             layout.addView(cb);
                         }
 
-                        AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
+                        AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.getContext());
                         requestBuilder.setTitle(R.string.assign_to_group)
                                 .setView(requestView)
                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -223,7 +223,7 @@ public class ContactFragment extends Fragment {
         }
 
         //Search listener for the listview
-        SearchManager searchManager = (SearchManager) App.mContext.getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) App.getContext().getSystemService(Context.SEARCH_SERVICE);
         mSearch = (SearchView) rootView.findViewById(R.id.searchview_contact_id);
         mSearch.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         mSearch.setIconifiedByDefault(false);
@@ -282,7 +282,7 @@ public class ContactFragment extends Fragment {
     }
 
     public void ContactFABMenu(){
-        final FABDialog dialog = new FABDialog(App.mContext);
+        final FABDialog dialog = new FABDialog(App.getContext());
         // it remove the dialog title
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         // set the laytout in the dialog
@@ -301,12 +301,12 @@ public class ContactFragment extends Fragment {
         contact_request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final View requestView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
+                final View requestView = View.inflate(App.getContext(), R.layout.fragment_contact_dialog, null);
                 TextView title = (TextView) requestView.findViewById(R.id.textview_contact_dialog_title);
                 title.setText(R.string.contact_request);
                 EditText mail = (EditText) requestView.findViewById(R.id.edittext_contact_email);
                 mail.setHint(R.string.mail);
-                AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.mContext);
+                AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.getContext());
                 requestBuilder.setView(requestView)
                         .setPositiveButton(R.string.send, new DialogInterface.OnClickListener() {
                             @Override
@@ -333,12 +333,12 @@ public class ContactFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MainActivity.fab.setVisibility(View.VISIBLE);
-                final View groupView = View.inflate(App.mContext, R.layout.fragment_contact_dialog, null);
+                final View groupView = View.inflate(App.getContext(), R.layout.fragment_contact_dialog, null);
                 TextView titleGroup = (TextView) groupView.findViewById(R.id.textview_contact_dialog_title);
                 titleGroup.setText(R.string.new_group);
                 EditText group = (EditText) groupView.findViewById(R.id.edittext_contact_email);
                 group.setHint(R.string.name_of_group);
-                AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.mContext);
+                AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.getContext());
                 newGroupBuilder.setView(groupView)
                         .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                             @Override

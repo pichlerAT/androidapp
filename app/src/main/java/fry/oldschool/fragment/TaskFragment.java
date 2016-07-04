@@ -24,7 +24,6 @@ import fry.oldschool.data.MySQLListener;
 
 public class TaskFragment extends ListFragment{
 
-    protected Context ctx = App.mContext;
     protected TaskAdapter adapter;
 
     @Override
@@ -33,7 +32,7 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final DragableListView lv = (DragableListView) rootView.findViewById(android.R.id.list);
 
-        adapter = new TaskAdapter(App.mContext, R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
+        adapter = new TaskAdapter(App.getContext(), R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
         lv.setAdapter(adapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -75,7 +74,7 @@ public class TaskFragment extends ListFragment{
 
         switch (item.getItemId()){
             case R.id.action_add:
-                Intent intent = new Intent(App.mContext, TaskCreateActivity.class);
+                Intent intent = new Intent(App.getContext(), TaskCreateActivity.class);
                 //startActivityForResult(intent, 10001);
                 startActivity(intent);
                 return true;

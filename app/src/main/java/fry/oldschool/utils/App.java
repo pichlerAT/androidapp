@@ -11,17 +11,12 @@ import java.io.IOException;
 
 import fry.oldschool.R;
 import fry.oldschool.data.ConnectionManager;
-import fry.oldschool.data.Contact;
-import fry.oldschool.data.ContactGroup;
 import fry.oldschool.data.ContactList;
 import fry.oldschool.data.MySQL;
 import fry.oldschool.data.MySQLListener;
 import fry.oldschool.data.NetworkStateReciever;
-import fry.oldschool.data.Tasklist;
 import fry.oldschool.data.TasklistManager;
 import fry.oldschool.data.Timetable;
-import fry.oldschool.data.TimetableCategory;
-import fry.oldschool.data.TimetableEntry;
 import fry.oldschool.data.Updater;
 
 public class App extends Application {

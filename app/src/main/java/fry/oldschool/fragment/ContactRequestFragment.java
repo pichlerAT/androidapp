@@ -27,7 +27,7 @@ public class ContactRequestFragment extends Fragment{
         final View rootView = inflater.inflate(R.layout.fragment_contact_request, container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, ContactList.getRequests());
+        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.getContext(), R.layout.fragment_contact_request_item, ContactList.getRequests());
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
