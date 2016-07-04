@@ -33,30 +33,37 @@ public class App extends Application {
 
     public static Context appContext;
 
-    protected static AlphaExceptionHandler defaultEH;
+    protected static Thread.UncaughtExceptionHandler defaultEH;
 
     @Override
     public void onCreate() {
         Logger.Log("App#onCreate()");
         super.onCreate();
 
-        //defaultEH = new AlphaExceptionHandler();
-        //Thread.setDefaultUncaughtExceptionHandler(defaultEH);
+        defaultEH = new AlphaExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(defaultEH);
 
         appContext = this;
         load();
         NetworkStateReciever.checkInternet();
     }
 
+    public static Context getContext() {
+        if(mContext == null) {
+            return appContext;
+        }
+        return mContext;
+    }
+
     public static void setContext(Context mContext) {
         Logger.Log("App#setContext(Context)");
         App.mContext = mContext;
 
-        /*
+
         if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof AlphaExceptionHandler)) {
             Thread.setDefaultUncaughtExceptionHandler(defaultEH);
         }
-        */
+
     }
 
     public static void setMySQLListener(MySQLListener mysql_Listener) {
@@ -112,8 +119,7 @@ public class App extends Application {
                 }
                 print("");
                 print("EOF Contacts");
-                print("");
-                System.out.println(Logger.getString());
+                //throw new ArrayIndexOutOfBoundsException("TEST TEST TEST");
                 break;
 
             case R.id.nav_tasks:

@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import fry.oldschool.R;
@@ -29,7 +30,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
     protected ArrayList<ContactGroup> contactGroupList;
     protected boolean isTask;
 
-    public ContactAdapter(Context context, List<ContactGroup> contactGroupList, boolean isTask){
+    public ContactAdapter(Context context, Collection<ContactGroup> contactGroupList, boolean isTask){
         this.mContext = context;
         this.contactGroupList = new ArrayList<>(contactGroupList);
         this.isTask = isTask;

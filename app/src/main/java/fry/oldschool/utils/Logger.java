@@ -9,7 +9,7 @@ public class Logger {
     protected static String[] logs = new String[MaxLogs];
 
     static {
-        logs[0] = "Logger" ;
+        logs[0] = "Logger:" ;
     }
 
     public static void Log(String log) {

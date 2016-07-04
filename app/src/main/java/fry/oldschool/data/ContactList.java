@@ -183,7 +183,7 @@ public class ContactList {
         return groups;
     }
 
-    public static List<ContactGroup> getGroups() {
+    public static Collection<ContactGroup> getGroups() {
         return groups.subList(0, groups.size() - 1);
     }
 
