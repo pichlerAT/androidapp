@@ -1,10 +1,12 @@
 package fry.oldschool.data;
 
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Logger;
 
 public abstract class MySQLEntry extends MySQL {
 
     public static MySQLEntry load(char type, int id) {
+        Logger.Log("MySQLEntry#load(char,int)");
         switch((char)(type & TYPE)) {
 
             case TYPE_CALENDAR_CATEGORY:
@@ -28,10 +30,12 @@ public abstract class MySQLEntry extends MySQL {
 
     protected MySQLEntry(FryFile fry) {
         super(fry);
+        Logger.Log("MySQLEntry#MySQLEntry(FryFile)");
     }
 
     protected MySQLEntry(char type, int id, int user_id) {
         super(type, id, user_id);
+        Logger.Log("MySQLEntry#MySQLEntry(char,int,int)");
     }
 
     @Override

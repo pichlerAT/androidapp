@@ -64,6 +64,9 @@ public class Share extends Contact {
 
     @Override
     public boolean mysql_delete() {
+        if(id == 0) {
+            return (getLine(getFileUrl()+"delete_without_id.php", "&share_user_id="+user_id+"&share_id="+share_id) != null);
+        }
         return (getLine(getFileUrl()+"delete.php", "&id="+id) != null);
     }
 
@@ -72,6 +75,14 @@ public class Share extends Contact {
         super.writeTo(fry);
         fry.write(permission);
         fry.write(share_id);
+    }
+
+    protected void deleteWithoutId() {
+        if(user_id != 0 && share_id != 0) {
+            id = 0;
+            type = (char)((type & TYPE) | BASETYPE_DELETE);
+            ConnectionManager.add(this);
+        }
     }
 
     public void setPermission(byte permission) {

@@ -3,17 +3,20 @@ package fry.oldschool.data;
 import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Logger;
 
 public class TasklistManager {
 
     protected static BackupList<Tasklist> Tasklists = new BackupList<>();
 
     public static void writeTo(FryFile file) {
+        Logger.Log("BackupList#writeTo(FryFile)");
         file.write(Tasklists.getList());
         file.write(Tasklists.getBackupList());
     }
 
     public static void readFrom(FryFile fry) {
+        Logger.Log("BackupList#readFrom(FryFile)");
         Tasklists = new BackupList<>();
 
         int NoTasklists = fry.getChar();
@@ -29,6 +32,7 @@ public class TasklistManager {
     }
 
     public static void synchronizeTasklistsFromMySQL(String... r) {
+        Logger.Log("BackupList#synchronizeTasklistsFromMySQL(String...)");
         ArrayList<Tasklist> list = new ArrayList<>();
         int index = 0;
         while(index < r.length) {
@@ -37,14 +41,14 @@ public class TasklistManager {
             int NoEntries = Integer.parseInt(r[index++]);
             for(int i=0; i<NoEntries; ++i) {
                 TasklistEntry ent = new TasklistEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), tl.id,r[index++]);
-                if(!ConnectionManager.hasEntry(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE, ent.id)) {
+                if(!ConnectionManager.hasEntry((char)(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE), ent.id)) {
                     tl.entries.add(ent);
                 }
             }
 
             int NoShares = Integer.parseInt(r[index++]);
             for(int i=0; i<NoShares; ++i) {
-                tl.shareList.add(Byte.parseByte(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]));
+                tl.sharedContacts.add(Byte.parseByte(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]));
             }
 
             list.add(tl);
@@ -53,26 +57,32 @@ public class TasklistManager {
     }
 
     public static int size() {
+        Logger.Log("BackupList#size()");
         return Tasklists.size();
     }
 
     public static Tasklist get(int index) {
+        Logger.Log("BackupList#get(int)");
         return Tasklists.get(index);
     }
 
     public static ArrayList<Tasklist> getTasklists() {
+        Logger.Log("BackupList#getTasklists()");
         return Tasklists.getList();
     }
 
     protected static void removeTasklist(int id) {
+        Logger.Log("BackupList#removeTasklist(int)");
         Tasklists.removeById(id);
     }
 
     protected static Tasklist getTasklistById(int id) {
+        Logger.Log("BackupList#getTasklistById(int)");
         return Tasklists.getById(id);
     }
 
     protected static TasklistEntry getTasklistEntryById(int id) {
+        Logger.Log("BackupList#getTasklistEntryById(int)");
         for(Tasklist t : Tasklists.getList()) {
             for(TasklistEntry e : t.entries) {
                 if(e.id == id) {

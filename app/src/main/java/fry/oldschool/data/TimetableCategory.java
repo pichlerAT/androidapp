@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
+import fry.oldschool.utils.Logger;
 
 public class TimetableCategory extends MySQLEntry implements Fryable {
 
@@ -11,9 +12,10 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
 
-    protected ShareList shareList;
+    public ShareList sharedContacts;
 
     public static TimetableCategory create(String name) {
+        Logger.Log("TimetableCategory#create(String)");
         TimetableCategory cat = new TimetableCategory(0,USER_ID,name);
         cat.create();
         Timetable.categories.add(cat);
@@ -22,6 +24,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected TimetableCategory(FryFile fry) {
         super(fry);
+        Logger.Log("TimetableCategory#TimetableCategory(FryFile)");
         name = fry.getString();
 
         int NoEntries = fry.getChar();
@@ -30,21 +33,23 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         }
 
         if(id != 0) {
-            shareList = new ShareList(TYPE_TASKLIST, id);
+            sharedContacts = new ShareList(TYPE_TASKLIST, id);
         }
     }
 
     protected TimetableCategory(int id,int user_id,String name) {
         super(TYPE_CALENDAR_CATEGORY, id, user_id);
+        Logger.Log("TimetableCategory#TimetableCategory(int,int,String)");
         this.name = name;
 
         if(id != 0) {
-            shareList = new ShareList(TYPE_TASKLIST, id);
+            sharedContacts = new ShareList(TYPE_TASKLIST, id);
         }
     }
 
     @Override
     public boolean equals(Object o) {
+        Logger.Log("TimetableCategory#equals(Object)");
         if(o instanceof TimetableCategory) {
             TimetableCategory c = (TimetableCategory) o;
             return (c.id == id && c.name.equals(name));
@@ -54,15 +59,17 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     @Override
     public TimetableCategory backup() {
+        Logger.Log("TimetableCategory#backup()");
         return new TimetableCategory(id, user_id, name);
     }
 
     @Override
     protected boolean mysql_create() {
+        Logger.Log("TimetableCategory#mysql_create()");
         String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php", "&name="+name);
         if(resp != null) {
             id = Integer.parseInt(resp);
-            shareList = new ShareList(TYPE_CALENDAR_CATEGORY, id);
+            sharedContacts = new ShareList(TYPE_CALENDAR_CATEGORY, id);
 
             for(TimetableEntry ent : offline_entries) {
                 ent.category_id = id;
@@ -76,99 +83,58 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     @Override
     protected boolean mysql_update() {
+        Logger.Log("TimetableCategory#mysql_update()");
         return (getLine(DIR_CALENDAR_CATEGORY + "update.php", "&category_id="+id+"&name="+name) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
+        Logger.Log("TimetableCategory#mysql_delete()");
         return (getLine(DIR_CALENDAR_CATEGORY + "delete.php", "&id="+id) != null);
     }
 
     @Override
     protected void synchronize(MySQL mysql) {
+        Logger.Log("TimetableCategory#synchronize(MySQL)");
         TimetableCategory c = (TimetableCategory) mysql;
         name = c.name;
     }
 
     @Override
     public boolean canEdit() {
+        Logger.Log("TimetableCategory#canEdit()");
         return isOwner();
     }
 
     @Override
     public void writeTo(FryFile fry) {
+        Logger.Log("TimetableCategory#writeTo(FryFile)");
         super.writeTo(fry);
         fry.write(name);
         fry.write(offline_entries);
     }
 
     public String getName() {
+        Logger.Log("TimetableCategory#getName()");
         return name;
     }
 
     protected void addOfflineEntry(TimetableEntry entry) {
+        Logger.Log("TimetableCategory#addOfflineEntry(TimetableEntry)");
         offline_entries.add(entry);
     }
 
     public void setName(String name) {
+        Logger.Log("TimetableCategory#setName(String)");
         this.name = name;
         update();
     }
 
     @Override
     public void delete() {
+        Logger.Log("TimetableCategory#delete()");
         super.delete();
         Timetable.categories.remove(this);
-    }
-
-    public boolean isSharedWithUserId(int id) {
-        return shareList.hasUserId(id);
-    }
-
-    public ArrayList<ContactGroup> getShared() {
-        return shareList.getShareList();
-    }
-
-    public void addShare(Contact contact) {
-        Share share = new Share(TYPE_CALENDAR_CATEGORY, id, contact);
-        shareList.addShare(share);
-        ConnectionManager.add(share);
-    }
-
-    public void addShare(ArrayList<Contact> contacts) {
-        for(Contact contact : contacts) {
-            addShare(contact);
-        }
-    }
-
-    public void addShare(Contact contact,byte permission) {
-        Share share = new Share(TYPE_CALENDAR_CATEGORY, permission, id, contact);
-        addShare(share);
-        ConnectionManager.add(share);
-    }
-
-    public void addShare(ArrayList<Contact> contacts,byte permission) {
-        for(Contact contact : contacts) {
-            addShare(contact,permission);
-        }
-    }
-
-    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
-        for(int i=0;i<contacts.size();++i) {
-            addShare(contacts.get(i),permissions[i]);
-        }
-    }
-
-    public void removeShare(Share share) {
-        if(shareList.remove(share)) {
-            share.delete();
-        }
-    }
-
-    public void removeShare(ArrayList<Share> shares) {
-        for(Share share : shares) {
-            removeShare(share);
-        }
     }
 
 }

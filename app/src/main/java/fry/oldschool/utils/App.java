@@ -99,58 +99,6 @@ public class App extends Application {
         Updater.start();
     }
 
-    static void print(String s) {
-        System.out.println("::::: "+s);
-    }
-
-    public static void fragmentChanged(int id) {
-        switch(id) {
-            case R.id.nav_contacts:
-                print("SOF Contacts");
-                print("");
-                print("- Contacts:");
-                for(Contact c : ContactList.getAllContacts()) {
-                    print(c.getEmail());
-                }
-                print("");
-                print("- ContactGroups:");
-                for(ContactGroup g : ContactList.getGroups()) {
-                    print(g.getName());
-                }
-                print("");
-                print("EOF Contacts");
-                //throw new ArrayIndexOutOfBoundsException("TEST TEST TEST");
-                break;
-
-            case R.id.nav_tasks:
-                print("SOF Tasks");
-                print("");
-                print("- Tasklists:");
-                for(Tasklist t : TasklistManager.getTasklists()) {
-                    print(t.getName());
-                }
-                print("");
-                print("EOF Tasks");
-                break;
-
-            case R.id.nav_timetable:
-                print("SOF Calendar");
-                print("");
-                print("- Categories:");
-                for(TimetableCategory c : Timetable.getCategories()) {
-                    print(c.getName());
-                }
-                print("");
-                print("- Entries:");
-                for(TimetableEntry e : Timetable.getEntries()) {
-                    print(e.getTitle());
-                }
-                print("");
-                print("EOF Calendar");
-                break;
-        }
-    }
-
     public static void load() {
         Logger.Log("App#load()");
         try{
@@ -194,7 +142,7 @@ public class App extends Application {
     }
 
     public static int pixelToDPScale(int dp){
-        Logger.Log("App#pixelToDPScale(int)");
+        //Logger.Log("App#pixelToDPScale(int)");
         float scale = mContext.getResources().getDisplayMetrics().density;
         return (int) (dp*scale + 0.5f);
     }

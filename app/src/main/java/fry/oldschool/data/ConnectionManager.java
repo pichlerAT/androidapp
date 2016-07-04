@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.utils.App;
 import fry.oldschool.utils.FryFile;
+import fry.oldschool.utils.Logger;
 
 public class ConnectionManager {
 
@@ -26,10 +27,12 @@ public class ConnectionManager {
     protected static ArrayList<MySQL> entries = new ArrayList<>();
 
     public static void setMySQLListener(MySQLListener listener) {
+        Logger.Log("ConnectionManager#setMySQLListener(MySQLListener)");
         mysql_listener = listener;
     }
 
     protected static void add(MySQL entry) {
+        Logger.Log("ConnectionManager#add(MySQL)");
         if(entry.id == 0 || !hasEntry(entry.type, entry.id)) {
             entries.add(entry);
             sync();
@@ -37,15 +40,18 @@ public class ConnectionManager {
     }
 
     protected static void notifyMySQLListener() {
+        Logger.Log("ConnectionManager#notifyMySQLListener()");
         (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void performUpdate() {
+        Logger.Log("ConnectionManager#performUpdate()");
         PERFORM_UPDATE = true;
         sync();
     }
 
-    public static boolean hasEntry(int type,int id) {
+    public static boolean hasEntry(char type,int id) {
+        Logger.Log("ConnectionManager#hasEntry(char,int)");
         for(int i=0; i<entries.size(); ++i) {
             MySQL ent = entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
@@ -56,10 +62,12 @@ public class ConnectionManager {
     }
 
     protected static boolean remove(MySQL entry) {
+        Logger.Log("ConnectionManager#remove(MySQL)");
         return entries.remove(entry);
     }
 
     protected static void remove(char type,int id) {
+        Logger.Log("ConnectionManager#remove(char,int)");
         for(int i=0; i<entries.size(); ++i) {
             MySQL ent = entries.get(i);
             if(ent.id == id && (ent.type & type) == type) {
@@ -69,6 +77,7 @@ public class ConnectionManager {
     }
 
     protected static void sync() {
+        Logger.Log("ConnectionManager#sync()");
         if(syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
             syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }else {
@@ -77,6 +86,7 @@ public class ConnectionManager {
     }
 
     public static void writeTo(FryFile fry) {
+        Logger.Log("ConnectionManager#writeTo(FryFile)");
         ArrayList<MySQL> writeList = new ArrayList<>(entries.size());
         for(MySQL m : entries) {
             if(m instanceof MySQLEntry && m.id > 0) {
@@ -91,6 +101,7 @@ public class ConnectionManager {
     }
 
     public static void readFrom(FryFile fry) {
+        Logger.Log("ConnectionManager#readFrom(FryFile)");
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
             MySQL entry = MySQLEntry.load(fry.getChar(),fry.getInt());
@@ -104,11 +115,13 @@ public class ConnectionManager {
 
         @Override
         protected String doInBackground(String... args) {
+            Logger.Log("ConnectionManager$NotifyListener#doInBackground(String...)");
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
+            Logger.Log("ConnectionManager$NotifyListener#onPostExecute(String)");
             if(mysql_listener != null) {
                 mysql_listener.mysql_finished(/*message*/);
             }
@@ -119,6 +132,7 @@ public class ConnectionManager {
 
         @Override
         protected String doInBackground(String... params) {
+            Logger.Log("ConnectionManager$Sync#doInBackground(String...)");
             performUpdate();
             int index = 0;
             while(index < entries.size()) {
@@ -134,10 +148,12 @@ public class ConnectionManager {
 
         @Override
         protected void onPostExecute(String result) {
+            Logger.Log("ConnectionManager$Sync#onPostExecute(String)");
             syncTask = new Sync();
         }
 
         protected void performUpdate() {
+            Logger.Log("ConnectionManager$Sync#performUpdate()");
             if(PERFORM_UPDATE) {
                 PERFORM_UPDATE = false;
                 sync_contact = true;
@@ -160,6 +176,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_contact() {
+            Logger.Log("ConnectionManager$Sync#sync_contact()");
             String resp = MySQL.getLine(MySQL.DIR_CONTACT + "get.php","");
             if(resp != null) {
                 ContactList.synchronizeContactsFromMySQL(resp.split(MySQL.S));
@@ -169,6 +186,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_request() {
+            Logger.Log("ConnectionManager$Sync#sync_request()");
             String resp = MySQL.getLine(MySQL.DIR_CONTACT_REQUEST + "get.php","");
             if(resp != null) {
                 ContactList.synchronizeContactRequestsFromMySQL(resp.split(MySQL.S));
@@ -178,6 +196,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_calendar() {
+            Logger.Log("ConnectionManager$Sync#sync_calendar()");
             String resp = MySQL.getLine(MySQL.DIR_CALENDAR + "get.php","");
             if(resp != null) {
                 Timetable.synchronizeFromMySQL(resp.split(MySQL.S));
@@ -186,6 +205,7 @@ public class ConnectionManager {
         }
 
         protected boolean sync_tasklist() {
+            Logger.Log("ConnectionManager$Sync#sync_tasklist()");
             String resp = MySQL.getLine(MySQL.DIR_TASKLIST + "get.php","");
             if(resp != null) {
                 TasklistManager.synchronizeTasklistsFromMySQL(resp.split(MySQL.S));

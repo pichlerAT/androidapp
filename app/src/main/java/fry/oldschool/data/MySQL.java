@@ -9,6 +9,7 @@ import java.net.URL;
 
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
+import fry.oldschool.utils.Logger;
 
 public abstract class MySQL implements Fryable {
 
@@ -70,6 +71,7 @@ public abstract class MySQL implements Fryable {
 
 
     protected static String getLine(String addr,String data) {
+        Logger.Log("MySQL#getLine(String,String)");
         try {
             URL url = new URL(ADDRESS + addr);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -119,6 +121,7 @@ public abstract class MySQL implements Fryable {
     protected int user_id;
 
     protected MySQL(char type, int id, int user_id) {
+        Logger.Log("MySQL#MySQL(char,int,int)");
         this.type = type;
         this.id = id;
         this.user_id = user_id;
@@ -126,10 +129,12 @@ public abstract class MySQL implements Fryable {
 
     protected MySQL(FryFile fry) {
         this(fry.getChar(), fry.getInt(), fry.getInt());
+        Logger.Log("MySQL#MySQL(FryFile)");
     }
 
     @Override
     public void writeTo(FryFile fry) {
+        Logger.Log("MySQL#writeTo(FryFile)");
         fry.write(type);
         fry.write(id);
         fry.write(user_id);
@@ -142,6 +147,7 @@ public abstract class MySQL implements Fryable {
     protected abstract boolean mysql_delete();
 
     protected final boolean mysql() {
+        Logger.Log("MySQL#mysql()");
         switch(getBaseType()) {
             case BASETYPE_CREATE: return mysql_create();
             case BASETYPE_UPDATE: return mysql_update();
@@ -151,11 +157,13 @@ public abstract class MySQL implements Fryable {
     }
 
     protected final void create() {
+        Logger.Log("MySQL#create()");
         type = (char)((type & TYPE) | BASETYPE_CREATE);
         ConnectionManager.add(this);
     }
 
     protected final void update() {
+        Logger.Log("MySQL#update()");
         if(id != 0) {
             type = (char)((type & TYPE) | BASETYPE_UPDATE);
             ConnectionManager.add(this);
@@ -163,6 +171,7 @@ public abstract class MySQL implements Fryable {
     }
 
     public void delete() {
+        Logger.Log("MySQL#delete()");
         if(id != 0) {
             type = (char)((type & TYPE) | BASETYPE_DELETE);
             ConnectionManager.add(this);
@@ -170,14 +179,17 @@ public abstract class MySQL implements Fryable {
     }
 
     public final boolean isOwner() {
+        Logger.Log("MySQL#isOwner()");
         return (user_id == USER_ID);
     }
 
     public final char getBaseType() {
+        Logger.Log("MySQL#getBaseType()");
         return (char)(type & BASETYPE);
     }
 
     public final char getType() {
+        Logger.Log("MySQL#getType()");
         return (char) (type & TYPE);
     }
 

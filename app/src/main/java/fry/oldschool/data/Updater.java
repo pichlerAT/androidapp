@@ -3,6 +3,7 @@ package fry.oldschool.data;
 import android.os.AsyncTask;
 
 import fry.oldschool.utils.App;
+import fry.oldschool.utils.Logger;
 
 public class Updater extends AsyncTask<String,String,String> {
 
@@ -14,6 +15,7 @@ public class Updater extends AsyncTask<String,String,String> {
 
     @Override
     protected String doInBackground(String... params) {
+        Logger.Log("Updater#doInBackground(String...)");
         while(App.hasInternetConnection && update) {
 
             ConnectionManager.performUpdate();
@@ -31,6 +33,7 @@ public class Updater extends AsyncTask<String,String,String> {
     }
 
     public static void start() {
+        Logger.Log("Updater#start()");
         if(updater.getStatus() == Status.PENDING) {
             updater.update = true;
             updater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -38,6 +41,7 @@ public class Updater extends AsyncTask<String,String,String> {
     }
 
     public static void stop() {
+        Logger.Log("Updater#stop()");
         updater.update = false;
     }
 

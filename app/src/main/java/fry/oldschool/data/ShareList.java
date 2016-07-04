@@ -2,6 +2,8 @@ package fry.oldschool.data;
 
 import java.util.ArrayList;
 
+import fry.oldschool.utils.Logger;
+
 public class ShareList {
 
     /**
@@ -14,11 +16,34 @@ public class ShareList {
     protected ArrayList<ShareStorage> sharedList = new ArrayList<>();
 
     public ShareList(char type, int id) {
+        Logger.Log("ShareList#ShareList(char,int)");
         this.type = type;
         this.id = id;
     }
 
+    protected void add(byte permission, int user_id, int share_id) {
+        Logger.Log("ShareList#add(byte,int,int)");
+        sharedList.add(new ShareStorage(permission, user_id, share_id));
+    }
+
+    protected void addShare(Share share) {
+        Logger.Log("ShareList#addShare(Share)");
+        sharedList.add(new ShareStorage(share.permission, share.user_id, share.share_id));
+    }
+
+    protected boolean remove(Share share) {
+        Logger.Log("ShareList#remove(Share)");
+        for(int i=0; i<sharedList.size(); ++i) {
+            if(sharedList.get(i).share_id == share.id) {
+                sharedList.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ArrayList<ContactGroup> getShareList() {
+        Logger.Log("ShareList#getShareList()");
         ArrayList<ContactGroup> groupList = new ArrayList<>();
         ContactGroup allContacts = ContactList.getAllContactsGroup();
         ContactGroup allShares = new ContactGroup(allContacts.name);
@@ -44,25 +69,8 @@ public class ShareList {
         return groupList;
     }
 
-    protected void add(byte permission, int user_id, int share_id) {
-        sharedList.add(new ShareStorage(permission, user_id, share_id));
-    }
-
-    protected void addShare(Share share) {
-        sharedList.add(new ShareStorage(share.permission, share.user_id, share.share_id));
-    }
-
-    protected boolean remove(Share share) {
-        for(int i=0; i<sharedList.size(); ++i) {
-            if(sharedList.get(i).share_id == share.id) {
-                sharedList.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected boolean hasUserId(int id) {
+    public boolean isSharedWithUserId(int id) {
+        Logger.Log("ShareList#isSharedWithUserId(int)");
         for(ShareStorage s : sharedList) {
             if(s.user_id == id) {
                 return true;
@@ -71,12 +79,55 @@ public class ShareList {
         return false;
     }
 
-    protected void removeShare(int share_id) {
+    public void addShare(Contact contact) {
+        Logger.Log("ShareList#addShare(Contact)");
+        Share share = new Share(type, id, contact);
+        addShare(share);
+        share.create();
+    }
+
+    public void addShare(ArrayList<Contact> contacts) {
+        Logger.Log("ShareList#addShare(ArrayList<Contact>)");
+        for(Contact contact : contacts) {
+            addShare(contact);
+        }
+    }
+
+    public void addShare(Contact contact,byte permission) {
+        Logger.Log("ShareList#addShare(Contact,byte)");
+        Share share = new Share(type, permission, id, contact);
+        addShare(share);
+        share.create();
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte permission) {
+        Logger.Log("ShareList#addShare(ArrayList<Contact>,byte)");
+        for(Contact contact : contacts) {
+            addShare(contact,permission);
+        }
+    }
+
+    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
+        Logger.Log("ShareList#addShare(ArrayList<Contact>,byte[])");
+        for(int i=0;i<contacts.size();++i) {
+            addShare(contacts.get(i),permissions[i]);
+        }
+    }
+
+    public void removeShare(Share share) {
+        Logger.Log("ShareList#removeShare(Share)");
         for(int i=0; i<sharedList.size(); ++i) {
-            if(sharedList.get(i).share_id == share_id) {
+            if(sharedList.get(i).share_id == share.id) {
                 sharedList.remove(i);
-                return;
+                share.delete();
             }
+        }
+    }
+
+    public void removeShare(ArrayList<Share> shares) {
+        Logger.Log("ShareList#removeShare(ArrayList<Share>)");
+        for(Share share : shares) {
+            removeShare(share);
         }
     }
 
@@ -89,6 +140,7 @@ public class ShareList {
         protected int share_id;
 
         protected ShareStorage(byte permission,int user_id, int share_id) {
+            Logger.Log("ShareList$ShareStorage#ShareStorage(byte,int,int)");
             this.permission = permission;
             this.user_id = user_id;
             this.share_id = share_id;
