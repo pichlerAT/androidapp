@@ -193,4 +193,8 @@ public abstract class MySQL implements Fryable {
         return (char) (type & TYPE);
     }
 
+    public int getUserID(){
+        return this.user_id;
+    }
+
 }

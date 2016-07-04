@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relativelayout_contact"
+    android:id="@+id/relativelayout_timetable_events"
     android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +10,7 @@
 
 
     <FrameLayout
-        android:id="@+id/framelayout_contact_id"
+        android:id="@+id/framelayout_timetable_events"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="15dp"
@@ -19,7 +19,7 @@
         android:background="@color/colorActionbar">
 
         <SearchView
-            android:id="@+id/searchview_contact_id"
+            android:id="@+id/searchview_timetable_events"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@drawable/searchview_style"
@@ -27,8 +27,8 @@
     </FrameLayout>
 
     <ExpandableListView
-        android:id="@+id/listview_contact_id"
-        android:layout_below="@id/framelayout_contact_id"
+        android:id="@+id/listview_timetable_events"
+        android:layout_below="@id/framelayout_timetable_events"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"

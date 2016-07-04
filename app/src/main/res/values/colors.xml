@@ -9,6 +9,20 @@
     <color name="colorTextLight">#FFF</color>
     <color name="colorAccent">#F63</color>
 
+    <color name="colorPermission1">#ffc1ad</color>
+    <color name="colorPermission2">#ff9370</color>
+    <color name="colorPermission3">#F63</color>
+
+    <color name="colorPreviousMonth">#EEE</color>
+    <color name="colorToday">#ffc1ad</color>
+    <color name="colorTextToday">#F00</color>
 
     <color name="colorPrimaryDark">#1A1A1A</color>
+
+
+    <!-- Color templates -->
+    <color name="colorDefault">#F63</color>
+    <color name="colorRed">#df2626</color>
+    <color name="colorBlue">#2a79ff</color>
+    <color name="colorGreen">#6dd40c</color>
 </resources>

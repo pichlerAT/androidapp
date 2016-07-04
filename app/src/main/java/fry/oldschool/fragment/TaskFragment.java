@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import fry.oldschool.activity.MainActivity;
 import fry.oldschool.activity.TaskCreateActivity;
 import fry.oldschool.data.TasklistManager;
 import fry.oldschool.utils.App;
@@ -23,7 +24,6 @@ import fry.oldschool.data.MySQLListener;
 
 public class TaskFragment extends ListFragment{
 
-    protected Context ctx = App.mContext;
     protected TaskAdapter adapter;
 
     @Override
@@ -32,7 +32,7 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final DragableListView lv = (DragableListView) rootView.findViewById(android.R.id.list);
 
-        adapter = new TaskAdapter(ctx, R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
+        adapter = new TaskAdapter(App.getContext(), R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
         lv.setAdapter(adapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -55,6 +55,7 @@ public class TaskFragment extends ListFragment{
     @Override
     public void onResume() {
         super.onResume();
+        MainActivity.fab.hide();
         adapter.notifyDataSetChanged();
     }
 
@@ -73,7 +74,7 @@ public class TaskFragment extends ListFragment{
 
         switch (item.getItemId()){
             case R.id.action_add:
-                Intent intent = new Intent(ctx, TaskCreateActivity.class);
+                Intent intent = new Intent(App.getContext(), TaskCreateActivity.class);
                 //startActivityForResult(intent, 10001);
                 startActivity(intent);
                 return true;

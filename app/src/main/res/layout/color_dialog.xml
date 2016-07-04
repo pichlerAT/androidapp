@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gridview_color_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:numColumns="4"
+    android:gravity="center"
+    android:background="@color/colorPrimary"
+    android:stretchMode="columnWidth"
+    android:layout_centerInParent="true"
+    android:columnWidth="30dp"
+    android:padding="12dp"
+    />

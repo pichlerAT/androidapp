@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import fry.oldschool.R;
+import fry.oldschool.activity.MainActivity;
 import fry.oldschool.adapter.ContactRequestAdapter;
 import fry.oldschool.data.ContactList;
 import fry.oldschool.utils.App;
@@ -26,7 +27,7 @@ public class ContactRequestFragment extends Fragment{
         final View rootView = inflater.inflate(R.layout.fragment_contact_request, container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
 
-        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.mContext, R.layout.fragment_contact_request_item, ContactList.getRequests());
+        final ContactRequestAdapter adapter = new ContactRequestAdapter(App.getContext(), R.layout.fragment_contact_request_item, ContactList.getRequests());
         lv.setAdapter(adapter);
 
         App.setMySQLListener(new MySQLListener() {
@@ -45,5 +46,13 @@ public class ContactRequestFragment extends Fragment{
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MainActivity.fab.isShown()){
+            MainActivity.fab.hide();
+        }
     }
 }
