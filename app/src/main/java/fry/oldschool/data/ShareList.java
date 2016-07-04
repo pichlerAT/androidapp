@@ -66,7 +66,7 @@ public class ShareList {
             groupList.add(grpShare);
         }
 
-        //groupList.add(allShares);
+        groupList.add(allShares);
 
         return groupList;
     }
