@@ -29,9 +29,9 @@ public class App extends Application {
 
     public static boolean isAppActive = true;
 
-    public static Context mContext;
+    protected static Context mContext;
 
-    public static Context appContext;
+    protected static Context appContext;
 
     protected static Thread.UncaughtExceptionHandler defaultEH;
 
@@ -49,6 +49,7 @@ public class App extends Application {
     }
 
     public static Context getContext() {
+        Logger.Log("App#getContext()");
         if(mContext == null) {
             return appContext;
         }
