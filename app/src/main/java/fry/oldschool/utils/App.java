@@ -33,7 +33,7 @@ public class App extends Application {
 
     @Override
     public void onCreate() {
-        Logger.Log("App#onCreate()");
+        Logger.Log("App", "onCreate()");
         super.onCreate();
 
         defaultEH = new AlphaExceptionHandler();
@@ -45,7 +45,7 @@ public class App extends Application {
     }
 
     public static Context getContext() {
-        Logger.Log("App#getContext()");
+        Logger.Log("App", "getContext()");
         if(mContext == null) {
             return appContext;
         }
@@ -53,7 +53,7 @@ public class App extends Application {
     }
 
     public static void setContext(Context mContext) {
-        Logger.Log("App#setContext(Context)");
+        Logger.Log("App", "setContext(Context)");
         App.mContext = mContext;
 
 
@@ -64,12 +64,12 @@ public class App extends Application {
     }
 
     public static void setMySQLListener(MySQLListener mysql_Listener) {
-        Logger.Log("App#setMySQLListener(MySQLListener)");
+        Logger.Log("App", "setMySQLListener(MySQLListener)");
         ConnectionManager.setMySQLListener(mysql_Listener);
     }
 
     public static void errorDialog(String title,String message) {
-        Logger.Log("App#errorDialog(String,String)");
+        Logger.Log("App", "errorDialog(String,String)");
         new AlertDialog.Builder(mContext)
                 .setTitle(title)
                 .setMessage(message)
@@ -84,20 +84,20 @@ public class App extends Application {
     }
 
     public static void onPause() {
-        Logger.Log("App#onPause()");
+        Logger.Log("App", "onPause()");
         isAppActive = false;
         Updater.stop();
         save();
     }
 
     public static void onResume() {
-        Logger.Log("App#onResume()");
+        Logger.Log("App", "onResume()");
         isAppActive = true;
         Updater.start();
     }
 
     public static void load() {
-        Logger.Log("App#load()");
+        Logger.Log("App", "load()");
         try{
             File file = new File(appContext.getFilesDir(),getFileName());
             if(!file.exists()) {
@@ -118,7 +118,7 @@ public class App extends Application {
     }
 
     public static void save() {
-        Logger.Log("App#save()");
+        Logger.Log("App", "save()");
         FryFile fry = new FryFile();
 
         ContactList.writeTo(fry);
@@ -134,12 +134,12 @@ public class App extends Application {
     }
 
     public static String getFileName() {
-        Logger.Log("App#getFileName()");
+        Logger.Log("App", "getFileName()");
         return MySQL.USER_EMAIL.replace(".","_") + ".fry";
     }
 
     public static int pixelToDPScale(int dp){
-        //Logger.Log("App#pixelToDPScale(int)");
+        //Logger.Log("App", "pixelToDPScale(int)");
         float scale = mContext.getResources().getDisplayMetrics().density;
         return (int) (dp*scale + 0.5f);
     }

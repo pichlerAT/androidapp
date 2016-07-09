@@ -20,7 +20,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.Log("NetworkStateReciever#onReceive(Context,Intent)");
+        Logger.Log("NetworkStateReciever", "onReceive(Context,Intent)");
         // network connectivity change
         if(intent.getExtras() != null) {
             NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
@@ -39,7 +39,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
     }
 
     public static void checkInternet() {
-        Logger.Log("NetworkStateReciever#checkInternet()");
+        Logger.Log("NetworkStateReciever", "checkInternet()");
         if(!App.hasInternetConnection && !checkingForInternet) {
             checkingForInternet = true;
             (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -50,7 +50,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
         @Override
         protected String doInBackground(String... params) {
-            Logger.Log("NetworkStateReciever$CheckInternetConnection#doInBackground(String...)");
+            Logger.Log("NetworkStateReciever$CheckInternetConnection", "doInBackground(String...)");
             App.hasInternetConnection = hasActiveInternetConnection();
             if(App.hasInternetConnection) {
                 ConnectionManager.sync();
@@ -63,12 +63,12 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
         @Override
         protected void onPostExecute(String file_url) {
-            Logger.Log("NetworkStateReciever$CheckInternetConnection#onPostExecute(String)");
+            Logger.Log("NetworkStateReciever$CheckInternetConnection", "onPostExecute(String)");
             checkingForInternet = false;
         }
 
         protected boolean hasActiveInternetConnection() {
-            Logger.Log("NetworkStateReciever$CheckInternetConnection#hasActiveInternetConnection()");
+            Logger.Log("NetworkStateReciever$CheckInternetConnection", "hasActiveInternetConnection()");
             try{
                 URL url = new URL("http://www.google.com");
                 HttpURLConnection con=(HttpURLConnection) url.openConnection();

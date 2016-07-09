@@ -10,13 +10,13 @@ public class TasklistManager {
     protected static BackupList<Tasklist> Tasklists = new BackupList<>();
 
     public static void writeTo(FryFile file) {
-        Logger.Log("BackupList#writeTo(FryFile)");
+        Logger.Log("BackupList", "writeTo(FryFile)");
         file.write(Tasklists.getList());
         file.write(Tasklists.getBackupList());
     }
 
     public static void readFrom(FryFile fry) {
-        Logger.Log("BackupList#readFrom(FryFile)");
+        Logger.Log("BackupList", "readFrom(FryFile)");
         Tasklists = new BackupList<>();
 
         int NoTasklists = fry.getChar();
@@ -32,7 +32,7 @@ public class TasklistManager {
     }
 
     public static void synchronizeTasklistsFromMySQL(String... r) {
-        Logger.Log("BackupList#synchronizeTasklistsFromMySQL(String...)");
+        Logger.Log("BackupList", "synchronizeTasklistsFromMySQL(String...)");
         ArrayList<Tasklist> list = new ArrayList<>();
         int index = 0;
         while(index < r.length) {
@@ -57,32 +57,32 @@ public class TasklistManager {
     }
 
     public static int size() {
-        Logger.Log("BackupList#size()");
+        Logger.Log("BackupList", "size()");
         return Tasklists.size();
     }
 
     public static Tasklist get(int index) {
-        Logger.Log("BackupList#get(int)");
+        Logger.Log("BackupList", "get(int)");
         return Tasklists.get(index);
     }
 
     public static ArrayList<Tasklist> getTasklists() {
-        Logger.Log("BackupList#getTasklists()");
+        Logger.Log("BackupList", "getTasklists()");
         return Tasklists.getList();
     }
 
     protected static void removeTasklist(int id) {
-        Logger.Log("BackupList#removeTasklist(int)");
+        Logger.Log("BackupList", "removeTasklist(int)");
         Tasklists.removeById(id);
     }
 
     protected static Tasklist getTasklistById(int id) {
-        Logger.Log("BackupList#getTasklistById(int)");
+        Logger.Log("BackupList", "getTasklistById(int)");
         return Tasklists.getById(id);
     }
 
     protected static TasklistEntry getTasklistEntryById(int id) {
-        Logger.Log("BackupList#getTasklistEntryById(int)");
+        Logger.Log("BackupList", "getTasklistEntryById(int)");
         for(Tasklist t : Tasklists.getList()) {
             for(TasklistEntry e : t.entries) {
                 if(e.id == id) {

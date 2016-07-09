@@ -19,7 +19,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     public ShareList sharedContacts;
 
     public static Tasklist create(String name) {
-        Logger.Log("Tasklist#create(String)");
+        Logger.Log("Tasklist", "create(String)");
         Tasklist tl = new Tasklist(0,USER_ID,(byte)0,name);
         tl.create();
         TasklistManager.Tasklists.add(tl);
@@ -28,7 +28,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     protected Tasklist(FryFile fry) {
         super(fry);
-        Logger.Log("Tasklist#Tasklist(FryFile)");
+        Logger.Log("Tasklist", "Tasklist(FryFile)");
         state = fry.getByte();
         name = fry.getString();
 
@@ -46,7 +46,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     protected Tasklist(int id, int user_id, byte state, String name) {
         super(TYPE_TASKLIST, id, user_id);
-        Logger.Log("Tasklist#Tasklist(int,int,byte,String)");
+        Logger.Log("Tasklist", "Tasklist(int,int,byte,String)");
         this.state = state;
         this.name = name;
 
@@ -57,7 +57,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     @Override
     public boolean equals(Object o) {
-        Logger.Log("Tasklist#equals(Object)");
+        Logger.Log("Tasklist", "equals(Object)");
         if(o instanceof Tasklist) {
             Tasklist t = (Tasklist) o;
             if(t.id != id || t.state != state || !t.name.equals(name) || t.entries.size() != entries.size()) {
@@ -75,7 +75,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     @Override
     public Tasklist backup() {
-        Logger.Log("Tasklist#backup()");
+        Logger.Log("Tasklist", "backup()");
         Tasklist tl = new Tasklist(id, user_id, state, name);
         for(TasklistEntry ent : entries) {
             tl.entries.add(ent.backup());
@@ -85,7 +85,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     @Override
     protected boolean mysql_create() {
-        Logger.Log("Tasklist#mysql_create()");
+        Logger.Log("Tasklist", "mysql_create()");
         String resp = getLine(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state);
         if(resp != null) {
             id = Integer.parseInt(resp);
@@ -100,19 +100,19 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
     @Override
     protected boolean mysql_update() {
-        Logger.Log("Tasklist#mysql_update()");
+        Logger.Log("Tasklist", "mysql_update()");
         return (getLine(DIR_TASKLIST + "update.php", "&id="+id+"&name="+name+"&state="+state) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
-        Logger.Log("Tasklist#mysql_delete()");
+        Logger.Log("Tasklist", "mysql_delete()");
         return (getLine(DIR_TASKLIST + "delete.php", "&id="+id) != null);
     }
 
     @Override
     protected void synchronize(MySQL mysql) {
-        Logger.Log("Tasklist#synchronize(MySQL)");
+        Logger.Log("Tasklist", "synchronize(MySQL)");
         Tasklist t = (Tasklist) mysql;
         state = t.state;
         name = t.name;
@@ -121,13 +121,13 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     @Override
     public boolean canEdit() {
-        Logger.Log("Tasklist#canEdit()");
+        Logger.Log("Tasklist", "canEdit()");
         return (isOwner() || sharedContacts.isSharedWithUserId(USER_ID));
     }
 
     @Override
     public void writeTo(FryFile fry) {
-        Logger.Log("Tasklist#writeTo(FryFile)");
+        Logger.Log("Tasklist", "writeTo(FryFile)");
         super.writeTo(fry);
         fry.write(state);
         fry.write(name);
@@ -135,22 +135,22 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public int getNoEntries() {
-        Logger.Log("Tasklist#getNoEntries()");
+        Logger.Log("Tasklist", "getNoEntries()");
         return entries.size();
     }
 
     public TasklistEntry getEntry(int index) {
-        Logger.Log("Tasklist#getEntry(int)");
+        Logger.Log("Tasklist", "getEntry(int)");
         return entries.get(index);
     }
 
     public String getName() {
-        Logger.Log("Tasklist#getName()");
+        Logger.Log("Tasklist", "getName()");
         return name;
     }
 
     public Contact getOwner() {
-        Logger.Log("Tasklist#getOwner()");
+        Logger.Log("Tasklist", "getOwner()");
         if(isOwner()) {
             return null;
         }
@@ -158,23 +158,23 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public ArrayList<TasklistEntry> getEntries() {
-        Logger.Log("Tasklist#getEntries()");
+        Logger.Log("Tasklist", "getEntries()");
         return entries;
     }
 
     public boolean isDone() {
-        Logger.Log("Tasklist#isDone()");
+        Logger.Log("Tasklist", "isDone()");
         return ( state == 1 );
     }
 
     public void rename(String name) {
-        Logger.Log("Tasklist#rename(String)");
+        Logger.Log("Tasklist", "rename(String)");
         this.name = name;
         update();
     }
 
     public void addEntry(String task,boolean state) {
-        Logger.Log("Tasklist#addEntry(String,boolean)");
+        Logger.Log("Tasklist", "addEntry(String,boolean)");
         TasklistEntry ent = new TasklistEntry(task,state);
         entries.add(ent);
         if(id > 0) {
@@ -183,7 +183,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public void addEntry(int index,String task,boolean state) {
-        Logger.Log("Tasklist#addEntry(int,String,boolean)");
+        Logger.Log("Tasklist", "addEntry(int,String,boolean)");
         TasklistEntry ent = new TasklistEntry(task,state);
         entries.add(index,ent);
         if(id > 0) {
@@ -192,45 +192,45 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public void change(boolean state) {
-        Logger.Log("Tasklist#change(boolean)");
+        Logger.Log("Tasklist", "change(boolean)");
         this.state = ( state ? (byte)1 : (byte)0 );
     }
 
     public void change(String name,boolean state) {
-        Logger.Log("Tasklist#change(String,boolean)");
+        Logger.Log("Tasklist", "change(String,boolean)");
         this.name = name;
         this.state = ( state ? (byte)1 : (byte)0 );
     }
 
     public boolean isDone(int index) {
-        Logger.Log("Tasklist#isDone(int)");
+        Logger.Log("Tasklist", "isDone(int)");
         return entries.get(index).isDone();
     }
 
     public int length() {
-        Logger.Log("Tasklist#length()");
+        Logger.Log("Tasklist", "length()");
         return entries.size();
     }
 
     public String getTaskName(int index) {
-        Logger.Log("Tasklist#getTaskName(int)");
+        Logger.Log("Tasklist", "getTaskName(int)");
         return entries.get(index).description;
     }
 
     @Override
     public void delete() {
-        Logger.Log("Tasklist#delete()");
+        Logger.Log("Tasklist", "delete()");
         super.delete();
         TasklistManager.removeTasklist(id);
     }
 
     public void delete(int index) {
-        Logger.Log("Tasklist#delete(int)");
+        Logger.Log("Tasklist", "delete(int)");
         entries.remove(index).delete();
     }
 
     protected String getEntryStrings() {
-        Logger.Log("Tasklist#getEntryStrings()");
+        Logger.Log("Tasklist", "getEntryStrings()");
         if(entries.size() <= 0) {
             return "n";
         }
@@ -242,7 +242,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public boolean equals(Tasklist tl) {
-        Logger.Log("Tasklist#equals(Tasklist)");
+        Logger.Log("Tasklist", "equals(Tasklist)");
         if(state != tl.state || entries.size() != tl.entries.size() || !name.equals(tl.name)) {
             return false;
         }

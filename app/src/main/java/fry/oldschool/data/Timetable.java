@@ -16,7 +16,7 @@ public class Timetable {
     public static ShareList sharedContacts = new ShareList(MySQL.TYPE_CALENDAR, MySQL.USER_ID);
 
     public static void writeTo(FryFile file) {
-        Logger.Log("Timetable#writeTo(FryFile)");
+        Logger.Log("Timetable", "writeTo(FryFile)");
         file.write(categories.getList());
         file.write(categories.getBackupList());
         file.write(entries.getList());
@@ -24,7 +24,7 @@ public class Timetable {
     }
 
     public static void readFrom(FryFile fry) {
-        Logger.Log("Timetable#readFrom(FryFile)");
+        Logger.Log("Timetable", "readFrom(FryFile)");
         categories = new BackupList<>();
 
         int NoCategories = fry.getChar();
@@ -51,7 +51,7 @@ public class Timetable {
     }
 
     public static void synchronizeFromMySQL(String... r) {
-        Logger.Log("Timetable#synchronizeFromMySQL(String...)");
+        Logger.Log("Timetable", "synchronizeFromMySQL(String...)");
         int index = 0;
 
         int NoShares = Integer.parseInt(r[index++]);
@@ -89,7 +89,7 @@ public class Timetable {
     }
 
     public static ArrayList<TimetableEntry> getEntries() {
-        Logger.Log("Timetable#getEntries()");
+        Logger.Log("Timetable", "getEntries()");
         ArrayList<TimetableEntry> list = new ArrayList<>(entries.getList());
         for(TimetableCategory cat : categories.getList()) {
             for(TimetableEntry ent : cat.offline_entries) {
@@ -100,7 +100,7 @@ public class Timetable {
     }
 
     public static ArrayList<TimetableEntry> getEntries(int month, int year) {
-        Logger.Log("Timetable#getEntries(int,int)");
+        Logger.Log("Timetable", "getEntries(int,int)");
         ArrayList<TimetableEntry> list = new ArrayList<>();
         DateSpan span = new DateSpan(new Date(1, month, year), new Date(Date.getDaysOfMonth(year, month), month, year));
 
@@ -121,7 +121,7 @@ public class Timetable {
     }
 
     public static ArrayList<TimetableEntry> getEntries(int day, int month, int year) {
-        Logger.Log("Timetable#getEntries(int,int,int)");
+        Logger.Log("Timetable", "getEntries(int,int,int)");
         ArrayList<TimetableEntry> list = new ArrayList<>();
         Date date = new Date(day, month, year);
 
@@ -142,7 +142,7 @@ public class Timetable {
     }
 
     protected static TimetableEntry getEntryById(int id) {
-        Logger.Log("Timetable#getEntryById(int)");
+        Logger.Log("Timetable", "getEntryById(int)");
         for(TimetableEntry e : entries.getList()) {
             if(e.id == id) {
                 return e;
@@ -152,12 +152,12 @@ public class Timetable {
     }
 
     public static ArrayList<TimetableCategory> getCategories() {
-        Logger.Log("Timetable#getCategories()");
+        Logger.Log("Timetable", "getCategories()");
         return categories.getList();
     }
 
     protected static TimetableCategory getCategoryById(int id) {
-        Logger.Log("Timetable#getCategoryById(int)");
+        Logger.Log("Timetable", "getCategoryById(int)");
         for(TimetableCategory cat : categories.getList()) {
             if(cat.id == id) {
                 return cat;

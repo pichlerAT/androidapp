@@ -13,7 +13,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
     protected String name;
 
     protected static Contact createRequest(String email) {
-        Logger.Log("Contact#createRequest(String)");
+        Logger.Log("Contact", "createRequest(String)");
         if(!App.hasInternetConnection) {
             return null;
         }
@@ -24,26 +24,26 @@ public class Contact extends MySQL implements Fryable, Searchable {
 
     protected Contact(FryFile fry) {
         super(fry);
-        Logger.Log("Contact#Contact(FryFile)");
+        Logger.Log("Contact", "Contact(FryFile)");
         email = fry.getString();
         name = fry.getString();
     }
 
     protected Contact(char type, int id, int user_id, String email, String name) {
         super(type, id, user_id);
-        Logger.Log("Contact#Contact(char,int,int,String,String)");
+        Logger.Log("Contact", "Contact(char,int,int,String,String)");
         this.email = email;
         this.name = name;
     }
 
     protected Contact(int id,int user_id,String email,String name) {
         this(TYPE_CONTACT, id, user_id, email, name);
-        Logger.Log("Contact#Contact(int,int,String,String)");
+        Logger.Log("Contact", "Contact(int,int,String,String)");
     }
 
     @Override
     public void writeTo(FryFile fry) {
-        Logger.Log("Contact#writeTo(FryFile)");
+        Logger.Log("Contact", "writeTo(FryFile)");
         super.writeTo(fry);
         fry.write(email);
         fry.write(name);
@@ -51,7 +51,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
 
     @Override
     public boolean search(String... keyWords) {
-        Logger.Log("Contact#search(String...)");
+        Logger.Log("Contact", "search(String...)");
         String name = this.name.toLowerCase();
         for(String keyWord : keyWords) {
             if(name.contains(keyWord)) {
@@ -63,13 +63,13 @@ public class Contact extends MySQL implements Fryable, Searchable {
 
     @Override
     protected boolean mysql_create() { // contact request send
-        Logger.Log("Contact#mysql_create()");
+        Logger.Log("Contact", "mysql_create()");
         return (getLine(DIR_CONTACT_REQUEST+"send.php", "&email="+email) != null);
     }
 
     @Override
     protected boolean mysql_update() { // contact request accept
-        Logger.Log("Contact#mysql_update()");
+        Logger.Log("Contact", "mysql_update()");
         String resp = getLine(DIR_CONTACT_REQUEST+"accept.php", "&id="+id);
         if(resp != null) {
             // TODO get data from resp (id, user_id, name)
@@ -80,29 +80,29 @@ public class Contact extends MySQL implements Fryable, Searchable {
 
     @Override
     protected boolean mysql_delete() { // contact request decline
-        Logger.Log("Contact#mysql_delete()");
+        Logger.Log("Contact", "mysql_delete()");
         return (getLine(DIR_CONTACT_REQUEST+"decline.php", "&id="+id) != null);
     }
 
     public void accept() {
-        Logger.Log("Contact#accept()");
+        Logger.Log("Contact", "accept()");
         create();
         ContactList.contactRequests.remove(this);
     }
 
     public void decline() {
-        Logger.Log("Contact#decline()");
+        Logger.Log("Contact", "decline()");
         delete();
         ContactList.contactRequests.remove(this);
     }
 
     public String getEmail() {
-        Logger.Log("Contact#getEmail()");
+        Logger.Log("Contact", "getEmail()");
         return email;
     }
 
     public String getName() {
-        Logger.Log("Contact#getName()");
+        Logger.Log("Contact", "getName()");
         return name;
     }
 
