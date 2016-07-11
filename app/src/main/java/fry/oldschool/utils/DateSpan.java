@@ -46,6 +46,15 @@ public class DateSpan implements Fryable {
         duration = 1440 * (date_end.getTotalDays() - date_start.getTotalDays() + 1);
     }
 
+    public DateSpan(Date date_start, Time time_start, Date date_end, Time time_end) {
+        Logger.Log("DateSpan", "DateSpan(Date,Time,Date,Time)");
+        this.date_start = date_start.copy();
+        this.time_start = time_start.copy();
+        this.time_end = time_start.copy();
+        this.date_end = date_end.copy();
+        duration = date_start.getDaysUntil(date_end) * Time.MAX_TIME - time_start.time + time_end.time;
+    }
+
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("DateSpan", "writeTo(FryFile)");
