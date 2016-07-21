@@ -31,7 +31,6 @@ public class AlphaExceptionHandler implements Thread.UncaughtExceptionHandler {
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fragner.stefan95@gmail.com"});
         intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report: " + MySQL.USER_EMAIL);
         intent.putExtra(Intent.EXTRA_TEXT, stackTrace + "\n\n" + log);
-        intent.putExtra(Intent.EXTRA_TITLE, "Test");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //App.getContext().startActivity(Intent.createChooser(intent, "Send Bugreport"));
         App.getContext().startActivity(intent);

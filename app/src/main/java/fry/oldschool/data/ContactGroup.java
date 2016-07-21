@@ -18,6 +18,8 @@ public class ContactGroup extends MySQLEntry {
         super(fry);
         Logger.Log("ContactGroup", "ContactGroup(FryFile)");
 
+        name = fry.getString();
+
         ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
         int NoContacts = fry.getChar();
         for(int i=0; i<NoContacts; ++i) {
@@ -70,7 +72,7 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_create() {
         Logger.Log("ContactGroup", "mysql_create()");
-        String resp = getLine(DIR_CONTACT_GROUP+"create.php","&group_name="+name+"&contacts="+getContactsString());
+        String resp = getLine(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -81,7 +83,7 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_update() {
         Logger.Log("ContactGroup", "mysql_update()");
-        return (getLine(DIR_CONTACT_GROUP+"update.php", "&group_id="+id+"&group_name="+name+"&contacts="+getContactsString()) != null);
+        return (getLine(DIR_CONTACT_GROUP+"update.php", "&id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Share extends Contact {
     protected int share_id;
 
     public Share(char type, int id, int user_id, byte permission, int share_id, String email, String name) {
-        super((char)(BASETYPE_SHARE | type), id, user_id, email, name);
+        super(type, id, user_id, email, name);
         Logger.Log("Share", "Share(char,int,int,byte,int,String,String)");
         this.permission = permission;
         this.share_id = share_id;
@@ -35,7 +35,7 @@ public class Share extends Contact {
         String resp = getLine(getFileUrl()+"create.php", "&share_user_id=" + user_id + "&share_id=" + share_id + "&permission=" + permission);
         if(resp != null) {
             id = Integer.parseInt(resp);
-            type &= ~BASETYPE_CREATE;
+            type = getType();
             return true;
         }
         return false;
@@ -50,9 +50,9 @@ public class Share extends Contact {
     @Override
     public boolean mysql_delete() {
         Logger.Log("Share", "mysql_delete()");
-        if(id == 0) {
-            return (getLine(getFileUrl()+"delete_without_id.php", "&share_user_id="+user_id+"&share_id="+share_id) != null);
-        }
+        //if(id == 0) {     TODO Stefan: share delete_without_id.php needed?
+        //    return (getLine(getFileUrl()+"delete_without_id.php", "&share_user_id="+user_id+"&share_id="+share_id) != null);
+        //}
         return (getLine(getFileUrl()+"delete.php", "&id="+id) != null);
     }
 

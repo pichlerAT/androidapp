@@ -12,9 +12,7 @@ public class ConnectionManager {
 
     protected static boolean PERFORM_UPDATE = true;
 
-    protected static boolean sync_contact = false;
-
-    protected static boolean sync_requests = false;
+    protected static boolean sync_contacts = false;
 
     protected static boolean sync_calendar = false;
 
@@ -111,6 +109,29 @@ public class ConnectionManager {
         }
     }
 
+    public static String[] split(String str) {
+        String buffer = "";
+        ArrayList<String> list = new ArrayList<>();
+
+        for(int k=0; k<str.length(); ++k) {
+            char c = str.charAt(k);
+
+            if(c == 0) {
+                if(buffer.length() == 0) {
+                    buffer += c;
+
+                }else {
+                    list.add(buffer);
+                    buffer = "";
+                }
+            }else {
+                buffer += c;
+            }
+        }
+
+        return  list.toArray(new String[0]);
+    }
+
     protected static class NotifyListener extends AsyncTask<String,String,String> {
 
         @Override
@@ -155,17 +176,10 @@ public class ConnectionManager {
         protected void performUpdate() {
             Logger.Log("ConnectionManager$Sync", "performUpdate()");
             if(PERFORM_UPDATE) {
-                PERFORM_UPDATE = false;
-                sync_contact = true;
-                sync_requests = true;
-                sync_calendar = true;
-                sync_tasklist = true;
+                PERFORM_UPDATE = !sync_all();
             }
-            if(sync_contact) {
-                sync_contact = !sync_contact();
-            }
-            if(sync_requests) {
-                sync_requests = !sync_request();
+            if(sync_contacts) {
+                sync_contacts = !sync_contacts();
             }
             if(sync_calendar) {
                 sync_calendar = sync_calendar();
@@ -175,42 +189,65 @@ public class ConnectionManager {
             }
         }
 
-        protected boolean sync_contact() {
-            Logger.Log("ConnectionManager$Sync", "sync_contact()");
-            String resp = MySQL.getLine(MySQL.DIR_CONTACT + "get.php","");
-            if(resp != null) {
-                ContactList.synchronizeContactsFromMySQL(resp.split(MySQL.S));
-                return true;
+        protected boolean sync_all() {
+            Logger.Log("ConnectionManager$Sync", "sync_all()");
+            String resp = MySQL.getLine("request.php","");
+            if(resp == null) {
+                return false;
             }
-            return false;
+            FryFile fry = new FryFile.Split();
+            fry.load(resp);
+
+            ContactList.synchronizeContactsFromMySQL(fry);
+            ContactList.synchronizeContactGroupsFromMySQL(fry);
+            ContactList.synchronizeContactRequestsFromMySQL(fry);
+            TasklistManager.synchronizeTasklistsFromMySQL(fry);
+            Timetable.synchronizeSharesFromMySQL(fry);
+            Timetable.synchronizeCategoriesFromMySQL(fry);
+            Timetable.synchronizeEntriesFromMySQL(fry);
+            return true;
         }
 
-        protected boolean sync_request() {
-            Logger.Log("ConnectionManager$Sync", "sync_request()");
-            String resp = MySQL.getLine(MySQL.DIR_CONTACT_REQUEST + "get.php","");
-            if(resp != null) {
-                ContactList.synchronizeContactRequestsFromMySQL(resp.split(MySQL.S));
-                return true;
+        protected boolean sync_contacts() {
+            Logger.Log("ConnectionManager$Sync", "sync_contact()");
+            String resp = MySQL.getLine(MySQL.DIR_CONTACT + "get.php","");
+            if(resp == null) {
+                return false;
             }
-            return false;
+            FryFile fry = new FryFile.Split();
+            fry.load(resp);
+
+            ContactList.synchronizeContactsFromMySQL(fry);
+            ContactList.synchronizeContactGroupsFromMySQL(fry);
+            ContactList.synchronizeContactRequestsFromMySQL(fry);
+            return true;
         }
 
         protected boolean sync_calendar() {
             Logger.Log("ConnectionManager$Sync", "sync_calendar()");
-            String resp = MySQL.getLine(MySQL.DIR_CALENDAR + "get.php","");
-            if(resp != null) {
-                Timetable.synchronizeFromMySQL(resp.split(MySQL.S));
+            String resp = MySQL.getLine(MySQL.DIR_CALENDAR + "request.php","");
+            if(resp == null) {
+                return false;
             }
-            return false;
+            FryFile fry = new FryFile.Split();
+            fry.load(resp);
+
+            Timetable.synchronizeSharesFromMySQL(fry);
+            Timetable.synchronizeCategoriesFromMySQL(fry);
+            Timetable.synchronizeEntriesFromMySQL(fry);
+            return true;
         }
 
         protected boolean sync_tasklist() {
             Logger.Log("ConnectionManager$Sync", "sync_tasklist()");
-            String resp = MySQL.getLine(MySQL.DIR_TASKLIST + "get.php","");
-            if(resp != null) {
-                TasklistManager.synchronizeTasklistsFromMySQL(resp.split(MySQL.S));
+            String resp = MySQL.getLine(MySQL.DIR_TASKLIST + "request.php","");
+            if(resp == null) {
+                return false;
             }
-            return false;
+            FryFile fry = new FryFile.Split();
+            fry.load(resp);
+            TasklistManager.synchronizeTasklistsFromMySQL(fry);
+            return true;
         }
 
     }

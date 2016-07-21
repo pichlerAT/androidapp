@@ -258,6 +258,13 @@ public class SearchableList<E> extends AbstractList<E> {
         if(index < 0) {
             return false;
         }
+
+        if(length == 1) {
+            length = 0;
+            showLength = 0;
+            return true;
+        }
+
         System.arraycopy(baseItems, index + 1, baseItems, index, length - index);
         baseItems[length--] = null;
 

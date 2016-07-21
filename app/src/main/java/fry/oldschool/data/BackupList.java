@@ -89,12 +89,32 @@ public class BackupList<E extends MySQLEntry> {
         }
     }
 
+    protected int indexOfBackup(E searchElement) {
+        for(int i=0; i<backupList.size(); ++i) {
+            E listElement = backupList.get(i);
+            if(listElement.getType() == searchElement.getType() && listElement.id == searchElement.id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    protected int indexOfList(E searchElement) {
+        for(int i=0; i<list.size(); ++i) {
+            E listElement = list.get(i);
+            if(listElement.getType() == searchElement.getType() && listElement.id == searchElement.id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void synchronizeWith(Collection<E> onlineElements) {
         Logger.Log("BackupList", "synchronizeWith(Collection<E>)");
         boolean[] isOnline = new boolean[list.size()];
         for(E onlineElement : onlineElements) {
-            int backupIndex = backupList.indexOf(onlineElement);
-            int listIndex = list.indexOf(onlineElement);
+            int backupIndex = indexOfBackup(onlineElement);
+            int listIndex = indexOfList(onlineElement);
             boolean sync = synchronize(onlineElement, listIndex, backupIndex);
             if(listIndex >= 0 && listIndex < isOnline.length) {
                 isOnline[listIndex] = sync;

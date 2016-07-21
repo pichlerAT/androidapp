@@ -1,6 +1,7 @@
 package fry.oldschool.data;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -13,24 +14,20 @@ import fry.oldschool.utils.Logger;
 
 public abstract class MySQL implements Fryable {
 
-    protected static final String IP_ADDRESS = "54.93.34.0" ;
-    protected static final int PORT = 80;
+    protected static final String ADDRESS="http://notifry.com/android/";
 
-    protected static final String ADDRESS="http://" + IP_ADDRESS + ":" + PORT + "/android/";
-    //protected static final String ADDRESS="http://" + IP_ADDRESS + "/android/";
-
-    public static final String DIR_TASKLIST                 =                         "tasklist/"  ;
-    public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"     ;
-    public static final String DIR_TASKLIST_SHARE           = DIR_TASKLIST          + "share/"     ;
-    public static final String DIR_CONTACT                  =                         "contact/"   ;
-    public static final String DIR_CONTACT_GROUP            = DIR_CONTACT           + "group/"     ;
-    public static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"   ;
-    public static final String DIR_CALENDAR                 =                         "calendar/"  ;
-    public static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"     ;
-    public static final String DIR_CALENDAR_CATEGORY        = DIR_CALENDAR          + "category/"  ;
-    public static final String DIR_CALENDAR_CATEGORY_SHARE  = DIR_CALENDAR_CATEGORY + "share/"     ;
-    public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"     ;
-    public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"     ;
+    public static final String DIR_TASKLIST                 =                         "tasklist/" ;
+    public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"    ;
+    public static final String DIR_TASKLIST_SHARE           = DIR_TASKLIST          + "share/"    ;
+    public static final String DIR_CONTACT                  =                         "contact/"  ;
+    public static final String DIR_CONTACT_GROUP            = DIR_CONTACT           + "group/"    ;
+    public static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"  ;
+    public static final String DIR_CALENDAR                 =                         "calendar/" ;
+    public static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"    ;
+    public static final String DIR_CALENDAR_CATEGORY        = DIR_CALENDAR          + "category/" ;
+    public static final String DIR_CALENDAR_CATEGORY_SHARE  = DIR_CALENDAR_CATEGORY + "share/"    ;
+    public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"    ;
+    public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"    ;
 
     public static final String S = "" + (char)0;
 
@@ -46,8 +43,6 @@ public abstract class MySQL implements Fryable {
     public static final char BASETYPE_UPDATE    = 0x0002;
 
     public static final char BASETYPE_DELETE    = 0x0004;
-
-    public static final char BASETYPE_SHARE     = 0x0008;
 
 
 
@@ -83,7 +78,22 @@ public abstract class MySQL implements Fryable {
             os.flush();
             con.connect();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            BufferedReader br;
+            try {
+                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            }catch(FileNotFoundException ex) {
+                ex.printStackTrace();
+                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+                System.out.println("------------------------");
+                System.out.println("addr = "+addr);
+                System.out.println("------------------------");
+                String line;
+                while((line=br.readLine())!=null) {
+                    System.out.println(line);
+                    System.out.println("------------------------");
+                }
+                return null;
+            }
             String line=br.readLine();
 
             if(line == null) {
@@ -149,11 +159,32 @@ public abstract class MySQL implements Fryable {
 
     protected final boolean mysql() {
         Logger.Log("MySQL", "mysql()");
-        switch(getBaseType()) {
-            case BASETYPE_CREATE: return mysql_create();
-            case BASETYPE_UPDATE: return mysql_update();
-            case BASETYPE_DELETE: return mysql_delete();
+
+        if((type & BASETYPE_CREATE) > 0) {
+            if(mysql_create()) {
+                type = (char)(type & TYPE);
+                return true;
+            }
+            return false;
+
+        }else if((type & BASETYPE_UPDATE) > 0) {
+            if(mysql_update()) {
+                type = (char)(type & TYPE);
+                return true;
+            }
+            return false;
+
+
+        }else if((type & BASETYPE_DELETE) > 0) {
+            if(mysql_delete()) {
+                type = (char)(type & TYPE);
+                return true;
+            }
+            return false;
+
+
         }
+
         return true;
     }
 

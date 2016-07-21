@@ -104,13 +104,13 @@ public class App extends Application {
                 return;
             }
 
-            FryFile fry = new FryFile();
-            fry.loadUTF8(file);
+            FryFile fry = new FryFile.Compact();
+            fry.load(file);
 
             ContactList.readFrom(fry);
-            ConnectionManager.readFrom(fry);
             TasklistManager.readFrom(fry);
             Timetable.readFrom(fry);
+            ConnectionManager.readFrom(fry);
 
         }catch (IOException ex) {
             ex.printStackTrace();
@@ -119,15 +119,15 @@ public class App extends Application {
 
     public static void save() {
         Logger.Log("App", "save()");
-        FryFile fry = new FryFile();
+        FryFile fry = new FryFile.Compact();
 
         ContactList.writeTo(fry);
-        ConnectionManager.writeTo(fry);
         TasklistManager.writeTo(fry);
         Timetable.writeTo(fry);
+        ConnectionManager.writeTo(fry);
 
         try {
-            fry.saveUTF8(new File(App.appContext.getFilesDir(),getFileName()));
+            fry.save(new File(App.appContext.getFilesDir(),getFileName()));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

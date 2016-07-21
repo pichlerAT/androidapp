@@ -31,28 +31,31 @@ public class TasklistManager {
 
     }
 
-    public static void synchronizeTasklistsFromMySQL(String... r) {
-        Logger.Log("BackupList", "synchronizeTasklistsFromMySQL(String...)");
-        ArrayList<Tasklist> list = new ArrayList<>();
-        int index = 0;
-        while(index < r.length) {
-            Tasklist tl = new Tasklist(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),Byte.parseByte(r[index++]),r[index++]);
+    public static void synchronizeTasklistsFromMySQL(FryFile fry) {
+        Logger.Log("BackupList", "synchronizeTasklistsFromMySQL(String[])");
 
-            int NoEntries = Integer.parseInt(r[index++]);
-            for(int i=0; i<NoEntries; ++i) {
-                TasklistEntry ent = new TasklistEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), tl.id,r[index++]);
+        ArrayList<Tasklist> list = new ArrayList<>();
+
+        int NoTasklists = fry.getArrayLength();
+        for(int i=0; i<NoTasklists; ++i) {
+            Tasklist tl = new Tasklist(fry.getInt(), fry.getInt(), fry.getByte(), fry.getString());
+
+            int NoEntries = fry.getArrayLength();
+            for(int k=0; k<NoEntries; ++k) {
+                TasklistEntry ent = new TasklistEntry(fry.getInt(), fry.getInt(), fry.getByte(), tl.id, fry.getString());
                 if(!ConnectionManager.hasEntry((char)(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE), ent.id)) {
                     tl.entries.add(ent);
                 }
             }
 
-            int NoShares = Integer.parseInt(r[index++]);
-            for(int i=0; i<NoShares; ++i) {
-                tl.sharedContacts.add(Byte.parseByte(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]));
+            int NoShares = fry.getArrayLength();
+            for(int k=0; k<NoShares; ++k) {
+                tl.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             list.add(tl);
         }
+
         Tasklists.synchronizeWith(list);
     }
 

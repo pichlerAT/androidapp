@@ -50,37 +50,47 @@ public class Timetable {
         }
     }
 
-    public static void synchronizeFromMySQL(String... r) {
-        Logger.Log("Timetable", "synchronizeFromMySQL(String...)");
-        int index = 0;
+    public static void synchronizeSharesFromMySQL(FryFile fry) {
+        Logger.Log("Timetable", "synchronizeSharesFromMySQL(String[])");
 
-        int NoShares = Integer.parseInt(r[index++]);
-        for(int k=0; k<NoShares; ++k) {
-            sharedContacts.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+        int NoShares = fry.getArrayLength();
+        for(int i=0; i<NoShares; ++i) {
+            sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
         }
+    }
+
+    public static void synchronizeCategoriesFromMySQL(FryFile fry) {
+        Logger.Log("Timetable", "synchronizeCategoriesFromMySQL(String[])");
 
         ArrayList<TimetableCategory> catList = new ArrayList<>();
-        int NoCategories = Integer.parseInt(r[index++]);
-        for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++]);
 
-            NoShares = Integer.parseInt(r[index++]);
+        int NoCategories = fry.getArrayLength();
+        for(int i=0; i<NoCategories; ++i) {
+            TimetableCategory cat = new TimetableCategory(fry.getInt(), fry.getInt(), fry.getString());
+
+            int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
-                cat.sharedContacts.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+                cat.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             catList.add(cat);
         }
         categories.synchronizeWith(catList);
+    }
+
+    public static void synchronizeEntriesFromMySQL(FryFile fry) {
+        Logger.Log("Timetable", "synchronizeEntriesFromMySQL(String[])");
 
         ArrayList<TimetableEntry> entList = new ArrayList<>();
-        while(index < r.length) {
-            TimetableEntry ent = new TimetableEntry(Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), Byte.parseByte(r[index++]), Short.parseShort(r[index++]),
-                                    Short.parseShort(r[index++]), Integer.parseInt(r[index++]), Integer.parseInt(r[index++]), r[index++], r[index++]);
 
-            NoShares = Integer.parseInt(r[index++]);
+        int NoEntries = fry.getArrayLength();
+        for(int i=0; i<NoEntries; ++i) {
+            TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getByte(), fry.getShort(),
+                    fry.getShort(), fry.getInt(), fry.getInt(), fry.getString(), fry.getString());
+
+            int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
-                ent.sharedContacts.add(Byte.parseByte(r[index++]),Integer.parseInt(r[index++]),Integer.parseInt(r[index++]));
+                ent.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             entries.add(ent);

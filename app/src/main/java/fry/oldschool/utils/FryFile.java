@@ -1,158 +1,102 @@
 package fry.oldschool.utils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class FryFile {
+public abstract class FryFile {
 
-    protected int readIndex = 0;
+    public abstract void save(OutputStream outputStream) throws IOException;
 
-    protected char[] readLine = null;
+    public abstract void load(InputStream inputStream) throws IOException;
 
-    protected StringBuilder writeLine = new StringBuilder();
+    public abstract void load(String str);
 
-    public void saveUTF8(File file) throws IOException {
-        OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8").newEncoder());
-        os.write(writeLine.toString());
-        os.close();
-    }
-/*
+    public abstract byte getByte();
+
+    public abstract char getChar();
+
+    public abstract short getShort();
+
+    public abstract int getInt();
+
+    public abstract String getString();
+
+    public abstract int getArrayLength();
+
+    public abstract void write(byte b);
+
+    public abstract void write(char c);
+
+    public abstract void write(short s);
+
+    public abstract void write(int i);
+
+    public abstract void write(String s);
+
+    public abstract void writeArrayLength(int length);
+
+    public abstract void write(final Fryable[] fry);
+
+    public abstract void write(final Object[] fry);
+
+    public abstract void write(final ArrayList<?> list);
+
+    public abstract void write(final SearchableList<?> list);
+
     public void save(File file) throws IOException {
-        BufferedWriter bw=new BufferedWriter(new FileWriter(file));
-        bw.write(writeLine.toString());
-        bw.close();
+        save(new FileOutputStream(file));
     }
-*/
-    public void loadUTF8(File file) throws IOException {
-        InputStreamReader is = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8").newDecoder());
 
-        int bred;
-        char[] buffer = new char[1024];
-        String bufferLine = "";
-
-        while((bred = is.read(buffer)) != -1) {
-            if(bred < buffer.length) {
-                for(int k=0; k<bred; ++k) {
-                    bufferLine += buffer[k];
-                }
-            }else {
-                bufferLine += new String(buffer);
-            }
-        }
-        readLine = bufferLine.toCharArray();
-        /*
-        for(char c : readLine) {
-            System.out.println(c + "|" + (int)c);
-        }
-        */
-        is.close();
-    }
-/*
     public void load(File file) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        readLine = br.readLine().toCharArray();
-        br.close();
-    }
-*/
-    public boolean moreToRead() {
-        return (readLine != null && readIndex < readLine.length);
-    }
-
-    public byte getByte() {
-        return (byte)getChar();
-    }
-
-    public char getChar() {
-        return readLine[readIndex++];
-    }
-
-    public short getShort() {
-        return (short)getChar();
-    }
-
-    public int getInt() {
-        return (getChar() | (getChar() << 16));
-    }
-
-    public String getString() {
-        int length = getChar();
-        String str = "";
-        for(int k=0; k<length; ++k) {
-            str += getChar();
-        }
-        return str;
+        load(new FileInputStream(file));
     }
 
     public byte[] getByteArray() {
-        byte[] b = new byte[getChar()];
-        for(int k=0; k<b.length; ++k) {
+        byte[] b = new byte[getArrayLength()];
+        for (int k = 0; k < b.length; ++k) {
             b[k] = getByte();
         }
         return b;
     }
 
     public char[] getCharArray() {
-        char[] c = new char[getChar()];
-        for(int k=0; k<c.length; ++k) {
+        char[] c = new char[getArrayLength()];
+        for (int k = 0; k < c.length; ++k) {
             c[k] = getChar();
         }
         return c;
     }
 
     public short[] getShortArray() {
-        short[] s = new short[getChar()];
-        for(int k=0; k<s.length; ++k) {
+        short[] s = new short[getArrayLength()];
+        for (int k = 0; k < s.length; ++k) {
             s[k] = getShort();
         }
         return s;
     }
 
     public int[] getIntArray() {
-        int[] i = new int[getChar()];
-        for(int k=0; k<i.length; ++k) {
+        int[] i = new int[getArrayLength()];
+        for (int k = 0; k < i.length; ++k) {
             i[k] = getInt();
         }
         return i;
     }
 
     public String[] getStringArray() {
-        String[] str = new String[getChar()];
-        for(int k=0; k<str.length; ++k) {
+        String[] str = new String[getArrayLength()];
+        for (int k = 0; k < str.length; ++k) {
             str[k] = getString();
         }
         return str;
-    }
-
-    public void write(byte b) {
-        write((char)b);
-    }
-
-    public void write(char c) {
-        writeLine.append(c);
-    }
-
-    public void write(short s) {
-        write((char)s);
-    }
-
-    public void write(int i) {
-        write((char)i);
-        write((char)(i >> 16));
-    }
-
-    public void write(final String str) {
-        write((char)str.length());
-        writeLine.append(str);
     }
 
     public void write(final Fryable fry) {
@@ -160,89 +104,348 @@ public class FryFile {
     }
 
     public void write(final byte[] b) {
-        write((char)b.length);
-        for(byte bi : b) {
+        writeArrayLength(b.length);
+        for (byte bi : b) {
             write(bi);
         }
     }
 
     public void write(final char[] c) {
-        write((char)c.length);
-        for(char ci : c) {
+        writeArrayLength(c.length);
+        for (char ci : c) {
             write(ci);
         }
     }
 
     public void write(final short[] s) {
-        write((char)s.length);
-        for(short si : s) {
+        writeArrayLength(s.length);
+        for (short si : s) {
             write(si);
         }
     }
 
     public void write(final int[] i) {
-        write((char)i.length);
-        for(int ii : i) {
+        writeArrayLength(i.length);
+        for (int ii : i) {
             write(ii);
         }
     }
 
     public void write(final String[] str) {
-        write((char)str.length);
-        for(String stri : str) {
+        writeArrayLength(str.length);
+        for (String stri : str) {
             write(stri);
         }
     }
 
-    public void write(final Fryable[] fry) {
-        int index = writeLine.length();
-        write((char)fry.length);
-        int length = 0;
-        for(Fryable obj : fry) {
-            obj.writeTo(this);
-            ++length;
-        }
-        writeLine.setCharAt(index, (char)length);
-    }
 
-    public void write(final Object[] fry) {
-        int index = writeLine.length();
-        write((char)fry.length);
-        int length = 0;
-        for(Object obj : fry) {
-            if(obj instanceof Fryable) {
-                ((Fryable)obj).writeTo(this);
-                ++length;
+
+    public static class Compact extends FryFile {
+
+        protected int readIndex = 0;
+
+        protected char[] readLine = null;
+
+        protected StringBuilder writeLine = new StringBuilder();
+
+        @Override
+        public void save(OutputStream outputStream) throws IOException {
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
+            writer.write(writeLine.toString());
+            writer.close();
+        }
+
+        @Override
+        public void load(InputStream inputStream) throws IOException {
+            InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
+
+            int bred;
+            char[] buffer = new char[1024];
+            String bufferLine = "";
+
+            while ((bred = is.read(buffer)) != -1) {
+                if (bred < buffer.length) {
+                    for (int k = 0; k < bred; ++k) {
+                        bufferLine += buffer[k];
+                    }
+                } else {
+                    bufferLine += new String(buffer);
+                }
+            }
+            readLine = bufferLine.toCharArray();
+            is.close();
+        }
+
+        @Override
+        public void load(String str) {
+            readLine = str.toCharArray();
+        }
+
+        @Override
+        public byte getByte() {
+            return (byte) getChar();
+        }
+
+        @Override
+        public char getChar() {
+            return readLine[readIndex++];
+        }
+
+        @Override
+        public short getShort() {
+            return (short) getChar();
+        }
+
+        @Override
+        public int getInt() {
+            return (getChar() | (getChar() << 16));
+        }
+
+        @Override
+        public String getString() {
+            return new String(getCharArray());
+        }
+
+        @Override
+        public int getArrayLength() {
+            return getChar();
+        }
+
+        @Override
+        public void write(byte b) {
+            write((char) b);
+        }
+
+        @Override
+        public void write(char c) {
+            writeLine.append(c);
+        }
+
+        @Override
+        public void write(short s) {
+            write((char) s);
+        }
+
+        @Override
+        public void write(int i) {
+            write((char) i);
+            write((char) (i >> 16));
+        }
+
+        @Override
+        public void write(String str) {
+            write((char) str.length());
+            writeLine.append(str);
+        }
+
+        @Override
+        public void writeArrayLength(int length) {
+            write((char)length);
+        }
+
+        @Override
+        public void write(final Fryable[] fries) {
+            write((char) fries.length);
+            for (Fryable fry : fries) {
+                fry.writeTo(this);
             }
         }
-        writeLine.setCharAt(index, (char)length);
+
+        @Override
+        public void write(final Object[] fries) {
+            int index = writeLine.length();
+            writeArrayLength(fries.length);
+            int length = 0;
+            for (Object obj : fries) {
+                if (obj instanceof Fryable) {
+                    ((Fryable) obj).writeTo(this);
+                    ++length;
+                }
+            }
+            writeLine.setCharAt(index, (char) length);
+        }
+
+        @Override
+        public void write(final ArrayList<?> list) {
+            int index = writeLine.length();
+            writeArrayLength(list.size());
+            int length = 0;
+            for (Object obj : list) {
+                if (obj instanceof Fryable) {
+                    ((Fryable) obj).writeTo(this);
+                    ++length;
+                }
+            }
+            writeLine.setCharAt(index, (char) length);
+        }
+
+        @Override
+        public void write(final SearchableList<?> list) {
+            int index = writeLine.length();
+            writeArrayLength(list.baseLength());
+            int length = 0;
+            for (int i = 0; i < list.baseLength(); ++i) {
+                Object obj = list.getBase(i);
+                if (obj instanceof Fryable) {
+                    ((Fryable) obj).writeTo(this);
+                    ++length;
+                }
+            }
+            writeLine.setCharAt(index, (char) length);
+        }
     }
 
-    public void write(final ArrayList<?> list) {
-        int index = writeLine.length();
-        write((char)list.size());
-        int length = 0;
-        for(Object obj : list) {
-            if(obj instanceof Fryable) {
-                ((Fryable)obj).writeTo(this);
-                ++length;
-            }
-        }
-        writeLine.setCharAt(index, (char)length);
-    }
 
-    public void write(final SearchableList<?> list) {
-        int index = writeLine.length();
-        write((char)list.baseLength());
-        int length = 0;
-        for(int i=0; i<list.baseLength(); ++i) {
-            Object obj = list.getBase(i);
-            if(obj instanceof Fryable) {
-                ((Fryable)obj).writeTo(this);
-                ++length;
-            }
+
+    public static class Split extends FryFile {
+
+        protected char splitChar;
+
+        protected int readIndex = 0;
+
+        protected ArrayList<String> readLine = null;
+
+        protected String writeLine = "";
+
+        public Split() {
+            splitChar = 0;
         }
-        writeLine.setCharAt(index, (char)length);
+
+        public Split(char splitChar) {
+            this.splitChar = splitChar;
+        }
+
+        @Override
+        public void save(OutputStream outputStream) throws IOException {
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
+            writer.write(writeLine);
+            writer.close();
+        }
+
+        @Override
+        public void load(InputStream inputStream) throws IOException {
+            InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
+
+            int bred;
+            char[] buffer = new char[1024];
+            String bufferString = "";
+            readLine = new ArrayList<>(100);
+
+            while ((bred = is.read(buffer)) != -1) {
+                for (int k = 0; k < bred; ++k) {
+
+                    if(buffer[k] == 0) {
+                        readLine.add(bufferString);
+                        bufferString = "";
+
+                    }else {
+                        bufferString += buffer[k];
+                    }
+                }
+            }
+            is.close();
+
+            readLine.trimToSize();
+        }
+
+        @Override
+        public void load(String str) {
+            String bufferString = "";
+            readLine = new ArrayList<>(100);
+
+            for (int k = 0; k < str.length(); ++k) {
+                char c = str.charAt(k);
+
+                if(c == 0) {
+                    readLine.add(bufferString);
+                    bufferString = "";
+
+                }else {
+                    bufferString += c;
+                }
+            }
+
+            readLine.trimToSize();
+        }
+
+        @Override
+        public byte getByte() {
+            return Byte.parseByte(readLine.get(readIndex++));
+        }
+
+        @Override
+        public char getChar() {
+            return readLine.get(readIndex++).charAt(0);
+        }
+
+        @Override
+        public short getShort() {
+            return Short.parseShort(readLine.get(readIndex++));
+        }
+
+        @Override
+        public int getInt() {
+            return Integer.parseInt(readLine.get(readIndex++));
+        }
+
+        @Override
+        public String getString() {
+            return readLine.get(readIndex++);
+        }
+
+        public int getArrayLength() {
+            return getInt();
+        }
+
+        @Override
+        public void write(byte b) {
+            write("" + b);
+        }
+
+        @Override
+        public void write(char c) {
+            write("" + c);
+        }
+
+        @Override
+        public void write(short s) {
+            write("" + s);
+        }
+
+        @Override
+        public void write(int i) {
+            write("" + i);
+        }
+
+        @Override
+        public void write(String s) {
+            writeLine += s + splitChar;
+        }
+
+        @Override
+        public void writeArrayLength(int length) {
+            write(length);
+        }
+
+        @Override
+        public void write(Fryable[] fry) {
+
+        }
+
+        @Override
+        public void write(Object[] fry) {
+
+        }
+
+        @Override
+        public void write(ArrayList<?> list) {
+
+        }
+
+        @Override
+        public void write(SearchableList<?> list) {
+
+        }
     }
 
 }

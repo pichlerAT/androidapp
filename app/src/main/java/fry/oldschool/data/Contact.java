@@ -36,11 +36,6 @@ public class Contact extends MySQL implements Fryable, Searchable {
         this.name = name;
     }
 
-    protected Contact(int id,int user_id,String email,String name) {
-        this(TYPE_CONTACT, id, user_id, email, name);
-        Logger.Log("Contact", "Contact(int,int,String,String)");
-    }
-
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Contact", "writeTo(FryFile)");
@@ -64,29 +59,34 @@ public class Contact extends MySQL implements Fryable, Searchable {
     @Override
     protected boolean mysql_create() { // contact request send
         Logger.Log("Contact", "mysql_create()");
-        return (getLine(DIR_CONTACT_REQUEST+"send.php", "&email="+email) != null);
+        return (getLine(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
     }
 
     @Override
     protected boolean mysql_update() { // contact request accept
         Logger.Log("Contact", "mysql_update()");
-        String resp = getLine(DIR_CONTACT_REQUEST+"accept.php", "&id="+id);
-        if(resp != null) {
-            // TODO get data from resp (id, user_id, name)
-            return true;
+        String resp = getLine(DIR_CONTACT_REQUEST+"update.php", "&id="+id);
+        if(resp == null) {
+            return false;
         }
-        return false;
+        id = Integer.parseInt(resp);
+        ContactList.getAllContactsGroup().contacts.add(this);
+        return true;
     }
 
     @Override
     protected boolean mysql_delete() { // contact request decline
         Logger.Log("Contact", "mysql_delete()");
-        return (getLine(DIR_CONTACT_REQUEST+"decline.php", "&id="+id) != null);
+        if((type & TYPE_CONTACT_REQUEST) > 0) {
+            return (getLine(DIR_CONTACT_REQUEST+"delete.php", "&id="+id) != null);
+        }else {
+            return (getLine(DIR_CONTACT+"delete.php", "&id="+id) != null);
+        }
     }
 
     public void accept() {
         Logger.Log("Contact", "accept()");
-        create();
+        update();
         ContactList.contactRequests.remove(this);
     }
 

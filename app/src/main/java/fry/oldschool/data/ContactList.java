@@ -40,15 +40,15 @@ public class ContactList {
         }
     }
 
-    public static void synchronizeContactsFromMySQL(String... r) {
-        Logger.Log("ContactList", "synchronizeContactsFromMySQL(String...)");
+    public static void synchronizeContactsFromMySQL(FryFile fry) {
+        Logger.Log("ContactList", "synchronizeContactsFromMySQL(String[])");
+
         ContactGroup all = groups.get(groups.size() - 1);
         boolean[] offIsOn = new boolean[all.contacts.size()];
-        int index = 0;
 
-        int NoContacts = Integer.parseInt(r[index++]);
+        int NoContacts = fry.getArrayLength();
         for(int i=0; i<NoContacts; ++i) {
-            Contact on = new Contact(Integer.parseInt(r[index++]),Integer.parseInt(r[index++]),r[index++],r[index++]);
+            Contact on = new Contact(MySQL.TYPE_CONTACT, fry.getInt(), fry.getInt(), fry.getString(), fry.getString());
             int off_index = all.getContactIndexByUserId(on.user_id);
 
             if(off_index >= 0) {
@@ -62,22 +62,30 @@ public class ContactList {
         }
         for(int i=offIsOn.length-1; i>=0; --i) {
             if(!offIsOn[i]) {
-                all.contacts.remove(i);
+                Contact cont = all.contacts.remove(i);
+                for(int j=0; j<groups.size()-1; ++j) {
+                    groups.get(i).removeContact(cont);
+                }
             }
         }
+    }
 
-        offIsOn = new boolean[groups.size()-1];
-        ContactGroup[] onBackup = new ContactGroup[groups.size()-1];
-        int[] onIndex = new int[groups.size()-1];
+    public static void synchronizeContactGroupsFromMySQL(FryFile fry) { // TODO Stefan: recheck whole method
+        Logger.Log("ContactList", "synchronizeContactGroupsFromMySQL(String[])");
+
         int lastIndex = 0;
+        boolean[] offIsOn = new boolean[groups.size()-1];
+        int[] onIndex = new int[groups.size()-1];
+        ContactGroup all = groups.get(groups.size() - 1);
+        ContactGroup[] onBackup = new ContactGroup[groups.size()-1];
 
-        int NoContactGroups = Integer.parseInt(r[index++]);
+        int NoContactGroups = fry.getArrayLength();
         for(int i=0; i<NoContactGroups; ++i) {
-            ContactGroup on = new ContactGroup(Integer.parseInt(r[index++]),r[index++]);
+            ContactGroup on = new ContactGroup(fry.getInt(), fry.getString());
 
-            NoContacts = Integer.parseInt(r[index++]);
-            for(int j=0; j<NoContacts; ++j) {
-                Contact cont = all.getContactByUserId(Integer.parseInt(r[index++]));
+            int NoContacts = fry.getArrayLength();
+            for(int k=0; k<NoContacts; ++k) {
+                Contact cont = all.getContactByUserId(fry.getInt());
                 if(cont != null) {
                     on.contacts.add(cont);
                 }
@@ -110,11 +118,14 @@ public class ContactList {
         }
     }
 
-    public static void synchronizeContactRequestsFromMySQL(String... r) {
-        Logger.Log("ContactList", "synchronizeContactRequestsFromMySQL(String...)");
+    public static void synchronizeContactRequestsFromMySQL(FryFile fry) {
+        Logger.Log("ContactList", "synchronizeContactRequestsFromMySQL(String[])");
+
         contactRequests=new ArrayList<>();
-        for(int i=3; i<r.length; i+=4) {
-            contactRequests.add(new Contact(Integer.parseInt(r[i-3]),Integer.parseInt(r[i-2]),r[i-1],r[i]));
+
+        int NoContactRequests = fry.getArrayLength();
+        for(int i=0; i<NoContactRequests; ++i) {
+            contactRequests.add(new Contact(MySQL.TYPE_CONTACT_REQUEST, fry.getInt(), fry.getInt(), fry.getString(), fry.getString()));
         }
     }
 
@@ -215,7 +226,7 @@ public class ContactList {
     }
 
     public static ContactGroup getGroup(int index) {
-        Logger.Log("ContactList", "getGroup()");
+        Logger.Log("ContactList", "getGroup(int)");
         return groups.get(index);
     }
 

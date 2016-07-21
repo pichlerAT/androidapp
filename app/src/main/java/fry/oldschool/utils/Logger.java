@@ -1,8 +1,12 @@
 package fry.oldschool.utils;
 
+import android.content.Intent;
+
+import fry.oldschool.data.MySQL;
+
 public class Logger {
 
-    public static final boolean PRINT = true;
+    public static final boolean PRINT = false;
 
     public static final int CLASSPATH_LENGTH = 45;
 
@@ -29,7 +33,7 @@ public class Logger {
         logs[index] = classPath + ": " + method;
 
         if (PRINT) {
-            System.out.println("Logger: " + logs[index]);
+            System.out.println("Logger:      " + logs[index]);
         }
     }
 
@@ -47,6 +51,16 @@ public class Logger {
         }
 
         return log;
+    }
+
+    public static void sendEmail() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fragner.stefan95@gmail.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Generall Report: " + MySQL.USER_EMAIL);
+        intent.putExtra(Intent.EXTRA_TEXT, getString());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        App.getContext().startActivity(intent);
     }
 
 }
