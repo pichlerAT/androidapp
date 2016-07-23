@@ -25,13 +25,18 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public static TimetableEntry create(byte addition, String title, String description, DateSpan span, TimetableCategory category) {
         Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
-        TimetableEntry ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span);
-        if(ent.category_id == 0) {
-            category.addOfflineEntry(ent);
+        TimetableEntry ent;
+        if(category == null) {
+            ent = new TimetableEntry(0, USER_ID, addition, 0, title, description, span);
         }else {
-            Timetable.entries.add(ent);
-            ent.create();
+            ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span);
+            if (ent.category_id == 0) {
+                category.addOfflineEntry(ent);
+                return ent;
+            }
         }
+        Timetable.entries.add(ent);
+        ent.create();
         return ent;
     }
 
