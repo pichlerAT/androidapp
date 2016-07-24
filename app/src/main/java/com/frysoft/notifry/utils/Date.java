@@ -27,15 +27,15 @@ public class Date implements Fryable {
     public Date(Calendar cal) {
         Logger.Log("Date", "Date(Calendar)");
         day = cal.get(Calendar.DAY_OF_MONTH);
-        month = cal.get(Calendar.MONTH);
+        month = cal.get(Calendar.MONTH) + 1;
         year = cal.get(Calendar.YEAR);
     }
 
     public Date(short date) {
         Logger.Log("Date", "Date(short)");
-        day = date & 31;
-        month = (date >> 5) & 15;
-        year = (date >> 9) & 127 + YEAR_OFFSET;
+        day = date & 0x1F;
+        month = (date >> 5) & 0x0F;
+        year = ((date >> 9) & 0x7F) + YEAR_OFFSET;
     }
 
     public Date(int day,int month,int year) {

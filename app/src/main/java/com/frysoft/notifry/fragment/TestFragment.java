@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import fry.oldschool.R;
+import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Timetable;
 import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.utils.Date;

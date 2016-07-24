@@ -37,8 +37,8 @@ public class DateSpan implements Fryable {
 
     public DateSpan(Date date_start, Date date_end) {
         Logger.Log("DateSpan", "DateSpan(Date,Date)");
-        this.date_start = date_start;
-        this.date_end = date_end;
+        this.date_start = date_start.copy();
+        this.date_end = date_end.copy();
 
         this.time_start = new Time(Time.MIN_TIME);
         this.time_end = new Time(Time.MAX_TIME);
