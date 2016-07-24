@@ -92,7 +92,24 @@ public class Date implements Fryable {
 
     public void addDays(int days) {
         Logger.Log("Date", "addDays(int)");
+        add(days, 0, 0);
+    }
+
+    public void addMonths(int months) {
+        Logger.Log("Date", "addMonths(int)");
+        add(0, months, 0);
+    }
+
+    public void addYears(int years) {
+        Logger.Log("Date", "addYears(int)");
+        year += years;
+    }
+
+    public void add(int days, int months, int years) {
+        Logger.Log("Date", "add(int,int,int)");
         day += days;
+        month += months;
+        year += years;
         int dom = getDaysOfMonth();
         while( day > dom || month > 12) {
             if(month > 12) {
@@ -100,6 +117,7 @@ public class Date implements Fryable {
                 month = 1;
                 year++;
                 dom = getDaysOfMonth();
+                continue;
             }
             if(day > dom) {
                 day -= dom;
@@ -107,6 +125,10 @@ public class Date implements Fryable {
                 dom = getDaysOfMonth();
             }
         }
+    }
+
+    public void add(Date date) {
+        add(date.day, date.month, date.year);
     }
 
     public boolean isLeapYear() {

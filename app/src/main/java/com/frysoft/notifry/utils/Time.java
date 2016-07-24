@@ -1,5 +1,7 @@
 package com.frysoft.notifry.utils;
 
+import java.util.Calendar;
+
 public class Time implements Fryable {
 
     public static final short MIN_TIME = 0;
@@ -7,6 +9,14 @@ public class Time implements Fryable {
     public static final short MAX_TIME = 1440;
 
     public short time;
+
+    public static Time getCurrentTime() {
+        return new Time(Calendar.getInstance());
+    }
+
+    public Time(Calendar calendar) {
+        time = (short)(calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE));
+    }
 
     public Time(FryFile fry) {
         this(fry.getShort());
@@ -44,16 +54,21 @@ public class Time implements Fryable {
         return false;
     }
 
-    public int add(int time) {
+    public int addMinutes(int minutes) {
         Logger.Log("Time", "add(int)");
         int t = this.time + time;
         this.time = (short)(t % MAX_TIME);
         return (t / MAX_TIME);
     }
 
-    public int add(Time time) {
+    public int addTime(int hours, int minutes) {
+        Logger.Log("Time", "add(int,int)");
+        return addMinutes(hours*60 + minutes);
+    }
+
+    public int addTime(Time time) {
         Logger.Log("Time", "add(Time)");
-        return add(time.time);
+        return addMinutes(time.time);
     }
 
     public int getHours() {
