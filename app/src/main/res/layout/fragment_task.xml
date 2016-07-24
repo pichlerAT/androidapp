@@ -15,7 +15,7 @@
         android:layout_centerHorizontal="true"
         android:alpha="0"/>
 
-    <fry.oldschool.utils.DragableListView
+    <com.frysoft.notifry.utils.DragableListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
