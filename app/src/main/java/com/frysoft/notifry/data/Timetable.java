@@ -93,7 +93,7 @@ public class Timetable {
                 ent.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
-            entries.add(ent);
+            entList.add(ent);
         }
         entries.synchronizeWith(entList);
     }
