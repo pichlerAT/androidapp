@@ -29,33 +29,33 @@ public class Time implements Fryable {
         }else if(intervall == INTERVALL_HALF_HOUR) {
             int m = time.getMinutes();
 
-            if(m < 15) {
-                time.addMinutes(-m);
+            if(m > 30) {
+                time.addMinutes(60 - m);
 
-            }else if(m < 45) {
+            }else if(m > 0) {
                 time.addMinutes(30 - m);
 
             }else {
-                time.addMinutes(60 - m);
+                time.addMinutes(-m);
             }
 
         }else if(intervall == INTERVALL_QUARTER_HOUR) {
             int m = time.getMinutes();
 
-            if(m < 8) {
-                time.addMinutes(-m);
+            if(m > 45) {
+                time.addMinutes(60 - m);
 
-            }else if(m < 23) {
-                time.addMinutes(15 - m);
-
-            }else if(m < 38) {
-                time.addMinutes(30 - m);
-
-            }else if(m < 53) {
+            }else if(m > 30) {
                 time.addMinutes(45 - m);
 
+            }else if(m > 15) {
+                time.addMinutes(30 - m);
+
+            }else if(m > 0) {
+                time.addMinutes(15 - m);
+
             }else {
-                time.addMinutes(60 - m);
+                time.addMinutes(-m);
             }
         }
 
@@ -104,8 +104,14 @@ public class Time implements Fryable {
 
     public int addMinutes(int minutes) {
         Logger.Log("Time", "add(int)");
-        int t = this.time + minutes;
-        this.time = (short)(t % MAX_TIME);
+        int t = time + minutes;
+        time = (short)(t % MAX_TIME);
+
+        if(time == MAX_TIME) {
+            time = MIN_TIME;
+            return (t / MAX_TIME + 1);
+        }
+
         return (t / MAX_TIME);
     }
 
