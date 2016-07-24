@@ -85,7 +85,7 @@ public class Timetable {
 
         int NoEntries = fry.getArrayLength();
         for(int i=0; i<NoEntries; ++i) {
-            TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getByte(), fry.getShort(),
+            TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getShort(), fry.getShort(),
                     fry.getShort(), fry.getInt(), fry.getInt(), fry.getString(), fry.getString());
 
             int NoShares = fry.getArrayLength();

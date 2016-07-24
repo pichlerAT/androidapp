@@ -8,7 +8,21 @@ import com.frysoft.notifry.utils.Logger;
 
 public class TimetableEntry extends MySQLEntry implements Fryable {
 
-    protected byte addition;
+    public static final short REPEAT_MONDAY     = 0x0001;
+    public static final short REPEAT_TUESDAY    = 0x0002;
+    public static final short REPEAT_WEDNESDAY  = 0x0004;
+    public static final short REPEAT_THURSDAY   = 0x0008;
+    public static final short REPEAT_FRIDAY     = 0x0010;
+    public static final short REPEAT_SATURDAY   = 0x0020;
+    public static final short REPEAT_SUNNDAY    = 0x0040;
+
+    public static final short REPEAT_MONTHLY    = 0x0080;
+    public static final short REPEAT_ANNUALY    = 0x0100;
+
+    public static final short NOTIFY_SELF       = 0x0200;
+    public static final short NOTIFY_ALL        = 0x0400;
+
+    protected short addition;
 
     protected int category_id;
 
@@ -20,13 +34,22 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public ShareList sharedContacts;
 
-    public static TimetableEntry create(byte addition, String title, String description, DateSpan span, TimetableCategory category) {
+    public static TimetableEntry create(String title, String description, DateSpan span, TimetableCategory category, short... additions) {
         Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
+
         TimetableEntry ent;
+        short addition = 0;
+
+        for(short a : additions) {
+            addition |= a;
+        }
+
         if(category == null) {
             ent = new TimetableEntry(0, USER_ID, addition, 0, title, description, span);
+
         }else {
             ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span);
+
             if (ent.category_id == 0) {
                 category.addOfflineEntry(ent);
                 return ent;
@@ -40,7 +63,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     protected TimetableEntry(FryFile fry) {
         super(fry);
         Logger.Log("TimetableEntry", "TimetableEntry(FryFile)");
-        addition = fry.getByte();
+        addition = fry.getShort();
         category_id = fry.getInt();
         title = fry.getString();
         description = fry.getString();
@@ -51,7 +74,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
     }
 
-    protected TimetableEntry(int id, int user_id, byte addition, short date_start, short time_start, int duration, int category_id, String title, String description) {
+    protected TimetableEntry(int id, int user_id, short addition, short date_start, short time_start, int duration, int category_id, String title, String description) {
         super(TYPE_CALENDAR_ENTRY, id, user_id);
         Logger.Log("TimetableEntry", "TimetableEntry(int,int,byte,short,short,int,int,String,String)");
         this.addition = addition;
@@ -65,7 +88,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
     }
 
-    protected TimetableEntry(int id, int user_id, byte addition, int category_id, String title, String description, DateSpan span) {
+    protected TimetableEntry(int id, int user_id, short addition, int category_id, String title, String description, DateSpan span) {
         this(id, user_id, addition, span.getDateStart().getShort(), span.getTimeStart().time, span.getDuration(), category_id, title, description);
         Logger.Log("TimetableEntry", "TimetableEntry(int,int,byte,int,String,String,DateSpan)");
     }
@@ -147,6 +170,34 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "delete()");
         super.delete();
         Timetable.entries.remove(this);
+    }
+
+    public void set(String title) {
+        this.title = title;
+        update();
+    }
+
+    public void set(String title, String description, DateSpan span, TimetableCategory category, short... additions) {
+        this.title = title;
+        this.description = description;
+        this.span = span.copy();
+
+        if(category == null) {
+            category_id = 0;
+        }else {
+            category_id = category.id;
+        }
+
+        addition = 0;
+        for(short a : additions) {
+            addition |= a;
+        }
+
+        update();
+    }
+
+    public boolean getAddition(short parameter) {
+        return ((addition & parameter) > 0);
     }
 
     public String getTitle() {

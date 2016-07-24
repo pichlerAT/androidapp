@@ -17,6 +17,14 @@ public class DateSpan implements Fryable {
         Logger.Log("DateSpan", "DateSpan(FryFile)");
     }
 
+    public DateSpan(DateSpan span) {
+        duration = span.duration;
+        date_start = span.date_start.copy();
+        date_end = span.date_end.copy();
+        time_start = span.time_start.copy();
+        time_end = span.time_end.copy();
+    }
+
     public DateSpan(Date date_start, Time time_start, int duration) {
         Logger.Log("DateSpan", "DateSpan(Date,Time,int)");
         this.date_start = new Date(date_start);
@@ -27,7 +35,7 @@ public class DateSpan implements Fryable {
 
         this.duration = duration;
 
-        date_end.addDays(time_end.add(duration));
+        date_end.addDays(time_end.addMinutes(duration));
     }
 
     public DateSpan(short date_start, short time_start, int duration) {
@@ -61,6 +69,10 @@ public class DateSpan implements Fryable {
         date_start.writeTo(fry);
         time_start.writeTo(fry);
         fry.write(duration);
+    }
+
+    public DateSpan copy() {
+        return new DateSpan(this);
     }
 
     public Date getDateStart() {
