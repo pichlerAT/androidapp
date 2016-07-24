@@ -69,7 +69,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     protected TimetableEntry(int id, int user_id, byte addition, int category_id, String title, String description, DateSpan span) {
-        this(id, user_id, addition, span.getDateStart(), span.getTimeStart(), span.getDuration(), category_id, title, description);
+        this(id, user_id, addition, span.getDateStart().getShort(), span.getTimeStart().time, span.getDuration(), category_id, title, description);
         Logger.Log("TimetableEntry", "TimetableEntry(int,int,byte,int,String,String,DateSpan)");
     }
 
@@ -93,7 +93,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     protected boolean mysql_create() {
         Logger.Log("TimetableEntry", "mysql_create()");
         String resp = getLine(DIR_CALENDAR_ENTRY+"create.php","&category_id="+category_id+"&title="+title+"&description="+description
-                +"&date_start="+span.getDateStart()+"&time_start="+span.getTimeStart()+"&duration="+span.getDuration()+"&addition="+addition);
+                +"&date_start="+span.getDateStart().getShort()+"&time_start="+span.getTimeStart().time+"&duration="+span.getDuration()+"&addition="+addition);
         if(resp != null) {
             id = Integer.parseInt(resp);
 
@@ -109,7 +109,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     protected boolean mysql_update() {
         Logger.Log("TimetableEntry", "mysql_update()");
         return (getLine(DIR_CALENDAR_ENTRY+"update.php", "&id="+id+"&category_id="+category_id+"&title="+title+"&description="+description
-                +"&date_start="+span.getDateStart()+"&time_start="+span.getTimeStart()+"&duration="+span.getDuration()+"&addition="+addition) != null);
+                +"&date_start="+span.getDateStart().getShort()+"&time_start="+span.getTimeStart().time+"&duration="+span.getDuration()+"&addition="+addition) != null);
     }
 
     @Override

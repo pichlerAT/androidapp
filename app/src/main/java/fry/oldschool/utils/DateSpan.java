@@ -63,14 +63,24 @@ public class DateSpan implements Fryable {
         fry.write(duration);
     }
 
-    public short getDateStart() {
+    public Date getDateStart() {
         Logger.Log("DateSpan", "getDateStart()");
-        return date_start.getShort();
+        return date_start;
     }
 
-    public short getTimeStart() {
+    public Date getDateEnd() {
+        Logger.Log("DateSpan", "getDateEnd()");
+        return date_end;
+    }
+
+    public Time getTimeStart() {
         Logger.Log("DateSpan", "getTimeStart()");
-        return time_start.time;
+        return time_start;
+    }
+
+    public Time getTimeEnd() {
+        Logger.Log("DateSpan", "getTimeEnd()");
+        return time_end;
     }
 
     public int getDuration() {
