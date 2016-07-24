@@ -1,13 +1,10 @@
 package fry.oldschool.data;
 
-import java.util.ArrayList;
-
 import fry.oldschool.utils.Date;
 import fry.oldschool.utils.DateSpan;
 import fry.oldschool.utils.FryFile;
 import fry.oldschool.utils.Fryable;
 import fry.oldschool.utils.Logger;
-import fry.oldschool.utils.Time;
 
 public class TimetableEntry extends MySQLEntry implements Fryable {
 
@@ -160,6 +157,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public String getDescription() {
         Logger.Log("TimetableEntry", "getDescription()");
         return description;
+    }
+
+    public DateSpan getDateSpan() {
+        Logger.Log("TimetableEntry", "getDateSpan()");
+        return span;
     }
 
     public boolean isDateInsideSpan(Date date) {
