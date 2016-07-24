@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -18,8 +19,12 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import fry.oldschool.R;
@@ -27,7 +32,10 @@ import fry.oldschool.activity.MainActivity;
 import fry.oldschool.adapter.MonthAdapter;
 import fry.oldschool.adapter.TimetableEventsAdapter;
 import fry.oldschool.data.ContactGroup;
+import fry.oldschool.data.Timetable;
+import fry.oldschool.data.TimetableEntry;
 import fry.oldschool.utils.App;
+import fry.oldschool.utils.DateSpan;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.
@@ -35,13 +43,14 @@ import fry.oldschool.utils.App;
 public class TimetableFragment extends Fragment {
 
     protected MonthAdapter mMonthAdapter;
+    protected int[] mToday;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_timetable, container, false);
         setHasOptionsMenu(true);
 
         Calendar calendar = Calendar.getInstance();
-        int[] mToday = new int[3];
+        mToday = new int[3];
 
         mToday[0] = calendar.get(Calendar.DAY_OF_MONTH);
         mToday[1] = calendar.get(Calendar.MONTH); // 0 - 11
@@ -63,12 +72,25 @@ public class TimetableFragment extends Fragment {
                 if (i<6) // This prevents from clicking on the weekdays (first line in gridview)
                     return;
                 View events_view = View.inflate(App.getContext(), R.layout.fragment_timetable_events_daily, null);
-                ExpandableListView events_listview = (ExpandableListView) events_view.findViewById(R.id.listview_timetable_events_daily);
-                TimetableEventsAdapter events_adapter = new TimetableEventsAdapter();
+                LinearLayout linearlayout_events = (LinearLayout) events_view.findViewById(R.id.linearlayout_timetable_events_daily);
+                ArrayList<TimetableEntry> entry_list = Timetable.getEntries(mToday[0], mToday[1], mToday[2]);
+                LinearLayout entry_template = new LinearLayout(App.getContext());
+                for (TimetableEntry entry : entry_list){
+                    TextView entry_title = new TextView(App.getContext());
+                    entry_title.setText(entry.getTitle());
 
-                events_listview.setAdapter(events_adapter);
+                    TextView entry_duration = new TextView(App.getContext());
+                    DateSpan span = entry.getDateSpan();
+                    String duration_text = span.getDateStart().getString() + " " + span.getTimeStart().getString() + "\n" + span.getDateEnd().getString() + " " + span.getTimeEnd().getString();
+                    entry_duration.setText(duration_text);
+
+                    entry_template.addView(entry_title);
+                    entry_template.addView(entry_duration);
+                }
+                linearlayout_events.addView(entry_template);
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
-                builder.setView(events_listview)
+                builder.setView(linearlayout_events)
 
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override

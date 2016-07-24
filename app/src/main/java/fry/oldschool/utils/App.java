@@ -4,10 +4,15 @@ import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import fry.oldschool.R;
 import fry.oldschool.data.ConnectionManager;
@@ -173,5 +178,33 @@ public class App extends Application {
             month_name = resources.getString(R.string.month_dec);
 
         return month_name;
+    }
+
+    public static int getColorFromID(int colorID){
+        return ContextCompat.getColor(App.getContext(), colorID);
+    }
+
+    public static int getColorFromDrawable(Drawable drawable){
+        return ((ColorDrawable) drawable).getColor();
+    }
+
+    public static String formatDate(int day, int month, int year){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.YEAR, year);
+        //Format different if it's set in the settings
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+        return sdf.format(cal.getTime());
+    }
+
+    public static String formatTime(int hour, int minute){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR, hour);
+        cal.set(Calendar.MINUTE, minute);
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+
+        return sdf.format(cal.getTime());
     }
 }

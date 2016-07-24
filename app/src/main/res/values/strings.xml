@@ -48,6 +48,14 @@
         <item>#429900</item>
     </string-array>
 
+    <string-array name="repeat_array">
+        <item>Once</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Specific</item>
+    </string-array>
+
     <!--              Messages                 -->
 
     <string name="delete_message">Do you really want to delete this?</string>

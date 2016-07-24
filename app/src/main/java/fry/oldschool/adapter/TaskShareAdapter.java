@@ -1,7 +1,6 @@
 package fry.oldschool.adapter;
 
 import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,9 @@ import fry.oldschool.utils.App;
 public class TaskShareAdapter extends BaseExpandableListAdapter {
 
     protected ArrayList<ContactGroup> mSharedGroups;
+    protected ArrayList<Contact> mSharedContactsView = new ArrayList<>();
+    protected ArrayList<Contact> mSharedContactsEdit = new ArrayList<>();
+    protected ArrayList<Contact> mSharedContactsMore = new ArrayList<>();
 
     public TaskShareAdapter(ArrayList<ContactGroup> shared_groups){
         mSharedGroups = shared_groups;
@@ -87,21 +89,25 @@ public class TaskShareAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        Contact contact = getChild(groupPosition, childPosition);
+        final Contact contact = getChild(groupPosition, childPosition);
         String childString = contact.getName();
+
+        final int color_permission_view = App.getColorFromID(R.color.colorPermission1);
+        final int color_permission_edit = App.getColorFromID(R.color.colorPermission2);
+        final int color_permission_more = App.getColorFromID(R.color.colorPermission3);
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_task_sharelist_item, parent, false);
         }
 
         if (((Share) contact).hasPermissionView()){
-            convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission1));
+            convertView.setBackgroundColor(color_permission_view);
         }
         else if (((Share) contact).hasPermissionEdit()){
-            convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission2));
+            convertView.setBackgroundColor(color_permission_edit);
         }
         else if (((Share) contact).hasPermissionMore()){
-            convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission3));
+            convertView.setBackgroundColor(color_permission_more);
         }
 
         TextView contactName = (TextView) convertView.findViewById(R.id.textview_task_sharelist_item_name);
@@ -114,7 +120,27 @@ public class TaskShareAdapter extends BaseExpandableListAdapter {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission1));
+                int view_color = App.getColorFromDrawable(view.getBackground());
+                if (view_color == color_permission_view){
+                    view.setBackgroundColor(color_permission_edit);
+                    mSharedContactsEdit.add(contact);
+                    mSharedContactsView.remove(contact);
+                }
+                else if (view_color == color_permission_edit){
+                    view.setBackgroundColor(color_permission_more);
+                    mSharedContactsMore.add(contact);
+                    mSharedContactsEdit.remove(contact);
+                }
+                else if (view_color == color_permission_more){
+                    view.setBackgroundColor(App.getColorFromID(R.color.colorPrimary));
+                    mSharedContactsMore.remove(contact);
+                }
+                else{
+                    view.setBackgroundColor(color_permission_view);
+                    mSharedContactsView.add(contact);
+                    if (mSharedContactsMore.contains(contact))
+                        mSharedContactsMore.remove(contact);
+                }
             }
         });
 
@@ -124,6 +150,18 @@ public class TaskShareAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int i, int i1) {
         return true;
+    }
+
+    public ArrayList<Contact> getSharedContactsView(){
+        return this.mSharedContactsView;
+    }
+
+    public ArrayList<Contact> getSharedContactsEdit(){
+        return this.mSharedContactsEdit;
+    }
+
+        public ArrayList<Contact> getSharedContactsMore(){
+        return this.mSharedContactsMore;
     }
 
 

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 import fry.oldschool.R;
 import fry.oldschool.activity.TaskCreateActivity;
+import fry.oldschool.data.Share;
 import fry.oldschool.utils.App;
 import fry.oldschool.data.Contact;
 import fry.oldschool.data.ContactGroup;
@@ -163,102 +164,26 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                             ExpandableListView lv = (ExpandableListView) taskSharelist.findViewById(R.id.listview_task_sharelist);
 
                             ArrayList<ContactGroup> shared_groups = item.sharedContacts.getShareList();
-                            TaskShareAdapter adapter = new TaskShareAdapter(shared_groups);
+                            final TaskShareAdapter adapter = new TaskShareAdapter(shared_groups);
                             lv.setAdapter(adapter);
 
                             for (int i=0; i<adapter.getGroupCount(); i++){
                                 lv.expandGroup(i);
                             }
-/*
-                            lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                                @Override
-                                public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long l) {
-                                    int index = expandableListView.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
 
-                                    String permission = (String) view.getTag();
-
-
-                                    if(permission != null && expandableListView.isItemChecked(index)) {
-                                        if (permission == "R") {
-                                            view.setTag("W");
-                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission2));
-                                        }
-                                        else if (permission == "W") {
-                                            view.setTag("E");
-                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission3));
-                                        }
-                                        else if (permission == "E"){
-                                            view.setTag("");
-                                            expandableListView.setItemChecked(index, false);
-                                            view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPrimary));
-                                            childList.remove(adapter.getChild(groupPosition, childPosition));
-                                        }
-
-                                    }
-                                    else {
-                                        expandableListView.setItemChecked(index, true);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPermission1));
-                                        view.setTag("R");
-                                        childList.add(adapter.getChild(groupPosition, childPosition));
-                                    }
-                                    adapter.notifyDataSetChanged();
-                                    return false;
-                                }
-                            });
-                            lv.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-                                @Override
-                                public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long l) {
-                                    int index = expandableListView.getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition));
-
-                                    if(expandableListView.isItemChecked(index)) {
-                                        expandableListView.setItemChecked(index, false);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorPrimary));
-                                        groupList.remove(adapter.getGroup(groupPosition));
-                                    }
-                                    else {
-                                        expandableListView.setItemChecked(index, true);
-                                        view.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorAccent));
-                                        groupList.add(adapter.getGroup(groupPosition));
-                                    }
-
-                                    return true;
-                                }
-                            });
-                            lv.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-                                @Override
-                                public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
-
-                                }
-
-                                @Override
-                                public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                                  return false;
-                                }
-
-                                @Override
-                                public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                                  return false;
-                                }
-
-                                @Override
-                                public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                                  return false;
-                                }
-
-                                @Override
-                                public void onDestroyActionMode(ActionMode actionMode) {
-
-                                }
-                            });
-*/
                             AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
-                            builder.setView(taskSharelist)
+                            builder.setView(lv)
                                     .setPositiveButton(R.string.share, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            //item.addShare(childList); TODO Edwin: adapt
-                                            for (ContactGroup group : groupList) {
-                                                //item.addShare(group.contacts); TODO Edwin: adapt
+                                            for (Contact contact : adapter.getSharedContactsView()){
+                                                ((Share) contact).setPermission((byte) 1);
+                                            }
+                                            for (Contact contact : adapter.getSharedContactsEdit()){
+                                                ((Share) contact).setPermission((byte) 2);
+                                            }
+                                            for (Contact contact : adapter.getSharedContactsMore()){
+                                                ((Share) contact).setPermission((byte) 3);
                                             }
                                         }
                                     })
@@ -267,8 +192,9 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                                         public void onClick(DialogInterface dialogInterface, int i) {
 
                                         }
-                                    })
-                                   .show();
+                                    });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
                         }
 
                         return false;

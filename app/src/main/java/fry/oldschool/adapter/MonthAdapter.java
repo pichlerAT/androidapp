@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -15,10 +16,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
 import fry.oldschool.R;
+import fry.oldschool.data.Timetable;
+import fry.oldschool.data.TimetableEntry;
 import fry.oldschool.utils.App;
 
 public class MonthAdapter extends BaseAdapter {
@@ -34,6 +38,7 @@ public class MonthAdapter extends BaseAdapter {
     private int mTitleHeight, mDayHeight;
     private final String[] mDays = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
     private final int[] mDaysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    ArrayList<TimetableEntry> mEntries;
 
     public MonthAdapter(int month, int year, DisplayMetrics metrics) {
         mMonth = month;
@@ -195,6 +200,15 @@ public class MonthAdapter extends BaseAdapter {
                 if (isToday(date[0], date[1], date[2] )) {
                     convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorToday));
                 }
+            }
+            ArrayList<TimetableEntry> entries = Timetable.getEntries(date[0], date[1], date[2]);
+            LinearLayout events = (LinearLayout) convertView.findViewById(R.id.linearlayout_timetable_grid_events);
+            events.removeAllViews();
+            for (TimetableEntry entry : entries){
+                TextView event = new TextView(App.getContext());
+                event.setBackgroundColor(Color.RED);
+                event.setText(entry.getTitle());
+                events.addView(event);
             }
         }
 

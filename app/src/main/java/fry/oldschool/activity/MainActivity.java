@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import fry.oldschool.R;
 import fry.oldschool.fragment.ContactFragment;
 import fry.oldschool.fragment.TaskFragment;
+import fry.oldschool.fragment.TestFragment;
 import fry.oldschool.fragment.TimetableFragment;
 import fry.oldschool.utils.App;
 
@@ -110,6 +111,12 @@ public class MainActivity extends mAppCompatActivity
 
         } else if (id == R.id.nav_settings) {
 
+        }
+
+        else if (id == R.id.nav_test) {
+            ft.replace(R.id.frame_fragment_main, new TestFragment());
+            ft.addToBackStack(null);
+            ft.commit();
         }
 
 

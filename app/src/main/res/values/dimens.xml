@@ -12,4 +12,5 @@
     <dimen name="timetable_date_margin">8dp</dimen>
     <dimen name="timetable_table_margin">8dp</dimen>
     <dimen name="margin_color">7dp</dimen>
+    <dimen name="dialog_padding">15dp</dimen>
 </resources>

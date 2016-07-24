@@ -18,6 +18,7 @@
             android:layout_gravity="center_vertical"/>
 
         <EditText
+            android:id="@+id/edittext_timetable_create_title"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_gravity="center_vertical"
@@ -114,12 +115,11 @@
                     android:layout_centerVertical="true"
                     android:text="@string/repeat"/>
 
-                <TextView
-                    android:id="@+id/switch_timetable_create_repeat"
+                <Spinner
+                    android:id="@+id/spinner_timetable_create_repeat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="@string/once"
                     />
             </RelativeLayout>
 
@@ -182,6 +182,7 @@
             android:background="@drawable/ic_edit_dark"/>
 
         <EditText
+            android:id="@+id/edittext_timetable_create_description"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_gravity="center_vertical"
