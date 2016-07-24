@@ -1,4 +1,4 @@
-package fry.oldschool.fragment;
+package com.frysoft.notifry.fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import fry.oldschool.R;
-import fry.oldschool.data.Timetable;
-import fry.oldschool.data.TimetableEntry;
-import fry.oldschool.utils.Date;
-import fry.oldschool.utils.DateSpan;
+import com.frysoft.notifry.data.Timetable;
+import com.frysoft.notifry.data.TimetableEntry;
+import com.frysoft.notifry.utils.Date;
+import com.frysoft.notifry.utils.DateSpan;
 
 /**
  * Created by Edwin Pichler on 24.07.2016.
