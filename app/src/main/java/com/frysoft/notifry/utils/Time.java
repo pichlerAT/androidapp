@@ -8,10 +8,58 @@ public class Time implements Fryable {
 
     public static final short MAX_TIME = 1440;
 
+    public static final byte INTERVALL_HOUR = 1;
+
+    public static final byte INTERVALL_HALF_HOUR = 2;
+
+    public static final byte INTERVALL_QUARTER_HOUR = 3;
+
     public short time;
 
     public static Time getCurrentTime() {
         return new Time(Calendar.getInstance());
+    }
+
+    public static Time getCurrentTime(int intervall) {
+        Time time = getCurrentTime();
+
+        if(intervall == INTERVALL_HOUR) {
+            time.addMinutes(-time.getMinutes());
+
+        }else if(intervall == INTERVALL_HALF_HOUR) {
+            int m = time.getMinutes();
+
+            if(m < 15) {
+                time.addMinutes(-m);
+
+            }else if(m < 45) {
+                time.addMinutes(30 - m);
+
+            }else {
+                time.addMinutes(60 - m);
+            }
+
+        }else if(intervall == INTERVALL_QUARTER_HOUR) {
+            int m = time.getMinutes();
+
+            if(m < 8) {
+                time.addMinutes(-m);
+
+            }else if(m < 23) {
+                time.addMinutes(15 - m);
+
+            }else if(m < 38) {
+                time.addMinutes(30 - m);
+
+            }else if(m < 53) {
+                time.addMinutes(45 - m);
+
+            }else {
+                time.addMinutes(60 - m);
+            }
+        }
+
+        return time;
     }
 
     public Time(Calendar calendar) {
@@ -56,7 +104,7 @@ public class Time implements Fryable {
 
     public int addMinutes(int minutes) {
         Logger.Log("Time", "add(int)");
-        int t = this.time + time;
+        int t = this.time + minutes;
         this.time = (short)(t % MAX_TIME);
         return (t / MAX_TIME);
     }
