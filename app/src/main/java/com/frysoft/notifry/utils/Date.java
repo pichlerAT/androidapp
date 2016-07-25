@@ -44,7 +44,7 @@ public class Date implements Fryable {
         this.month = month;
         this.year  = year;
     }
-
+/*
     public Date(String date) {
         Logger.Log("Date", "Date(String)");
         String[] r = date.split("-");
@@ -52,7 +52,7 @@ public class Date implements Fryable {
         month = Integer.parseInt(r[1]);
         year  = Integer.parseInt(r[2]);
     }
-
+*/
     public Date(Date date) {
         day = date.day;
         month = date.month;
@@ -75,12 +75,12 @@ public class Date implements Fryable {
         return false;
     }
 
-    public boolean isSmallerThen(Date date) {
+    public boolean isSmallerThan(Date date) {
         Logger.Log("Date", "isSmallerThen(Date)");
         return (year < date.year && month < date.month && day < date.day);
     }
 
-    public boolean isGreaterThen(Date date) {
+    public boolean isGreaterThan(Date date) {
         Logger.Log("Date", "isGreaterThen(Date)");
         return (year > date.year && month > date.month && day > date.day);
     }
@@ -92,24 +92,7 @@ public class Date implements Fryable {
 
     public void addDays(int days) {
         Logger.Log("Date", "addDays(int)");
-        add(days, 0, 0);
-    }
-
-    public void addMonths(int months) {
-        Logger.Log("Date", "addMonths(int)");
-        add(0, months, 0);
-    }
-
-    public void addYears(int years) {
-        Logger.Log("Date", "addYears(int)");
-        year += years;
-    }
-
-    public void add(int days, int months, int years) {
-        Logger.Log("Date", "add(int,int,int)");
         day += days;
-        month += months;
-        year += years;
         int dom = getDaysOfMonth();
         while( day > dom || month > 12) {
             if(month > 12) {
@@ -117,7 +100,6 @@ public class Date implements Fryable {
                 month = 1;
                 year++;
                 dom = getDaysOfMonth();
-                continue;
             }
             if(day > dom) {
                 day -= dom;
@@ -125,10 +107,6 @@ public class Date implements Fryable {
                 dom = getDaysOfMonth();
             }
         }
-    }
-
-    public void add(Date date) {
-        add(date.day, date.month, date.year);
     }
 
     public boolean isLeapYear() {
@@ -148,7 +126,7 @@ public class Date implements Fryable {
 
     public int getTotalDays() {
         Logger.Log("Date", "getTotalDays()");
-        return getDaysUntilYear(year) + getDaysUntilMonth(month, year) + day + 4;
+        return getTotalDaysUntil(this);
     }
 
     public int getDaysUntil(Date date) {
@@ -158,12 +136,12 @@ public class Date implements Fryable {
 
     public int getDayOfWeek() {
         Logger.Log("Date", "getDayOfWeek()");
-        return (getTotalDaysUntil(this) % 7);
+        return ((getTotalDaysUntil(this) + 4) % 7);
     }
 
     public String getString() {
         Logger.Log("Date", "getString()");
-        return (day + "-" + month + "-" + year);
+        return ((day < 10 ? "0" : "") + day + "." + (month < 10 ? "0" : "") + month + "." + year);
     }
 
     public String getMonthName() {
@@ -183,7 +161,7 @@ public class Date implements Fryable {
 
     public static boolean isLeapYear(int year) {
         Logger.Log("Date", "isLeapYear(int)");
-        return ( (year%4)== 0 );
+        return ((year % 4) == 0);
     }
 
     public static int getDaysOfYear(int year) {
@@ -193,9 +171,7 @@ public class Date implements Fryable {
 
     public static int getDaysUntilYear(int year) {
         Logger.Log("Date", "getDaysUntilYear(int)");
-        int y = year - 2000;
-        int yp4 = y%4;
-        return (y/4)*(4*365+1) + yp4*365 + ( yp4==0 ? 0 : 1 );
+        return (int)(year * 365.25 - 730499.25);
     }
 
     public static int getDaysOfMonth(int month, int year) {
@@ -226,7 +202,7 @@ public class Date implements Fryable {
 
     public static int getTotalDaysUntil(Date date) {
         Logger.Log("Date", "getTotalDaysUntil(Date)");
-        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.year, date.month) + date.day + 4;
+        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.month, date.year) + date.day;
     }
 
     public static int getDaysUntilMonth(int month, int year) {

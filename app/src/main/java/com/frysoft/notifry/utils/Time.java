@@ -137,7 +137,9 @@ public class Time implements Fryable {
 
     public String getString() {
         Logger.Log("Time", "getString()");
-        return ( time/60 + ":" + time%60 );
+        int m = time % 60;
+        int h = time / 60;
+        return ((h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m);
     }
 
     public Time copy() {
