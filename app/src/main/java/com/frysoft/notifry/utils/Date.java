@@ -75,12 +75,12 @@ public class Date implements Fryable {
         return false;
     }
 
-    public boolean isSmallerThan(Date date) {
+    public boolean isSmallerThen(Date date) {
         Logger.Log("Date", "isSmallerThen(Date)");
         return (year < date.year && month < date.month && day < date.day);
     }
 
-    public boolean isGreaterThan(Date date) {
+    public boolean isGreaterThen(Date date) {
         Logger.Log("Date", "isGreaterThen(Date)");
         return (year > date.year && month > date.month && day > date.day);
     }
