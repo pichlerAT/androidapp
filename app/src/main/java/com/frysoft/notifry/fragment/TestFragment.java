@@ -29,7 +29,7 @@ public class TestFragment extends Fragment {
             public void onClick(View v) {
 
                 DateSpan ds = new DateSpan(new Date(25,7,2016), new Date(27,7,2016));
-                TimetableEntry ent = TimetableEntry.create((byte)0, "Test-Entry-1", "This is the Description", ds, null);
+                TimetableEntry ent = TimetableEntry.create("Test-Entry-1", "This is the Description", ds, null, (byte)0);
 
             }
         });

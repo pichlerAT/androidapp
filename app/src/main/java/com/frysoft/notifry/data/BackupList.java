@@ -152,34 +152,40 @@ public class BackupList<E extends MySQLEntry> {
                 }
             }
         }else {
-            if(online.canEdit()) {
-                E offline = list.get(listIndex);
-                E backup = backupList.get(backupIndex);
+            if(backupIndex < 0) {
+                // TODO BackupList: ???
+                System.out.println("----- backupIndex < 0 : id="+online.id+", listIndex="+listIndex);
 
-                if(online.equals(backup)) {
-                    // update online from offline
-                    offline.update();
+            }else {
+                if (online.canEdit()) {
+                    E offline = list.get(listIndex);
+                    E backup = backupList.get(backupIndex);
+
+                    if (online.equals(backup)) {
+                        // update online from offline
+                        offline.update();
+                        return true;
+
+                    } else {
+                        if (offline.equals(backup)) {
+                            // update offline from online
+                            offline.synchronize(online);
+                            return true;
+
+                        } else {
+                            // ask which to accept
+                            // TODO ASK
+                            return true;
+
+                        }
+                    }
+                } else {
+                    E offline = list.get(listIndex);
+                    // update offline from online
+                    offline.synchronize(online);
                     return true;
 
-                }else {
-                    if(offline.equals(backup)) {
-                        // update offline from online
-                        offline.synchronize(online);
-                        return true;
-
-                    }else {
-                        // ask which to accept
-                        // TODO ASK
-                        return true;
-
-                    }
                 }
-            }else {
-                E offline = list.get(listIndex);
-                // update offline from online
-                offline.synchronize(online);
-                return true;
-
             }
         }
         return false;
