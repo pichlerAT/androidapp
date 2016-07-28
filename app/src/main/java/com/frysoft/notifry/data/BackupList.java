@@ -154,7 +154,7 @@ public class BackupList<E extends MySQLEntry> {
         }else {
             if(backupIndex < 0) {
                 // TODO BackupList: ???
-                System.out.println("----- backupIndex < 0 : id="+online.id+", listIndex="+listIndex);
+                System.out.println("----- backupIndex < 0 : share_id="+online.id+", listIndex="+listIndex);
 
             }else {
                 if (online.canEdit()) {

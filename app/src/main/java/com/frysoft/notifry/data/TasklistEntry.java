@@ -62,13 +62,13 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TasklistEntry", "mysql_update()");
-        return (getLine(DIR_TASKLIST_ENTRY + "update.php","&id="+id+"&description="+description+"&state="+state) != null);
+        return (getLine(DIR_TASKLIST_ENTRY + "update.php","&share_id="+id+"&description="+description+"&state="+state) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TasklistEntry", "mysql_delete()");
-        return (getLine(DIR_TASKLIST_ENTRY + "delete.php","&id="+id) != null);
+        return (getLine(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+id) != null);
     }
 
     @Override

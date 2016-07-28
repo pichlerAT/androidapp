@@ -12,7 +12,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     protected ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
 
-    public ShareList sharedContacts;
+    public ShareList shares;
 
     public static TimetableCategory create(String name) {
         Logger.Log("TimetableCategory", "create(String)");
@@ -33,7 +33,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         }
 
         if(id != 0) {
-            sharedContacts = new ShareList(TYPE_TASKLIST, id);
+            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
         }
     }
 
@@ -43,7 +43,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         this.name = name;
 
         if(id != 0) {
-            sharedContacts = new ShareList(TYPE_TASKLIST, id);
+            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
         }
     }
 
@@ -69,7 +69,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php", "&name="+name);
         if(resp != null) {
             id = Integer.parseInt(resp);
-            sharedContacts = new ShareList(TYPE_CALENDAR_CATEGORY, id);
+            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
 
             for(TimetableEntry ent : offline_entries) {
                 ent.category_id = id;
@@ -84,13 +84,13 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableCategory", "mysql_update()");
-        return (getLine(DIR_CALENDAR_CATEGORY + "update.php", "&id="+id+"&name="+name) != null);
+        return (getLine(DIR_CALENDAR_CATEGORY + "update.php", "&share_id="+id+"&name="+name) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableCategory", "mysql_delete()");
-        return (getLine(DIR_CALENDAR_CATEGORY + "delete.php", "&id="+id) != null);
+        return (getLine(DIR_CALENDAR_CATEGORY + "delete.php", "&share_id="+id) != null);
     }
 
     @Override

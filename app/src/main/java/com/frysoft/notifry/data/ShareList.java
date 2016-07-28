@@ -11,51 +11,59 @@ public class ShareList {
      */
     protected char type;
 
-    protected int id;
+    protected int share_id;
 
-    protected ArrayList<ShareStorage> sharedList = new ArrayList<>();
+    protected ArrayList<ShareStorage> storages = new ArrayList<>();
 
-    public ShareList(char type, int id) {
+    public ShareList(char type, int share_id) {
         Logger.Log("ShareList", "ShareList(char,int)");
         this.type = type;
-        this.id = id;
+        this.share_id = share_id;
     }
 
-    protected void add(byte permission, int user_id, int share_id) {
-        Logger.Log("ShareList", "add(byte,int,int)");
-        sharedList.add(new ShareStorage(permission, user_id, share_id));
+    protected void add(Contact cont) {
+        Logger.Log("ShareList", "add(Contact)");
+        add(cont, Share.PERMISSION_VIEW);
     }
 
-    protected void addShare(Share share) {
-        Logger.Log("ShareList", "addShare(Share)");
-        sharedList.add(new ShareStorage(share.permission, share.user_id, share.share_id));
+    protected void add(Contact cont, byte permission) {
+        Logger.Log("ShareList", "add(Contact,byte)");
+        Share share = new Share(type, 0, cont.user_id, permission, share_id, cont.email, cont.name);
+        share.create();
+    }
+
+    protected void addStorage(byte permission, int id, int user_id) {
+        Logger.Log("ShareList", "addStorage(byte,int,int)");
+        storages.add(new ShareStorage(permission, id, user_id));
     }
 
     protected boolean remove(Share share) {
         Logger.Log("ShareList", "remove(Share)");
-        for(int i=0; i<sharedList.size(); ++i) {
-            if(sharedList.get(i).share_id == share.id) {
-                sharedList.remove(i);
+        for(int i = 0; i< storages.size(); ++i) {
+            if(storages.get(i).id == share.id) {
+                storages.remove(i);
                 return true;
             }
         }
         return false;
     }
 
-    public ArrayList<ContactGroup> getShareList() {
-        Logger.Log("ShareList", "getShareList()");
+    public ArrayList<ContactGroup> getList() {
+        Logger.Log("ShareList", "getList()");
         ArrayList<ContactGroup> groupList = new ArrayList<>();
         ContactGroup allContacts = ContactList.getAllContactsGroup();
         ContactGroup allShares = new ContactGroup(allContacts.name);
 
         for(Contact cont : allContacts.contacts) {
-            allShares.contacts.add(new Share(type, Share.PERMISSION_NONE, id, cont));
+            allShares.contacts.add(new Share(type, Share.PERMISSION_NONE, share_id, cont));
         }
 
-        for(ShareStorage storage : sharedList) {
+        for(ShareStorage storage : storages) {
             Share share = (Share) allShares.getContactByUserId(storage.user_id);
+            share.type = type;
+            share.id = storage.id;
             share.permission = storage.permission;
-            share.share_id = storage.share_id;
+            share.share_id = share_id;
         }
 
         for(ContactGroup grp : ContactList.getGroups()) {
@@ -73,7 +81,7 @@ public class ShareList {
 
     public boolean isSharedWithUserId(int id) {
         Logger.Log("ShareList", "isSharedWithUserId(int)");
-        for(ShareStorage s : sharedList) {
+        for(ShareStorage s : storages) {
             if(s.user_id == id) {
                 return true;
             }
@@ -81,71 +89,19 @@ public class ShareList {
         return false;
     }
 
-    public void addShare(Contact contact) {
-        Logger.Log("ShareList", "addShare(Contact)");
-        Share share = new Share(type, Share.PERMISSION_VIEW, id, contact);
-        addShare(share);
-        share.create();
-    }
-
-    public void addShare(ArrayList<Contact> contacts) {
-        Logger.Log("ShareList", "addShare(ArrayList<Contact>)");
-        for(Contact contact : contacts) {
-            addShare(contact);
-        }
-    }
-
-    public void addShare(Contact contact,byte permission) {
-        Logger.Log("ShareList", "addShare(Contact,byte)");
-        Share share = new Share(type, permission, id, contact);
-        addShare(share);
-        share.create();
-    }
-
-    public void addShare(ArrayList<Contact> contacts,byte permission) {
-        Logger.Log("ShareList", "addShare(ArrayList<Contact>,byte)");
-        for(Contact contact : contacts) {
-            addShare(contact,permission);
-        }
-    }
-
-    public void addShare(ArrayList<Contact> contacts,byte[] permissions) {
-        Logger.Log("ShareList", "addShare(ArrayList<Contact>,byte[])");
-        for(int i=0;i<contacts.size();++i) {
-            addShare(contacts.get(i),permissions[i]);
-        }
-    }
-
-    public void removeShare(Share share) {
-        Logger.Log("ShareList", "removeShare(Share)");
-        for(int i=0; i<sharedList.size(); ++i) {
-            if(sharedList.get(i).share_id == share.id) {
-                sharedList.remove(i);
-                share.delete();
-            }
-        }
-    }
-
-    public void removeShare(ArrayList<Share> shares) {
-        Logger.Log("ShareList", "removeShare(ArrayList<Share>)");
-        for(Share share : shares) {
-            removeShare(share);
-        }
-    }
-
     protected static class ShareStorage {
 
         protected byte permission;
 
+        protected int id;
+
         protected int user_id;
 
-        protected int share_id;
-
-        protected ShareStorage(byte permission,int user_id, int share_id) {
+        protected ShareStorage(byte permission,int id, int user_id) {
             Logger.Log("ShareList$ShareStorage", "ShareStorage(byte,int,int)");
             this.permission = permission;
+            this.id = id;
             this.user_id = user_id;
-            this.share_id = share_id;
         }
 
     }

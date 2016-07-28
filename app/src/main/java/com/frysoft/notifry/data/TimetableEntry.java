@@ -32,7 +32,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected DateSpan span;
 
-    public ShareList sharedContacts;
+    public ShareList shares;
 
     public static TimetableEntry create(String title, String description, DateSpan span, TimetableCategory category, short... additions) {
         Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
@@ -70,7 +70,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         span = new DateSpan(fry);
 
         if(id != 0) {
-            sharedContacts = new ShareList(TYPE_CALENDAR_ENTRY, id);
+            shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
         }
     }
 
@@ -84,7 +84,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         this.span = new DateSpan(date_start, time_start, duration);
 
         if(id != 0) {
-            sharedContacts = new ShareList(TYPE_CALENDAR_ENTRY, id);
+            shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
         }
     }
 
@@ -118,7 +118,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
             id = Integer.parseInt(resp);
 
             if(id != 0) {
-                sharedContacts = new ShareList(TYPE_CALENDAR_ENTRY, id);
+                shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
             }
             return true;
         }
@@ -128,14 +128,14 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableEntry", "mysql_update()");
-        return (getLine(DIR_CALENDAR_ENTRY+"update.php", "&id="+id+"&category_id="+category_id+"&title="+title+"&description="+description
+        return (getLine(DIR_CALENDAR_ENTRY+"update.php", "&share_id="+id+"&category_id="+category_id+"&title="+title+"&description="+description
                 +"&date_start="+span.getDateStart().getShort()+"&time_start="+span.getTimeStart().time+"&duration="+span.getDuration()+"&addition="+addition) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableEntry", "mysql_delete()");
-        return (getLine(DIR_CALENDAR_ENTRY+"delete.php", "&id="+id) != null);
+        return (getLine(DIR_CALENDAR_ENTRY+"delete.php", "&share_id="+id) != null);
     }
 
     @Override

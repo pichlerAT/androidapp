@@ -36,7 +36,7 @@ public class Share extends Contact {
         if(resp != null) {
             id = Integer.parseInt(resp);
             type = getType();
-            return true;
+            return store();
         }
         return false;
     }
@@ -44,16 +44,16 @@ public class Share extends Contact {
     @Override
     public boolean mysql_update() {
         Logger.Log("Share", "mysql_update()");
-        return (getLine(getFileUrl()+"update.php", "&id="+id+"&permission="+permission) != null);
+        return (getLine(getFileUrl()+"update.php", "&share_id="+id+"&permission="+permission) != null);
     }
 
     @Override
     public boolean mysql_delete() {
         Logger.Log("Share", "mysql_delete()");
-        //if(id == 0) {     TODO Stefan: share delete_without_id.php needed?
+        //if(share_id == 0) {     TODO Stefan: share delete_without_id.php needed?
         //    return (getLine(getFileUrl()+"delete_without_id.php", "&share_user_id="+user_id+"&share_id="+share_id) != null);
         //}
-        return (getLine(getFileUrl()+"delete.php", "&id="+id) != null);
+        return (getLine(getFileUrl()+"delete.php", "&share_id="+id) != null);
     }
 
     @Override
@@ -62,6 +62,43 @@ public class Share extends Contact {
         super.writeTo(fry);
         fry.write(permission);
         fry.write(share_id);
+    }
+
+    protected boolean store() {
+        switch(type) {
+            case TYPE_CALENDAR:
+                Timetable.shares.addStorage(permission, id, user_id);
+                return true;
+
+            case TYPE_CALENDAR_CATEGORY:
+                TimetableCategory cat = Timetable.getCategoryById(share_id);
+                if(cat == null) {
+                    delete();
+                    return false;
+                }
+                cat.shares.addStorage(permission, id, user_id);
+                return true;
+
+            case TYPE_CALENDAR_ENTRY:
+                TimetableEntry ent = Timetable.getEntryById(share_id);
+                if(ent == null) {
+                    delete();
+                    return false;
+                }
+                ent.shares.addStorage(permission, id, user_id);
+                return true;
+
+            case TYPE_TASKLIST:
+                Tasklist tl = TasklistManager.getTasklistById(share_id);
+                if(tl == null) {
+                    delete();
+                    return false;
+                }
+                tl.shares.addStorage(permission, id, user_id);
+                return true;
+
+        }
+        return false;
     }
 
     protected void deleteWithoutId() {

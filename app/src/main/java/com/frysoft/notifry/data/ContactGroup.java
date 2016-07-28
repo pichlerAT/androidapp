@@ -81,13 +81,13 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_update() {
         Logger.Log("ContactGroup", "mysql_update()");
-        return (getLine(DIR_CONTACT_GROUP+"update.php", "&id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
+        return (getLine(DIR_CONTACT_GROUP+"update.php", "&share_id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("ContactGroup", "mysql_delete()");
-        return (getLine(DIR_CONTACT_GROUP+"delete.php", "&id="+id) != null);
+        return (getLine(DIR_CONTACT_GROUP+"delete.php", "&share_id="+id) != null);
     }
 
     @Override

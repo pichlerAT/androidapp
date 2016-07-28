@@ -194,7 +194,7 @@ public class TimetableCreateFragment extends Fragment {
             case R.id.action_done:
                 //byte addition, String title, String description, DateSpan span, TimetableCategory category
                 DateSpan span = new DateSpan(date_start, time_start, date_end, time_end);
-                TimetableEntry.create(repeat, title.getText().toString(), description.getText().toString(), span, null);
+                TimetableEntry.create(title.getText().toString(), description.getText().toString(), span, null, repeat);
                 getActivity().onBackPressed();
                 return true;
             default:

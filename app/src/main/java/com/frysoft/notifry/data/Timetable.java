@@ -13,7 +13,7 @@ public class Timetable {
 
     protected static BackupList<TimetableEntry> entries = new BackupList<>();
 
-    public static ShareList sharedContacts = new ShareList(MySQL.TYPE_CALENDAR, MySQL.USER_ID);
+    public static ShareList shares = new ShareList(MySQL.TYPE_CALENDAR, MySQL.USER_ID);
 
     public static void writeTo(FryFile file) {
         Logger.Log("Timetable", "writeTo(FryFile)");
@@ -55,7 +55,7 @@ public class Timetable {
 
         int NoShares = fry.getArrayLength();
         for(int i=0; i<NoShares; ++i) {
-            sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
+            shares.addStorage(fry.getByte(), fry.getInt(), fry.getInt());
         }
     }
 
@@ -70,7 +70,7 @@ public class Timetable {
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
-                cat.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
+                cat.shares.addStorage(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             catList.add(cat);
@@ -90,7 +90,7 @@ public class Timetable {
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
-                ent.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
+                ent.shares.addStorage(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             entList.add(ent);
