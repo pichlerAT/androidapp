@@ -102,7 +102,7 @@ public class DateSpan implements Fryable {
 
     public boolean isInsideSpan(Date date) {
         Logger.Log("DateSpan", "isInsideSpan(Date)");
-        return (date_start.isGreaterThen(date) && date_end.isSmallerThen(date));
+        return (!date_start.isGreaterThen(date) && !date_end.isSmallerThen(date));
     }
 
     public boolean isOverlapping(DateSpan span) {

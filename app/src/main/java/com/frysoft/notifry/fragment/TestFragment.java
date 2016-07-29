@@ -39,7 +39,9 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-
+                for(TimetableEntry ent : Timetable.getEntries()) {
+                    System.out.println("::::: id="+ent.id+", date="+ ent.getDateSpan().getDateStart().getString());
+                }
 
             }
         });
@@ -49,7 +51,7 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                System.out.println("asdf: "+Timetable.getEntries().size());
+                System.out.println("asdf: "+Timetable.getEntries(25,7,2016).size());
 
             }
         });
@@ -59,7 +61,7 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-
+                System.out.println("asdf: "+Timetable.getEntries(7,2016).size());
 
             }
         });

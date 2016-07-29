@@ -82,7 +82,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     public boolean canEdit() {
         Logger.Log("TasklistEntry", "canEdit()");
-        return (isOwner() || TasklistManager.getTasklistById(table_id).sharedContacts.isSharedWithUserId(USER_ID));
+        return (isOwner() || TasklistManager.getTasklistById(table_id).shares.isSharedWithUserId(USER_ID));
     }
 
     @Override

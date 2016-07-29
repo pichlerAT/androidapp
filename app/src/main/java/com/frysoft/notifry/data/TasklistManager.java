@@ -50,7 +50,7 @@ public class TasklistManager {
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
-                tl.sharedContacts.add(fry.getByte(), fry.getInt(), fry.getInt());
+                tl.shares.addStorage(fry.getByte(), fry.getInt(), fry.getInt());
             }
 
             list.add(tl);

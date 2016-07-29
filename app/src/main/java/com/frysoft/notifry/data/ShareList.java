@@ -21,12 +21,12 @@ public class ShareList {
         this.share_id = share_id;
     }
 
-    protected void add(Contact cont) {
+    public void add(Contact cont) {
         Logger.Log("ShareList", "add(Contact)");
         add(cont, Share.PERMISSION_VIEW);
     }
 
-    protected void add(Contact cont, byte permission) {
+    public void add(Contact cont, byte permission) {
         Logger.Log("ShareList", "add(Contact,byte)");
         Share share = new Share(type, 0, cont.user_id, permission, share_id, cont.email, cont.name);
         share.create();
@@ -37,7 +37,7 @@ public class ShareList {
         storages.add(new ShareStorage(permission, id, user_id));
     }
 
-    protected boolean remove(Share share) {
+    public boolean remove(Share share) {
         Logger.Log("ShareList", "remove(Share)");
         for(int i = 0; i< storages.size(); ++i) {
             if(storages.get(i).id == share.id) {
@@ -60,6 +60,9 @@ public class ShareList {
 
         for(ShareStorage storage : storages) {
             Share share = (Share) allShares.getContactByUserId(storage.user_id);
+            if(share == null) {
+                continue;
+            }
             share.type = type;
             share.id = storage.id;
             share.permission = storage.permission;

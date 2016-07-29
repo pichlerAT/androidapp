@@ -127,7 +127,7 @@ public abstract class MySQL implements Fryable {
 
     protected char type;
 
-    protected int id;
+    public int id;
 
     protected int user_id;
 

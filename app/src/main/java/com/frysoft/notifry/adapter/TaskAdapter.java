@@ -160,7 +160,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                             View taskSharelist = View.inflate(App.getContext(), R.layout.fragment_task_sharelist, null);
                             ExpandableListView lv = (ExpandableListView) taskSharelist.findViewById(R.id.listview_task_sharelist);
 
-                            ArrayList<ContactGroup> shared_groups = item.sharedContacts.getShareList();
+                            ArrayList<ContactGroup> shared_groups = item.shares.getList();
                             final TaskShareAdapter adapter = new TaskShareAdapter(shared_groups);
                             lv.setAdapter(adapter);
 
