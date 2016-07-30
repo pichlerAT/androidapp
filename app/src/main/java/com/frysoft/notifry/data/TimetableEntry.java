@@ -238,4 +238,8 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return color;
     }
 
+    public int getId() {
+        return id;
+    }
+
 }
