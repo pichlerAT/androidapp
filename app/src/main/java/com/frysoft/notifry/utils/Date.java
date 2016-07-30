@@ -80,9 +80,17 @@ public class Date implements Fryable {
         return (getShort() < date.getShort());
     }
 
+    public boolean isSmallerEqualThen(Date date) {
+        return (getShort() >= date.getShort());
+    }
+
     public boolean isGreaterThen(Date date) {
         Logger.Log("Date", "isGreaterThen(Date)");
         return (getShort() > date.getShort());
+    }
+
+    public boolean isGreaterEqualThen(Date date) {
+        return (getShort() >= date.getShort());
     }
 
     public short getShort() {
