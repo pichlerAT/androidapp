@@ -174,14 +174,12 @@ public abstract class MySQL implements Fryable {
             }
             return false;
 
-
         }else if((type & BASETYPE_DELETE) > 0) {
             if(mysql_delete()) {
                 type = (char)(type & TYPE);
                 return true;
             }
             return false;
-
 
         }
 

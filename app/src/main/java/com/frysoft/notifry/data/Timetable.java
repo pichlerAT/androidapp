@@ -66,7 +66,7 @@ public class Timetable {
 
         int NoCategories = fry.getArrayLength();
         for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory(fry.getInt(), fry.getInt(), fry.getString());
+            TimetableCategory cat = new TimetableCategory(fry.getInt(), fry.getInt(), fry.getString(), fry.getInt());
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
@@ -86,7 +86,7 @@ public class Timetable {
         int NoEntries = fry.getArrayLength();
         for(int i=0; i<NoEntries; ++i) {
             TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getShort(), fry.getShort(),
-                    fry.getShort(), fry.getInt(), fry.getInt(), fry.getString(), fry.getString());
+                    fry.getShort(), fry.getInt(), fry.getInt(), fry.getString(), fry.getString(), fry.getInt());
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {

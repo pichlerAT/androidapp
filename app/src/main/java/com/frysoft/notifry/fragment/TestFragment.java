@@ -13,9 +13,6 @@ import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
 
-/**
- * Created by Edwin Pichler on 24.07.2016.
- */
 public class TestFragment extends Fragment {
 
     @Override

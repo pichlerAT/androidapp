@@ -38,7 +38,7 @@ public class TasklistManager {
 
         int NoTasklists = fry.getArrayLength();
         for(int i=0; i<NoTasklists; ++i) {
-            Tasklist tl = new Tasklist(fry.getInt(), fry.getInt(), fry.getByte(), fry.getString());
+            Tasklist tl = new Tasklist(fry.getInt(), fry.getInt(), fry.getByte(), fry.getString(), fry.getInt());
 
             int NoEntries = fry.getArrayLength();
             for(int k=0; k<NoEntries; ++k) {

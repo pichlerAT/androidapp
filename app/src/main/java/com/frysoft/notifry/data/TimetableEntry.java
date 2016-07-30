@@ -32,9 +32,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected DateSpan span;
 
+    protected int color;
+
     public ShareList shares;
 
-    public static TimetableEntry create(String title, String description, DateSpan span, TimetableCategory category, short... additions) {
+    public static TimetableEntry create(String title, String description, DateSpan span, TimetableCategory category, int color, short... additions) {
         Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
 
         TimetableEntry ent;
@@ -45,10 +47,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
 
         if(category == null) {
-            ent = new TimetableEntry(0, USER_ID, addition, 0, title, description, span);
+            ent = new TimetableEntry(0, USER_ID, addition, 0, title, description, span, color);
 
         }else {
-            ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span);
+            ent = new TimetableEntry(0, USER_ID, addition, category.id, title, description, span, color);
 
             if (ent.category_id == 0) {
                 category.addOfflineEntry(ent);
@@ -68,13 +70,14 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         title = fry.getString();
         description = fry.getString();
         span = new DateSpan(fry);
+        color = fry.getInt();
 
         if(id != 0) {
             shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
         }
     }
 
-    protected TimetableEntry(int id, int user_id, short addition, short date_start, short time_start, int duration, int category_id, String title, String description) {
+    protected TimetableEntry(int id, int user_id, short addition, short date_start, short time_start, int duration, int category_id, String title, String description, int color) {
         super(TYPE_CALENDAR_ENTRY, id, user_id);
         Logger.Log("TimetableEntry", "TimetableEntry(int,int,byte,short,short,int,int,String,String)");
         this.addition = addition;
@@ -82,14 +85,15 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         this.title = title;
         this.description = description;
         this.span = new DateSpan(date_start, time_start, duration);
+        this.color = color;
 
         if(id != 0) {
             shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
         }
     }
 
-    protected TimetableEntry(int id, int user_id, short addition, int category_id, String title, String description, DateSpan span) {
-        this(id, user_id, addition, span.getDateStart().getShort(), span.getTimeStart().time, span.getDuration(), category_id, title, description);
+    protected TimetableEntry(int id, int user_id, short addition, int category_id, String title, String description, DateSpan span, int color) {
+        this(id, user_id, addition, span.getDateStart().getShort(), span.getTimeStart().time, span.getDuration(), category_id, title, description, color);
         Logger.Log("TimetableEntry", "TimetableEntry(int,int,byte,int,String,String,DateSpan)");
     }
 
@@ -98,7 +102,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "equals(Object)");
         if(o instanceof TimetableEntry) {
             TimetableEntry e = (TimetableEntry) o;
-            return (e.id == id && e.title.equals(title) && e.description.equals(description) && e.span.equals(span) && e.addition == addition);
+            return (e.id == id && e.title.equals(title) && e.description.equals(description) && e.span.equals(span) && e.addition == addition && e.color == color);
         }
         return false;
     }
@@ -106,14 +110,15 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     public TimetableEntry backup() {
         Logger.Log("TimetableEntry", "backup()");
-        return new TimetableEntry(id, user_id, addition, category_id, title, description, span);
+        return new TimetableEntry(id, user_id, addition, category_id, title, description, span, color);
     }
 
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableEntry", "mysql_create()");
-        String resp = getLine(DIR_CALENDAR_ENTRY+"create.php","&category_id="+category_id+"&title="+title+"&description="+description
-                +"&date_start="+span.getDateStart().getShort()+"&time_start="+span.getTimeStart().time+"&duration="+span.getDuration()+"&addition="+addition);
+        String resp = getLine(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + category_id + "&title=" + title + "&description=" + description
+                + "&date_start=" + span.getDateStart().getShort() + "&time_start=" + span.getTimeStart().time + "&duration=" + span.getDuration()
+                + "&addition="+addition + "&color=" + color);
         if(resp != null) {
             id = Integer.parseInt(resp);
 
@@ -128,14 +133,15 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableEntry", "mysql_update()");
-        return (getLine(DIR_CALENDAR_ENTRY+"update.php", "&share_id="+id+"&category_id="+category_id+"&title="+title+"&description="+description
-                +"&date_start="+span.getDateStart().getShort()+"&time_start="+span.getTimeStart().time+"&duration="+span.getDuration()+"&addition="+addition) != null);
+        return (getLine(DIR_CALENDAR_ENTRY + "update.php", "&id=" + id + "&category_id=" + category_id + "&title=" + title + "&description=" + description
+                + "&date_start=" + span.getDateStart().getShort() + "&time_start=" + span.getTimeStart().time + "&duration=" + span.getDuration()
+                + "&addition="+addition + "&color=" + color) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableEntry", "mysql_delete()");
-        return (getLine(DIR_CALENDAR_ENTRY+"delete.php", "&share_id="+id) != null);
+        return (getLine(DIR_CALENDAR_ENTRY+  "delete.php", "&id=" + id) != null);
     }
 
     @Override
@@ -145,6 +151,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         title = e.title;
         description = e.description;
         span = e.span;
+        color = e.color;
     }
 
     @Override
@@ -163,6 +170,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         fry.write(title);
         fry.write(description);
         span.writeTo(fry);
+        fry.write(color);
     }
 
     @Override
@@ -172,15 +180,16 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Timetable.entries.remove(this);
     }
 
-    public void set(String title) {
+    public void setTitle(String title) {
         this.title = title;
         update();
     }
 
-    public void set(String title, String description, DateSpan span, TimetableCategory category, short... additions) {
+    public void set(String title, String description, DateSpan span, TimetableCategory category, int color, short... additions) {
         this.title = title;
         this.description = description;
         this.span = span.copy();
+        this.color = color;
 
         if(category == null) {
             category_id = 0;
@@ -223,6 +232,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public boolean isSpanOverlapping(DateSpan span) {
         Logger.Log("TimetableEntry", "isSpanOverlapping(DateSpan)");
         return span.isOverlapping(span);
+    }
+
+    public int getColor() {
+        return color;
     }
 
 }
