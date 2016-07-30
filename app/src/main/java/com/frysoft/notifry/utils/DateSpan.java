@@ -110,4 +110,13 @@ public class DateSpan implements Fryable {
         return (isInsideSpan(span.date_start) || isInsideSpan(span.date_end) || span.isInsideSpan(date_start));
     }
 
+    public void addDays(int days) {
+        date_start.addDays(days);
+        date_end.addDays(days);
+    }
+
+    public void addTime(Time time) {
+        date_start.addDays(time_start.addTime(time));
+        date_end.addDays(time_end.addTime(time));
+    }
 }
