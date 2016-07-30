@@ -81,7 +81,7 @@ public class Date implements Fryable {
     }
 
     public boolean isSmallerEqualThen(Date date) {
-        return (getShort() >= date.getShort());
+        return (getShort() <= date.getShort());
     }
 
     public boolean isGreaterThen(Date date) {
