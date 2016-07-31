@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.frysoft.notifry.R;
+import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.MySQL;
 import com.frysoft.notifry.data.Timetable;
 import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
+import com.frysoft.notifry.utils.User;
 
 public class TestFragment extends Fragment {
 
@@ -49,7 +51,17 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                System.out.println("asdf: "+Timetable.getEntries(25,7,2016).size());
+                (new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        System.out.println("#LOGOUT");
+                        User.logout();
+
+                    }
+
+                })).start();
 
             }
         });
@@ -63,7 +75,8 @@ public class TestFragment extends Fragment {
 
                     @Override
                     public void run() {
-                        String resp = MySQL.getLine("register.php", "&email=stefan.fragner95@gmail.com&name=Stefan");
+                        System.out.println("#LOGIN");
+                        User.login("stefan.fragner@rk.at", "1234");
                     }
 
                 })).start();

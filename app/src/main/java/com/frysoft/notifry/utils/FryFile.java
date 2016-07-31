@@ -125,6 +125,25 @@ public abstract class FryFile {
         return str;
     }
 
+    public String getDecoded(String code, int codeOffset) {
+        if(codeOffset >= code.length()) {
+            codeOffset = code.length() % codeOffset;
+        }
+
+        String str = getString();
+        String string = "";
+        int codeIndex = codeOffset;
+
+        for(int i=0; i<str.length(); ++i) {
+            string += (char)((int)str.charAt(i) + 61 - (int)code.charAt(codeIndex++));
+
+            if(codeIndex >= code.length()) {
+                codeIndex = 0;
+            }
+        }
+        return string;
+    }
+
     public void write(final Fryable fry) {
         fry.writeTo(this);
     }
@@ -164,6 +183,25 @@ public abstract class FryFile {
         }
     }
 
+    public void writeEncoded(String str, String code, int codeOffset) {
+        if(codeOffset >= code.length()) {
+            codeOffset = code.length() % codeOffset;
+        }
+
+        String string = "";
+        int codeIndex = codeOffset;
+
+        for(int i=0; i<str.length(); ++i) {
+            string += (char)((int)str.charAt(i) + (int)code.charAt(codeIndex) - 61);
+
+            ++codeIndex;
+            if(codeIndex >= code.length()) {
+                codeIndex = 0;
+            }
+        }
+        write(string);
+    }
+
 
 
     public static class Compact extends FryFile {
@@ -183,6 +221,7 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
+                ex.printStackTrace();
                 return false;
             }
         }
@@ -210,6 +249,7 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
+                ex.printStackTrace();
                 return false;
             }
         }
@@ -346,7 +386,9 @@ public abstract class FryFile {
 
     public static class Split extends FryFile {
 
-        protected char splitChar;
+        public static final String DEFAULT_SPLIT_STRING = "" + (char)0;
+
+        protected String splitString;
 
         protected int readIndex = 0;
 
@@ -355,11 +397,11 @@ public abstract class FryFile {
         protected String writeLine = "";
 
         public Split() {
-            splitChar = 0;
+            splitString = DEFAULT_SPLIT_STRING;
         }
 
-        public Split(char splitChar) {
-            this.splitChar = splitChar;
+        public Split(String splitString) {
+            this.splitString = splitString;
         }
 
         @Override
@@ -371,6 +413,7 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
+                ex.printStackTrace();
                 return false;
             }
         }
@@ -397,12 +440,15 @@ public abstract class FryFile {
                         }
                     }
                 }
+                readLine.add(bufferString);
+
                 is.close();
 
                 readLine.trimToSize();
 
                 return true;
             } catch(IOException ex) {
+                ex.printStackTrace();
                 return false;
             }
         }
@@ -488,7 +534,7 @@ public abstract class FryFile {
 
         @Override
         public void write(String s) {
-            writeLine += s + splitChar;
+            writeLine += s + splitString;
         }
 
         @Override

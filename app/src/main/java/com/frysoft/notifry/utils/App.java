@@ -9,15 +9,15 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.ContactList;
-import com.frysoft.notifry.data.MySQL;
 import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.data.NetworkStateReciever;
 import com.frysoft.notifry.data.TasklistManager;
@@ -25,6 +25,8 @@ import com.frysoft.notifry.data.Timetable;
 import com.frysoft.notifry.data.Updater;
 
 public class App extends Application {
+
+    private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
 
     public static boolean hasInternetConnection = false;
 
@@ -40,13 +42,20 @@ public class App extends Application {
     public void onCreate() {
         Logger.Log("App", "onCreate()");
         super.onCreate();
+        appContext = this;
 
+        // -----------------------------------------------------
+        // TODO these two lines are for the test versions only !
         defaultEH = new AlphaExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(defaultEH);
+        // -----------------------------------------------------
 
-        appContext = this;
-        load();
+        User.loadLogin();
+        loadData();
         NetworkStateReciever.checkInternet();
+
+        System.out.println("##### "+User.getEmail());
+        System.out.println("##### "+User.isOnline());
     }
 
     public static Context getContext() {
@@ -61,11 +70,9 @@ public class App extends Application {
         Logger.Log("App", "setContext(Context)");
         App.mContext = mContext;
 
-
         if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof AlphaExceptionHandler)) {
             Thread.setDefaultUncaughtExceptionHandler(defaultEH);
         }
-
     }
 
     public static void setMySQLListener(MySQLListener mysql_Listener) {
@@ -92,26 +99,21 @@ public class App extends Application {
         Logger.Log("App", "onPause()");
         isAppActive = false;
         Updater.stop();
-        save();
+        saveData();
     }
 
     public static void onResume() {
         Logger.Log("App", "onResume()");
         isAppActive = true;
-        Updater.start();
+        NetworkStateReciever.checkInternet();
     }
 
-    public static void load() {
-        Logger.Log("App", "load()");
-        File file = new File(appContext.getFilesDir(),getFileName());
-        if(!file.exists()) {
-            return;
-        }
+    public static void loadData() {
+        Logger.Log("App", "loadData()");
 
-        FryFile fry = new FryFile.Compact();
-        if(!fry.load(file)) {
-            Logger.Log("App#load()","Could not load local file");
-            // TODO could not load local file
+        FryFile fry = getFryFile();
+        if(fry == null || fry.size() <= 0) {
+            return;
         }
 
         ContactList.readFrom(fry);
@@ -120,24 +122,98 @@ public class App extends Application {
         ConnectionManager.readFrom(fry);
     }
 
-    public static void save() {
-        Logger.Log("App", "save()");
+    public static FryFile getFryFile() {
+        Logger.Log("App", "getFryFile()");
+        if(User.isLocal()) {
+            return getLocalFryFile();
+        }
+
+        FileInputStream inputStream;
+        try {
+            inputStream = appContext.openFileInput(getFileName());
+        }catch(FileNotFoundException ex) {
+            ex.printStackTrace();
+            return getLocalFryFile();
+        }
+        /*
+        File file = new File(appContext.getFilesDir(),getFileName());
+        if(!file.exists()) {
+            return getLocalFryFile();
+        }
+        */
+
         FryFile fry = new FryFile.Compact();
+        if(!fry.load(inputStream)) {
+            Logger.Log("App#load()","Could not load local file");
+            // TODO could not load local file
+            return getLocalFryFile();
+        }
+
+        String email = fry.getDecoded(CODE, 0);
+        if(!email.equals(User.getEmail())) {
+            return getLocalFryFile();
+        }
+
+        String password = fry.getDecoded(CODE, email.length());
+        if(!password.equals(User.getPassword())) {
+            return getLocalFryFile();
+        }
+
+        return fry;
+    }
+
+    protected static FryFile getLocalFryFile() {
+        //File file = new File(appContext.getFilesDir(),getFileName());
+        //if(file.exists()) {
+        try {
+            FileInputStream inputStream = appContext.openFileInput(getFileName());
+
+            FryFile fry = new FryFile.Compact();
+            if (fry.load(inputStream)) {
+                return fry;
+            }
+        }catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void saveData() {
+        Logger.Log("App", "saveData()");
+        FryFile fry = new FryFile.Compact();
+
+
+        if(User.isLocal()) {
+            User.deleteLogin();
+
+        }else {
+            User.saveLogin();
+            fry.writeEncoded(User.getEmail(), CODE, 0);
+            fry.writeEncoded(User.getPassword(), CODE, User.getEmail().length());
+        }
 
         ContactList.writeTo(fry);
         TasklistManager.writeTo(fry);
         Timetable.writeTo(fry);
         ConnectionManager.writeTo(fry);
 
-        if(!fry.save(new File(App.appContext.getFilesDir(),getFileName()))) {
-            Logger.Log("App#save()","Could not save local file");
+        try {
+            FileOutputStream outputStream = appContext.openFileOutput(getFileName(), Context.MODE_PRIVATE);
+            if (!fry.save(outputStream)) {
+                Logger.Log("App#save()", "Could not save local file: FryFile.save() = false");
+                // TODO could not save local file
+
+            }
+        }catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Logger.Log("App#save()", "Could not save local file: file not found");
             // TODO could not save local file
         }
     }
 
     public static String getFileName() {
         Logger.Log("App", "getFileName()");
-        return MySQL.USER_EMAIL.replace(".","_") + ".fry";
+        return User.getEmail() + ".fry";
     }
 
     public static int pixelToDPScale(int dp){

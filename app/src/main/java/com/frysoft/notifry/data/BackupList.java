@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class BackupList<E extends MySQLEntry> {
 
@@ -147,7 +148,7 @@ public class BackupList<E extends MySQLEntry> {
 
                 }else {
                     // delete share
-                    (new Share(online.getType(), 0, MySQL.USER_ID, (byte)0, online.id, null, null)).deleteWithoutId();
+                    (new Share(online.getType(), 0, User.getId(), (byte)0, online.id, null, null)).deleteWithoutId();
 
                 }
             }

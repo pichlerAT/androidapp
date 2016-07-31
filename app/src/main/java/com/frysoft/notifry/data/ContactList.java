@@ -27,7 +27,10 @@ public class ContactList {
 
     public static void readFrom(FryFile fry) {
         Logger.Log("ContactList", "readFrom(FryFile)");
-        ContactGroup all = groups.get(groups.size() - 1);
+
+        groups = new ArrayList<>();
+        ContactGroup all = new ContactGroup("All Contacts");
+        groups.add(all);
 
         int NoContacts = fry.getChar();
         for(int i=0; i<NoContacts; ++i) {

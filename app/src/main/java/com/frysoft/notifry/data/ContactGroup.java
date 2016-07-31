@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.SearchableList;
+import com.frysoft.notifry.utils.User;
 
 public class ContactGroup extends MySQLEntry {
 
@@ -29,7 +30,7 @@ public class ContactGroup extends MySQLEntry {
     }
 
     protected ContactGroup(int id, String name) {
-        super(TYPE_CONTACT_GROUP, id, USER_ID);
+        super(TYPE_CONTACT_GROUP, id, User.getId());
         Logger.Log("ContactGroup", "ContactGroup(int,String)");
         this.name = name;
     }
@@ -70,7 +71,7 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_create() {
         Logger.Log("ContactGroup", "mysql_create()");
-        String resp = getLine(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
+        String resp = executeAndroid(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -81,13 +82,13 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_update() {
         Logger.Log("ContactGroup", "mysql_update()");
-        return (getLine(DIR_CONTACT_GROUP+"update.php", "&share_id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
+        return (executeAndroid(DIR_CONTACT_GROUP+"update.php", "&share_id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("ContactGroup", "mysql_delete()");
-        return (getLine(DIR_CONTACT_GROUP+"delete.php", "&share_id="+id) != null);
+        return (executeAndroid(DIR_CONTACT_GROUP+"delete.php", "&share_id="+id) != null);
     }
 
     @Override

@@ -59,13 +59,13 @@ public class Contact extends MySQL implements Fryable, Searchable {
     @Override
     protected boolean mysql_create() { // contact request send
         Logger.Log("Contact", "mysql_create()");
-        return (getLine(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
+        return (executeAndroid(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
     }
 
     @Override
     protected boolean mysql_update() { // contact request accept
         Logger.Log("Contact", "mysql_update()");
-        String resp = getLine(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
+        String resp = executeAndroid(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
         if(resp == null) {
             return false;
         }
@@ -78,9 +78,9 @@ public class Contact extends MySQL implements Fryable, Searchable {
     protected boolean mysql_delete() { // contact request decline
         Logger.Log("Contact", "mysql_delete()");
         if((type & TYPE_CONTACT_REQUEST) > 0) {
-            return (getLine(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
+            return (executeAndroid(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
         }else {
-            return (getLine(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
+            return (executeAndroid(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
         }
     }
 

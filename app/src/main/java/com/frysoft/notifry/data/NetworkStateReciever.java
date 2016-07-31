@@ -13,6 +13,7 @@ import java.net.URL;
 
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 
@@ -21,26 +22,22 @@ public class NetworkStateReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.Log("NetworkStateReciever", "onReceive(Context,Intent)");
-        // network connectivity change
         if(intent.getExtras() != null) {
+
             NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
-                // network ni.getTypeName() connected
+
                 checkInternet();
                 return;
             }
         }
-        /*
-        if(intent.getExtras().getBoolean(ConnectivityManager.EXTRA_NO_CONNECTIVITY,Boolean.FALSE)) {
-            // no network connectivity
-        }
-        */
         App.hasInternetConnection = false;
     }
 
     public static void checkInternet() {
         Logger.Log("NetworkStateReciever", "checkInternet()");
         if(!App.hasInternetConnection && !checkingForInternet) {
+
             checkingForInternet = true;
             (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -52,8 +49,16 @@ public class NetworkStateReciever extends BroadcastReceiver {
         protected String doInBackground(String... params) {
             Logger.Log("NetworkStateReciever$CheckInternetConnection", "doInBackground(String...)");
             App.hasInternetConnection = hasActiveInternetConnection();
+
             if(App.hasInternetConnection) {
-                ConnectionManager.sync();
+                if(!User.isLocal() && !User.isOnline()) {
+                    User.logon();
+                }
+
+                if(User.isOnline()) {
+                    ConnectionManager.sync();
+                }
+
                 if(App.isAppActive) {
                     Updater.start();
                 }

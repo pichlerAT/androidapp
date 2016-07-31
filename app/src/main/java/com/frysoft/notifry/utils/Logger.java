@@ -54,10 +54,13 @@ public class Logger {
     }
 
     public static void sendEmail() {
+        if(User.isLocal()) {
+            return;
+        }
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fragner.stefan95@gmail.com"});
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Generall Report: " + MySQL.USER_EMAIL);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@notifry.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Generall Report: " + User.getEmail());
         intent.putExtra(Intent.EXTRA_TEXT, getString());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         App.getContext().startActivity(intent);

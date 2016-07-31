@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class TimetableCategory extends MySQLEntry implements Fryable {
 
@@ -18,7 +19,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     public static TimetableCategory create(String name, int color) {
         Logger.Log("TimetableCategory", "create(String)");
-        TimetableCategory cat = new TimetableCategory(0, USER_ID, name, color);
+        TimetableCategory cat = new TimetableCategory(0, User.getId(), name, color);
         cat.create();
         Timetable.categories.add(cat);
         return cat;
@@ -70,7 +71,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableCategory", "mysql_create()");
-        String resp = getLine(DIR_CALENDAR_CATEGORY + "create.php", "&name=" + name + "&color=" + color);
+        String resp = executeAndroid(DIR_CALENDAR_CATEGORY + "create.php", "&name=" + name + "&color=" + color);
         if(resp != null) {
             id = Integer.parseInt(resp);
             shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
@@ -88,13 +89,13 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableCategory", "mysql_update()");
-        return (getLine(DIR_CALENDAR_CATEGORY + "update.php", "&share_id=" + id + "&name=" + name + "&color=" + color) != null);
+        return (executeAndroid(DIR_CALENDAR_CATEGORY + "update.php", "&share_id=" + id + "&name=" + name + "&color=" + color) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableCategory", "mysql_delete()");
-        return (getLine(DIR_CALENDAR_CATEGORY + "delete.php", "&share_id=" + id) != null);
+        return (executeAndroid(DIR_CALENDAR_CATEGORY + "delete.php", "&share_id=" + id) != null);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class Updater extends AsyncTask<String,String,String> {
 
@@ -34,7 +35,7 @@ public class Updater extends AsyncTask<String,String,String> {
 
     public static void start() {
         Logger.Log("Updater", "start()");
-        if(updater.getStatus() == Status.PENDING) {
+        if(User.isOnline() && updater.getStatus() == Status.PENDING) {
             updater.update = true;
             updater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

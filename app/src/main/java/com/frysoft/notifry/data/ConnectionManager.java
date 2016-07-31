@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class ConnectionManager {
 
-    protected static boolean PERFORM_UPDATE = true;
+    protected static boolean PERFORM_UPDATE = false;
 
     protected static boolean sync_contacts = false;
 
@@ -76,9 +77,13 @@ public class ConnectionManager {
 
     protected static void sync() {
         Logger.Log("ConnectionManager", "sync()");
-        if(syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
-            syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }else {
+        if(User.isOnline()) {
+            if (syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
+                syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                NetworkStateReciever.checkInternet();
+            }
+        }else if(!App.hasInternetConnection) {
             NetworkStateReciever.checkInternet();
         }
     }
@@ -100,6 +105,8 @@ public class ConnectionManager {
 
     public static void readFrom(FryFile fry) {
         Logger.Log("ConnectionManager", "readFrom(FryFile)");
+        entries = new ArrayList<>();
+
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
             MySQL entry = MySQLEntry.load(fry.getChar(),fry.getInt());
@@ -191,7 +198,7 @@ public class ConnectionManager {
 
         protected boolean sync_all() {
             Logger.Log("ConnectionManager$Sync", "sync_all()");
-            String resp = MySQL.getLine("request.php","");
+            String resp = MySQL.executeAndroid("request.php","");
             if(resp == null) {
                 return false;
             }
@@ -213,7 +220,7 @@ public class ConnectionManager {
 
         protected boolean sync_contacts() {
             Logger.Log("ConnectionManager$Sync", "sync_contact()");
-            String resp = MySQL.getLine(MySQL.DIR_CONTACT + "get.php","");
+            String resp = MySQL.executeAndroid(MySQL.DIR_CONTACT + "get.php","");
             if(resp == null) {
                 return false;
             }
@@ -231,7 +238,7 @@ public class ConnectionManager {
 
         protected boolean sync_calendar() {
             Logger.Log("ConnectionManager$Sync", "sync_calendar()");
-            String resp = MySQL.getLine(MySQL.DIR_CALENDAR + "request.php","");
+            String resp = MySQL.executeAndroid(MySQL.DIR_CALENDAR + "request.php","");
             if(resp == null) {
                 return false;
             }
@@ -249,7 +256,7 @@ public class ConnectionManager {
 
         protected boolean sync_tasklist() {
             Logger.Log("ConnectionManager$Sync", "sync_tasklist()");
-            String resp = MySQL.getLine(MySQL.DIR_TASKLIST + "request.php","");
+            String resp = MySQL.executeAndroid(MySQL.DIR_TASKLIST + "request.php","");
             if(resp == null) {
                 return false;
             }

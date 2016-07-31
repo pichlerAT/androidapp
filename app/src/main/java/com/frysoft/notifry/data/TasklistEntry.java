@@ -3,6 +3,7 @@ package com.frysoft.notifry.data;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class TasklistEntry extends MySQLEntry implements Fryable {
 
@@ -28,7 +29,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     }
 
     protected TasklistEntry(String description, boolean state) {
-        this(0, USER_ID, (state ? (byte)1 : (byte)0), 0, description);
+        this(0, User.getId(), (state ? (byte)1 : (byte)0), 0, description);
         Logger.Log("TasklistEntry", "TasklistEntry(String,boolean)");
     }
 
@@ -51,7 +52,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TasklistEntry", "mysql_create()");
-        String resp = getLine(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+        String resp = executeAndroid(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -62,13 +63,13 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TasklistEntry", "mysql_update()");
-        return (getLine(DIR_TASKLIST_ENTRY + "update.php","&share_id="+id+"&description="+description+"&state="+state) != null);
+        return (executeAndroid(DIR_TASKLIST_ENTRY + "update.php","&share_id="+id+"&description="+description+"&state="+state) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TasklistEntry", "mysql_delete()");
-        return (getLine(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+id) != null);
+        return (executeAndroid(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+id) != null);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     public boolean canEdit() {
         Logger.Log("TasklistEntry", "canEdit()");
-        return (isOwner() || TasklistManager.getTasklistById(table_id).shares.isSharedWithUserId(USER_ID));
+        return (isOwner() || TasklistManager.getTasklistById(table_id).shares.isSharedWithUserId(User.getId()));
     }
 
     @Override

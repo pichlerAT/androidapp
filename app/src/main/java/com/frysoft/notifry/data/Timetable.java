@@ -6,6 +6,7 @@ import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public class Timetable {
 
@@ -13,7 +14,7 @@ public class Timetable {
 
     protected static BackupList<TimetableEntry> entries = new BackupList<>();
 
-    public static ShareList shares = new ShareList(MySQL.TYPE_CALENDAR, MySQL.USER_ID);
+    public static ShareList shares = new ShareList(MySQL.TYPE_CALENDAR, User.getId());
 
     public static void writeTo(FryFile file) {
         Logger.Log("Timetable", "writeTo(FryFile)");
@@ -25,6 +26,7 @@ public class Timetable {
 
     public static void readFrom(FryFile fry) {
         Logger.Log("Timetable", "readFrom(FryFile)");
+
         categories = new BackupList<>();
 
         int NoCategories = fry.getChar();

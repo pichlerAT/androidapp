@@ -11,10 +11,11 @@ import java.net.URL;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
 
 public abstract class MySQL implements Fryable {
 
-    protected static final String ADDRESS="http://fry-soft.com/android/";
+    public static final String ADDRESS = "http://www.notifry.com/android/";
 
     public static final String DIR_TASKLIST                 =                         "tasklist/" ;
     public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"    ;
@@ -31,9 +32,9 @@ public abstract class MySQL implements Fryable {
 
     public static final String S = "" + (char)0;
 
-    public static int USER_ID = 1;
-    public static String USER_EMAIL = "stefan.fragner@rk.at";
-    public static String USER_PASSWORD = "1234";
+    //public static int USER_ID = 1;
+    //public static String USER_EMAIL = "stefan.fragner@rk.at";
+    //public static String USER_PASSWORD = "1234";
 
 
     public static final char BASETYPE           = 0x000F;
@@ -64,10 +65,71 @@ public abstract class MySQL implements Fryable {
 
     public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
 
+    public static String execute(String addr, String data) {
+        Logger.Log("MySQL", "execute(String,String)");
+        try {
+            URL url = new URL(addr);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setDoOutput(true);
+            OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
 
+            os.write(data);
+            os.flush();
+            con.connect();
 
-    public static String getLine(String addr,String data) {
-        Logger.Log("MySQL", "getLine(String,String)");
+            BufferedReader br;
+            try {
+                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            }catch(FileNotFoundException ex) {
+                ex.printStackTrace();
+                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+                System.out.println("------------------------");
+                System.out.println("addr = "+addr);
+                System.out.println("------------------------");
+                String line;
+                while((line=br.readLine())!=null) {
+                    System.out.println(line);
+                    System.out.println("------------------------");
+                }
+                return null;
+            }
+            String line=br.readLine();
+
+            if(line == null) {
+                return null;
+            }
+
+            if(line.contains("<br")) {
+                System.out.println(line);
+                String newLine;
+                while((newLine=br.readLine())!=null) {
+                    System.out.println(newLine);
+                }
+                return null;
+            }
+
+            br.close();
+            os.close();
+            con.disconnect();
+
+            return line;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String executeAndroid(String addr, String data) {
+        Logger.Log("MySQL", "executeAndroid(String,String)");
+        String resp = execute(ADDRESS + addr, "user_id=" + User.getId() + "&password=" + User.getPassword() + data);
+
+        if(resp != null && resp.length()>3 && resp.substring(0,4).equals("err_")) {
+            return null;
+        }
+
+        return resp;
+        /*
         try {
             URL url = new URL(ADDRESS + addr);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -121,6 +183,7 @@ public abstract class MySQL implements Fryable {
             ex.printStackTrace();
             return null;
         }
+        */
     }
 
 
@@ -210,7 +273,7 @@ public abstract class MySQL implements Fryable {
 
     public final boolean isOwner() {
         Logger.Log("MySQL", "isOwner()");
-        return (user_id == USER_ID);
+        return (user_id == User.getId());
     }
 
     public final char getBaseType() {
