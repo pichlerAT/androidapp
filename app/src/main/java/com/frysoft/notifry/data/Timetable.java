@@ -151,7 +151,7 @@ public class Timetable {
         return list;
     }
 
-    protected static TimetableEntry getEntryById(int id) {
+    public static TimetableEntry getEntryById(int id) {
         Logger.Log("Timetable", "getEntryById(int)");
         for(TimetableEntry e : entries.getList()) {
             if(e.id == id) {

@@ -2,6 +2,7 @@ package com.frysoft.notifry.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,11 +14,13 @@ import java.util.ArrayList;
 
 public abstract class FryFile {
 
-    public abstract void save(OutputStream outputStream) throws IOException;
+    public abstract boolean save(OutputStream outputStream);
 
-    public abstract void load(InputStream inputStream) throws IOException;
+    public abstract boolean load(InputStream inputStream);
 
-    public abstract void load(String str);
+    public abstract boolean load(String str);
+
+    public abstract int size();
 
     public abstract byte getByte();
 
@@ -51,12 +54,35 @@ public abstract class FryFile {
 
     public abstract void write(final SearchableList<?> list);
 
-    public void save(File file) throws IOException {
-        save(new FileOutputStream(file));
+    public boolean save(File file) {
+        File dir = file.getParentFile();
+        if(!dir.exists() && !dir.mkdirs()) {
+            return false;
+        }
+        try{
+            return save(new FileOutputStream(file));
+        } catch(FileNotFoundException ex) {
+            return false;
+        }
     }
 
-    public void load(File file) throws IOException {
-        load(new FileInputStream(file));
+    public boolean load(File file) {
+        if(!file.exists()) {
+            return false;
+        }
+        try{
+            return load(new FileInputStream(file));
+        } catch(FileNotFoundException ex) {
+            return false;
+        }
+    }
+
+    public boolean loadFile(String filePath) {
+        return load(new File(filePath));
+    }
+
+    public boolean saveFile(String filePath) {
+        return save(new File(filePath));
     }
 
     public byte[] getByteArray() {
@@ -149,36 +175,57 @@ public abstract class FryFile {
         protected StringBuilder writeLine = new StringBuilder();
 
         @Override
-        public void save(OutputStream outputStream) throws IOException {
-            OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
-            writer.write(writeLine.toString());
-            writer.close();
-        }
+        public boolean save(OutputStream outputStream) {
+            try{
+                OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
+                writer.write(writeLine.toString());
+                writer.close();
 
-        @Override
-        public void load(InputStream inputStream) throws IOException {
-            InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
-
-            int bred;
-            char[] buffer = new char[1024];
-            String bufferLine = "";
-
-            while ((bred = is.read(buffer)) != -1) {
-                if (bred < buffer.length) {
-                    for (int k = 0; k < bred; ++k) {
-                        bufferLine += buffer[k];
-                    }
-                } else {
-                    bufferLine += new String(buffer);
-                }
+                return true;
+            } catch(IOException ex) {
+                return false;
             }
-            readLine = bufferLine.toCharArray();
-            is.close();
         }
 
         @Override
-        public void load(String str) {
+        public boolean load(InputStream inputStream) {
+            try{
+                InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
+
+                int bred;
+                char[] buffer = new char[1024];
+                String bufferLine = "";
+
+                while ((bred = is.read(buffer)) != -1) {
+                    if (bred < buffer.length) {
+                        for (int k = 0; k < bred; ++k) {
+                            bufferLine += buffer[k];
+                        }
+                    } else {
+                        bufferLine += new String(buffer);
+                    }
+                }
+                readLine = bufferLine.toCharArray();
+                is.close();
+
+                return true;
+            } catch(IOException ex) {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean load(String str) {
             readLine = str.toCharArray();
+            return true;
+        }
+
+        @Override
+        public int size() {
+            if(readLine == null) {
+                return writeLine.length();
+            }
+            return readLine.length;
         }
 
         @Override
@@ -316,40 +363,52 @@ public abstract class FryFile {
         }
 
         @Override
-        public void save(OutputStream outputStream) throws IOException {
-            OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
-            writer.write(writeLine);
-            writer.close();
+        public boolean save(OutputStream outputStream) {
+            try{
+                OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
+                writer.write(writeLine);
+                writer.close();
+
+                return true;
+            } catch(IOException ex) {
+                return false;
+            }
         }
 
         @Override
-        public void load(InputStream inputStream) throws IOException {
-            InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
+        public boolean load(InputStream inputStream) {
+            try{
+                InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
 
-            int bred;
-            char[] buffer = new char[1024];
-            String bufferString = "";
-            readLine = new ArrayList<>(100);
+                int bred;
+                char[] buffer = new char[1024];
+                String bufferString = "";
+                readLine = new ArrayList<>(100);
 
-            while ((bred = is.read(buffer)) != -1) {
-                for (int k = 0; k < bred; ++k) {
+                while ((bred = is.read(buffer)) != -1) {
+                    for (int k = 0; k < bred; ++k) {
 
-                    if(buffer[k] == 0) {
-                        readLine.add(bufferString);
-                        bufferString = "";
+                        if(buffer[k] == 0) {
+                            readLine.add(bufferString);
+                            bufferString = "";
 
-                    }else {
-                        bufferString += buffer[k];
+                        }else {
+                            bufferString += buffer[k];
+                        }
                     }
                 }
-            }
-            is.close();
+                is.close();
 
-            readLine.trimToSize();
+                readLine.trimToSize();
+
+                return true;
+            } catch(IOException ex) {
+                return false;
+            }
         }
 
         @Override
-        public void load(String str) {
+        public boolean load(String str) {
             String bufferString = "";
             readLine = new ArrayList<>(100);
 
@@ -366,6 +425,16 @@ public abstract class FryFile {
             }
 
             readLine.trimToSize();
+
+            return true;
+        }
+
+        @Override
+        public int size() {
+            if(readLine == null) {
+                return writeLine.length();
+            }
+            return readLine.size();
         }
 
         @Override

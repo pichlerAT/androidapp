@@ -158,7 +158,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
-                task = Tasklist.create(header.getText().toString());
+                task = Tasklist.create(header.getText().toString(),0);
             } else {
                 task.rename(headerString);
             }

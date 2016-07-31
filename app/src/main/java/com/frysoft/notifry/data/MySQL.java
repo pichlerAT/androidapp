@@ -66,7 +66,7 @@ public abstract class MySQL implements Fryable {
 
 
 
-    protected static String getLine(String addr,String data) {
+    public static String getLine(String addr,String data) {
         Logger.Log("MySQL", "getLine(String,String)");
         try {
             URL url = new URL(ADDRESS + addr);

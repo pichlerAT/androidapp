@@ -129,7 +129,7 @@ public class ConnectionManager {
             }
         }
 
-        return  list.toArray(new String[0]);
+        return  list.toArray(new String[list.size()]);
     }
 
     protected static class NotifyListener extends AsyncTask<String,String,String> {
@@ -197,6 +197,9 @@ public class ConnectionManager {
             }
             FryFile fry = new FryFile.Split();
             fry.load(resp);
+            if(fry.size() < 7) {
+                return false;
+            }
 
             ContactList.synchronizeContactsFromMySQL(fry);
             ContactList.synchronizeContactGroupsFromMySQL(fry);
@@ -216,6 +219,9 @@ public class ConnectionManager {
             }
             FryFile fry = new FryFile.Split();
             fry.load(resp);
+            if(fry.size() < 3) {
+                return false;
+            }
 
             ContactList.synchronizeContactsFromMySQL(fry);
             ContactList.synchronizeContactGroupsFromMySQL(fry);
@@ -231,6 +237,9 @@ public class ConnectionManager {
             }
             FryFile fry = new FryFile.Split();
             fry.load(resp);
+            if(fry.size() < 3) {
+                return false;
+            }
 
             Timetable.synchronizeSharesFromMySQL(fry);
             Timetable.synchronizeCategoriesFromMySQL(fry);
@@ -246,6 +255,9 @@ public class ConnectionManager {
             }
             FryFile fry = new FryFile.Split();
             fry.load(resp);
+            if(fry.size() < 1) {
+                return false;
+            }
             TasklistManager.synchronizeTasklistsFromMySQL(fry);
             return true;
         }

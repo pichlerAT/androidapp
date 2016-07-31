@@ -129,9 +129,9 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
             @Override
             public void onClick(View view) {
                 if (item.isDone())
-                    item.change(false);
+                    item.setState(false);
                 else
-                    item.change(true);
+                    item.setState(true);
                 notifyDataSetChanged();
             }
         });

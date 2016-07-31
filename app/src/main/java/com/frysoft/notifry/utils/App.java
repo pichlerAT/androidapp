@@ -103,23 +103,21 @@ public class App extends Application {
 
     public static void load() {
         Logger.Log("App", "load()");
-        try{
-            File file = new File(appContext.getFilesDir(),getFileName());
-            if(!file.exists()) {
-                return;
-            }
-
-            FryFile fry = new FryFile.Compact();
-            fry.load(file);
-
-            ContactList.readFrom(fry);
-            TasklistManager.readFrom(fry);
-            Timetable.readFrom(fry);
-            ConnectionManager.readFrom(fry);
-
-        }catch (IOException ex) {
-            ex.printStackTrace();
+        File file = new File(appContext.getFilesDir(),getFileName());
+        if(!file.exists()) {
+            return;
         }
+
+        FryFile fry = new FryFile.Compact();
+        if(!fry.load(file)) {
+            Logger.Log("App#load()","Could not load local file");
+            // TODO could not load local file
+        }
+
+        ContactList.readFrom(fry);
+        TasklistManager.readFrom(fry);
+        Timetable.readFrom(fry);
+        ConnectionManager.readFrom(fry);
     }
 
     public static void save() {
@@ -131,10 +129,9 @@ public class App extends Application {
         Timetable.writeTo(fry);
         ConnectionManager.writeTo(fry);
 
-        try {
-            fry.save(new File(App.appContext.getFilesDir(),getFileName()));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if(!fry.save(new File(App.appContext.getFilesDir(),getFileName()))) {
+            Logger.Log("App#save()","Could not save local file");
+            // TODO could not save local file
         }
     }
 
