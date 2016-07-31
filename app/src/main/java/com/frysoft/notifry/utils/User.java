@@ -6,12 +6,13 @@ import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.MySQL;
 import com.frysoft.notifry.data.NetworkStateReciever;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class User {
+
+    public static final String LOCAL = "local";
 
     //private static boolean veryfied = false;
 
@@ -19,7 +20,7 @@ public class User {
 
     private static int id;
 
-    private static String email = "local";
+    private static String email = LOCAL;
 
     private static String name;
 
@@ -30,7 +31,7 @@ public class User {
     }
 
     public static boolean isLocal() {
-        return email.equals("local");
+        return email.equals(LOCAL);
     }
 
     public static int getId() {
@@ -54,7 +55,7 @@ public class User {
         deleteLogin();
 
         id = 0;
-        email = "local";
+        email = LOCAL;
         name = null;
         password = null;
         online = false;

@@ -248,4 +248,25 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return id;
     }
 
+    public boolean[] getAdditions() {
+        boolean[] b = new boolean[16];
+        b[0] = (addition & REPEAT_MONDAY) > 1;
+        b[1] = (addition & REPEAT_TUESDAY) > 1;
+        b[2] = (addition & REPEAT_WEDNESDAY) > 1;
+        b[3] = (addition & REPEAT_THURSDAY) > 1;
+        b[4] = (addition & REPEAT_FRIDAY) > 1;
+        b[5] = (addition & REPEAT_SATURDAY) > 1;
+        b[6] = (addition & REPEAT_SUNNDAY) > 1;
+        b[7] = (addition & REPEAT_MONTHLY) > 1;
+        b[8] = (addition & REPEAT_ANNUALY) > 1;
+        b[9] = (addition & NOTIFY_SELF) > 1;
+        b[10] = (addition & NOTIFY_ALL) > 1;
+        b[11] = false;
+        b[12] = false;
+        b[13] = false;
+        b[14] = false;
+        b[15] = false;
+        return b;
+    }
+
 }

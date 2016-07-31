@@ -42,6 +42,8 @@ public abstract class FryFile {
 
     public abstract void write(int i);
 
+    public abstract void write(long l);
+
     public abstract void write(String s);
 
     public abstract void writeArrayLength(int length);
@@ -53,6 +55,12 @@ public abstract class FryFile {
     public abstract void write(final ArrayList<?> list);
 
     public abstract void write(final SearchableList<?> list);
+
+    public abstract void writeSigned(byte b);
+
+    public abstract void writeSigned(short s);
+
+    public abstract void writeSigned(int i);
 
     public boolean save(File file) {
         File dir = file.getParentFile();
@@ -320,6 +328,14 @@ public abstract class FryFile {
         }
 
         @Override
+        public void write(long l) {
+            /*
+            write((char) i);
+            write((char) (i >> 16));
+            */
+        }
+
+        @Override
         public void write(String str) {
             write((char) str.length());
             writeLine.append(str);
@@ -380,6 +396,22 @@ public abstract class FryFile {
             }
             writeLine.setCharAt(index, (char) length);
         }
+
+        @Override
+        public void writeSigned(byte b) {
+            write(b);
+        }
+
+        @Override
+        public void writeSigned(short s) {
+            write(s);
+        }
+
+        @Override
+        public void writeSigned(int i) {
+            write(i);
+        }
+
     }
 
 
@@ -533,6 +565,14 @@ public abstract class FryFile {
         }
 
         @Override
+        public void write(long l) {
+            /*
+            write((char) i);
+            write((char) (i >> 16));
+            */
+        }
+
+        @Override
         public void write(String s) {
             writeLine += s + splitString;
         }
@@ -561,6 +601,22 @@ public abstract class FryFile {
         public void write(SearchableList<?> list) {
 
         }
+
+        @Override
+        public void writeSigned(byte b) {
+            write((short)(b + (b < 0 ? 256 : 0)));
+        }
+
+        @Override
+        public void writeSigned(short s) {
+            write(s + (s < 0 ? 65536 : 0));
+        }
+
+        @Override
+        public void writeSigned(int i) {
+            write(i + (i < 0 ? 4294967296L : 0L));
+        }
+
     }
 
 }

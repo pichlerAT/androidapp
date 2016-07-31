@@ -56,8 +56,9 @@ public class TestFragment extends Fragment {
                     @Override
                     public void run() {
 
-                        System.out.println("#LOGOUT");
-                        User.logout();
+                        //System.out.println("#LOGOUT");
+                        //User.logout();
+                        User.register("fragner@fry-soft.com","Fry","zuerKsetoR");
 
                     }
 
