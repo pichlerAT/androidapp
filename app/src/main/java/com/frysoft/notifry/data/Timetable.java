@@ -176,4 +176,14 @@ public class Timetable {
         return null;
     }
 
+    public static TimetableCategory getCategoryByName(String name) {
+        Logger.Log("Timetable", "getCategoryByName(String)");
+        for(TimetableCategory cat : categories.getList()) {
+            if(cat.name.equals(name)) {
+                return cat;
+            }
+        }
+        return null;
+    }
+
 }
