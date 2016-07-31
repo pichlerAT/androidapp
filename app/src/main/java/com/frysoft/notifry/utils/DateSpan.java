@@ -51,7 +51,7 @@ public class DateSpan implements Fryable {
         this.time_start = new Time(Time.MIN_TIME);
         this.time_end = new Time((short)(Time.MAX_TIME - 1));
 
-        duration = 1440 * (date_end.getTotalDays() - date_start.getTotalDays() + 1);
+        duration = Time.MAX_TIME * (date_end.getTotalDays() - date_start.getTotalDays() + 1) - 1;
     }
 
     public DateSpan(Date date_start, Time time_start, Date date_end, Time time_end) {
