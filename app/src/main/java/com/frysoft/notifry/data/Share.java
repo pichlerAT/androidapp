@@ -32,7 +32,7 @@ public class Share extends Contact {
     @Override
     public boolean mysql_create() {
         Logger.Log("Share", "mysql_create()");
-        String resp = executeAndroid(getFileUrl()+"create.php", "&share_user_id=" + user_id + "&share_id=" + share_id + "&permission=" + permission);
+        String resp = executeMySQL(getFileUrl()+"create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(share_id) + "&permission=" + signed(permission));
         if(resp != null) {
             id = Integer.parseInt(resp);
             type = getType();
@@ -44,16 +44,13 @@ public class Share extends Contact {
     @Override
     public boolean mysql_update() {
         Logger.Log("Share", "mysql_update()");
-        return (executeAndroid(getFileUrl()+"update.php", "&share_id="+id+"&permission="+permission) != null);
+        return (executeMySQL(getFileUrl()+"update.php", "&id="+signed(id)+"&permission="+signed(permission)) != null);
     }
 
     @Override
     public boolean mysql_delete() {
         Logger.Log("Share", "mysql_delete()");
-        //if(share_id == 0) {     TODO Stefan: share delete_without_id.php needed?
-        //    return (executeAndroid(getFileUrl()+"delete_without_id.php", "&share_user_id="+user_id+"&share_id="+share_id) != null);
-        //}
-        return (executeAndroid(getFileUrl()+"delete.php", "&share_id="+id) != null);
+        return (executeMySQL(getFileUrl()+"delete.php", "&id="+signed(id)) != null);
     }
 
     @Override

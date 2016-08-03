@@ -13,12 +13,6 @@ public class ConnectionManager {
 
     protected static boolean PERFORM_UPDATE = false;
 
-    protected static boolean sync_contacts = false;
-
-    protected static boolean sync_calendar = false;
-
-    protected static boolean sync_tasklist = false;
-
     protected static Sync syncTask = new Sync();
 
     protected static MySQLListener mysql_listener;
@@ -30,7 +24,7 @@ public class ConnectionManager {
         mysql_listener = listener;
     }
 
-    protected static void add(MySQL entry) {
+    public static void add(MySQL entry) {
         Logger.Log("ConnectionManager", "add(MySQL)");
         if(entry.id == 0 || !hasEntry(entry.type, entry.id)) {
             entries.add(entry);
@@ -161,7 +155,10 @@ public class ConnectionManager {
         @Override
         protected String doInBackground(String... params) {
             Logger.Log("ConnectionManager$Sync", "doInBackground(String...)");
-            performUpdate();
+            if(PERFORM_UPDATE) {
+                PERFORM_UPDATE = !sync_all();
+            }
+
             int index = 0;
             while(index < entries.size()) {
                 if(entries.get(index).mysql()) {
@@ -180,31 +177,15 @@ public class ConnectionManager {
             syncTask = new Sync();
         }
 
-        protected void performUpdate() {
-            Logger.Log("ConnectionManager$Sync", "performUpdate()");
-            if(PERFORM_UPDATE) {
-                PERFORM_UPDATE = !sync_all();
-            }
-            if(sync_contacts) {
-                sync_contacts = !sync_contacts();
-            }
-            if(sync_calendar) {
-                sync_calendar = sync_calendar();
-            }
-            if(sync_tasklist) {
-                sync_tasklist = !sync_tasklist();
-            }
-        }
-
         protected boolean sync_all() {
             Logger.Log("ConnectionManager$Sync", "sync_all()");
-            String resp = MySQL.executeAndroid("request.php","");
+            String resp = MySQL.executeMySQL("get.php","");
             if(resp == null) {
                 return false;
             }
-            FryFile fry = new FryFile.Split();
+            FryFile fry = new FryFile.Split((char)0);
             fry.load(resp);
-            if(fry.size() < 7) {
+            if(fry.size() < 8) {
                 return false;
             }
 
@@ -215,60 +196,9 @@ public class ConnectionManager {
             Timetable.synchronizeSharesFromMySQL(fry);
             Timetable.synchronizeCategoriesFromMySQL(fry);
             Timetable.synchronizeEntriesFromMySQL(fry);
+            Tags.synchronizeFromMySQL(fry);
             return true;
         }
-
-        protected boolean sync_contacts() {
-            Logger.Log("ConnectionManager$Sync", "sync_contact()");
-            String resp = MySQL.executeAndroid(MySQL.DIR_CONTACT + "get.php","");
-            if(resp == null) {
-                return false;
-            }
-            FryFile fry = new FryFile.Split();
-            fry.load(resp);
-            if(fry.size() < 3) {
-                return false;
-            }
-
-            ContactList.synchronizeContactsFromMySQL(fry);
-            ContactList.synchronizeContactGroupsFromMySQL(fry);
-            ContactList.synchronizeContactRequestsFromMySQL(fry);
-            return true;
-        }
-
-        protected boolean sync_calendar() {
-            Logger.Log("ConnectionManager$Sync", "sync_calendar()");
-            String resp = MySQL.executeAndroid(MySQL.DIR_CALENDAR + "request.php","");
-            if(resp == null) {
-                return false;
-            }
-            FryFile fry = new FryFile.Split();
-            fry.load(resp);
-            if(fry.size() < 3) {
-                return false;
-            }
-
-            Timetable.synchronizeSharesFromMySQL(fry);
-            Timetable.synchronizeCategoriesFromMySQL(fry);
-            Timetable.synchronizeEntriesFromMySQL(fry);
-            return true;
-        }
-
-        protected boolean sync_tasklist() {
-            Logger.Log("ConnectionManager$Sync", "sync_tasklist()");
-            String resp = MySQL.executeAndroid(MySQL.DIR_TASKLIST + "request.php","");
-            if(resp == null) {
-                return false;
-            }
-            FryFile fry = new FryFile.Split();
-            fry.load(resp);
-            if(fry.size() < 1) {
-                return false;
-            }
-            TasklistManager.synchronizeTasklistsFromMySQL(fry);
-            return true;
-        }
-
     }
 
 }

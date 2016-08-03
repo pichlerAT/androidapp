@@ -42,6 +42,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
 
         TimetableEntry ent;
+
+        if(description.isEmpty()) {
+            description = FryFile.Split.emptyString;
+        }
+
         short addition = 0;
 
         for(short a : additions) {
@@ -118,9 +123,9 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableEntry", "mysql_create()");
-        String resp = executeAndroid(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + category_id + "&title=" + title + "&description=" + description
-                + "&date_start=" + span.getDateStart().getShort() + "&time_start=" + span.getTimeStart().time + "&duration=" + span.getDuration()
-                + "&addition="+addition + "&color=" + color);
+        String resp = executeMySQL(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + signed(category_id) + "&title=" + title + "&description=" + description
+                + "&date_start=" + signed(span.getDateStart().getShort()) + "&time_start=" + signed(span.getTimeStart().time) + "&duration=" + signed(span.getDuration())
+                + "&addition="+signed(addition) + "&color=" + signed(color));
         if(resp != null) {
             id = Integer.parseInt(resp);
 
@@ -135,15 +140,15 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableEntry", "mysql_update()");
-        return (executeAndroid(DIR_CALENDAR_ENTRY + "update.php", "&id=" + id + "&category_id=" + category_id + "&title=" + title + "&description=" + description
-                + "&date_start=" + span.getDateStart().getShort() + "&time_start=" + span.getTimeStart().time + "&duration=" + span.getDuration()
-                + "&addition="+addition + "&color=" + color) != null);
+        return (executeMySQL(DIR_CALENDAR_ENTRY + "update.php", "&id=" + signed(id) + "&category_id=" + signed(category_id) + "&title=" + title + "&description=" + description
+                + "&date_start=" + signed(span.getDateStart().getShort()) + "&time_start=" + signed(span.getTimeStart().time) + "&duration=" + signed(span.getDuration())
+                + "&addition="+signed(addition) + "&color=" + signed(color)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableEntry", "mysql_delete()");
-        return (executeAndroid(DIR_CALENDAR_ENTRY+  "delete.php", "&id=" + id) != null);
+        return (executeMySQL(DIR_CALENDAR_ENTRY+  "delete.php", "&id=" + signed(id)) != null);
     }
 
     @Override
@@ -183,7 +188,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     public boolean isWholeDay() {
-        return (span.getDateStart().equals(span.getDateEnd()) && span.getTimeStart().time == Time.MIN_TIME && span.getTimeEnd().time == (Time.MAX_TIME - 1));
+        return (/*span.getDateStart().equals(span.getDateEnd()) && */span.getTimeStart().time == Time.MIN_TIME && span.getTimeEnd().time == (Time.MAX_TIME - 1));
     }
 
     public void setTitle(String title) {
@@ -193,7 +198,13 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public void set(String title, String description, DateSpan span, TimetableCategory category, int color, short... additions) {
         this.title = title;
-        this.description = description;
+
+        if(description.isEmpty()) {
+            this.description = FryFile.Split.emptyString;
+        }else {
+            this.description = description;
+        }
+
         this.span = span.copy();
         this.color = color;
 
@@ -222,6 +233,9 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public String getDescription() {
         Logger.Log("TimetableEntry", "getDescription()");
+        if(description.equals(FryFile.Split.emptyString)) {
+            return "";
+        }
         return description;
     }
 
@@ -250,16 +264,16 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     public boolean[] getAdditions() {
         boolean[] b = new boolean[16];
-        b[0] = (addition & REPEAT_MONDAY) > 1;
-        b[1] = (addition & REPEAT_TUESDAY) > 1;
-        b[2] = (addition & REPEAT_WEDNESDAY) > 1;
-        b[3] = (addition & REPEAT_THURSDAY) > 1;
-        b[4] = (addition & REPEAT_FRIDAY) > 1;
-        b[5] = (addition & REPEAT_SATURDAY) > 1;
-        b[6] = (addition & REPEAT_SUNNDAY) > 1;
-        b[7] = (addition & REPEAT_MONTHLY) > 1;
-        b[8] = (addition & REPEAT_ANNUALY) > 1;
-        b[9] = (addition & NOTIFY_SELF) > 1;
+        b[0] =  (addition & REPEAT_MONDAY) > 1;
+        b[1] =  (addition & REPEAT_TUESDAY) > 1;
+        b[2] =  (addition & REPEAT_WEDNESDAY) > 1;
+        b[3] =  (addition & REPEAT_THURSDAY) > 1;
+        b[4] =  (addition & REPEAT_FRIDAY) > 1;
+        b[5] =  (addition & REPEAT_SATURDAY) > 1;
+        b[6] =  (addition & REPEAT_SUNNDAY) > 1;
+        b[7] =  (addition & REPEAT_MONTHLY) > 1;
+        b[8] =  (addition & REPEAT_ANNUALY) > 1;
+        b[9] =  (addition & NOTIFY_SELF) > 1;
         b[10] = (addition & NOTIFY_ALL) > 1;
         b[11] = false;
         b[12] = false;

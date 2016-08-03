@@ -71,7 +71,7 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_create() {
         Logger.Log("ContactGroup", "mysql_create()");
-        String resp = executeAndroid(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
+        String resp = executeMySQL(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -82,13 +82,13 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_update() {
         Logger.Log("ContactGroup", "mysql_update()");
-        return (executeAndroid(DIR_CONTACT_GROUP+"update.php", "&share_id="+id+"&name="+name+"&contacts="+getContactsString()) != null);
+        return (executeMySQL(DIR_CONTACT_GROUP+"update.php", "&id="+signed(id)+"&name="+name+"&contacts="+getContactsString()) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("ContactGroup", "mysql_delete()");
-        return (executeAndroid(DIR_CONTACT_GROUP+"delete.php", "&share_id="+id) != null);
+        return (executeMySQL(DIR_CONTACT_GROUP+"delete.php", "&id="+signed(id)) != null);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ContactGroup extends MySQLEntry {
         Logger.Log("ContactGroup", "getContactsString()");
         String s = "" + contacts.size();
         for(Contact c : contacts) {
-            s += S + c.user_id ;
+            s += S + signed(c.user_id) ;
         }
         return s;
     }

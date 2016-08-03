@@ -15,7 +15,12 @@ import com.frysoft.notifry.utils.User;
 
 public abstract class MySQL implements Fryable {
 
-    public static final String ADDRESS = "http://www.notifry.com/android/";
+    public static final String ADDRESS = "http://www.notifry.com/notifry/";
+
+    public static final String ADR_MYSQL                    = ADDRESS               + "mysql/"    ;
+    public static final String ADR_REGISTER                 = ADDRESS               + "register/" ;
+    public static final String ADR_USER                     = ADDRESS               + "user/"     ;
+    public static final String ADR_USER_CHANGE              = ADR_USER              + "change/"   ;
 
     public static final String DIR_TASKLIST                 =                         "tasklist/" ;
     public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"    ;
@@ -29,12 +34,11 @@ public abstract class MySQL implements Fryable {
     public static final String DIR_CALENDAR_CATEGORY_SHARE  = DIR_CALENDAR_CATEGORY + "share/"    ;
     public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"    ;
     public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"    ;
+    public static final String DIR_TAG                      =                         "tag/"      ;
 
     public static final String S = "" + (char)0;
 
-    //public static int USER_ID = 1;
-    //public static String USER_EMAIL = "stefan.fragner@rk.at";
-    //public static String USER_PASSWORD = "1234";
+    private static String UserIdAndPassword = "";
 
 
     public static final char BASETYPE           = 0x000F;
@@ -65,25 +69,36 @@ public abstract class MySQL implements Fryable {
 
     public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
 
+    public static final char TYPE_TAG               = 0x1000;
+
     public static String execute(String addr, String data) {
         Logger.Log("MySQL", "execute(String,String)");
         try {
             URL url = new URL(addr);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
+            //con.setRequestProperty("Content-Type", "text/plain; charset=utf-8");
 
-            os.write(data);
-            os.flush();
+            //if(!data.isEmpty()) {
+
+                //con.setRequestMethod("POST");
+                con.setDoOutput(true);
+                OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
+                os.write(data);
+                os.flush();
+                //os.close();
+            //}
+
             con.connect();
 
             BufferedReader br;
             try {
                 br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
             }catch(FileNotFoundException ex) {
-                ex.printStackTrace();
+                //ex.printStackTrace();
                 br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
                 System.out.println("------------------------");
+                System.out.println(con.getResponseCode());
                 System.out.println("addr = "+addr);
                 System.out.println("------------------------");
                 String line;
@@ -120,70 +135,31 @@ public abstract class MySQL implements Fryable {
         }
     }
 
-    public static String executeAndroid(String addr, String data) {
-        Logger.Log("MySQL", "executeAndroid(String,String)");
-        String resp = execute(ADDRESS + addr, "user_id=" + User.getId() + "&password=" + User.getPassword() + data);
+    public static String executeMySQL(String addr, String data) {
+        Logger.Log("MySQL", "executeMySQL(String,String)");
+        String resp = execute(ADR_MYSQL + addr, UserIdAndPassword + data);
 
         if(resp != null && resp.length()>3 && resp.substring(0,4).equals("err_")) {
             return null;
         }
 
         return resp;
-        /*
-        try {
-            URL url = new URL(ADDRESS + addr);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            OutputStreamWriter os = new OutputStreamWriter(con.getOutputStream());
+    }
 
-            os.write("user_id=" + USER_ID + "&password=" + USER_PASSWORD + data);
-            os.flush();
-            con.connect();
+    public static void setLoginData(int user_id, String password) {
+        UserIdAndPassword = "user_id=" + signed(user_id) + "&password=" + password;
+    }
 
-            BufferedReader br;
-            try {
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            }catch(FileNotFoundException ex) {
-                ex.printStackTrace();
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                System.out.println("------------------------");
-                System.out.println("addr = "+addr);
-                System.out.println("------------------------");
-                String line;
-                while((line=br.readLine())!=null) {
-                    System.out.println(line);
-                    System.out.println("------------------------");
-                }
-                return null;
-            }
-            String line=br.readLine();
+    public static String signed(byte b) {
+        return ("" + (b + (b < 0 ? 256 : 0)));
+    }
 
-            if(line == null) {
-                return "";
-            }
-            if(line.length()>3 && line.substring(0,4).equals("err_")) {
-                return null;
-            }
-            if(line.contains("<br")) {
-                System.out.println(line);
-                String newLine;
-                while((newLine=br.readLine())!=null) {
-                    System.out.println(newLine);
-                }
-                return null;
-            }
+    public static String signed(short s) {
+        return ("" + (s + (s < 0 ? 65536 : 0)));
+    }
 
-            br.close();
-            os.close();
-            con.disconnect();
-
-            return line;
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        */
+    public static String signed(int i) {
+        return ("" + (i + (i < 0 ? 4294967296L : 0L)));
     }
 
 

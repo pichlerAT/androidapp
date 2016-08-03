@@ -20,13 +20,16 @@ import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.ContactList;
 import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.data.NetworkStateReciever;
+import com.frysoft.notifry.data.Tags;
 import com.frysoft.notifry.data.TasklistManager;
 import com.frysoft.notifry.data.Timetable;
 import com.frysoft.notifry.data.Updater;
 
 public class App extends Application {
 
-    private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
+    public static final char SAVE_FILE_VERSION = 1;
+
+    private static char saveFileVersion = 0;
 
     public static boolean hasInternetConnection = false;
 
@@ -53,9 +56,6 @@ public class App extends Application {
         User.loadLogin();
         loadData();
         NetworkStateReciever.checkInternet();
-
-        System.out.println("##### "+User.getEmail());
-        System.out.println("##### "+User.isOnline());
     }
 
     public static Context getContext() {
@@ -80,21 +80,6 @@ public class App extends Application {
         ConnectionManager.setMySQLListener(mysql_Listener);
     }
 
-    public static void errorDialog(String title,String message) {
-        Logger.Log("App", "errorDialog(String,String)");
-        new AlertDialog.Builder(mContext)
-                .setTitle(title)
-                .setMessage(message)
-                .setNeutralButton(R.string.error_message_neutral_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .create()
-                .show();
-    }
-
     public static void onPause() {
         Logger.Log("App", "onPause()");
         isAppActive = false;
@@ -117,6 +102,7 @@ public class App extends Application {
         }
 
         ContactList.readFrom(fry);
+        Tags.static_readFrom(fry);
         TasklistManager.readFrom(fry);
         Timetable.readFrom(fry);
         ConnectionManager.readFrom(fry);
@@ -130,17 +116,11 @@ public class App extends Application {
 
         FileInputStream inputStream;
         try {
-            inputStream = appContext.openFileInput(getFileName());
+            inputStream = appContext.openFileInput(User.getFileName());
         }catch(FileNotFoundException ex) {
             ex.printStackTrace();
             return getLocalFryFile();
         }
-        /*
-        File file = new File(appContext.getFilesDir(),getFileName());
-        if(!file.exists()) {
-            return getLocalFryFile();
-        }
-        */
 
         FryFile fry = new FryFile.Compact();
         if(!fry.load(inputStream)) {
@@ -149,27 +129,30 @@ public class App extends Application {
             return getLocalFryFile();
         }
 
-        String email = fry.getDecoded(CODE, 0);
-        if(!email.equals(User.getEmail())) {
-            return getLocalFryFile();
+        saveFileVersion = fry.getChar();
+
+        if(User.decode(fry)) {
+
+            System.out.println("Fry-Soft: Succesfully loaded user data");
+            System.out.println("Fry-Soft: email = "+User.getEmail());
+
+            return fry;
         }
 
-        String password = fry.getDecoded(CODE, email.length());
-        if(!password.equals(User.getPassword())) {
-            return getLocalFryFile();
-        }
-
-        return fry;
+        return getLocalFryFile();
     }
 
     protected static FryFile getLocalFryFile() {
-        //File file = new File(appContext.getFilesDir(),getFileName());
-        //if(file.exists()) {
         try {
-            FileInputStream inputStream = appContext.openFileInput(getFileName());
+            FileInputStream inputStream = appContext.openFileInput(User.getFileName());
 
             FryFile fry = new FryFile.Compact();
             if (fry.load(inputStream)) {
+
+                saveFileVersion = fry.getChar();
+
+                System.out.println("Fry-Soft: Succesfully loaded local data");
+
                 return fry;
             }
         }catch (FileNotFoundException ex) {
@@ -182,23 +165,24 @@ public class App extends Application {
         Logger.Log("App", "saveData()");
         FryFile fry = new FryFile.Compact();
 
+        fry.write(SAVE_FILE_VERSION);
 
         if(User.isLocal()) {
             User.deleteLogin();
 
         }else {
             User.saveLogin();
-            fry.writeEncoded(User.getEmail(), CODE, 0);
-            fry.writeEncoded(User.getPassword(), CODE, User.getEmail().length());
+            User.encode(fry);
         }
 
         ContactList.writeTo(fry);
+        Tags.static_writeTo(fry);
         TasklistManager.writeTo(fry);
         Timetable.writeTo(fry);
         ConnectionManager.writeTo(fry);
 
         try {
-            FileOutputStream outputStream = appContext.openFileOutput(getFileName(), Context.MODE_PRIVATE);
+            FileOutputStream outputStream = appContext.openFileOutput(User.getFileName(), Context.MODE_PRIVATE);
             if (!fry.save(outputStream)) {
                 Logger.Log("App#save()", "Could not save local file: FryFile.save() = false");
                 // TODO could not save local file
@@ -211,9 +195,19 @@ public class App extends Application {
         }
     }
 
-    public static String getFileName() {
-        Logger.Log("App", "getFileName()");
-        return User.getEmail() + ".fry";
+    public static void errorDialog(String title,String message) {
+        Logger.Log("App", "errorDialog(String,String)");
+        new AlertDialog.Builder(mContext)
+                .setTitle(title)
+                .setMessage(message)
+                .setNeutralButton(R.string.error_message_neutral_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create()
+                .show();
     }
 
     public static int pixelToDPScale(int dp){

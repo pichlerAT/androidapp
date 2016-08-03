@@ -52,6 +52,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
             if(App.hasInternetConnection) {
                 if(!User.isLocal() && !User.isOnline()) {
+
                     User.logon();
                 }
 

@@ -98,6 +98,17 @@ public class Date implements Fryable {
         return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
     }
 
+    public Date getNextDay() {
+        int dom = getDaysOfMonth();
+        if(day == dom) {
+            if(month == 12) {
+                return new Date(1, 1, year + 1);
+            }
+            return new Date(1, month + 1, year);
+        }
+        return new Date(day + 1, month, year);
+    }
+
     public void addDays(int days) {
         Logger.Log("Date", "addDays(int)");
         day += days;

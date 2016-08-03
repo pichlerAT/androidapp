@@ -91,7 +91,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("Tasklist", "mysql_create()");
-        String resp = executeAndroid(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + state + "$color=" + color);
+        String resp = executeMySQL(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color));
         if(resp != null) {
             id = Integer.parseInt(resp);
             shares = new ShareList(TYPE_TASKLIST, id);
@@ -106,13 +106,13 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("Tasklist", "mysql_update()");
-        return (executeAndroid(DIR_TASKLIST + "update.php", "&share_id=" + id + "&name=" + name + "&state=" + state + "$color=" + color) != null);
+        return (executeMySQL(DIR_TASKLIST + "update.php", "&share_id=" + signed(id) + "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("Tasklist", "mysql_delete()");
-        return (executeAndroid(DIR_TASKLIST + "delete.php", "&share_id=" + id) != null);
+        return (executeMySQL(DIR_TASKLIST + "delete.php", "&share_id=" + signed(id)) != null);
     }
 
     @Override

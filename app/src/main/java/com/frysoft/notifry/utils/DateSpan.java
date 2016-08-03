@@ -1,5 +1,7 @@
 package com.frysoft.notifry.utils;
 
+import java.util.ArrayList;
+
 public class DateSpan implements Fryable {
 
     protected int duration;
@@ -98,6 +100,16 @@ public class DateSpan implements Fryable {
     public int getDuration() {
         Logger.Log("DateSpan", "getDuration()");
         return duration;
+    }
+
+    public ArrayList<Date> getDates() {
+        ArrayList<Date> dates = new ArrayList<>(duration / 1440);
+
+        for(Date lastDate = date_start.copy(); lastDate.isGreaterEqualThen(date_end); lastDate = lastDate.getNextDay()) {
+            dates.add(lastDate);
+        }
+
+        return dates;
     }
 
     public boolean isInsideSpan(Date date) {

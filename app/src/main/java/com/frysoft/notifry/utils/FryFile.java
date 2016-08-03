@@ -62,6 +62,8 @@ public abstract class FryFile {
 
     public abstract void writeSigned(int i);
 
+    public abstract String getWrittenString();
+
     public boolean save(File file) {
         File dir = file.getParentFile();
         if(!dir.exists() && !dir.mkdirs()) {
@@ -229,7 +231,6 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
-                ex.printStackTrace();
                 return false;
             }
         }
@@ -257,7 +258,6 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
-                ex.printStackTrace();
                 return false;
             }
         }
@@ -329,10 +329,10 @@ public abstract class FryFile {
 
         @Override
         public void write(long l) {
-            /*
-            write((char) i);
-            write((char) (i >> 16));
-            */
+            write((char) l);
+            write((char) (l >> 16));
+            write((char) (l >> 32));
+            write((char) (l >> 48));
         }
 
         @Override
@@ -412,15 +412,22 @@ public abstract class FryFile {
             write(i);
         }
 
+        @Override
+        public String getWrittenString() {
+            return writeLine.toString();
+        }
+
     }
 
 
 
     public static class Split extends FryFile {
 
-        public static final String DEFAULT_SPLIT_STRING = "" + (char)0;
+        //public static final String DEFAULT_SPLIT_STRING = "" + (char)0;
 
-        protected String splitString;
+        public static final String emptyString = "" + (char)0;
+
+        protected final String splitString;
 
         protected int readIndex = 0;
 
@@ -428,12 +435,18 @@ public abstract class FryFile {
 
         protected String writeLine = "";
 
+        /*
         public Split() {
             splitString = DEFAULT_SPLIT_STRING;
         }
+        */
 
         public Split(String splitString) {
             this.splitString = splitString;
+        }
+
+        public Split(char splitChar) {
+            this("" + splitChar);
         }
 
         @Override
@@ -445,7 +458,6 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
-                ex.printStackTrace();
                 return false;
             }
         }
@@ -460,16 +472,26 @@ public abstract class FryFile {
                 String bufferString = "";
                 readLine = new ArrayList<>(100);
 
+                char[] split = splitString.toCharArray();
+                int matches = 0;
+
                 while ((bred = is.read(buffer)) != -1) {
                     for (int k = 0; k < bred; ++k) {
 
-                        if(buffer[k] == 0) {
-                            readLine.add(bufferString);
-                            bufferString = "";
+                        if(bufferString.length() > 0 && buffer[k] == split[matches]) {
+                            matches++;
 
                         }else {
                             bufferString += buffer[k];
+                            matches = 0;
                         }
+
+                        if(matches == split.length) {
+                            matches = 0;
+                            readLine.add(bufferString);
+                            bufferString = "";
+                        }
+
                     }
                 }
                 readLine.add(bufferString);
@@ -480,7 +502,6 @@ public abstract class FryFile {
 
                 return true;
             } catch(IOException ex) {
-                ex.printStackTrace();
                 return false;
             }
         }
@@ -490,17 +511,28 @@ public abstract class FryFile {
             String bufferString = "";
             readLine = new ArrayList<>(100);
 
+            char[] split = splitString.toCharArray();
+            int matches = 0;
+
             for (int k = 0; k < str.length(); ++k) {
                 char c = str.charAt(k);
 
-                if(c == 0) {
-                    readLine.add(bufferString);
-                    bufferString = "";
+                if(bufferString.length() > 0 && c == split[matches]) {
+                    matches++;
 
                 }else {
                     bufferString += c;
+                    matches = 0;
                 }
+
+                if(matches == split.length) {
+                    matches = 0;
+                    readLine.add(bufferString);
+                    bufferString = "";
+                }
+
             }
+            readLine.add(bufferString);
 
             readLine.trimToSize();
 
@@ -537,9 +569,14 @@ public abstract class FryFile {
 
         @Override
         public String getString() {
-            return readLine.get(readIndex++);
+            String s = readLine.get(readIndex++);
+            if(s.equals(emptyString)) {
+                return "";
+            }
+            return s;
         }
 
+        @Override
         public int getArrayLength() {
             return getInt();
         }
@@ -566,14 +603,14 @@ public abstract class FryFile {
 
         @Override
         public void write(long l) {
-            /*
-            write((char) i);
-            write((char) (i >> 16));
-            */
+            write("" + l);
         }
 
         @Override
         public void write(String s) {
+            if(s.isEmpty()) {
+                s += emptyString;
+            }
             writeLine += s + splitString;
         }
 
@@ -615,6 +652,17 @@ public abstract class FryFile {
         @Override
         public void writeSigned(int i) {
             write(i + (i < 0 ? 4294967296L : 0L));
+        }
+
+        @Override
+        public String getWrittenString() {
+            return writeLine;
+        }
+
+        public Compact getCompact() {
+            Compact comp = new Compact();
+            comp.load(readLine.get(readIndex++));
+            return comp;
         }
 
     }

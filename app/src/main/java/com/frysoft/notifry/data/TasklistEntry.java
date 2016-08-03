@@ -52,7 +52,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TasklistEntry", "mysql_create()");
-        String resp = executeAndroid(DIR_TASKLIST_ENTRY + "create.php","&table_id="+table_id+"&description="+description+"&state="+state);
+        String resp = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(table_id)+"&description="+description+"&state="+signed(state));
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -63,13 +63,13 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TasklistEntry", "mysql_update()");
-        return (executeAndroid(DIR_TASKLIST_ENTRY + "update.php","&share_id="+id+"&description="+description+"&state="+state) != null);
+        return (executeMySQL(DIR_TASKLIST_ENTRY + "update.php","&share_id="+signed(id)+"&description="+description+"&state="+signed(state)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TasklistEntry", "mysql_delete()");
-        return (executeAndroid(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+id) != null);
+        return (executeMySQL(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+signed(id)) != null);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         }
     }
 
-    public void setDescription(String description,boolean state) {
+    public void setDescription(String description, boolean state) {
         Logger.Log("TasklistEntry", "setDescription(String,boolean)");
         this.description = description;
         if(table_id != 0) {
