@@ -93,6 +93,16 @@ public class Date implements Fryable {
         return (getShort() >= date.getShort());
     }
 
+    public boolean isBetween(Date start, Date end) {
+        short date = getShort();
+        return (date > start.getShort() && date < end.getShort());
+    }
+
+    public boolean isInBetween(Date start, Date end) {
+        short date = getShort();
+        return (date >= start.getShort() && date <= end.getShort());
+    }
+
     public short getShort() {
         Logger.Log("Date", "getShort()");
         return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
@@ -206,6 +216,10 @@ public class Date implements Fryable {
         return new Date(day, month, year);
     }
 
+    public int getWeekOfYear() {
+        return (getFirstDayOfWeek(new Date(1, 1, year)).getDaysUntil(this) / 7 + 1);
+    }
+
     public static boolean isLeapYear(int year) {
         Logger.Log("Date", "isLeapYear(int)");
         return ((year % 4) == 0);
@@ -311,6 +325,10 @@ public class Date implements Fryable {
 
     public static Date getFirstDayOfWeek(Date date) {
         return date.getFirstDayOfWeek();
+    }
+
+    public static int getWeekOfYear(Date date) {
+        return date.getWeekOfYear();
     }
 
 }
