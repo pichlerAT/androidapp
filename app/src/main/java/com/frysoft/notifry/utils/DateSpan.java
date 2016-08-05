@@ -105,7 +105,7 @@ public class DateSpan implements Fryable {
     public ArrayList<Date> getDates() {
         ArrayList<Date> dates = new ArrayList<>(duration / 1440);
 
-        for(Date lastDate = date_start.copy(); lastDate.isGreaterEqualThen(date_end); lastDate = lastDate.getNextDay()) {
+        for(Date lastDate = date_start.copy(); lastDate.isSmallerEqualThen(date_end); lastDate = lastDate.getNextDay()) {
             dates.add(lastDate);
         }
 

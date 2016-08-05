@@ -111,20 +111,42 @@ public class Date implements Fryable {
 
     public void addDays(int days) {
         Logger.Log("Date", "addDays(int)");
+        if(days < 0) {
+            subtractDays(-days);
+        }
+
         day += days;
+
         int dom = getDaysOfMonth();
-        while( day > dom || month > 12) {
+        while(day > dom) {
+
+            day -= dom;
+            month++;
+
             if(month > 12) {
-                day -= 31;
                 month = 1;
-                year++;
-                dom = getDaysOfMonth();
+                year ++;
             }
-            if(day > dom) {
-                day -= dom;
-                month++;
-                dom = getDaysOfMonth();
+
+            dom = getDaysOfMonth();
+        }
+    }
+
+    public void subtractDays(int days) {
+        if(days < 0) {
+            addDays(-days);
+        }
+
+        day -= days;
+
+        while(day < 1) {
+            month--;
+            if(month < 1) {
+                month = 12;
+                year--;
             }
+
+            day += getDaysOfMonth();
         }
     }
 
@@ -171,6 +193,12 @@ public class Date implements Fryable {
     public String getWeekdayName() {
         Logger.Log("Date", "getWeekdayName()");
         return getWeekdayName(getDayOfWeek());
+    }
+
+    public Date getFirstDayOfWeek() {
+        Date date = new Date(day, month, year);
+        date.subtractDays(getDayOfWeek());
+        return date;
     }
 
     public Date copy() {
@@ -279,6 +307,10 @@ public class Date implements Fryable {
             case 12: return App.getContext().getResources().getString(R.string.month_dec);
             default: return "";
         }
+    }
+
+    public static Date getFirstDayOfWeek(Date date) {
+        return date.getFirstDayOfWeek();
     }
 
 }
