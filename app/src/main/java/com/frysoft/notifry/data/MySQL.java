@@ -30,8 +30,8 @@ public abstract class MySQL implements Fryable {
     public static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"  ;
     public static final String DIR_CALENDAR                 =                         "calendar/" ;
     public static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"    ;
-    public static final String DIR_CALENDAR_CATEGORY        = DIR_CALENDAR          + "category/" ;
-    public static final String DIR_CALENDAR_CATEGORY_SHARE  = DIR_CALENDAR_CATEGORY + "share/"    ;
+    public static final String DIR_CATEGORY                 =                         "category/" ;
+    public static final String DIR_CATEGORY_SHARE           = DIR_CATEGORY          + "share/"    ;
     public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"    ;
     public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"    ;
     public static final String DIR_TAG                      =                         "tag/"      ;

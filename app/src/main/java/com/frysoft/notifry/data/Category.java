@@ -71,7 +71,7 @@ public class Category extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableCategory", "mysql_create()");
-        String resp = executeMySQL(DIR_CALENDAR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
+        String resp = executeMySQL(DIR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
         if(resp != null) {
             id = Integer.parseInt(resp);
             shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
@@ -89,13 +89,13 @@ public class Category extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableCategory", "mysql_update()");
-        return (executeMySQL(DIR_CALENDAR_CATEGORY + "update.php", "&share_id=" + signed(id) + "&name=" + name + "&color=" + signed(color)) != null);
+        return (executeMySQL(DIR_CATEGORY + "update.php", "&share_id=" + signed(id) + "&name=" + name + "&color=" + signed(color)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TimetableCategory", "mysql_delete()");
-        return (executeMySQL(DIR_CALENDAR_CATEGORY + "delete.php", "&share_id=" + signed(id)) != null);
+        return (executeMySQL(DIR_CATEGORY + "delete.php", "&share_id=" + signed(id)) != null);
     }
 
     @Override

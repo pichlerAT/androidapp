@@ -153,7 +153,7 @@ public class Share extends Contact {
                 return DIR_CALENDAR_SHARE;
 
             case TYPE_CALENDAR_CATEGORY:
-                return DIR_CALENDAR_CATEGORY_SHARE;
+                return DIR_CATEGORY_SHARE;
 
             case TYPE_CALENDAR_ENTRY:
                 return DIR_CALENDAR_ENTRY_SHARE;
