@@ -7,7 +7,7 @@ import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
 
-public class TimetableCategory extends MySQLEntry implements Fryable {
+public class Category extends MySQLEntry implements Fryable {
 
     protected String name;
 
@@ -17,15 +17,15 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
 
     public ShareList shares;
 
-    public static TimetableCategory create(String name, int color) {
+    public static Category create(String name, int color) {
         Logger.Log("TimetableCategory", "create(String)");
-        TimetableCategory cat = new TimetableCategory(0, User.getId(), name, color);
+        Category cat = new Category(0, User.getId(), name, color);
         cat.create();
         Timetable.categories.add(cat);
         return cat;
     }
 
-    protected TimetableCategory(FryFile fry) {
+    protected Category(FryFile fry) {
         super(fry);
         Logger.Log("TimetableCategory", "TimetableCategory(FryFile)");
         name = fry.getString();
@@ -41,7 +41,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
         }
     }
 
-    protected TimetableCategory(int id,int user_id,String name, int color) {
+    protected Category(int id, int user_id, String name, int color) {
         super(TYPE_CALENDAR_CATEGORY, id, user_id);
         Logger.Log("TimetableCategory", "TimetableCategory(int,int,String)");
         this.name = name;
@@ -55,17 +55,17 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     @Override
     public boolean equals(Object o) {
         Logger.Log("TimetableCategory", "equals(Object)");
-        if(o instanceof TimetableCategory) {
-            TimetableCategory c = (TimetableCategory) o;
+        if(o instanceof Category) {
+            Category c = (Category) o;
             return (c.id == id && c.name.equals(name) && color == c.color);
         }
         return false;
     }
 
     @Override
-    public TimetableCategory backup() {
+    public Category backup() {
         Logger.Log("TimetableCategory", "backup()");
-        return new TimetableCategory(id, user_id, name, color);
+        return new Category(id, user_id, name, color);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
             shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
 
             for(TimetableEntry ent : offline_entries) {
-                ent.category_id = id;
+                ent.category = this;
                 ent.create();
             }
             offline_entries = new ArrayList<>();
@@ -101,7 +101,7 @@ public class TimetableCategory extends MySQLEntry implements Fryable {
     @Override
     protected void synchronize(MySQL mysql) {
         Logger.Log("TimetableCategory", "synchronize(MySQL)");
-        TimetableCategory c = (TimetableCategory) mysql;
+        Category c = (Category) mysql;
         name = c.name;
         color = c.color;
     }

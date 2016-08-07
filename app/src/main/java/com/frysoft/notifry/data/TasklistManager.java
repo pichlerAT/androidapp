@@ -43,7 +43,7 @@ public class TasklistManager {
             int NoEntries = fry.getArrayLength();
             for(int k=0; k<NoEntries; ++k) {
                 TasklistEntry ent = new TasklistEntry(fry.getInt(), fry.getInt(), fry.getByte(), tl.id, fry.getString());
-                if(!ConnectionManager.hasEntry((char)(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE), ent.id)) {
+                if(!ConnectionManager.hasEntry(ent, (char)(MySQL.TYPE_TASKLIST_ENTRY | MySQL.BASETYPE_DELETE))) {
                     tl.entries.add(ent);
                 }
             }

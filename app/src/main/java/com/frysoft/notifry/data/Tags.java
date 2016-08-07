@@ -162,7 +162,7 @@ public class Tags extends MySQL {
             additions |= addition;
         }
 
-        public void setCategory(TimetableCategory category) {
+        public void setCategory(Category category) {
             category_id = category.id;
         }
 
@@ -239,7 +239,7 @@ public class Tags extends MySQL {
             b[3] =  (additions & TimetableEntry.REPEAT_THURSDAY) > 1;
             b[4] =  (additions & TimetableEntry.REPEAT_FRIDAY) > 1;
             b[5] =  (additions & TimetableEntry.REPEAT_SATURDAY) > 1;
-            b[6] =  (additions & TimetableEntry.REPEAT_SUNNDAY) > 1;
+            b[6] =  (additions & TimetableEntry.REPEAT_SUNDAY) > 1;
             b[7] =  (additions & TimetableEntry.REPEAT_MONTHLY) > 1;
             b[8] =  (additions & TimetableEntry.REPEAT_ANNUALY) > 1;
             b[9] =  (additions & TimetableEntry.NOTIFY_SELF) > 1;
@@ -252,7 +252,7 @@ public class Tags extends MySQL {
             return b;
         }
 
-        public TimetableCategory getCategory() {
+        public Category getCategory() {
             if(category_id == 0) {
                 return null;
             }

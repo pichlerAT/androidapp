@@ -27,14 +27,6 @@ import com.frysoft.notifry.data.Updater;
 
 public class App extends Application {
 
-    public static final char SAVE_FILE_VERSION = 1;
-
-    private static char saveFileVersion = 0;
-
-    public static boolean hasInternetConnection = false;
-
-    public static boolean isAppActive = true;
-
     protected static Context mContext;
 
     protected static Context appContext;
@@ -48,13 +40,13 @@ public class App extends Application {
         appContext = this;
 
         // -----------------------------------------------------
-        // TODO these two lines are for the test versions only !
+        // TODO DEVLOG: these two lines are for the test versions only !
         defaultEH = new AlphaExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(defaultEH);
         // -----------------------------------------------------
 
         User.loadLogin();
-        loadData();
+        Utils.loadData();
         NetworkStateReciever.checkInternet();
     }
 
@@ -75,124 +67,16 @@ public class App extends Application {
         }
     }
 
-    public static void setMySQLListener(MySQLListener mysql_Listener) {
-        Logger.Log("App", "setMySQLListener(MySQLListener)");
-        ConnectionManager.setMySQLListener(mysql_Listener);
+    public static boolean tryDeleteFile(String filename) {
+        return appContext.deleteFile(filename);
     }
 
-    public static void onPause() {
-        Logger.Log("App", "onPause()");
-        isAppActive = false;
-        Updater.stop();
-        saveData();
+    public static FileOutputStream getFileOutputStream(String filename) throws FileNotFoundException {
+        return appContext.openFileOutput(filename, Context.MODE_PRIVATE);
     }
 
-    public static void onResume() {
-        Logger.Log("App", "onResume()");
-        isAppActive = true;
-        NetworkStateReciever.checkInternet();
-    }
-
-    public static void loadData() {
-        Logger.Log("App", "loadData()");
-
-        FryFile fry = getFryFile();
-        if(fry == null || fry.size() <= 0) {
-            return;
-        }
-
-        ContactList.readFrom(fry);
-        Tags.static_readFrom(fry);
-        TasklistManager.readFrom(fry);
-        Timetable.readFrom(fry);
-        ConnectionManager.readFrom(fry);
-    }
-
-    public static FryFile getFryFile() {
-        Logger.Log("App", "getFryFile()");
-        if(User.isLocal()) {
-            return getLocalFryFile();
-        }
-
-        FileInputStream inputStream;
-        try {
-            inputStream = appContext.openFileInput(User.getFileName());
-        }catch(FileNotFoundException ex) {
-            ex.printStackTrace();
-            return getLocalFryFile();
-        }
-
-        FryFile fry = new FryFile.Compact();
-        if(!fry.load(inputStream)) {
-            Logger.Log("App#load()","Could not load local file");
-            // TODO could not load local file
-            return getLocalFryFile();
-        }
-
-        saveFileVersion = fry.getChar();
-
-        if(User.decode(fry)) {
-
-            System.out.println("Fry-Soft: Succesfully loaded user data");
-            System.out.println("Fry-Soft: email = "+User.getEmail());
-
-            return fry;
-        }
-
-        return getLocalFryFile();
-    }
-
-    protected static FryFile getLocalFryFile() {
-        try {
-            FileInputStream inputStream = appContext.openFileInput(User.getFileName());
-
-            FryFile fry = new FryFile.Compact();
-            if (fry.load(inputStream)) {
-
-                saveFileVersion = fry.getChar();
-
-                System.out.println("Fry-Soft: Succesfully loaded local data");
-
-                return fry;
-            }
-        }catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    public static void saveData() {
-        Logger.Log("App", "saveData()");
-        FryFile fry = new FryFile.Compact();
-
-        fry.write(SAVE_FILE_VERSION);
-
-        if(User.isLocal()) {
-            User.deleteLogin();
-
-        }else {
-            User.saveLogin();
-            User.encode(fry);
-        }
-
-        ContactList.writeTo(fry);
-        Tags.static_writeTo(fry);
-        TasklistManager.writeTo(fry);
-        Timetable.writeTo(fry);
-        ConnectionManager.writeTo(fry);
-
-        try {
-            FileOutputStream outputStream = appContext.openFileOutput(User.getFileName(), Context.MODE_PRIVATE);
-            if (!fry.save(outputStream)) {
-                Logger.Log("App#save()", "Could not save local file: FryFile.save() = false");
-                // TODO could not save local file
-
-            }
-        }catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            Logger.Log("App#save()", "Could not save local file: file not found");
-            // TODO could not save local file
-        }
+    public static FileInputStream getFileInputStream(String filename) throws FileNotFoundException {
+        return App.appContext.openFileInput(filename);
     }
 
     public static void errorDialog(String title,String message) {

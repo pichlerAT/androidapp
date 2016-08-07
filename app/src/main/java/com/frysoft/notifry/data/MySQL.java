@@ -150,16 +150,16 @@ public abstract class MySQL implements Fryable {
         UserIdAndPassword = "user_id=" + signed(user_id) + "&password=" + password;
     }
 
-    public static String signed(byte b) {
-        return ("" + (b + (b < 0 ? 256 : 0)));
+    public static short signed(byte b) {
+        return (short)(b + (b < 0 ? 256 : 0));
     }
 
-    public static String signed(short s) {
-        return ("" + (s + (s < 0 ? 65536 : 0)));
+    public static int signed(short s) {
+        return (s + (s < 0 ? 65536 : 0));
     }
 
-    public static String signed(int i) {
-        return ("" + (i + (i < 0 ? 4294967296L : 0L)));
+    public static long signed(int i) {
+        return (i + (i < 0 ? 4294967296L : 0L));
     }
 
 
@@ -244,6 +244,9 @@ public abstract class MySQL implements Fryable {
         if(id != 0) {
             type = (char)((type & TYPE) | BASETYPE_DELETE);
             ConnectionManager.add(this);
+
+        }else {
+            type = (char)(type & TYPE);
         }
     }
 

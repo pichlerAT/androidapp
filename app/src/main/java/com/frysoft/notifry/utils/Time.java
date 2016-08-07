@@ -4,15 +4,20 @@ import java.util.Calendar;
 
 public class Time implements Fryable {
 
-    public static final short MIN_TIME = 0;
-
-    public static final short MAX_TIME = 1440;
-
     public static final byte INTERVALL_HOUR = 1;
 
     public static final byte INTERVALL_HALF_HOUR = 2;
 
     public static final byte INTERVALL_QUARTER_HOUR = 3;
+
+    public static final short MIN_TIME = 0;
+
+    public static final short MAX_TIME = 1440;
+
+    public static final Time TIME_MIN = new Time(MIN_TIME);
+
+    public static final Time TIME_MAX = new Time((short)(MAX_TIME - 1));
+
 
     public short time;
 

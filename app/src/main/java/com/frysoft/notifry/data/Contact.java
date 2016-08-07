@@ -5,6 +5,7 @@ import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.Searchable;
+import com.frysoft.notifry.utils.Utils;
 
 public class Contact extends MySQL implements Fryable, Searchable {
 
@@ -14,7 +15,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
 
     protected static Contact createRequest(String email) {
         Logger.Log("Contact", "createRequest(String)");
-        if(!App.hasInternetConnection) {
+        if(!Utils.hasInternetConnection) {
             return null;
         }
         Contact cont = new Contact(TYPE_CONTACT_REQUEST, 0, 0, email, null);

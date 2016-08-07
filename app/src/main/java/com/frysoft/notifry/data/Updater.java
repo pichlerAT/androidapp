@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
+import com.frysoft.notifry.utils.Utils;
 
 public class Updater extends AsyncTask<String,String,String> {
 
@@ -17,7 +18,7 @@ public class Updater extends AsyncTask<String,String,String> {
     @Override
     protected String doInBackground(String... params) {
         Logger.Log("Updater", "doInBackground(String...)");
-        while(App.hasInternetConnection && update) {
+        while(Utils.hasInternetConnection && update) {
 
             ConnectionManager.performUpdate();
 

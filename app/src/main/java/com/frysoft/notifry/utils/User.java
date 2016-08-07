@@ -1,7 +1,5 @@
 package com.frysoft.notifry.utils;
 
-import android.content.Context;
-
 import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.MySQL;
 import com.frysoft.notifry.data.NetworkStateReciever;
@@ -62,7 +60,7 @@ public class User {
     }
 
     public static void logout() {
-        App.saveData();
+        Utils.saveData();
         deleteLogin();
         MySQL.setLoginData(0, "");
 
@@ -72,13 +70,13 @@ public class User {
         password = null;
         online = false;
 
-        App.loadData();
+        Utils.loadData();
     }
 
     public static void login(String email, String password) {
         User.email = email;
         User.password = password;
-        App.loadData();
+        Utils.loadData();
         NetworkStateReciever.checkInternet();
     }
 
@@ -90,15 +88,15 @@ public class User {
         }
 
         if(resp.equals("err_l0")) {
-            // TODO email not registered
+            // TODO Message: email not registered
             return false;
 
         }else if(resp.equals("err_l1")) {
-            // TODO email not veryfied
+            // TODO Message: email not veryfied
             return false;
 
         }else if(resp.equals("err_l2")) {
-            // TODO wrong password
+            // TODO Message: wrong password
             return false;
         }
 
@@ -133,7 +131,7 @@ public class User {
         }
 
         if(resp.equals("err_r1")) {
-            // TODO email already registered
+            // TODO Message: email already registered
             return false;
         }
 
@@ -155,13 +153,13 @@ public class User {
     }
 
     public static void deleteLogin() {
-        App.appContext.deleteFile("login.fry");
+        App.tryDeleteFile("login.fry");
     }
 
     public static void saveLogin() {
         FileOutputStream outputStream;
         try {
-            outputStream = App.appContext.openFileOutput("login.fry", Context.MODE_PRIVATE);
+            outputStream = App.getFileOutputStream("login.fry");
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             return;
@@ -176,7 +174,7 @@ public class User {
     public static void loadLogin() {
         FileInputStream inputStream;
         try {
-            inputStream = App.appContext.openFileInput("login.fry");
+            inputStream = App.getFileInputStream("login.fry");
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             return;
@@ -279,11 +277,11 @@ public class User {
             protected boolean mysql_update() {
                 String resp = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&email=" + email);
                 if(resp == null || !resp.equals("success")) {
-                    // TODO error when trying to change email
+                    // TODO Message: error when trying to change email
 
                 }else {
                     User.email = email;
-                    // TODO email change successfull
+                    // TODO Message: email change successfull
                 }
                 return true;
             }
@@ -302,11 +300,11 @@ public class User {
             protected boolean mysql_update() {
                 String resp = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&name=" + name);
                 if(resp == null || !resp.equals("success")) {
-                    // TODO error when trying to change name
+                    // TODO Message: error when trying to change name
 
                 }else {
                     User.name = name;
-                    // TODO name change successfull
+                    // TODO Message: name change successfull
                 }
                 return true;
             }
@@ -325,11 +323,11 @@ public class User {
             protected boolean mysql_update() {
                 String resp = execute(MySQL.ADR_USER_CHANGE + "password.php", "user_id=" + id + "&password=" + User.password + "&new_password=" + password);
                 if(resp == null || !resp.equals("success")) {
-                    // TODO error when trying to change password
+                    // TODO Message: error when trying to change password
 
                 }else {
                     User.password = password;
-                    // TODO password change successfull
+                    // TODO Message: password change successfull
                 }
                 return true;
             }
@@ -342,11 +340,11 @@ public class User {
             protected boolean mysql_update() {
                 String resp = execute(MySQL.ADR_USER + "delete.php", "user_id=" + id + "&password=" + User.password + "&cmd=Delete");
                 if(resp == null || !resp.equals("success")) {
-                    // TODO error when trying to delete account
+                    // TODO Message: error when trying to delete account
 
                 }else {
                     logout();
-                    // TODO account deletion successfull
+                    // TODO Message: account deletion successfull
                 }
                 return true;
             }

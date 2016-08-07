@@ -423,11 +423,15 @@ public abstract class FryFile {
 
     public static class Split extends FryFile {
 
-        //public static final String DEFAULT_SPLIT_STRING = "" + (char)0;
+        public static final int COMPILER_DEFAULT = 0;
 
-        public static final String emptyString = "" + (char)0;
+        public static final int COMPILER_INCLUDES_COMPACT = 1;
+
+        protected static final String emptyString = "" + (char)0;
 
         protected final String splitString;
+
+        protected final int compile_mode;
 
         protected int readIndex = 0;
 
@@ -435,18 +439,21 @@ public abstract class FryFile {
 
         protected String writeLine = "";
 
-        /*
-        public Split() {
-            splitString = DEFAULT_SPLIT_STRING;
+        public Split(String splitString, int compile_mode) {
+            this.splitString = splitString;
+            this.compile_mode = compile_mode;
         }
-        */
 
         public Split(String splitString) {
-            this.splitString = splitString;
+            this(splitString, COMPILER_DEFAULT);
+        }
+
+        public Split(char splitChar, int compile_mode) {
+            this("" + splitChar, compile_mode);
         }
 
         public Split(char splitChar) {
-            this("" + splitChar);
+            this(splitChar, COMPILER_DEFAULT);
         }
 
         @Override
@@ -475,32 +482,60 @@ public abstract class FryFile {
                 char[] split = splitString.toCharArray();
                 int matches = 0;
 
-                while ((bred = is.read(buffer)) != -1) {
-                    for (int k = 0; k < bred; ++k) {
+                switch(compile_mode) {
 
-                        if(bufferString.length() > 0 && buffer[k] == split[matches]) {
-                            matches++;
+                    case COMPILER_DEFAULT:
+                        while ((bred = is.read(buffer)) != -1) {
+                            for (int k = 0; k < bred; ++k) {
 
-                        }else {
-                            bufferString += buffer[k];
-                            matches = 0;
+                                if (buffer[k] == split[matches]) {
+                                    matches++;
+
+                                } else {
+                                    bufferString += buffer[k];
+                                    matches = 0;
+                                }
+
+                                if (matches == split.length) {
+                                    matches = 0;
+                                    readLine.add(bufferString);
+                                    bufferString = "";
+                                }
+
+                            }
                         }
 
-                        if(matches == split.length) {
-                            matches = 0;
-                            readLine.add(bufferString);
-                            bufferString = "";
+                    case COMPILER_INCLUDES_COMPACT:
+                        while ((bred = is.read(buffer)) != -1) {
+                            for (int k = 0; k < bred; ++k) {
+
+                                if (bufferString.length() > 0 && buffer[k] == split[matches]) {
+                                    matches++;
+
+                                } else {
+                                    bufferString += buffer[k];
+                                    matches = 0;
+                                }
+
+                                if (matches == split.length) {
+                                    matches = 0;
+                                    readLine.add(bufferString);
+                                    bufferString = "";
+                                }
+
+                            }
                         }
 
-                    }
+
                 }
-                readLine.add(bufferString);
 
                 is.close();
 
+                readLine.add(bufferString);
                 readLine.trimToSize();
 
                 return true;
+
             } catch(IOException ex) {
                 return false;
             }
@@ -564,15 +599,19 @@ public abstract class FryFile {
 
         @Override
         public int getInt() {
-            return Integer.parseInt(readLine.get(readIndex++));
+            return (int)Long.parseLong(readLine.get(readIndex++));
         }
 
         @Override
         public String getString() {
             String s = readLine.get(readIndex++);
-            if(s.equals(emptyString)) {
-                return "";
+
+            if(compile_mode == COMPILER_INCLUDES_COMPACT) {
+                if(s.equals(emptyString)) {
+                    return "";
+                }
             }
+
             return s;
         }
 
@@ -588,7 +627,7 @@ public abstract class FryFile {
 
         @Override
         public void write(char c) {
-            write("" + c);
+            writeLine += c + splitString;
         }
 
         @Override
@@ -608,8 +647,10 @@ public abstract class FryFile {
 
         @Override
         public void write(String s) {
-            if(s.isEmpty()) {
-                s += emptyString;
+            if(compile_mode == COMPILER_INCLUDES_COMPACT) {
+                if (s.isEmpty()) {
+                    s += emptyString;
+                }
             }
             writeLine += s + splitString;
         }

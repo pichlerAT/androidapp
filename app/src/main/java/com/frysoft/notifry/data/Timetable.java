@@ -1,7 +1,13 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CalendarContract;
 
+import java.util.ArrayList;
+import java.util.TimeZone;
+
+import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.FryFile;
@@ -10,7 +16,7 @@ import com.frysoft.notifry.utils.User;
 
 public class Timetable {
 
-    protected static BackupList<TimetableCategory> categories = new BackupList<>();
+    protected static BackupList<Category> categories = new BackupList<>();
 
     protected static BackupList<TimetableEntry> entries = new BackupList<>();
 
@@ -31,12 +37,12 @@ public class Timetable {
 
         int NoCategories = fry.getChar();
         for(int i=0; i<NoCategories; ++i) {
-            categories.add(new TimetableCategory(fry));
+            categories.add(new Category(fry));
         }
 
         NoCategories = fry.getChar();
         for(int i=0; i<NoCategories; ++i) {
-            categories.addBackup(new TimetableCategory(fry));
+            categories.addBackup(new Category(fry));
         }
 
         entries = new BackupList<>();
@@ -64,11 +70,11 @@ public class Timetable {
     public static void synchronizeCategoriesFromMySQL(FryFile fry) {
         Logger.Log("Timetable", "synchronizeCategoriesFromMySQL(String[])");
 
-        ArrayList<TimetableCategory> catList = new ArrayList<>();
+        ArrayList<Category> catList = new ArrayList<>();
 
         int NoCategories = fry.getArrayLength();
         for(int i=0; i<NoCategories; ++i) {
-            TimetableCategory cat = new TimetableCategory(fry.getInt(), fry.getInt(), fry.getString(), fry.getInt());
+            Category cat = new Category(fry.getInt(), fry.getInt(), fry.getString(), fry.getInt());
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
@@ -87,8 +93,9 @@ public class Timetable {
 
         int NoEntries = fry.getArrayLength();
         for(int i=0; i<NoEntries; ++i) {
-            TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getShort(), fry.getShort(),
-                    fry.getShort(), fry.getInt(), fry.getInt(), fry.getString(), fry.getString(), fry.getInt());
+            TimetableEntry ent = new TimetableEntry(fry.getInt(), fry.getInt(), fry.getInt(),
+                    fry.getString(),fry.getString(), fry.getShort(), fry.getShort(), fry.getInt(),
+                    fry.getShort(), fry.getInt(), fry.getInt(), fry.getShort(), fry.getByte());
 
             int NoShares = fry.getArrayLength();
             for(int k=0; k<NoShares; ++k) {
@@ -103,7 +110,7 @@ public class Timetable {
     public static ArrayList<TimetableEntry> getEntries() {
         Logger.Log("Timetable", "getEntries()");
         ArrayList<TimetableEntry> list = new ArrayList<>(entries.getList());
-        for(TimetableCategory cat : categories.getList()) {
+        for(Category cat : categories.getList()) {
             for(TimetableEntry ent : cat.offline_entries) {
                 list.add(ent);
             }
@@ -111,6 +118,22 @@ public class Timetable {
         return list;
     }
 
+    public static ArrayList<Event> getEvents(final Date start, final Date end) {
+        ArrayList<Event> list = new ArrayList<>();
+
+        for(TimetableEntry ent : entries.getList()) {
+            ent.addEventsToList(list, start.getShort(), end.getShort());
+        }
+        for(Category cat : categories.getList()) {
+            for(TimetableEntry ent : cat.offline_entries) {
+                ent.addEventsToList(list, start.getShort(), end.getShort());
+            }
+        }
+
+        return list;
+    }
+
+    /*
     public static ArrayList<TimetableEntry> getEntries(int month, int year) {
         Logger.Log("Timetable", "getEntries(int,int)");
         ArrayList<TimetableEntry> list = new ArrayList<>();
@@ -121,7 +144,7 @@ public class Timetable {
                 list.add(ent);
             }
         }
-        for(TimetableCategory cat : categories.getList()) {
+        for(Category cat : categories.getList()) {
             for(TimetableEntry ent : cat.offline_entries) {
                 if(ent.isSpanOverlapping(span)) {
                     list.add(ent);
@@ -131,7 +154,9 @@ public class Timetable {
 
         return list;
     }
+    */
 
+    /*
     public static ArrayList<TimetableEntry> getEntries(int day, int month, int year) {
         Logger.Log("Timetable", "getEntries(int,int,int)");
         ArrayList<TimetableEntry> list = new ArrayList<>();
@@ -142,7 +167,7 @@ public class Timetable {
                 list.add(ent);
             }
         }
-        for(TimetableCategory cat : categories.getList()) {
+        for(Category cat : categories.getList()) {
             for(TimetableEntry ent : cat.offline_entries) {
                 if(ent.isDateInsideSpan(date)) {
                     list.add(ent);
@@ -152,6 +177,7 @@ public class Timetable {
 
         return list;
     }
+    */
 
     public static TimetableEntry getEntryById(int id) {
         Logger.Log("Timetable", "getEntryById(int)");
@@ -163,14 +189,23 @@ public class Timetable {
         return null;
     }
 
-    public static ArrayList<TimetableCategory> getCategories() {
+    public static TimetableEntry getEntryByGoogleId(int id) {
+        for(TimetableEntry e : entries.getList()) {
+            if(e.google_id == id) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public static ArrayList<Category> getCategories() {
         Logger.Log("Timetable", "getCategories()");
         return categories.getList();
     }
 
-    protected static TimetableCategory getCategoryById(int id) {
+    protected static Category getCategoryById(int id) {
         Logger.Log("Timetable", "getCategoryById(int)");
-        for(TimetableCategory cat : categories.getList()) {
+        for(Category cat : categories.getList()) {
             if(cat.id == id) {
                 return cat;
             }
@@ -178,14 +213,86 @@ public class Timetable {
         return null;
     }
 
-    public static TimetableCategory getCategoryByName(String name) {
+    public static Category getCategoryByName(String name) {
         Logger.Log("Timetable", "getCategoryByName(String)");
-        for(TimetableCategory cat : categories.getList()) {
+        for(Category cat : categories.getList()) {
             if(cat.name.equals(name)) {
                 return cat;
             }
         }
         return null;
+    }
+
+    public static void synchronizeWithGoogleCalendar() {
+        String[] FIELDS = {
+                CalendarContract.Events._ID,
+                CalendarContract.Events.TITLE,
+                CalendarContract.Events.DISPLAY_COLOR,
+                CalendarContract.Events.DESCRIPTION,
+                CalendarContract.Events.DTSTART,
+                CalendarContract.Events.DURATION,
+                CalendarContract.Events.DTEND,
+                CalendarContract.Events.ALL_DAY,
+                CalendarContract.Events.EVENT_TIMEZONE
+        };
+    }
+
+    public static void printAndroidCalendar() {
+        String[] FIELDS = {
+                CalendarContract.Events._SYNC_ID,
+                CalendarContract.Events._ID,
+                CalendarContract.Events.TITLE,
+                CalendarContract.Events.DISPLAY_COLOR,
+                CalendarContract.Events.DESCRIPTION,
+                CalendarContract.Events.DTSTART,
+                CalendarContract.Events.DURATION,
+                CalendarContract.Events.DTEND,
+                CalendarContract.Events.ALL_DAY,
+                CalendarContract.Events.EVENT_TIMEZONE
+        };
+
+        Uri uri = Uri.parse("content://com.android.calendar/events");
+
+        Cursor cursor = App.getContext().getContentResolver().query(uri, FIELDS, null, null, null);
+
+        if(cursor == null) {
+            System.out.println("CURSOR IS NULL");
+            return;
+        }
+
+        int columns = cursor.getColumnCount();
+
+        System.out.print(cursor.getCount());
+
+        for(int i=0; i<columns; ++i) {
+            System.out.print(" | " + cursor.getColumnName(i));
+        }
+        System.out.println();
+
+        System.out.println("---------------------------------------------------------------------");
+        cursor.moveToFirst();
+
+        do {
+            System.out.print(cursor.getPosition());
+
+            for(int i=0; i<columns; ++i) {
+                System.out.print(" | " + cursor.getString(i));
+            }
+
+            System.out.println();
+        } while(cursor.moveToNext());
+
+        /*
+        TimeZone tz = TimeZone.getTimeZone("Europe/Amsterdam");
+        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
+        tz = TimeZone.getTimeZone("UTC+1");
+        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
+        tz = TimeZone.getTimeZone("GMT+1");
+        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
+        */
+        System.out.println(TimeZone.getDefault().getDisplayName() + " = " + TimeZone.getDefault().getRawOffset());
+
+        cursor.close();
     }
 
 }

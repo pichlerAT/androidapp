@@ -8,6 +8,7 @@ import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
+import com.frysoft.notifry.utils.Utils;
 
 public class ConnectionManager {
 
@@ -26,7 +27,7 @@ public class ConnectionManager {
 
     public static void add(MySQL entry) {
         Logger.Log("ConnectionManager", "add(MySQL)");
-        if(entry.id == 0 || !hasEntry(entry.type, entry.id)) {
+        if(entry.id == 0 || !hasEntry(entry)) {
             entries.add(entry);
             sync();
         }
@@ -43,15 +44,17 @@ public class ConnectionManager {
         sync();
     }
 
-    public static boolean hasEntry(char type,int id) {
-        Logger.Log("ConnectionManager", "hasEntry(char,int)");
-        for(int i=0; i<entries.size(); ++i) {
-            MySQL ent = entries.get(i);
-            if(ent.id == id && (ent.type & type) == type) {
+    public static boolean hasEntry(MySQL entry, char type) {
+        for(MySQL ent : entries) {
+            if(ent == entry || (ent.id == entry.id && ent.type == type)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static boolean hasEntry(MySQL entry) {
+        return hasEntry(entry, entry.type);
     }
 
     protected static boolean remove(MySQL entry) {
@@ -72,12 +75,12 @@ public class ConnectionManager {
     protected static void sync() {
         Logger.Log("ConnectionManager", "sync()");
         if(User.isOnline()) {
-            if (syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
+            if (syncTask.getStatus() == AsyncTask.Status.PENDING && Utils.hasInternetConnection) {
                 syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 NetworkStateReciever.checkInternet();
             }
-        }else if(!App.hasInternetConnection) {
+        }else if(!Utils.hasInternetConnection) {
             NetworkStateReciever.checkInternet();
         }
     }
@@ -132,6 +135,23 @@ public class ConnectionManager {
 
         return  list.toArray(new String[list.size()]);
     }
+    public static boolean synchronizeAll(String resp) {
+        FryFile fry = new FryFile.Split((char)0);
+        fry.load(resp);
+        if(fry.size() < 8) {
+            return false;
+        }
+
+        ContactList.synchronizeContactsFromMySQL(fry);
+        ContactList.synchronizeContactGroupsFromMySQL(fry);
+        ContactList.synchronizeContactRequestsFromMySQL(fry);
+        TasklistManager.synchronizeTasklistsFromMySQL(fry);
+        Timetable.synchronizeSharesFromMySQL(fry);
+        Timetable.synchronizeCategoriesFromMySQL(fry);
+        Timetable.synchronizeEntriesFromMySQL(fry);
+        Tags.synchronizeFromMySQL(fry);
+        return true;
+    }
 
     protected static class NotifyListener extends AsyncTask<String,String,String> {
 
@@ -183,21 +203,7 @@ public class ConnectionManager {
             if(resp == null) {
                 return false;
             }
-            FryFile fry = new FryFile.Split((char)0);
-            fry.load(resp);
-            if(fry.size() < 8) {
-                return false;
-            }
-
-            ContactList.synchronizeContactsFromMySQL(fry);
-            ContactList.synchronizeContactGroupsFromMySQL(fry);
-            ContactList.synchronizeContactRequestsFromMySQL(fry);
-            TasklistManager.synchronizeTasklistsFromMySQL(fry);
-            Timetable.synchronizeSharesFromMySQL(fry);
-            Timetable.synchronizeCategoriesFromMySQL(fry);
-            Timetable.synchronizeEntriesFromMySQL(fry);
-            Tags.synchronizeFromMySQL(fry);
-            return true;
+            return synchronizeAll(resp);
         }
     }
 

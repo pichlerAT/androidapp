@@ -14,6 +14,7 @@ import java.net.URL;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
+import com.frysoft.notifry.utils.Utils;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 
@@ -31,12 +32,12 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 return;
             }
         }
-        App.hasInternetConnection = false;
+        Utils.hasInternetConnection = false;
     }
 
     public static void checkInternet() {
         Logger.Log("NetworkStateReciever", "checkInternet()");
-        if(!App.hasInternetConnection && !checkingForInternet) {
+        if(!Utils.hasInternetConnection && !checkingForInternet) {
 
             checkingForInternet = true;
             (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -48,9 +49,9 @@ public class NetworkStateReciever extends BroadcastReceiver {
         @Override
         protected String doInBackground(String... params) {
             Logger.Log("NetworkStateReciever$CheckInternetConnection", "doInBackground(String...)");
-            App.hasInternetConnection = hasActiveInternetConnection();
+            Utils.hasInternetConnection = hasActiveInternetConnection();
 
-            if(App.hasInternetConnection) {
+            if(Utils.hasInternetConnection) {
                 if(!User.isLocal() && !User.isOnline()) {
 
                     User.logon();
@@ -60,7 +61,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
                     ConnectionManager.sync();
                 }
 
-                if(App.isAppActive) {
+                if(Utils.isAppActive) {
                     Updater.start();
                 }
             }

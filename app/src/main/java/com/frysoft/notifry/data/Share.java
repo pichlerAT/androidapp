@@ -68,7 +68,7 @@ public class Share extends Contact {
                 return true;
 
             case TYPE_CALENDAR_CATEGORY:
-                TimetableCategory cat = Timetable.getCategoryById(share_id);
+                Category cat = Timetable.getCategoryById(share_id);
                 if(cat == null) {
                     delete();
                     return false;

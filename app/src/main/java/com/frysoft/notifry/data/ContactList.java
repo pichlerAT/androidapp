@@ -59,7 +59,7 @@ public class ContactList {
                 Contact off = all.contacts.get(off_index);
                 off.email = on.email;
                 off.name = on.name;
-            }else if(!ConnectionManager.hasEntry((char)(MySQL.TYPE_CONTACT | MySQL.BASETYPE_DELETE), on.id)) {
+            }else if(!ConnectionManager.hasEntry(on, (char)(MySQL.TYPE_CONTACT | MySQL.BASETYPE_DELETE))) {
                 all.contacts.add(on);
             }
         }
@@ -103,7 +103,7 @@ public class ContactList {
                     onIndex[lastIndex] = off_index;
                     ++lastIndex;
                 }
-            }else if(!ConnectionManager.hasEntry((char)(MySQL.TYPE_CONTACT_GROUP | MySQL.BASETYPE_DELETE), on.id)) {
+            }else if(!ConnectionManager.hasEntry(on, (char)(MySQL.TYPE_CONTACT_GROUP | MySQL.BASETYPE_DELETE))) {
                 groups.add(groups.size() - 1, on);
             }
         }

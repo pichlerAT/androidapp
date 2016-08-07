@@ -8,16 +8,20 @@ public class Date implements Fryable {
 
     public static final int YEAR_OFFSET = 2000;
 
+    public static final int MIN_YEAR = YEAR_OFFSET;
+
+    public static final int MAX_YEAR = YEAR_OFFSET + 0x7F;
+
     public static Date getToday() {
         Logger.Log("Date", "getToday()");
         return new Date(Calendar.getInstance());
     }
 
-    protected int day;
+    public int day;
 
-    protected int month;
+    public int month;
 
-    protected int year;
+    public int year;
 
     public Date(FryFile fry) {
         this(fry.getShort());
@@ -103,9 +107,13 @@ public class Date implements Fryable {
         return (date >= start.getShort() && date <= end.getShort());
     }
 
+    public int getInt() {
+        return (day + (month << 5) + ((year - YEAR_OFFSET) << 9));
+    }
+
     public short getShort() {
         Logger.Log("Date", "getShort()");
-        return (short)(day + (month << 5) + ((year - YEAR_OFFSET) << 9));
+        return (short)getInt();
     }
 
     public Date getNextDay() {
@@ -158,6 +166,32 @@ public class Date implements Fryable {
 
             day += getDaysOfMonth();
         }
+    }
+
+    public void addMonths(int months) {
+        if(months < 0) {
+            subtractMonths(-months);
+        }
+
+        year += (month + months) / 12;
+        month = (month + months) % 12;
+    }
+
+    public void subtractMonths(int months) {
+        if(months < 0) {
+            addMonths(-months);
+        }
+
+        year -= (month - months) / 12;
+        month = (month - months) % 12;
+    }
+
+    public void addYears(int years) {
+        year += years;
+    }
+
+    public void substractYears(int years) {
+        year -= years;
     }
 
     public boolean isLeapYear() {
