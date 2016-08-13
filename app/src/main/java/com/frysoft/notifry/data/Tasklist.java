@@ -1,11 +1,11 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
+
+import java.util.ArrayList;
 
 public class Tasklist extends MySQLEntry implements Fryable {
 
@@ -17,47 +17,47 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     protected String name;
 
+    protected Category category;
+
     protected ArrayList<TasklistEntry> entries = new ArrayList<>();
 
-    public ShareList shares;
-
-    public static Tasklist create(String name, int color) {
-        Logger.Log("Tasklist", "create(String)");
-        Tasklist tl = new Tasklist(0, User.getId(), (byte)0, name, color);
-        tl.create();
-        TasklistManager.Tasklists.add(tl);
-        return tl;
-    }
+    public ShareList shares = new ShareList(TYPE_TASKLIST, id);
 
     protected Tasklist(FryFile fry) {
         super(fry);
         Logger.Log("Tasklist", "Tasklist(FryFile)");
-        state = fry.getByte();
+
+        category = Data.Categories.getById(fry.getUnsignedInt());
         name = fry.getString();
+        state = fry.getUnsignedByte();
         color = fry.getInt();
 
         int NoEntries = fry.getChar();
         for(int i=0; i<NoEntries; ++i) {
             TasklistEntry ent = new TasklistEntry(fry);
-            ent.table_id = id;
+            ent.tasklist = this;
             entries.add(ent);
         }
 
-        if(id != 0) {
-            shares = new ShareList(TYPE_TASKLIST, id);
-        }
+        shares.readFrom(fry);
     }
 
-    protected Tasklist(int id, int user_id, byte state, String name, int color) {
+    protected Tasklist(int id, int user_id, Category category, String name, byte state, int color) {
         super(TYPE_TASKLIST, id, user_id);
         Logger.Log("Tasklist", "Tasklist(int,int,byte,String)");
         this.state = state;
         this.name = name;
         this.color = color;
 
+        this.category = category;
+
         if(id != 0) {
             shares = new ShareList(TYPE_TASKLIST, id);
         }
+    }
+
+    protected Tasklist(int id, int user_id, int category_id, String name, byte state, int color) {
+        this(id, user_id, Data.Categories.getById(category_id), name, state, color);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     public Tasklist backup() {
         Logger.Log("Tasklist", "backup()");
-        Tasklist tl = new Tasklist(id, user_id, state, name, color);
+        Tasklist tl = new Tasklist(id, user_id, category, name, state, color);
         for(TasklistEntry ent : entries) {
             tl.entries.add(ent.backup());
         }
@@ -95,8 +95,8 @@ public class Tasklist extends MySQLEntry implements Fryable {
         if(resp != null) {
             id = Integer.parseInt(resp);
             shares = new ShareList(TYPE_TASKLIST, id);
+
             for(TasklistEntry ent : entries) {
-                ent.table_id = id;
                 ent.create();
             }
             return true;
@@ -135,10 +135,12 @@ public class Tasklist extends MySQLEntry implements Fryable {
     public void writeTo(FryFile fry) {
         Logger.Log("Tasklist", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(state);
-        fry.write(name);
-        fry.write(color);
-        fry.write(entries);
+        fry.writeUnsignedInt(getCategoryId());
+        fry.writeString(name);
+        fry.writeUnsignedByte(state);
+        fry.writeInt(color);
+        fry.writeObjects(entries);
+        shares.writeTo(fry);
     }
 
     public int getNoEntries() {
@@ -182,18 +184,18 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public void addEntry(String task,boolean state) {
         Logger.Log("Tasklist", "addEntry(String,boolean)");
-        TasklistEntry ent = new TasklistEntry(task,state);
+        TasklistEntry ent = new TasklistEntry(this, task, state);
         entries.add(ent);
-        if(id > 0) {
+        if(isOnline()) {
             ent.create();
         }
     }
 
     public void addEntry(int index,String task,boolean state) {
         Logger.Log("Tasklist", "addEntry(int,String,boolean)");
-        TasklistEntry ent = new TasklistEntry(task,state);
+        TasklistEntry ent = new TasklistEntry(this, task, state);
         entries.add(index,ent);
-        if(id > 0) {
+        if(isOnline()) {
             ent.create();
         }
     }
@@ -238,18 +240,25 @@ public class Tasklist extends MySQLEntry implements Fryable {
         return entries.get(index).description;
     }
 
+    public int getCategoryId() {
+        if(category == null) {
+            return 0;
+        }
+        return category.id;
+    }
+
     @Override
     public void delete() {
         Logger.Log("Tasklist", "delete()");
         super.delete();
-        TasklistManager.removeTasklist(id);
+        Data.Tasklists.remove(this);
     }
 
     public void delete(int index) {
         Logger.Log("Tasklist", "delete(int)");
         entries.remove(index).delete();
     }
-
+/*
     protected String getEntryStrings() {
         Logger.Log("Tasklist", "getEntryStrings()");
         if(entries.size() <= 0) {
@@ -261,7 +270,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         }
         return s;
     }
-
+*/
     public boolean equals(Tasklist tl) {
         Logger.Log("Tasklist", "equals(Tasklist)");
         if(state != tl.state || entries.size() != tl.entries.size() || !name.equals(tl.name) || color!=tl.color) {

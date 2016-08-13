@@ -14,11 +14,11 @@ import java.util.ArrayList;
 
 public abstract class FryFile {
 
-    public abstract boolean save(OutputStream outputStream);
+    public abstract boolean saveToStream(OutputStream outputStream);
 
-    public abstract boolean load(InputStream inputStream);
+    public abstract boolean loadFromStream(InputStream inputStream);
 
-    public abstract boolean load(String str);
+    public abstract boolean loadFromString(String str);
 
     public abstract int size();
 
@@ -30,39 +30,49 @@ public abstract class FryFile {
 
     public abstract int getInt();
 
+    public abstract long getLong();
+
     public abstract String getString();
 
     public abstract int getArrayLength();
 
-    public abstract void write(byte b);
+    public abstract void writeByte(byte b);
 
-    public abstract void write(char c);
+    public abstract void writeChar(char c);
 
-    public abstract void write(short s);
+    public abstract void writeShort(short s);
 
-    public abstract void write(int i);
+    public abstract void writeInt(int i);
 
-    public abstract void write(long l);
+    public abstract void writeLong(long l);
 
-    public abstract void write(String s);
+    public abstract void writeString(String s);
 
     public abstract void writeArrayLength(int length);
 
-    public abstract void write(final Fryable[] fry);
+    public abstract void writeFryables(final Fryable[] fry);
 
-    public abstract void write(final Object[] fry);
+    public abstract void writeObjects(final Object[] fry);
 
-    public abstract void write(final ArrayList<?> list);
+    public abstract void writeObjects(final ArrayList<?> list);
 
-    public abstract void write(final SearchableList<?> list);
+    public abstract void writeObjects(final SearchableList<?> list);
 
-    public abstract void writeSigned(byte b);
+    public abstract void writeUnsignedByte(byte b);
 
-    public abstract void writeSigned(short s);
+    public abstract void writeUnsignedShort(short s);
 
-    public abstract void writeSigned(int i);
+    public abstract void writeUnsignedInt(int i);
+
+    public abstract void writeUnsignedLong(long l);
 
     public abstract String getWrittenString();
+
+    public abstract byte getUnsignedByte();
+
+    public abstract short getUnsignedShort();
+
+    public abstract int getUnsignedInt();
 
     public boolean save(File file) {
         File dir = file.getParentFile();
@@ -70,7 +80,7 @@ public abstract class FryFile {
             return false;
         }
         try{
-            return save(new FileOutputStream(file));
+            return saveToStream(new FileOutputStream(file));
         } catch(FileNotFoundException ex) {
             return false;
         }
@@ -81,7 +91,7 @@ public abstract class FryFile {
             return false;
         }
         try{
-            return load(new FileInputStream(file));
+            return loadFromStream(new FileInputStream(file));
         } catch(FileNotFoundException ex) {
             return false;
         }
@@ -154,42 +164,42 @@ public abstract class FryFile {
         return string;
     }
 
-    public void write(final Fryable fry) {
+    public void writeFryable(final Fryable fry) {
         fry.writeTo(this);
     }
 
-    public void write(final byte[] b) {
+    public void writeByteArray(final byte[] b) {
         writeArrayLength(b.length);
         for (byte bi : b) {
-            write(bi);
+            writeByte(bi);
         }
     }
 
-    public void write(final char[] c) {
+    public void writeCharArray(final char[] c) {
         writeArrayLength(c.length);
         for (char ci : c) {
-            write(ci);
+            writeChar(ci);
         }
     }
 
-    public void write(final short[] s) {
+    public void writeShortArray(final short[] s) {
         writeArrayLength(s.length);
         for (short si : s) {
-            write(si);
+            writeShort(si);
         }
     }
 
-    public void write(final int[] i) {
+    public void writeIntArray(final int[] i) {
         writeArrayLength(i.length);
         for (int ii : i) {
-            write(ii);
+            writeInt(ii);
         }
     }
 
-    public void write(final String[] str) {
+    public void writeStringArray(final String[] str) {
         writeArrayLength(str.length);
         for (String stri : str) {
-            write(stri);
+            writeString(stri);
         }
     }
 
@@ -209,7 +219,7 @@ public abstract class FryFile {
                 codeIndex = 0;
             }
         }
-        write(string);
+        writeString(string);
     }
 
 
@@ -222,8 +232,12 @@ public abstract class FryFile {
 
         protected StringBuilder writeLine = new StringBuilder();
 
+        protected void writeChars(char... c) {
+            writeLine.append(c);
+        }
+
         @Override
-        public boolean save(OutputStream outputStream) {
+        public boolean saveToStream(OutputStream outputStream) {
             try{
                 OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
                 writer.write(writeLine.toString());
@@ -236,7 +250,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public boolean load(InputStream inputStream) {
+        public boolean loadFromStream(InputStream inputStream) {
             try{
                 InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
 
@@ -263,7 +277,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public boolean load(String str) {
+        public boolean loadFromString(String str) {
             readLine = str.toCharArray();
             return true;
         }
@@ -297,6 +311,11 @@ public abstract class FryFile {
         }
 
         @Override
+        public long getLong() {
+            return (getChar() | (getChar() << 16) | ((long)getChar() << 32) | ((long)getChar() << 48));
+        }
+
+        @Override
         public String getString() {
             return new String(getCharArray());
         }
@@ -307,55 +326,51 @@ public abstract class FryFile {
         }
 
         @Override
-        public void write(byte b) {
-            write((char) b);
+        public void writeByte(byte b) {
+            writeChar((char) b);
         }
 
         @Override
-        public void write(char c) {
+        public void writeChar(char c) {
             writeLine.append(c);
         }
 
         @Override
-        public void write(short s) {
-            write((char) s);
+        public void writeShort(short s) {
+            writeChar((char) s);
         }
 
         @Override
-        public void write(int i) {
-            write((char) i);
-            write((char) (i >> 16));
+        public void writeInt(int i) {
+            writeChars((char) i, (char) (i >> 16));
         }
 
         @Override
-        public void write(long l) {
-            write((char) l);
-            write((char) (l >> 16));
-            write((char) (l >> 32));
-            write((char) (l >> 48));
+        public void writeLong(long l) {
+            writeChars((char) l, (char) (l >> 16), (char) (l >> 32), (char) (l >> 48));
         }
 
         @Override
-        public void write(String str) {
-            write((char) str.length());
+        public void writeString(String str) {
+            writeArrayLength(str.length());
             writeLine.append(str);
         }
 
         @Override
         public void writeArrayLength(int length) {
-            write((char)length);
+            writeChar((char)length);
         }
 
         @Override
-        public void write(final Fryable[] fries) {
-            write((char) fries.length);
+        public void writeFryables(final Fryable[] fries) {
+            writeArrayLength(fries.length);
             for (Fryable fry : fries) {
                 fry.writeTo(this);
             }
         }
 
         @Override
-        public void write(final Object[] fries) {
+        public void writeObjects(final Object[] fries) {
             int index = writeLine.length();
             writeArrayLength(fries.length);
             int length = 0;
@@ -369,7 +384,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public void write(final ArrayList<?> list) {
+        public void writeObjects(final ArrayList<?> list) {
             int index = writeLine.length();
             writeArrayLength(list.size());
             int length = 0;
@@ -383,7 +398,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public void write(final SearchableList<?> list) {
+        public void writeObjects(final SearchableList<?> list) {
             int index = writeLine.length();
             writeArrayLength(list.baseLength());
             int length = 0;
@@ -398,23 +413,43 @@ public abstract class FryFile {
         }
 
         @Override
-        public void writeSigned(byte b) {
-            write(b);
+        public void writeUnsignedByte(byte b) {
+            writeByte(b);
         }
 
         @Override
-        public void writeSigned(short s) {
-            write(s);
+        public void writeUnsignedShort(short s) {
+            writeShort(s);
         }
 
         @Override
-        public void writeSigned(int i) {
-            write(i);
+        public void writeUnsignedInt(int i) {
+            writeInt(i);
+        }
+
+        @Override
+        public void writeUnsignedLong(long l) {
+            writeLong(l);
         }
 
         @Override
         public String getWrittenString() {
             return writeLine.toString();
+        }
+
+        @Override
+        public byte getUnsignedByte() {
+            return getByte();
+        }
+
+        @Override
+        public short getUnsignedShort() {
+            return getShort();
+        }
+
+        @Override
+        public int getUnsignedInt() {
+            return getInt();
         }
 
     }
@@ -457,7 +492,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public boolean save(OutputStream outputStream) {
+        public boolean saveToStream(OutputStream outputStream) {
             try{
                 OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8").newEncoder());
                 writer.write(writeLine);
@@ -470,7 +505,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public boolean load(InputStream inputStream) {
+        public boolean loadFromStream(InputStream inputStream) {
             try{
                 InputStreamReader is = new InputStreamReader(inputStream, Charset.forName("UTF-8").newDecoder());
 
@@ -542,7 +577,7 @@ public abstract class FryFile {
         }
 
         @Override
-        public boolean load(String str) {
+        public boolean loadFromString(String str) {
             String bufferString = "";
             readLine = new ArrayList<>(100);
 
@@ -599,7 +634,12 @@ public abstract class FryFile {
 
         @Override
         public int getInt() {
-            return (int)Long.parseLong(readLine.get(readIndex++));
+            return Integer.parseInt(readLine.get(readIndex++));
+        }
+
+        @Override
+        public long getLong() {
+            return Long.parseLong(readLine.get(readIndex++));
         }
 
         @Override
@@ -621,32 +661,32 @@ public abstract class FryFile {
         }
 
         @Override
-        public void write(byte b) {
-            write("" + b);
+        public void writeByte(byte b) {
+            writeString("" + b);
         }
 
         @Override
-        public void write(char c) {
+        public void writeChar(char c) {
             writeLine += c + splitString;
         }
 
         @Override
-        public void write(short s) {
-            write("" + s);
+        public void writeShort(short s) {
+            writeString("" + s);
         }
 
         @Override
-        public void write(int i) {
-            write("" + i);
+        public void writeInt(int i) {
+            writeString("" + i);
         }
 
         @Override
-        public void write(long l) {
-            write("" + l);
+        public void writeLong(long l) {
+            writeString("" + l);
         }
 
         @Override
-        public void write(String s) {
+        public void writeString(String s) {
             if(compile_mode == COMPILER_INCLUDES_COMPACT) {
                 if (s.isEmpty()) {
                     s += emptyString;
@@ -657,42 +697,47 @@ public abstract class FryFile {
 
         @Override
         public void writeArrayLength(int length) {
-            write(length);
+            writeInt(length);
         }
 
         @Override
-        public void write(Fryable[] fry) {
-
-        }
-
-        @Override
-        public void write(Object[] fry) {
+        public void writeFryables(Fryable[] fry) {
 
         }
 
         @Override
-        public void write(ArrayList<?> list) {
+        public void writeObjects(Object[] fry) {
 
         }
 
         @Override
-        public void write(SearchableList<?> list) {
+        public void writeObjects(ArrayList<?> list) {
 
         }
 
         @Override
-        public void writeSigned(byte b) {
-            write((short)(b + (b < 0 ? 256 : 0)));
+        public void writeObjects(SearchableList<?> list) {
+
         }
 
         @Override
-        public void writeSigned(short s) {
-            write(s + (s < 0 ? 65536 : 0));
+        public void writeUnsignedByte(byte b) {
+            writeShort((short)(b + (b < 0 ? 256 : 0)));
         }
 
         @Override
-        public void writeSigned(int i) {
-            write(i + (i < 0 ? 4294967296L : 0L));
+        public void writeUnsignedShort(short s) {
+            writeInt(s + (s < 0 ? 65536 : 0));
+        }
+
+        @Override
+        public void writeUnsignedInt(int i) {
+            writeLong(i + (i < 0 ? 4294967296L : 0L));
+        }
+
+        @Override
+        public void writeUnsignedLong(long l) {
+
         }
 
         @Override
@@ -700,9 +745,24 @@ public abstract class FryFile {
             return writeLine;
         }
 
+        @Override
+        public byte getUnsignedByte() {
+            return (byte)getShort();
+        }
+
+        @Override
+        public short getUnsignedShort() {
+            return (short)getInt();
+        }
+
+        @Override
+        public int getUnsignedInt() {
+            return (int)getLong();
+        }
+
         public Compact getCompact() {
             Compact comp = new Compact();
-            comp.load(readLine.get(readIndex++));
+            comp.loadFromString(readLine.get(readIndex++));
             return comp;
         }
 

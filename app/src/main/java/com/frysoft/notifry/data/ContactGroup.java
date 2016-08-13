@@ -1,11 +1,11 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.SearchableList;
 import com.frysoft.notifry.utils.User;
+
+import java.util.ArrayList;
 
 public class ContactGroup extends MySQLEntry {
 
@@ -30,7 +30,7 @@ public class ContactGroup extends MySQLEntry {
     }
 
     protected ContactGroup(int id, String name) {
-        super(TYPE_CONTACT_GROUP, id, User.getId());
+        super(TYPE_CONTACT_GROUP, id, 0);
         Logger.Log("ContactGroup", "ContactGroup(int,String)");
         this.name = name;
     }
@@ -109,13 +109,13 @@ public class ContactGroup extends MySQLEntry {
     public void writeTo(FryFile fry) {
         Logger.Log("ContactGroup", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(name);
+        fry.writeString(name);
 
         int[] uids = new int[contacts.size()];
         for(int i=0; i<uids.length; ++i) {
             uids[i] = contacts.get(i).user_id;
         }
-        fry.write(uids);
+        fry.writeIntArray(uids);
     }
 
     public String getContactsString() {

@@ -70,7 +70,7 @@ public class DateSpan implements Fryable {
         Logger.Log("DateSpan", "writeTo(FryFile)");
         date_start.writeTo(fry);
         time_start.writeTo(fry);
-        fry.write(duration);
+        fry.writeInt(duration);
     }
 
     public DateSpan copy() {

@@ -1,6 +1,7 @@
 package com.frysoft.notifry.utils;
 
 import com.frysoft.notifry.data.ConnectionManager;
+import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.MySQL;
 import com.frysoft.notifry.data.NetworkStateReciever;
 
@@ -40,7 +41,7 @@ public class User {
     private static String password;
 
     public static boolean isOnline() {
-        return online;
+        return (online && App.hasInternetConnection);
     }
 
     public static boolean isLocal() {
@@ -60,7 +61,7 @@ public class User {
     }
 
     public static void logout() {
-        Utils.saveData();
+        Data.save();
         deleteLogin();
         MySQL.setLoginData(0, "");
 
@@ -70,13 +71,13 @@ public class User {
         password = null;
         online = false;
 
-        Utils.loadData();
+        Data.load();
     }
 
     public static void login(String email, String password) {
         User.email = email;
         User.password = password;
-        Utils.loadData();
+        Data.load();
         NetworkStateReciever.checkInternet();
     }
 
@@ -166,9 +167,9 @@ public class User {
         }
 
         FryFile fry = new FryFile.Split("\n");
-        fry.write("email=" + email);
-        fry.write("password=" + password);
-        fry.save(outputStream);
+        fry.writeString("email=" + email);
+        fry.writeString("password=" + password);
+        fry.saveToStream(outputStream);
     }
 
     public static void loadLogin() {
@@ -176,12 +177,13 @@ public class User {
         try {
             inputStream = App.getFileInputStream("login.fry");
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+            System.out.println("# NO LOGIN FILE");
+            //ex.printStackTrace();
             return;
         }
 
         FryFile fry = new FryFile.Split("\n");
-        fry.load(inputStream);
+        fry.loadFromStream(inputStream);
 
         email = fry.getString().split("=")[1];
         password = fry.getString().split("=")[1];
@@ -195,12 +197,12 @@ public class User {
         return (email + ".fry");
     }
 
-    protected static void encode(FryFile fry) {
+    public static void encode(FryFile fry) {
         fry.writeEncoded(email, CODE, 0);
         fry.writeEncoded(password, CODE, email.length());
     }
 
-    protected static boolean decode(FryFile fry) {
+    public static boolean decode(FryFile fry) {
         return (email.equals(fry.getDecoded(CODE, 0)) && password.equals(fry.getDecoded(CODE, email.length())));
     }
 

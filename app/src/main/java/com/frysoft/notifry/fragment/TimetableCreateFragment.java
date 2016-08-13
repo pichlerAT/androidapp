@@ -17,14 +17,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import java.util.Calendar;
-
 import com.frysoft.notifry.R;
-import com.frysoft.notifry.data.TimetableEntry;
+import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.Time;
+
+import java.util.Calendar;
 
 /**
  * Created by Edwin Pichler on 26.06.2016.
@@ -194,7 +194,7 @@ public class TimetableCreateFragment extends Fragment {
             case R.id.action_done:
                 //byte addition, String title, String description, DateSpan span, TimetableCategory category
                 DateSpan span = new DateSpan(date_start, time_start, date_end, time_end);
-                TimetableEntry.create(title.getText().toString(), description.getText().toString(), span, null, repeat);
+                Data.create.TimetableEntry(null, title.getText().toString(), description.getText().toString(), date_start, date_end, time_start, time_end, 0 , (short)1, (short)1, (short)0);
                 getActivity().onBackPressed();
                 return true;
             default:

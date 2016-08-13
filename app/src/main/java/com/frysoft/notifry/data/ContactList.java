@@ -1,11 +1,11 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.SearchableList;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ContactList {
 
@@ -19,25 +19,27 @@ public class ContactList {
 
     }
 
-    public static void writeTo(FryFile file) {
+    protected static void writeTo(FryFile file) {
         Logger.Log("ContactList", "writeTo(FryFile)");
-        file.write(getAllContacts());
-        file.write(groups.subList(0,groups.size()-1).toArray());
+        file.writeObjects(getAllContacts());
+        file.writeObjects(groups.subList(0, groups.size()-1).toArray());
     }
 
-    public static void readFrom(FryFile fry) {
-        Logger.Log("ContactList", "readFrom(FryFile)");
-
+    protected static void resetData() {
         groups = new ArrayList<>();
-        ContactGroup all = new ContactGroup("All Contacts");
-        groups.add(all);
+        groups.add(new ContactGroup("All Contacts"));
+    }
 
-        int NoContacts = fry.getChar();
+    protected static void readFrom(FryFile fry) {
+        Logger.Log("ContactList", "readFrom(FryFile)");
+        ContactGroup all = groups.get(0);
+
+        int NoContacts = fry.getArrayLength();
         for(int i=0; i<NoContacts; ++i) {
             all.contacts.add(new Contact(fry));
         }
 
-        int NoContactGroups = fry.getChar();
+        int NoContactGroups = fry.getArrayLength();
         for(int i=0; i<NoContactGroups; ++i) {
             groups.add(groups.size()-1, new ContactGroup(fry));
         }
@@ -115,7 +117,7 @@ public class ContactList {
         }
         */
         for(int i=offIsOn.length-1; i>=0; --i) {
-            if(!offIsOn[i] && groups.get(i).id != 0) {
+            if(!offIsOn[i] && groups.get(i).isOnline()) {
                 groups.remove(i);
             }
         }

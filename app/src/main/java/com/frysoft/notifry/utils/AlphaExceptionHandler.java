@@ -5,8 +5,6 @@ import android.content.Intent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.frysoft.notifry.data.MySQL;
-
 public class AlphaExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     protected Thread.UncaughtExceptionHandler defaultEH;

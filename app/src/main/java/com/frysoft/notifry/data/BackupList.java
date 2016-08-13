@@ -1,10 +1,10 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class BackupList<E extends MySQLEntry> {
 
@@ -124,7 +124,7 @@ public class BackupList<E extends MySQLEntry> {
         for(int i=isOnline.length-1; i>=0; --i) {
             if(!isOnline[i]) {
                 E element = list.get(i);
-                if(element.id == 0) {
+                if(element.isOffline()) {
                     element.create();
                 }else {
                     list.remove(i);
@@ -142,13 +142,13 @@ public class BackupList<E extends MySQLEntry> {
                 list.add(online);
 
             }else {
-                if(online.canEdit()) {
+                if(online.isOwner()) {
                     // delete online
                     online.delete();
 
                 }else {
                     // delete share
-                    (new Share(online.getType(), 0, User.getId(), (byte)0, online.id, null, null)).deleteWithoutId();
+                    (new Share(online.getType(), 0, User.getId(), online.id, (byte)0, null, null)).deleteWithoutId();
 
                 }
             }
@@ -158,7 +158,7 @@ public class BackupList<E extends MySQLEntry> {
                 System.out.println("----- backupIndex < 0 : share_id="+online.id+", listIndex="+listIndex);
 
             }else {
-                if (online.canEdit()) {
+                if (online.isOwner()) {
                     E offline = list.get(listIndex);
                     E backup = backupList.get(backupIndex);
 

@@ -7,14 +7,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.User;
-import com.frysoft.notifry.utils.Utils;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class NetworkStateReciever extends BroadcastReceiver {
 
@@ -32,15 +31,26 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 return;
             }
         }
-        Utils.hasInternetConnection = false;
+        App.hasInternetConnection = false;
     }
 
     public static void checkInternet() {
         Logger.Log("NetworkStateReciever", "checkInternet()");
-        if(!Utils.hasInternetConnection && !checkingForInternet) {
+        if(!checkingForInternet) {
 
-            checkingForInternet = true;
-            (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if(!App.hasInternetConnection) {
+                checkingForInternet = true;
+                (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            }else {
+                if(!User.isLocal() && !User.isOnline()) {
+                    User.logon();
+                }
+
+                if(User.isOnline()) {
+                    ConnectionManager.sync();
+                }
+            }
         }
     }
 
@@ -49,11 +59,11 @@ public class NetworkStateReciever extends BroadcastReceiver {
         @Override
         protected String doInBackground(String... params) {
             Logger.Log("NetworkStateReciever$CheckInternetConnection", "doInBackground(String...)");
-            Utils.hasInternetConnection = hasActiveInternetConnection();
+            App.hasInternetConnection = hasActiveInternetConnection();
 
-            if(Utils.hasInternetConnection) {
+            if(App.hasInternetConnection) {
+
                 if(!User.isLocal() && !User.isOnline()) {
-
                     User.logon();
                 }
 
@@ -61,7 +71,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
                     ConnectionManager.sync();
                 }
 
-                if(Utils.isAppActive) {
+                if(App.isAppActive) {
                     Updater.start();
                 }
             }

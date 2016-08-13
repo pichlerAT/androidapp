@@ -2,8 +2,6 @@ package com.frysoft.notifry.utils;
 
 import android.content.Intent;
 
-import com.frysoft.notifry.data.MySQL;
-
 public class Logger {
 
     public static final boolean PRINT = false;

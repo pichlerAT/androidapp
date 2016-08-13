@@ -9,10 +9,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Contact;
+
+import java.util.ArrayList;
 
 /**
  * Created by Edwin Pichler on 21.05.2016.

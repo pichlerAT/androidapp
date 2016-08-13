@@ -9,27 +9,27 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
 
     protected byte state;
 
-    protected int table_id;
-
     protected String description;
+
+    protected Tasklist tasklist;
 
     protected TasklistEntry(FryFile fry) {
         super(fry);
         Logger.Log("TasklistEntry", "TasklistEntry(FryFile)");
-        state = fry.getByte();
         description = fry.getString();
+        state = fry.getByte();
     }
 
-    protected TasklistEntry(int id, int user_id, byte state, int table_id, String description) {
+    protected TasklistEntry(int id, int user_id, Tasklist tasklist, String description, byte state) {
         super(TYPE_TASKLIST_ENTRY, id, user_id);
         Logger.Log("TasklistEntry", "TasklistEntry(int,int,byte,int,String)");
-        this.state = state;
-        this.table_id = table_id;
+        this.tasklist = tasklist;
         this.description = description;
+        this.state = state;
     }
 
-    protected TasklistEntry(String description, boolean state) {
-        this(0, User.getId(), (state ? (byte)1 : (byte)0), 0, description);
+    protected TasklistEntry(Tasklist tasklist, String description, boolean state) {
+        this(0, 0, tasklist, description, (state ? (byte)1 : (byte)0));
         Logger.Log("TasklistEntry", "TasklistEntry(String,boolean)");
     }
 
@@ -46,13 +46,13 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     public TasklistEntry backup() {
         Logger.Log("TasklistEntry", "backup()");
-        return new TasklistEntry(id, user_id, state, table_id, description);
+        return new TasklistEntry(id, user_id, tasklist, description, state);
     }
 
     @Override
     protected boolean mysql_create() {
         Logger.Log("TasklistEntry", "mysql_create()");
-        String resp = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(table_id)+"&description="+description+"&state="+signed(state));
+        String resp = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(tasklist.id)+"&description="+description+"&state="+signed(state));
         if(resp != null) {
             id = Integer.parseInt(resp);
             return true;
@@ -83,22 +83,22 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     public boolean canEdit() {
         Logger.Log("TasklistEntry", "canEdit()");
-        return (isOwner() || TasklistManager.getTasklistById(table_id).shares.isSharedWithUserId(User.getId()));
+        return (isOwner() || Data.Tasklists.getById(tasklist.id).shares.isSharedWithUserId(User.getId()));
     }
 
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("TasklistEntry", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(state);
-        fry.write(description);
+        fry.writeString(description);
+        fry.writeUnsignedByte(state);
     }
 
     public void set(String description,boolean state) {
         Logger.Log("TasklistEntry", "set(String,boolean)");
         this.description = description;
         this.state = ( state ? (byte)1 : (byte)0 );
-        if(table_id != 0) {
+        if(tasklist.isOnline()) {
             update();
         }
     }
@@ -106,7 +106,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     public void setDescription(String description, boolean state) {
         Logger.Log("TasklistEntry", "setDescription(String,boolean)");
         this.description = description;
-        if(table_id != 0) {
+        if(tasklist.isOnline()) {
             update();
         }
     }
@@ -114,7 +114,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     public void setState(boolean state) {
         Logger.Log("TasklistEntry", "setState(boolean)");
         this.state = ( state ? (byte)1 : (byte)0 );
-        if(table_id != 0) {
+        if(tasklist.isOnline()) {
             update();
         }
     }
@@ -139,7 +139,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
 
     public boolean equals(TasklistEntry ent) {
         Logger.Log("TasklistEntry", "equals(TasklistEntry)");
-        return (id == ent.id && table_id == ent.table_id && user_id == ent.user_id && state == ent.state && description.equals(ent.description));
+        return (id == ent.id && tasklist.id == ent.tasklist.id && user_id == ent.user_id && state == ent.state && description.equals(ent.description));
     }
 
 }

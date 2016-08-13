@@ -9,23 +9,24 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
+import com.frysoft.notifry.R;
+import com.frysoft.notifry.data.ConnectionManager;
+import com.frysoft.notifry.data.Data;
+import com.frysoft.notifry.data.MySQLListener;
+import com.frysoft.notifry.data.NetworkStateReciever;
+import com.frysoft.notifry.data.Updater;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import com.frysoft.notifry.R;
-import com.frysoft.notifry.data.ConnectionManager;
-import com.frysoft.notifry.data.ContactList;
-import com.frysoft.notifry.data.MySQLListener;
-import com.frysoft.notifry.data.NetworkStateReciever;
-import com.frysoft.notifry.data.Tags;
-import com.frysoft.notifry.data.TasklistManager;
-import com.frysoft.notifry.data.Timetable;
-import com.frysoft.notifry.data.Updater;
-
 public class App extends Application {
+
+    public static boolean isAppActive = true;
+
+    public static boolean hasInternetConnection = false;
 
     protected static Context mContext;
 
@@ -46,7 +47,25 @@ public class App extends Application {
         // -----------------------------------------------------
 
         User.loadLogin();
-        Utils.loadData();
+        Data.load();
+        NetworkStateReciever.checkInternet();
+    }
+
+    public static void setMySQLListener(MySQLListener mysql_Listener) {
+        Logger.Log("App", "setMySQLListener(MySQLListener)");
+        ConnectionManager.setMySQLListener(mysql_Listener);
+    }
+
+    public static void onPause() {
+        Logger.Log("App", "onPause()");
+        isAppActive = false;
+        Updater.stop();
+        Data.save();
+    }
+
+    public static void onResume() {
+        Logger.Log("App", "onResume()");
+        isAppActive = true;
         NetworkStateReciever.checkInternet();
     }
 

@@ -1,12 +1,10 @@
 package com.frysoft.notifry.data;
 
 import com.frysoft.notifry.utils.Date;
-import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.Time;
-import com.frysoft.notifry.utils.User;
 
 import java.util.ArrayList;
 
@@ -77,6 +75,8 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected int days;
 
+    public ShareList shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
+
     protected void updateMisc() {
         repeat_daily = ((addition & REPEAT_DAILY) > 0);
         repeat_weekly = ((addition & REPEAT_WEEKLY) > 0);
@@ -112,67 +112,28 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
     }
 
-    public ShareList shares;
-
-    public static TimetableEntry create(Category category, String title, String description, Date date_start, Date date_end,
-                                        Time time_start, Time time_end, int color, Date date_repeat_until, short intervall, short... additions) {
-
-        short addition = REPEAT_UNTIL;
-        for(short a : additions) {
-            addition |= a;
-        }
-
-        return create(category, title, description, date_start, date_end, time_start, time_end, color, date_repeat_until.getShort(), intervall, addition);
-    }
-
-    public static TimetableEntry create(Category category, String title, String description, Date date_start, Date date_end,
-                                        Time time_start, Time time_end, int color, short repetitions, short intervall, short... additions) {
-        Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
-
-        short addition = 0;
-
-        for(short a : additions) {
-            addition |= a;
-        }
-
-        int duration = time_end.time - time_start.time + Time.MAX_TIME * date_start.getDaysUntil(date_end);
-
-        TimetableEntry ent = new TimetableEntry(0, User.getId(), category, title, description, date_start.getShort(), time_start.time, duration, addition, color, 0, repetitions, intervall);
-
-        if (category != null && category.id == 0) {
-            category.addOfflineEntry(ent);
-            return ent;
-        }
-
-        Timetable.entries.add(ent);
-        ent.create();
-        return ent;
-    }
-
     protected TimetableEntry(FryFile fry) {
         super(fry);
         Logger.Log("TimetableEntry", "TimetableEntry(FryFile)");
 
-        category = Timetable.getCategoryById(fry.getInt());
+        category = Data.Categories.getById(fry.getInt());
         title = fry.getString();
         description = fry.getString();
         date_start = fry.getShort();
         time_start = fry.getShort();
         duration = fry.getInt();
         addition = fry.getShort();
-        color = fry.getInt();
-        google_id = fry.getInt();
         end = fry.getShort();
         intervall = signed(fry.getByte());
+        color = fry.getInt();
+        google_id = fry.getInt();
+        shares.readFrom(fry);
 
-        if(id != 0) {
-            shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
-        }
         updateMisc();
     }
 
     protected TimetableEntry(int id, int user_id, Category category, String title, String description, short date_start,
-                             short time_start, int duration, short addition, int color, int google_id, short end, short intervall) {
+                             short time_start, int duration, short addition, short end, short intervall, int color, int google_id) {
         super(TYPE_CALENDAR_ENTRY, id, user_id);
 
         this.category = category;
@@ -182,21 +143,18 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         this.time_start = time_start;
         this.duration = duration;
         this.addition = addition;
-        this.color = color;
-        this.google_id = google_id;
         this.end = end;
         this.intervall = intervall;
+        this.color = color;
+        this.google_id = google_id;
 
-        if(id != 0) {
-            shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
-        }
         updateMisc();
     }
 
     protected TimetableEntry(int id, int user_id, int category_id, String title, String description, short date_start,
-                             short time_start, int duration, short addition, int color, int google_id, short end, short intervall) {
-        this(id, user_id, Timetable.getCategoryById(category_id), title, description, date_start,
-                time_start, duration, addition, color, google_id, end, intervall);
+                             short time_start, int duration, short addition, short end, short intervall, int color, int google_id) {
+        this(id, user_id, Data.Categories.getById(category_id), title, description, date_start,
+                time_start, duration, addition, end, intervall, color, google_id);
     }
 
     @Override
@@ -214,7 +172,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     public TimetableEntry backup() {
         Logger.Log("TimetableEntry", "backup()");
-        return new TimetableEntry(id, user_id, category, title, description, date_start, time_start, duration, addition, color, google_id, end, intervall);
+        return new TimetableEntry(id, user_id, category, title, description, date_start, time_start, duration, addition, end, intervall, color, google_id);
     }
 
     @Override
@@ -222,11 +180,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "mysql_create()");
         String resp = executeMySQL(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title + "&description=" + description
                 + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&color=" + signed(color) + "&end=" + signed(end) + "&intervall=" + intervall);
+                + "&addition="+signed(addition) + "&color=" + color + "&end=" + signed(end) + "&intervall=" + intervall);
         if(resp != null) {
             id = Integer.parseInt(resp);
 
-            if(id != 0) {
+            if(isOnline()) {
                 shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
             }
             return true;
@@ -239,7 +197,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "mysql_update()");
         return (executeMySQL(DIR_CALENDAR_ENTRY + "update.php", "&id=" + signed(id) + "&category_id=" + signed(getCategoryId()) + "&title=" + title
                 + "&description=" + description + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&color=" + signed(color) + "&google_id=" + signed(google_id) + "&end=" + signed(end)
+                + "&addition="+signed(addition) + "&color=" + color + "&google_id=" + signed(google_id) + "&end=" + signed(end)
                 + "&intervall=" + intervall) != null);
     }
 
@@ -277,29 +235,25 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public void writeTo(FryFile fry) {
         Logger.Log("TimetableEntry", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(getCategoryId());
-        fry.write(title);
-        fry.write(description);
-        fry.write(date_start);
-        fry.write(time_start);
-        fry.write(duration);
-        fry.write(addition);
-        fry.write(color);
-        fry.write(google_id);
-        fry.write(end);
-        fry.write((byte)intervall);
+        fry.writeUnsignedInt(getCategoryId());
+        fry.writeString(title);
+        fry.writeString(description);
+        fry.writeUnsignedShort(date_start);
+        fry.writeUnsignedShort(time_start);
+        fry.writeUnsignedInt(duration);
+        fry.writeUnsignedShort(addition);
+        fry.writeUnsignedShort(end);
+        fry.writeUnsignedByte((byte)intervall);
+        fry.writeInt(color);
+        fry.writeUnsignedInt(google_id);
+        shares.writeTo(fry);
     }
 
     @Override
     public void delete() {
         Logger.Log("TimetableEntry", "delete()");
-        if(category != null && getCategoryId() == 0) {
-            category.offline_entries.remove(this);
-
-        }else {
-            Timetable.entries.remove(this);
-        }
         super.delete();
+        Data.Timetable.Entries.remove(this);
     }
 
     protected int getCategoryId() {

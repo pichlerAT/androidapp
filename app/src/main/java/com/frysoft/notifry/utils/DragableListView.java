@@ -21,11 +21,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.adapter.TaskAdapter;
 import com.frysoft.notifry.data.Tasklist;
-import com.frysoft.notifry.data.TasklistManager;
+
+import java.util.ArrayList;
 
 /**
  * Created by Edwin Pichler on 11.06.2016.
@@ -268,7 +267,7 @@ public class DragableListView extends ListView {
                 return;
             }
 
-            swapElements(TasklistManager.getTasklists(), originalItem, getPositionForView(switchView));
+            //swapElements(TasklistManager.getTasklists(), originalItem, getPositionForView(switchView));
             mobileView.setVisibility(View.VISIBLE);
             ((TaskAdapter) getAdapter()).notifyDataSetChanged();
 

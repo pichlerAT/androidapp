@@ -1,8 +1,8 @@
 package com.frysoft.notifry.utils;
 
-import java.util.Calendar;
-
 import com.frysoft.notifry.R;
+
+import java.util.Calendar;
 
 public class Date implements Fryable {
 
@@ -66,7 +66,7 @@ public class Date implements Fryable {
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Date", "writeTo(FryFile)");
-        fry.write(getShort());
+        fry.writeShort(getShort());
     }
 
     @Override

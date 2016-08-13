@@ -3,7 +3,6 @@ package com.frysoft.notifry.adapter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -25,17 +24,17 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.activity.TaskCreateActivity;
-import com.frysoft.notifry.data.Share;
-import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactGroup;
+import com.frysoft.notifry.data.Share;
 import com.frysoft.notifry.data.Tasklist;
 import com.frysoft.notifry.data.TasklistEntry;
+import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.SearchableList;
+
+import java.util.ArrayList;
 
 public class TaskAdapter extends ArrayAdapter<Tasklist>{
 

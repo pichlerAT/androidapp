@@ -1,5 +1,12 @@
 package com.frysoft.notifry.data;
 
+import android.support.annotation.Nullable;
+
+import com.frysoft.notifry.utils.FryFile;
+import com.frysoft.notifry.utils.Fryable;
+import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.User;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,11 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import com.frysoft.notifry.utils.FryFile;
-import com.frysoft.notifry.utils.Fryable;
-import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 public abstract class MySQL implements Fryable {
 
@@ -71,6 +73,7 @@ public abstract class MySQL implements Fryable {
 
     public static final char TYPE_TAG               = 0x1000;
 
+    @Nullable
     public static String execute(String addr, String data) {
         Logger.Log("MySQL", "execute(String,String)");
         try {
@@ -135,6 +138,7 @@ public abstract class MySQL implements Fryable {
         }
     }
 
+    @Nullable
     public static String executeMySQL(String addr, String data) {
         Logger.Log("MySQL", "executeMySQL(String,String)");
         String resp = execute(ADR_MYSQL + addr, UserIdAndPassword + data);
@@ -178,16 +182,26 @@ public abstract class MySQL implements Fryable {
     }
 
     protected MySQL(FryFile fry) {
-        this(fry.getChar(), fry.getInt(), fry.getInt());
-        Logger.Log("MySQL", "MySQL(FryFile)");
+        Logger.Log("MySQL", "MySQL(FryFile,boolean)");
+        /*
+        if(!online) {
+            this.type = fry.getChar();
+        }
+        */
+        this.id = fry.getUnsignedInt();
+        this.user_id = fry.getUnsignedInt();
+
+        if(user_id == 0) {
+            create();
+        }
     }
 
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("MySQL", "writeTo(FryFile)");
-        fry.write(type);
-        fry.write(id);
-        fry.write(user_id);
+        //fry.writeChar(type);
+        fry.writeUnsignedInt(id);
+        fry.writeUnsignedInt(user_id);
     }
 
     protected abstract boolean mysql_create();
@@ -225,6 +239,14 @@ public abstract class MySQL implements Fryable {
         return true;
     }
 
+    protected boolean isOffline() {
+        return (user_id == 0);
+    }
+
+    protected boolean isOnline() {
+        return (user_id != 0);
+    }
+
     protected final void create() {
         Logger.Log("MySQL", "create()");
         type = (char)((type & TYPE) | BASETYPE_CREATE);
@@ -233,7 +255,7 @@ public abstract class MySQL implements Fryable {
 
     protected final void update() {
         Logger.Log("MySQL", "update()");
-        if(id != 0) {
+        if(isOnline()) {
             type = (char)((type & TYPE) | BASETYPE_UPDATE);
             ConnectionManager.add(this);
         }
@@ -241,18 +263,15 @@ public abstract class MySQL implements Fryable {
 
     public void delete() {
         Logger.Log("MySQL", "delete()");
-        if(id != 0) {
+        if(isOnline()) {
             type = (char)((type & TYPE) | BASETYPE_DELETE);
             ConnectionManager.add(this);
-
-        }else {
-            type = (char)(type & TYPE);
         }
     }
 
     public final boolean isOwner() {
         Logger.Log("MySQL", "isOwner()");
-        return (user_id == User.getId());
+        return (user_id == User.getId() || user_id == 0);
     }
 
     public final char getBaseType() {

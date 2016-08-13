@@ -8,12 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.frysoft.notifry.R;
-import com.frysoft.notifry.data.ConnectionManager;
-import com.frysoft.notifry.data.MySQL;
-import com.frysoft.notifry.data.Timetable;
-import com.frysoft.notifry.data.TimetableEntry;
-import com.frysoft.notifry.utils.Date;
-import com.frysoft.notifry.utils.DateSpan;
+import com.frysoft.notifry.data.Contact;
+import com.frysoft.notifry.data.ContactList;
 import com.frysoft.notifry.utils.User;
 
 public class TestFragment extends Fragment {
@@ -24,13 +20,14 @@ public class TestFragment extends Fragment {
         setHasOptionsMenu(true);
 
         Button b = (Button) rootView.findViewById(R.id.b1);
-        b.setText("does nothing");
+        b.setText("print contacts");
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
-
+                for(Contact c : ContactList.getAllContacts()) {
+                    System.out.println("# " + c.getEmail());
+                }
 
             }
         });
@@ -47,7 +44,7 @@ public class TestFragment extends Fragment {
         });
 
         b = (Button) rootView.findViewById(R.id.b3);
-        b.setText("printAndroidCalendar");
+        b.setText("logout");
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,9 +53,8 @@ public class TestFragment extends Fragment {
 
                     @Override
                     public void run() {
-
-                        Timetable.printAndroidCalendar();
-
+                        System.out.println("#LOGOUT");
+                        User.logout();
                     }
 
                 })).start();

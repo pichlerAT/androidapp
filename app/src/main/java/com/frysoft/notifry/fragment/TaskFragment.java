@@ -12,14 +12,14 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.frysoft.notifry.R;
 import com.frysoft.notifry.activity.MainActivity;
 import com.frysoft.notifry.activity.TaskCreateActivity;
-import com.frysoft.notifry.data.TasklistManager;
-import com.frysoft.notifry.utils.App;
-import com.frysoft.notifry.R;
 import com.frysoft.notifry.adapter.TaskAdapter;
-import com.frysoft.notifry.utils.DragableListView;
+import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.MySQLListener;
+import com.frysoft.notifry.utils.App;
+import com.frysoft.notifry.utils.DragableListView;
 
 public class TaskFragment extends ListFragment{
 
@@ -31,14 +31,14 @@ public class TaskFragment extends ListFragment{
         setHasOptionsMenu(true);
         final DragableListView lv = (DragableListView) rootView.findViewById(android.R.id.list);
 
-        adapter = new TaskAdapter(App.getContext(), R.layout.fragment_task_listtemplate, TasklistManager.getTasklists());
+        adapter = new TaskAdapter(App.getContext(), R.layout.fragment_task_listtemplate, Data.Tasklists.getList());
         lv.setAdapter(adapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         App.setMySQLListener(new MySQLListener() {
             @Override
             public void mysql_finished() {
-                if (TasklistManager.size() == 0){
+                if (Data.Tasklists.size() == 0){
                     TextView text = (TextView) rootView.findViewById(R.id.textview_task_message);
                     text.setText("No tasks found");
                 }

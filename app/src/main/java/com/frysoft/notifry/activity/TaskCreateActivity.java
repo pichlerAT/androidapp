@@ -16,13 +16,13 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.adapter.TaskCreateAdapter;
+import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.Tasklist;
 import com.frysoft.notifry.data.TasklistEntry;
-import com.frysoft.notifry.data.TasklistManager;
+
+import java.util.ArrayList;
 
 /**
  * Created by Edwin Pichler on 04.05.2016.
@@ -105,7 +105,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
         entryListeners(taskEntries, entryName, entryRow);
 
         //Add all active tasks from the database of the current user to the viewpager
-        for (Tasklist tdl : TasklistManager.getTasklists()) {
+        for (Tasklist tdl : Data.Tasklists.getList()) {
             taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (EditText) taskView.findViewById(R.id.edittext_task_name);
@@ -142,7 +142,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
 
             adapter.addView(taskView);
             adapter.notifyDataSetChanged();
-            if (args != null && tdl == TasklistManager.get(index)) {
+            if (args != null && tdl == Data.Tasklists.get(index)) {
                 setCurrentPage(taskView);
             }
         }
@@ -158,7 +158,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
-                task = Tasklist.create(header.getText().toString(),0);
+                task = Data.create.Tasklist(null, header.getText().toString(), 0);
             } else {
                 task.rename(headerString);
             }
@@ -200,7 +200,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
             position = adapter.getItemPosition(getCurrentPage()) - 1;
 
         if (position >= 0) {
-            Tasklist tdl = TasklistManager.get(position);
+            Tasklist tdl = Data.Tasklists.get(position);
             taskList(tdl, position + 1);
         } else
             taskList(null, 0);

@@ -1,11 +1,8 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 public class Category extends MySQLEntry implements Fryable {
 
@@ -13,32 +10,14 @@ public class Category extends MySQLEntry implements Fryable {
 
     protected int color;
 
-    protected ArrayList<TimetableEntry> offline_entries = new ArrayList<>();
-
-    public ShareList shares;
-
-    public static Category create(String name, int color) {
-        Logger.Log("TimetableCategory", "create(String)");
-        Category cat = new Category(0, User.getId(), name, color);
-        cat.create();
-        Timetable.categories.add(cat);
-        return cat;
-    }
+    public ShareList shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
 
     protected Category(FryFile fry) {
         super(fry);
         Logger.Log("TimetableCategory", "TimetableCategory(FryFile)");
         name = fry.getString();
         color = fry.getInt();
-
-        int NoEntries = fry.getChar();
-        for(int i=0; i<NoEntries; ++i) {
-            offline_entries.add(new TimetableEntry(fry));
-        }
-
-        if(id != 0) {
-            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
-        }
+        shares.readFrom(fry);
     }
 
     protected Category(int id, int user_id, String name, int color) {
@@ -75,12 +54,19 @@ public class Category extends MySQLEntry implements Fryable {
         if(resp != null) {
             id = Integer.parseInt(resp);
             shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
-
+/*
             for(TimetableEntry ent : offline_entries) {
                 ent.category = this;
                 ent.create();
             }
             offline_entries = new ArrayList<>();
+
+            for(Tasklist tl : offline_tasklists) {
+                tl.category = this;
+                tl.create();
+            }
+            offline_tasklists = new ArrayList<>();
+*/
             return true;
         }
         return false;
@@ -116,9 +102,13 @@ public class Category extends MySQLEntry implements Fryable {
     public void writeTo(FryFile fry) {
         Logger.Log("TimetableCategory", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(name);
-        fry.write(color);
-        fry.write(offline_entries);
+        fry.writeString(name);
+        fry.writeInt(color);
+        shares.writeTo(fry);
+        /*
+        fry.writeObjects(offline_entries);
+        fry.writeObjects(offline_tasklists);
+        */
     }
 
     public int getColor() {
@@ -129,12 +119,16 @@ public class Category extends MySQLEntry implements Fryable {
         Logger.Log("TimetableCategory", "getName()");
         return name;
     }
-
+/*
     protected void addOfflineEntry(TimetableEntry entry) {
         Logger.Log("TimetableCategory", "addOfflineEntry(TimetableEntry)");
         offline_entries.add(entry);
     }
 
+    protected void addOfflineEntry(Tasklist tasklist) {
+        offline_tasklists.add(tasklist);
+    }
+*/
     public void set(String name, int color) {
         this.name = name;
         this.color = color;
@@ -154,7 +148,7 @@ public class Category extends MySQLEntry implements Fryable {
     public void delete() {
         Logger.Log("TimetableCategory", "delete()");
         super.delete();
-        Timetable.categories.remove(this);
+        Data.Categories.remove(this);
     }
 
 }

@@ -9,13 +9,13 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactGroup;
 import com.frysoft.notifry.data.ContactList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Edwin Pichler on 13.05.2016.

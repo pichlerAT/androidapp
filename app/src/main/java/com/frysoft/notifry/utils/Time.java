@@ -94,7 +94,7 @@ public class Time implements Fryable {
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Time", "writeTo(FryFile)");
-        fry.write(time);
+        fry.writeShort(time);
     }
 
     @Override

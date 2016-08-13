@@ -4,7 +4,7 @@ import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 
 public abstract class MySQLEntry extends MySQL {
-
+/*
     public static MySQLEntry load(char type, int id) {
         Logger.Log("MySQLEntry", "load(char,int)");
         switch((char)(type & TYPE)) {
@@ -27,7 +27,7 @@ public abstract class MySQLEntry extends MySQL {
         }
         return null;
     }
-
+*/
     protected MySQLEntry(FryFile fry) {
         super(fry);
         Logger.Log("MySQLEntry", "MySQLEntry(FryFile)");
@@ -37,10 +37,10 @@ public abstract class MySQLEntry extends MySQL {
         super(type, id, user_id);
         Logger.Log("MySQLEntry", "MySQLEntry(char,int,int)");
     }
-
+/*
     @Override
     public abstract boolean equals(Object o);
-
+*/
     public abstract Object backup();
 
     protected abstract void synchronize(MySQL mysql);

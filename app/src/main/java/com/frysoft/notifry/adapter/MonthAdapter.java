@@ -3,10 +3,6 @@ package com.frysoft.notifry.adapter;
 /**
  * Created by Edwin Pichler on 23.06.2016.
  */
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
 
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
@@ -19,11 +15,14 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import com.frysoft.notifry.R;
-import com.frysoft.notifry.data.Timetable;
 import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.utils.App;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 public class MonthAdapter extends BaseAdapter {
     private GregorianCalendar mCalendar;
@@ -201,13 +200,13 @@ public class MonthAdapter extends BaseAdapter {
                     convertView.setBackgroundColor(ContextCompat.getColor(App.getContext(), R.color.colorToday));
                 }
             }
-            ArrayList<TimetableEntry> entries = Timetable.getEntries(date[0], date[1], date[2]);
+            ArrayList<TimetableEntry> entries = new ArrayList<>();//Timetable.getEntries(date[0], date[1], date[2]);
             LinearLayout events = (LinearLayout) convertView.findViewById(R.id.linearlayout_timetable_grid_events);
             events.removeAllViews();
             for (TimetableEntry entry : entries){
                 TextView event = new TextView(App.getContext());
                 event.setBackgroundColor(Color.RED);
-                event.setText(entry.getTitle());
+                //event.setText(entry.getTitle());
                 events.addView(event);
             }
         }

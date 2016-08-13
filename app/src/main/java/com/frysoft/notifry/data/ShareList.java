@@ -1,10 +1,12 @@
 package com.frysoft.notifry.data;
 
-import java.util.ArrayList;
-
+import com.frysoft.notifry.utils.FryFile;
+import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 
-public class ShareList {
+import java.util.ArrayList;
+
+public class ShareList implements Fryable {
 
     /**
      * MySQL TYPE_...
@@ -21,6 +23,18 @@ public class ShareList {
         this.share_id = share_id;
     }
 
+    @Override
+    public void writeTo(FryFile fry) {
+        fry.writeObjects(storages);
+    }
+
+    public void readFrom(FryFile fry) {
+        int NoStorages = fry.getArrayLength();
+        for(int i=0; i<NoStorages; ++i) {
+            storages.add(new ShareStorage(fry));
+        }
+    }
+
     public void add(Contact cont) {
         Logger.Log("ShareList", "add(Contact)");
         add(cont, Share.PERMISSION_VIEW);
@@ -28,13 +42,13 @@ public class ShareList {
 
     public void add(Contact cont, byte permission) {
         Logger.Log("ShareList", "add(Contact,byte)");
-        Share share = new Share(type, 0, cont.user_id, permission, share_id, cont.email, cont.name);
+        Share share = new Share(type, 0, cont.user_id, share_id, permission, cont.email, cont.name);
         share.create();
     }
 
     protected void addStorage(byte permission, int id, int user_id) {
         Logger.Log("ShareList", "addStorage(byte,int,int)");
-        storages.add(new ShareStorage(permission, id, user_id));
+        storages.add(new ShareStorage(id, user_id, permission));
     }
 
     public boolean remove(Share share) {
@@ -55,7 +69,7 @@ public class ShareList {
         ContactGroup allShares = new ContactGroup(allContacts.name);
 
         for(Contact cont : allContacts.contacts) {
-            allShares.contacts.add(new Share(type, Share.PERMISSION_NONE, share_id, cont));
+            allShares.contacts.add(new Share(type, share_id, Share.PERMISSION_NONE, cont));
         }
 
         for(ShareStorage storage : storages) {
@@ -92,7 +106,7 @@ public class ShareList {
         return false;
     }
 
-    protected static class ShareStorage {
+    protected static class ShareStorage implements Fryable {
 
         protected byte permission;
 
@@ -100,13 +114,25 @@ public class ShareList {
 
         protected int user_id;
 
-        protected ShareStorage(byte permission,int id, int user_id) {
+        protected ShareStorage(FryFile fry) {
+            id = fry.getUnsignedInt();
+            user_id = fry.getUnsignedInt();
+            permission = fry.getUnsignedByte();
+        }
+
+        protected ShareStorage(int id, int user_id, byte permission) {
             Logger.Log("ShareList$ShareStorage", "ShareStorage(byte,int,int)");
             this.permission = permission;
             this.id = id;
             this.user_id = user_id;
         }
 
+        @Override
+        public void writeTo(FryFile fry) {
+            fry.writeUnsignedInt(id);
+            fry.writeUnsignedInt(user_id);
+            fry.writeUnsignedByte(permission);
+        }
     }
 
 }

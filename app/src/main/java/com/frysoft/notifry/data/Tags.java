@@ -1,7 +1,6 @@
 package com.frysoft.notifry.data;
 
 import com.frysoft.notifry.utils.Date;
-import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Time;
@@ -10,8 +9,8 @@ import com.frysoft.notifry.utils.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Tags extends MySQL {
-
+public class Tags /*extends MySQL*/ {
+/*
     protected static final Date DATE_ZERO = new Date(0, 0, 2000);
 
     protected static Tags manager = new Tags(0);
@@ -93,7 +92,7 @@ public class Tags extends MySQL {
     protected String getData() {
         FryFile fry = new FryFile.Compact();
 
-        fry.write(tags);
+        fry.writeObjects(tags);
 
         return fry.getWrittenString();
     }
@@ -101,7 +100,7 @@ public class Tags extends MySQL {
     @Override
     public void writeTo(FryFile fry) {
         super.writeTo(fry);
-        fry.write(tags);
+        fry.writeObjects(tags);
     }
 
     public static class Tag implements Fryable {
@@ -256,11 +255,7 @@ public class Tags extends MySQL {
             if(category_id == 0) {
                 return null;
             }
-            return Timetable.getCategoryById(category_id);
-        }
-
-        public DateSpan getDateSpan(Date start) {
-            return null; // TODO
+            return Data.Categories.getById(category_id);
         }
 
         public Integer getColor() {
@@ -269,9 +264,9 @@ public class Tags extends MySQL {
 
         @Override
         public void writeTo(FryFile fry) {
-            fry.write(name);
-            fry.write(additions);
-            fry.write(category_id);
+            fry.writeString(name);
+            fry.writeUnsignedShort(additions);
+            fry.writeUnsignedInt(category_id);
 
             char indicator = 0;
 
@@ -291,27 +286,27 @@ public class Tags extends MySQL {
                 indicator |= 0x0010;
             }
 
-            fry.write(indicator);
+            fry.writeChar(indicator);
 
             if(title != null) {
-                fry.write(title);
+                fry.writeString(title);
             }
             if(description != null) {
-                fry.write(description);
+                fry.writeString(description);
             }
             if(time != null) {
-                fry.write(time.time);
+                fry.writeUnsignedShort(time.time);
             }
             if(duration != null) {
-                fry.write(duration);
+                fry.writeUnsignedInt(duration);
             }
             if(color != null) {
-                fry.write(color);
+                fry.writeInt(color);
             }
 
-            fry.write(shares);
+            fry.writeIntArray(shares);
         }
 
     }
-
+*/
 }

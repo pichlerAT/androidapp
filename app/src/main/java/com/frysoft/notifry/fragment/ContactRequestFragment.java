@@ -13,8 +13,8 @@ import com.frysoft.notifry.R;
 import com.frysoft.notifry.activity.MainActivity;
 import com.frysoft.notifry.adapter.ContactRequestAdapter;
 import com.frysoft.notifry.data.ContactList;
-import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.data.MySQLListener;
+import com.frysoft.notifry.utils.App;
 
 /**
  * Created by Edwin Pichler on 19.05.2016.

@@ -28,8 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.activity.MainActivity;
 import com.frysoft.notifry.adapter.ContactAdapter;
@@ -37,6 +35,8 @@ import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactList;
 import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.utils.App;
+
+import java.util.ArrayList;
 
 /**
  * Created by Edwin Pichler on 28.04.2016.

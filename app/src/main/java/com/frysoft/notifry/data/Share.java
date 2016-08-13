@@ -17,15 +17,15 @@ public class Share extends Contact {
 
     protected int share_id;
 
-    public Share(char type, int id, int user_id, byte permission, int share_id, String email, String name) {
+    protected Share(char type, int id, int user_id, int share_id, byte permission, String email, String name) {
         super(type, id, user_id, email, name);
         Logger.Log("Share", "Share(char,int,int,byte,int,String,String)");
-        this.permission = permission;
         this.share_id = share_id;
+        this.permission = permission;
     }
 
-    protected Share(char type, byte permission, int share_id, Contact contact) {
-        this(type, 0, contact.user_id, permission, share_id, contact.email, contact.name);
+    protected Share(char type, int share_id, byte permission, Contact contact) {
+        this(type, 0, contact.user_id, share_id, permission, contact.email, contact.name);
         Logger.Log("Share", "Share(char,byte,int,Contact)");
     }
 
@@ -57,18 +57,18 @@ public class Share extends Contact {
     public void writeTo(FryFile fry) {
         Logger.Log("Share", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.write(permission);
-        fry.write(share_id);
+        fry.writeUnsignedInt(share_id);
+        fry.writeUnsignedByte(permission);
     }
 
     protected boolean store() {
         switch(type) {
             case TYPE_CALENDAR:
-                Timetable.shares.addStorage(permission, id, user_id);
+                Data.Timetable.Shares.addStorage(permission, id, user_id);
                 return true;
 
             case TYPE_CALENDAR_CATEGORY:
-                Category cat = Timetable.getCategoryById(share_id);
+                Category cat = Data.Categories.getById(share_id);
                 if(cat == null) {
                     delete();
                     return false;
@@ -77,7 +77,7 @@ public class Share extends Contact {
                 return true;
 
             case TYPE_CALENDAR_ENTRY:
-                TimetableEntry ent = Timetable.getEntryById(share_id);
+                TimetableEntry ent = Data.Timetable.Entries.getById(share_id);
                 if(ent == null) {
                     delete();
                     return false;
@@ -86,7 +86,7 @@ public class Share extends Contact {
                 return true;
 
             case TYPE_TASKLIST:
-                Tasklist tl = TasklistManager.getTasklistById(share_id);
+                Tasklist tl = Data.Tasklists.getById(share_id);
                 if(tl == null) {
                     delete();
                     return false;
@@ -110,9 +110,7 @@ public class Share extends Contact {
     public void setPermission(byte permission) {
         Logger.Log("Share", "setPermission(byte)");
         this.permission = permission;
-        if(id == 0) {
-            create();
-        }else {
+        if(isOnline()) {
             update();
         }
     }
