@@ -73,45 +73,82 @@ public class User {
         Data.load();
     }
 
-    public static void login(String email, String password) {
+    public static boolean login(String email, String password) {
+        User.email = email;
+
+        FileInputStream inputStream;
+        try {
+            inputStream = App.getFileInputStream(User.getFileName());
+        }catch(FileNotFoundException ex) {
+            System.out.println("# NO USER FILE: " + User.getEmail());
+            //ex.printStackTrace();
+            User.email = LOCAL;
+            return false;
+        }
+
+        FryFile fry = new FryFile.Compact();
+        if(!fry.loadFromStream(inputStream)) {
+            Logger.Log("App#load()","Could not load local file");
+            // TODO could not load local file
+            User.email = LOCAL;
+            return false;
+        }
+
+        if(!User.decode(fry)) {
+            User.email = LOCAL;
+            return false;
+        }
+
+        System.out.println("Fry-Soft: Succesfully loaded user data");
+        System.out.println("Fry-Soft: email = "+User.getEmail());
+
         User.email = email;
         User.password = password;
         Data.load();
         NetworkStateReciever.checkInternet();
+
+        return true;
     }
 
     protected static boolean logon() {
         String resp = MySQL.execute(MySQL.ADR_USER + "login.php", "email=" + email + "&password=" + password);
 
         if(resp == null) {
+            logout();
             return false;
         }
 
         if(resp.equals("err_l0")) {
             // TODO Message: email not registered
+            logout();
             return false;
 
         }else if(resp.equals("err_l1")) {
             // TODO Message: email not veryfied
+            logout();
             return false;
 
         }else if(resp.equals("err_l2")) {
             // TODO Message: wrong password
+            logout();
             return false;
         }
 
         if(resp.length() > 4 && resp.substring(0,4).equals("err_")) {
+            logout();
             return false;
         }
 
         String[] r = resp.split("" + (char)0);
         if(r.length != 2) {
+            logout();
             return false;
         }
 
         try {
             id = Integer.parseInt(r[0]);
         }catch(NumberFormatException ex) {
+            logout();
             return false;
         }
 

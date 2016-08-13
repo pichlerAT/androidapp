@@ -133,7 +133,17 @@ public class Data {
 
     }
 
+    public static Category getCategoryByName(String name) {
+        for(Category cat : Categories.getList()) {
+            if(cat.name.equals(name)) {
+                return cat;
+            }
+        }
+        return null;
+    }
+
     public static void load() {
+        User.loadLogin();
         FryFile fry = getFryFile();
         ContactList.resetData();
         resetData();
@@ -208,10 +218,6 @@ public class Data {
         saveFileVersion = fry.getChar();
 
         if(User.decode(fry)) {
-
-            System.out.println("Fry-Soft: Succesfully loaded user data");
-            System.out.println("Fry-Soft: email = "+User.getEmail());
-
             return fry;
         }
 

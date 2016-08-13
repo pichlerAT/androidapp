@@ -47,7 +47,6 @@ public class App extends Application {
         Thread.setDefaultUncaughtExceptionHandler(defaultEH);
         // -----------------------------------------------------
 
-        User.loadLogin();
         Data.load();
         NetworkStateReciever.checkInternet();
     }
