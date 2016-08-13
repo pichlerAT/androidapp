@@ -31,6 +31,10 @@ public abstract class Event {
         return entry.title;
     }
 
+    public String getDescription() {
+        return entry.description;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -40,7 +44,7 @@ public abstract class Event {
     }
 
     public boolean isWholeDay() {
-        return false;//(entry.time_start == Time.MIN_TIME && ((entry.duration + 1) % Time.MAX_TIME) == 0);
+        return false;
     }
 
     /**
