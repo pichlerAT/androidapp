@@ -184,9 +184,6 @@ public class User {
         if(email == null || email.isEmpty() || !emailPattern.matcher(email).matches()) {
             return ERR_INVALID_EMAIL;
         }
-        if(!User.password.equals(password)) {
-            return ERR_WRONG_PASSWORD;
-        }
 
         ConnectionManager.add(new user.register(email, name ,password));
         return SUCCESS;
