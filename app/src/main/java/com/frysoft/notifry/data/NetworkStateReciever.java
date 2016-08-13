@@ -18,6 +18,8 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
     protected static boolean checkingForInternet = false;
 
+    protected static LogonUser logonUser = new LogonUser();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.Log("NetworkStateReciever", "onReceive(Context,Intent)");
@@ -43,20 +45,10 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             }else {
-                doUserStuff();
+                if(logonUser.getStatus() == AsyncTask.Status.PENDING) {
+                    logonUser.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
             }
-        }
-    }
-
-    public static void doUserStuff() {
-        boolean local = User.isLocal();
-        boolean online = User.isOnline();
-        if(!local && !online) {
-            User.logon();
-        }
-
-        if(User.isOnline()) {
-            ConnectionManager.sync();
         }
     }
 
@@ -68,7 +60,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
             App.hasInternetConnection = hasActiveInternetConnection();
 
             if(App.hasInternetConnection) {
-                doUserStuff();
+                logonUser.doUserStuff();
 
                 if(App.isAppActive) {
                     Updater.start();
@@ -97,5 +89,36 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 return false;
             }
         }
+    }
+
+    public static class LogonUser extends AsyncTask<String,String,String>  {
+
+        @Override
+        protected String doInBackground(String... params) {
+            Logger.Log("NetworkStateReciever$LogonUser", "doInBackground(String...)");
+            if(App.hasInternetConnection) {
+                doUserStuff();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            Logger.Log("NetworkStateReciever$LogonUser", "onPostExecute(String)");
+            logonUser = new LogonUser();
+        }
+
+        public void doUserStuff() {
+            boolean local = User.isLocal();
+            boolean online = User.isOnline();
+            if(!local && !online) {
+                User.logon();
+            }
+
+            if(User.isOnline()) {
+                ConnectionManager.sync();
+            }
+        }
+
     }
 }

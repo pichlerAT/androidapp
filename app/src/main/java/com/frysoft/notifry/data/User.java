@@ -134,16 +134,19 @@ public class User {
 
         if(resp.equals("err_l0")) {
             // TODO Message: email not registered
+            System.out.println("# LOGON FAILED");
             logout();
             return false;
 
         }else if(resp.equals("err_l1")) {
             // TODO Message: email not veryfied
+            System.out.println("# LOGON FAILED");
             logout();
             return false;
 
         }else if(resp.equals("err_l2")) {
             // TODO Message: wrong password
+            System.out.println("# LOGON FAILED");
             logout();
             return false;
         }
@@ -174,6 +177,7 @@ public class User {
 
         ConnectionManager.performUpdate();
 
+        System.out.println("# LOGON SUCCESSFULL");
         return true;
     }
 /*
