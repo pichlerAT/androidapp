@@ -43,7 +43,8 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             }else {
-                if(!User.isLocal() && !User.isOnline()) {
+
+                if(!User.isLocal() && (!User.isLoggedIn() || !User.isOnline())) {
                     User.logon();
                 }
 

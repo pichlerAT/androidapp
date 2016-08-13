@@ -93,6 +93,7 @@ public class User {
 
             System.out.println("# NO USER FILE: " + User.getEmail());
             //ex.printStackTrace();
+            NetworkStateReciever.checkInternet();
             return ERR_NO_OFFLINE_FILE;
         }
 
@@ -100,6 +101,7 @@ public class User {
         if(!fry.loadFromStream(inputStream)) {
             Logger.Log("App#load()","Could not load local file");
             // TODO could not load local file
+            NetworkStateReciever.checkInternet();
             return ERR_NO_OFFLINE_FILE;
         }
 
