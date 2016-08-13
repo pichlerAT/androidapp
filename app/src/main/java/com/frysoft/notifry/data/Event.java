@@ -15,12 +15,12 @@ public abstract class Event {
         date = new Date(day, month, year);
     }
 
-    public short getTimeStart() {
-        return Time.MIN_TIME;
+    public Time getTimeStart() {
+        return Time.TIME_MIN;
     }
 
-    public short getTimeEnd() {
-        return Time.MAX_TIME;
+    public Time getTimeEnd() {
+        return Time.TIME_MAX;
     }
 
     public TimetableEntry getEntry() {
@@ -73,8 +73,8 @@ public abstract class Event {
         }
 
         @Override
-        public short getTimeStart() {
-            return time_start;
+        public Time getTimeStart() {
+            return new Time(time_start);
         }
 
     }
@@ -93,8 +93,8 @@ public abstract class Event {
         }
 
         @Override
-        public short getTimeEnd() {
-            return time_end;
+        public Time getTimeEnd() {
+            return new Time(time_end);
         }
 
     }
@@ -116,13 +116,13 @@ public abstract class Event {
         }
 
         @Override
-        public short getTimeStart() {
-            return time_start;
+        public Time getTimeStart() {
+            return new Time(time_start);
         }
 
         @Override
-        public short getTimeEnd() {
-            return time_end;
+        public Time getTimeEnd() {
+            return new Time(time_end);
         }
 
     }
