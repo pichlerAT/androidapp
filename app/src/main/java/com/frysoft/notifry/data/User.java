@@ -23,6 +23,8 @@ public class User {
 
     public static final int ERR_INVALID_EMAIL = 5 ;
 
+    public static final int ERR_NO_OFFLINE_FILE = 6 ;
+
     protected static final Pattern emailPattern = Pattern.compile("^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$", Pattern.CASE_INSENSITIVE);
 
     private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
@@ -80,7 +82,7 @@ public class User {
         Data.load();
     }
 
-    public static boolean login(String email, String password) {
+    public static int login(String email, String password) {
         User.email = email;
         User.password = password;
 
@@ -91,18 +93,18 @@ public class User {
 
             System.out.println("# NO USER FILE: " + User.getEmail());
             //ex.printStackTrace();
-            return false;
+            return ERR_NO_OFFLINE_FILE;
         }
 
         FryFile fry = new FryFile.Compact();
         if(!fry.loadFromStream(inputStream)) {
             Logger.Log("App#load()","Could not load local file");
             // TODO could not load local file
-            return false;
+            return ERR_NO_OFFLINE_FILE;
         }
 
         if(!User.decode(fry)) {
-            return false;
+            return ERR_WRONG_PASSWORD;
         }
 
         System.out.println("# LOADED " + email + " DATA");
@@ -111,7 +113,7 @@ public class User {
         Data.load();
         NetworkStateReciever.checkInternet();
 
-        return true;
+        return SUCCESS;
     }
 
     protected static boolean logon() {
