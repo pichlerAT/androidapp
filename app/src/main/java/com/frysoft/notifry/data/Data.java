@@ -218,9 +218,11 @@ public class Data {
         saveFileVersion = fry.getChar();
 
         if(User.decode(fry)) {
+            System.out.println("# SUCCESSFULLY LOADED USER DATA");
             return fry;
 
         }else if(User.isOnline()) {
+            System.out.println("# SUCCESSFULLY LOADED USER DATA");
             return fry;
         }
 
@@ -236,7 +238,7 @@ public class Data {
 
                 saveFileVersion = fry.getChar();
 
-                System.out.println("# Fry-Soft: Succesfully loaded local data");
+                System.out.println("# SUCCESSFULLY LOADED LOCAL DATA");
 
                 return fry;
             }

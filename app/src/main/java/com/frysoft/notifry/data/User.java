@@ -31,6 +31,8 @@ public class User {
 
     private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
 
+    private static final String LOCAL = "Local";
+
     private static boolean online = false;
 
     private static boolean loggedIn = false;
@@ -39,7 +41,7 @@ public class User {
 
     private static int id;
 
-    private static String email = null;
+    private static String email = LOCAL;
 
     private static String name = null;
 
@@ -78,7 +80,7 @@ public class User {
 
         local = true;
         id = 0;
-        email = null;
+        email = LOCAL;
         name = null;
         password = null;
         online = false;
@@ -250,6 +252,7 @@ public class User {
         FryFile fry = new FryFile.Split("\n");
         fry.loadFromStream(inputStream);
 
+        local = false;
         email = fry.getString().split("=")[1];
         password = fry.getString().split("=")[1];
 
