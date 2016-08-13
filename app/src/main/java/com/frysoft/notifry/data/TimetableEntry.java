@@ -321,6 +321,47 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return id;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Date getDateStart() {
+        return new Date(date_start);
+    }
+
+    public Time getTimeStart() {
+        return new Time(time_start);
+    }
+
+    public Date getDateEnd() {
+        return new Date(date_end);
+    }
+
+    public Time getTimeEnd() {
+        return new Time(time_end);
+    }
+
+    /**
+     * Only use this method if REPEAT_UNTIL is NOT set!
+     *
+     * @return number of repetitions
+     */
+    public short getRepetitions() {
+        return end;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
     public boolean[] getAdditions() {
         boolean[] b = new boolean[16];
         b[0] =  (addition & REPEAT_MONDAY)      > 0;
