@@ -43,15 +43,20 @@ public class NetworkStateReciever extends BroadcastReceiver {
                 (new CheckInternetConnection()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             }else {
-
-                if(!User.isLocal() && (!User.isLoggedIn() || !User.isOnline())) {
-                    User.logon();
-                }
-
-                if(User.isOnline()) {
-                    ConnectionManager.sync();
-                }
+                doUserStuff();
             }
+        }
+    }
+
+    public static void doUserStuff() {
+        boolean local = User.isLocal();
+        boolean online = User.isOnline();
+        if(!local && !online) {
+            User.logon();
+        }
+
+        if(User.isOnline()) {
+            ConnectionManager.sync();
         }
     }
 
@@ -63,14 +68,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
             App.hasInternetConnection = hasActiveInternetConnection();
 
             if(App.hasInternetConnection) {
-
-                if(!User.isLocal() && (!User.isLoggedIn() || !User.isOnline())) {
-                    User.logon();
-                }
-
-                if(User.isOnline()) {
-                    ConnectionManager.sync();
-                }
+                doUserStuff();
 
                 if(App.isAppActive) {
                     Updater.start();

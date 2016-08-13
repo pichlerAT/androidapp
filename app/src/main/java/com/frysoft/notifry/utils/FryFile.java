@@ -74,6 +74,8 @@ public abstract class FryFile {
 
     public abstract int getUnsignedInt();
 
+    public abstract boolean hasNext();
+
     public boolean save(File file) {
         File dir = file.getParentFile();
         if(!dir.exists() && !dir.mkdirs()) {
@@ -452,6 +454,11 @@ public abstract class FryFile {
             return getInt();
         }
 
+        @Override
+        public boolean hasNext() {
+            return (readLine != null && readIndex < readLine.length);
+        }
+
     }
 
 
@@ -758,6 +765,11 @@ public abstract class FryFile {
         @Override
         public int getUnsignedInt() {
             return (int)getLong();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (readLine != null && readIndex < readLine.size());
         }
 
         public Compact getCompact() {

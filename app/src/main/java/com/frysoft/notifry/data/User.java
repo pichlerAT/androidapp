@@ -25,6 +25,8 @@ public class User {
 
     public static final int ERR_NO_OFFLINE_FILE = 6 ;
 
+
+
     protected static final Pattern emailPattern = Pattern.compile("^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$", Pattern.CASE_INSENSITIVE);
 
     private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
@@ -32,6 +34,8 @@ public class User {
     private static boolean online = false;
 
     private static boolean loggedIn = false;
+
+    private static boolean local = true;
 
     private static int id;
 
@@ -52,7 +56,7 @@ public class User {
     }
 
     public static boolean isLocal() {
-        return (email != null);
+        return local;
     }
 
     public static int getId() {
@@ -72,6 +76,7 @@ public class User {
         deleteLogin();
         MySQL.setLoginData(0, "");
 
+        local = true;
         id = 0;
         email = null;
         name = null;
@@ -85,6 +90,7 @@ public class User {
     public static int login(String email, String password) {
         User.email = email;
         User.password = password;
+        local = false;
 
         FileInputStream inputStream;
         try {
@@ -167,9 +173,47 @@ public class User {
         loggedIn = true;
 
         ConnectionManager.performUpdate();
+
         return true;
     }
+/*
+    protected static void equalsOfflinePassword(String password) {
+        FileInputStream inputStream;
+        try {
+            inputStream = App.getFileInputStream(User.getFileName());
+        }catch(FileNotFoundException ex) {
+            return;
+        }
 
+        FryFile fry = new FryFile.Compact();
+        if(!fry.loadFromStream(inputStream)) {
+            return;
+        }
+
+        if(User.decode(fry)) {
+            return;
+        }
+
+        FryFile newFry = new FryFile.Compact();
+        newFry.writeChar(Data.MOST_RECENT_SAVE_FILE_VERSION);
+        newFry.writeEncoded(email, CODE, 0);
+        newFry.writeEncoded(password, CODE, email.length());
+
+        while(fry.hasNext()) {
+            newFry.writeChar(fry.getChar());
+        }
+
+        try {
+            FileOutputStream outputStream = App.getFileOutputStream(User.getFileName());
+            if (!fry.saveToStream(outputStream)) {
+                // TODO could not save local file
+            }
+        }catch (FileNotFoundException ex) {
+            //ex.printStackTrace();
+            // TODO could not save local file
+        }
+    }
+*/
     protected static void deleteLogin() {
         App.tryDeleteFile("login.fry");
     }

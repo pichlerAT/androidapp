@@ -219,6 +219,9 @@ public class Data {
 
         if(User.decode(fry)) {
             return fry;
+
+        }else if(User.isOnline()) {
+            return fry;
         }
 
         return getLocalFryFile();
