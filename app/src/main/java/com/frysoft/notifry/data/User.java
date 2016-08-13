@@ -1,9 +1,8 @@
-package com.frysoft.notifry.utils;
+package com.frysoft.notifry.data;
 
-import com.frysoft.notifry.data.ConnectionManager;
-import com.frysoft.notifry.data.Data;
-import com.frysoft.notifry.data.MySQL;
-import com.frysoft.notifry.data.NetworkStateReciever;
+import com.frysoft.notifry.utils.App;
+import com.frysoft.notifry.utils.FryFile;
+import com.frysoft.notifry.utils.Logger;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,9 +35,9 @@ public class User {
 
     private static String email = LOCAL;
 
-    private static String name;
+    private static String name = null;
 
-    private static String password;
+    private static String password = null;
 
     public static boolean isOnline() {
         return (online && App.hasInternetConnection);
@@ -81,7 +80,7 @@ public class User {
         NetworkStateReciever.checkInternet();
     }
 
-    public static boolean logon() {
+    protected static boolean logon() {
         String resp = MySQL.execute(MySQL.ADR_USER + "login.php", "email=" + email + "&password=" + password);
 
         if(resp == null) {
@@ -125,39 +124,11 @@ public class User {
         return true;
     }
 
-    public static boolean register(String email, String name, String password) {
-        String resp = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + email + "&password=" + password + "&name=" + name);
-        if(resp == null) {
-            return false;
-        }
-
-        if(resp.equals("err_r1")) {
-            // TODO Message: email already registered
-            return false;
-        }
-
-        if(resp.length() > 4 && resp.substring(0,4).equals("err_")) {
-            return false;
-        }
-
-        try {
-            id = Integer.parseInt(resp);
-        }catch(NumberFormatException ex) {
-            return false;
-        }
-
-        User.email = email;
-        User.name = name;
-        User.password = password;
-
-        return true;
-    }
-
-    public static void deleteLogin() {
+    protected static void deleteLogin() {
         App.tryDeleteFile("login.fry");
     }
 
-    public static void saveLogin() {
+    protected static void saveLogin() {
         FileOutputStream outputStream;
         try {
             outputStream = App.getFileOutputStream("login.fry");
@@ -172,7 +143,7 @@ public class User {
         fry.saveToStream(outputStream);
     }
 
-    public static void loadLogin() {
+    protected static void loadLogin() {
         FileInputStream inputStream;
         try {
             inputStream = App.getFileInputStream("login.fry");
@@ -192,18 +163,33 @@ public class User {
         System.out.println("Fry-Soft: email = "+email);
     }
 
-    public static String getFileName() {
+    protected static String getFileName() {
         Logger.Log("User", "getFileName()");
         return (email + ".fry");
     }
 
-    public static void encode(FryFile fry) {
+    protected static void encode(FryFile fry) {
         fry.writeEncoded(email, CODE, 0);
         fry.writeEncoded(password, CODE, email.length());
     }
 
-    public static boolean decode(FryFile fry) {
+    protected static boolean decode(FryFile fry) {
         return (email.equals(fry.getDecoded(CODE, 0)) && password.equals(fry.getDecoded(CODE, email.length())));
+    }
+
+    public static int register(String email, String name, String password) {
+        if(!online) {
+            return ERR_NO_INTERNET;
+        }
+        if(email == null || email.isEmpty() || !emailPattern.matcher(email).matches()) {
+            return ERR_INVALID_EMAIL;
+        }
+        if(!User.password.equals(password)) {
+            return ERR_WRONG_PASSWORD;
+        }
+
+        ConnectionManager.add(new user.register(email, name ,password));
+        return SUCCESS;
     }
 
     public static int changeEmail(String password, String newEmail) {
@@ -217,7 +203,7 @@ public class User {
             return ERR_WRONG_PASSWORD;
         }
 
-        ConnectionManager.add(new Change.Email(newEmail));
+        ConnectionManager.add(new user.email(newEmail));
         return SUCCESS;
     }
 
@@ -232,7 +218,7 @@ public class User {
             return ERR_WRONG_PASSWORD;
         }
 
-        ConnectionManager.add(new Change.Name(newName));
+        ConnectionManager.add(new user.name(newName));
         return SUCCESS;
     }
 
@@ -247,13 +233,13 @@ public class User {
             return ERR_WRONG_PASSWORD;
         }
 
-        ConnectionManager.add(new Change.Password(newPassword));
+        ConnectionManager.add(new user.password(newPassword));
         return SUCCESS;
     }
 
-    private static abstract class Change extends MySQL {
+    private static abstract class user extends MySQL {
 
-        protected Change() {
+        protected user() {
             super(BASETYPE_UPDATE, 0, 0);
         }
 
@@ -267,11 +253,57 @@ public class User {
             return false;
         }
 
-        protected static class Email extends Change {
+        protected static class register extends user {
 
             private String email;
 
-            protected Email(String email) {
+            private String name;
+
+            private String password;
+
+            protected register(String email, String name, String password) {
+                super();
+                this.email = email;
+                this.name = name;
+                this.password = password;
+            }
+
+            @Override
+            protected boolean mysql_update() {
+                String resp = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + email + "&password=" + password + "&name=" + name);
+                if(resp == null) {
+                    return false;
+                }
+
+                if(resp.equals("err_r1")) {
+                    // TODO Message: email already registered
+                    return false;
+                }
+
+                if(resp.length() > 4 && resp.substring(0,4).equals("err_")) {
+                    return false;
+                }
+
+                try {
+                    id = Integer.parseInt(resp);
+                }catch(NumberFormatException ex) {
+                    return false;
+                }
+
+                User.email = email;
+                User.name = name;
+                User.password = password;
+
+                return true;
+            }
+        }
+
+        protected static class email extends user {
+
+            private String email;
+
+            protected email(String email) {
+                super();
                 this.email = email;
             }
 
@@ -290,11 +322,12 @@ public class User {
 
         }
 
-        protected static class Name extends Change {
+        protected static class name extends user {
 
             private String name;
 
-            protected Name(String name) {
+            protected name(String name) {
+                super();
                 this.name = name;
             }
 
@@ -313,11 +346,12 @@ public class User {
 
         }
 
-        protected static class Password extends Change {
+        protected static class password extends user {
 
             private String password;
 
-            protected Password(String password) {
+            protected password(String password) {
+                super();
                 this.password = password;
             }
 
@@ -336,7 +370,11 @@ public class User {
 
         }
 
-        protected static class Delete extends Change {
+        protected static class delete extends user {
+
+            protected delete() {
+                super();
+            }
 
             @Override
             protected boolean mysql_update() {

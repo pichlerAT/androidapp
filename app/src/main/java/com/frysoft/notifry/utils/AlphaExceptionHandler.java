@@ -2,6 +2,8 @@ package com.frysoft.notifry.utils;
 
 import android.content.Intent;
 
+import com.frysoft.notifry.data.User;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 

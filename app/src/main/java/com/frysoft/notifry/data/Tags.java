@@ -1,14 +1,5 @@
 package com.frysoft.notifry.data;
 
-import com.frysoft.notifry.utils.Date;
-import com.frysoft.notifry.utils.FryFile;
-import com.frysoft.notifry.utils.Fryable;
-import com.frysoft.notifry.utils.Time;
-import com.frysoft.notifry.utils.User;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Tags /*extends MySQL*/ {
 /*
     protected static final Date DATE_ZERO = new Date(0, 0, 2000);

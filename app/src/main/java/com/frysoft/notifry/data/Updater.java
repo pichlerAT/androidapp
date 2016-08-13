@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 public class Updater extends AsyncTask<String,String,String> {
 

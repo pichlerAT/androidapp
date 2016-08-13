@@ -15,6 +15,7 @@ import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.data.NetworkStateReciever;
 import com.frysoft.notifry.data.Updater;
+import com.frysoft.notifry.data.User;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

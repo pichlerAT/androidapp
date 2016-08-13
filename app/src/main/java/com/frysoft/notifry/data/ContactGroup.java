@@ -3,7 +3,6 @@ package com.frysoft.notifry.data;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.SearchableList;
-import com.frysoft.notifry.utils.User;
 
 import java.util.ArrayList;
 

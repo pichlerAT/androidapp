@@ -1,7 +1,6 @@
 package com.frysoft.notifry.data;
 
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 import java.util.ArrayList;
 import java.util.Collection;

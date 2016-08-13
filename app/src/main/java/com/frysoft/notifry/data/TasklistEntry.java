@@ -3,7 +3,6 @@ package com.frysoft.notifry.data;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 public class TasklistEntry extends MySQLEntry implements Fryable {
 

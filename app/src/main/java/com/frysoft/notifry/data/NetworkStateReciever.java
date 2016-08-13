@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.User;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

@@ -10,7 +10,7 @@ import android.widget.Button;
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactList;
-import com.frysoft.notifry.utils.User;
+import com.frysoft.notifry.data.User;
 
 public class TestFragment extends Fragment {
 
