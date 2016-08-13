@@ -60,6 +60,10 @@ public class Data {
         public static TimetableEntry TimetableEntry(Category category, String title, String description, Date date_start, Date date_end,
                                                           Time time_start, Time time_end, int color, Date date_repeat_until, short intervall, short... additions) {
 
+            if(date_repeat_until == null) {
+                return TimetableEntry(category, title, description, date_start, date_end, time_start, time_end, color, (short)0, intervall, additions);
+            }
+
             short addition = TimetableEntry.REPEAT_UNTIL;
             for (short a : additions) {
                 addition |= a;

@@ -77,7 +77,7 @@ public class TestFragment extends Fragment {
                     @Override
                     public void run() {
                         System.out.println("# LOGIN");
-                        User.login("david.nguyen@rk.at", "1234");
+                        User.login("edwin.pichler@rk.at", "1234");
                     }
 
                 })).start();

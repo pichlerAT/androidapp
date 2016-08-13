@@ -90,6 +90,10 @@ public class User {
     }
 
     public static int login(String email, String password) {
+        if(!local) {
+            logout();
+        }
+
         User.email = email;
         User.password = password;
         local = false;
@@ -182,44 +186,7 @@ public class User {
         System.out.println("# LOGON SUCCESSFULL");
         return true;
     }
-/*
-    protected static void equalsOfflinePassword(String password) {
-        FileInputStream inputStream;
-        try {
-            inputStream = App.getFileInputStream(User.getFileName());
-        }catch(FileNotFoundException ex) {
-            return;
-        }
 
-        FryFile fry = new FryFile.Compact();
-        if(!fry.loadFromStream(inputStream)) {
-            return;
-        }
-
-        if(User.decode(fry)) {
-            return;
-        }
-
-        FryFile newFry = new FryFile.Compact();
-        newFry.writeChar(Data.MOST_RECENT_SAVE_FILE_VERSION);
-        newFry.writeEncoded(email, CODE, 0);
-        newFry.writeEncoded(password, CODE, email.length());
-
-        while(fry.hasNext()) {
-            newFry.writeChar(fry.getChar());
-        }
-
-        try {
-            FileOutputStream outputStream = App.getFileOutputStream(User.getFileName());
-            if (!fry.saveToStream(outputStream)) {
-                // TODO could not save local file
-            }
-        }catch (FileNotFoundException ex) {
-            //ex.printStackTrace();
-            // TODO could not save local file
-        }
-    }
-*/
     protected static void deleteLogin() {
         App.tryDeleteFile("login.fry");
     }
