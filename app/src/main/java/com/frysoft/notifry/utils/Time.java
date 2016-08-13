@@ -21,6 +21,10 @@ public class Time implements Fryable {
 
     public short time;
 
+    public static short getTimezoneOffset() {
+        return (short)(Calendar.getInstance().getTimeZone().getRawOffset() / 60000);
+    }
+
     public static Time getCurrentTime() {
         return new Time(Calendar.getInstance());
     }
@@ -109,12 +113,33 @@ public class Time implements Fryable {
 
     public int addMinutes(int minutes) {
         Logger.Log("Time", "add(int)");
+        if(minutes < 0) {
+            return subtractMinutes(-minutes);
+        }
+
         int t = time + minutes;
         time = (short)(t % MAX_TIME);
 
         if(time == MAX_TIME) {
             time = MIN_TIME;
             return (t / MAX_TIME + 1);
+        }
+
+        return (t / MAX_TIME);
+    }
+
+    public int subtractMinutes(int minutes) {
+        Logger.Log("Time", "add(int)");
+        if(minutes < 0) {
+            return addMinutes(-minutes);
+        }
+
+        int t = time - minutes;
+        time = (short)(t % MAX_TIME);
+
+        if(time == MAX_TIME) {
+            time = MIN_TIME;
+            return (t / MAX_TIME - 1);
         }
 
         return (t / MAX_TIME);

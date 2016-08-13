@@ -6,14 +6,14 @@ import com.frysoft.notifry.utils.Time;
 
 public class Tag extends MySQLEntry {
 
-    public static final byte VSET_TITLE          = 0x01;
-    public static final byte VSET_DESCRIPTION    = 0x02;
-    public static final byte VSET_DATE_START     = 0x04;
-    public static final byte VSET_TIME_START     = 0x08;
-    public static final byte VSET_COLOR          = 0x10;
-    //public static final byte VSET_COLOR          = 0x20;
-    //public static final byte VSET_COLOR          = 0x40;
-    //public static final byte VSET_COLOR          = 0x80;
+    protected static final byte VSET_TITLE          = 0x01;
+    protected static final byte VSET_DESCRIPTION    = 0x02;
+    protected static final byte VSET_DATE_START     = 0x04;
+    protected static final byte VSET_TIME_START     = 0x08;
+    protected static final byte VSET_COLOR          = 0x10;
+    //protected static final byte VSET_COLOR          = 0x20;
+    //protected static final byte VSET_COLOR          = 0x40;
+    //protected static final byte VSET_COLOR          = 0x80;
 
 
     protected Category category;
@@ -44,14 +44,14 @@ public class Tag extends MySQLEntry {
         this.category = category;
 
         if(title == null) {
-            this.title = "n";
+            this.title = " ";
         }else {
             vset |= VSET_TITLE;
             this.title = title;
         }
 
         if(description == null) {
-            this.description = "n";
+            this.description = " ";
         }else {
             vset |= VSET_DESCRIPTION;
             this.description = description;
@@ -266,14 +266,14 @@ public class Tag extends MySQLEntry {
         this.category = category;
 
         if(title == null) {
-            this.title = "n";
+            this.title = " ";
         }else {
             vset |= VSET_TITLE;
             this.title = title;
         }
 
         if(description == null) {
-            this.description = "n";
+            this.description = " ";
         }else {
             vset |= VSET_DESCRIPTION;
             this.description = description;

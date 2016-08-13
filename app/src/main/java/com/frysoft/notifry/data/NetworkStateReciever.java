@@ -27,10 +27,11 @@ public class NetworkStateReciever extends BroadcastReceiver {
             if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
 
                 checkInternet();
-                return;
+
+            }else {
+                App.hasInternetConnection = false;
             }
         }
-        App.hasInternetConnection = false;
     }
 
     public static void checkInternet() {
@@ -62,7 +63,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
 
             if(App.hasInternetConnection) {
 
-                if(!User.isLocal() && !User.isOnline()) {
+                if(!User.isLocal() && (!User.isLoggedIn() || !User.isOnline())) {
                     User.logon();
                 }
 

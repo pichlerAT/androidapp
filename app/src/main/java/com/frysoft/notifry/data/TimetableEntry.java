@@ -7,6 +7,7 @@ import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.Time;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class TimetableEntry extends MySQLEntry implements Fryable {
 
@@ -23,7 +24,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public static final short NOTIFY_ALL        = 0x0400;
     public static final short REPEAT_UNTIL      = 0x0800;
     public static final short REPEAT_DAILY      = 0x1000;
-    public static final short EMPTY_3           = 0x2000;
+    public static final short WHOLE_DAY         = 0x2000;
     public static final short EMPTY_2           = 0x4000;
     public static final short EMPTY_1    = (short)0x8000;
 
@@ -35,6 +36,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
                                                 | REPEAT_SATURDAY
                                                 | REPEAT_SUNDAY ;
 
+    private static short TimezoneOffset = Time.getTimezoneOffset();
+
+    public static void setTimezoneOffset(int offsetInMillis) {
+        TimezoneOffset = (short)(offsetInMillis / 60000);
+    }
 
 
     protected Category category;
@@ -119,16 +125,17 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         category = Data.Categories.getById(fry.getInt());
         title = fry.getString();
         description = fry.getString();
-        date_start = fry.getShort();
-        time_start = fry.getShort();
+        short date_start = fry.getShort();
+        short time_start = fry.getShort();
         duration = fry.getInt();
         addition = fry.getShort();
-        end = fry.getShort();
+        short end = fry.getShort();
         intervall = signed(fry.getByte());
         color = fry.getInt();
         google_id = fry.getInt();
         shares.readFrom(fry);
 
+        setTimezoneAffectedData(date_start, time_start, end);
         updateMisc();
     }
 
@@ -138,7 +145,13 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
         this.category = category;
         this.title = title;
-        this.description = description;
+
+        if(description == null || description.length() == 0) {
+            this.description = " ";
+        }else {
+            this.description = description;
+        }
+
         this.date_start = date_start;
         this.time_start = time_start;
         this.duration = duration;
@@ -155,6 +168,48 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
                              short time_start, int duration, short addition, short end, short intervall, int color, int google_id) {
         this(id, user_id, Data.Categories.getById(category_id), title, description, date_start,
                 time_start, duration, addition, end, intervall, color, google_id);
+    }
+
+    protected void setTimezoneAffectedData(short date_start, short time_start, short end) {
+        Date dateStart = new Date(date_start);
+        Time timeStart = new Time(time_start);
+        int dDay = timeStart.subtractMinutes(TimezoneOffset);
+        dateStart.addDays(dDay);
+
+        this.date_start = dateStart.getShort();
+        this.time_start = timeStart.time;
+
+        if(getAddition(REPEAT_UNTIL)) {
+            Date dateEnd = new Date(end);
+            dateEnd.addDays(dDay);
+            this.end = dateEnd.getShort();
+
+        }else {
+            this.end = end;
+        }
+    }
+
+    protected short[] getTimezoneAffectedData() {
+        short[] data = new short[3];
+
+        Date dateStart = new Date(date_start);
+        Time timeStart = new Time(time_start);
+        int dDay = timeStart.addMinutes(TimezoneOffset);
+        dateStart.addDays(dDay);
+
+        data[0] = dateStart.getShort();
+        data[1] = timeStart.time;
+
+        if(getAddition(REPEAT_UNTIL)) {
+            Date dateEnd = new Date(end);
+            dateEnd.addDays(dDay);
+            data[2] = dateEnd.getShort();
+
+        }else {
+            data[2] = this.end;
+        }
+
+        return data;
     }
 
     @Override
@@ -178,9 +233,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableEntry", "mysql_create()");
+        short[] TZdata = getTimezoneAffectedData();
+
         String resp = executeMySQL(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title + "&description=" + description
-                + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&color=" + color + "&end=" + signed(end) + "&intervall=" + intervall);
+                + "&date_start=" + signed(TZdata[0]) + "&time_start=" + signed(TZdata[1]) + "&duration=" + signed(duration)
+                + "&addition="+signed(addition) + "&color=" + color + "&end=" + signed(TZdata[2]) + "&intervall=" + intervall);
         if(resp != null) {
             id = Integer.parseInt(resp);
 
@@ -195,9 +252,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableEntry", "mysql_update()");
+        short[] TZdata = getTimezoneAffectedData();
+
         return (executeMySQL(DIR_CALENDAR_ENTRY + "update.php", "&id=" + signed(id) + "&category_id=" + signed(getCategoryId()) + "&title=" + title
-                + "&description=" + description + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&color=" + color + "&google_id=" + signed(google_id) + "&end=" + signed(end)
+                + "&description=" + description + "&date_start=" + signed(TZdata[0]) + "&time_start=" + signed(TZdata[1]) + "&duration=" + signed(duration)
+                + "&addition="+signed(addition) + "&color=" + color + "&google_id=" + signed(google_id) + "&end=" + signed(TZdata[2])
                 + "&intervall=" + intervall) != null);
     }
 
@@ -235,14 +294,17 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public void writeTo(FryFile fry) {
         Logger.Log("TimetableEntry", "writeTo(FryFile)");
         super.writeTo(fry);
+
+        short[] TZdata = getTimezoneAffectedData();
+
         fry.writeUnsignedInt(getCategoryId());
         fry.writeString(title);
         fry.writeString(description);
-        fry.writeUnsignedShort(date_start);
-        fry.writeUnsignedShort(time_start);
+        fry.writeUnsignedShort(TZdata[0]);
+        fry.writeUnsignedShort(TZdata[1]);
         fry.writeUnsignedInt(duration);
         fry.writeUnsignedShort(addition);
-        fry.writeUnsignedShort(end);
+        fry.writeUnsignedShort(TZdata[2]);
         fry.writeUnsignedByte((byte)intervall);
         fry.writeInt(color);
         fry.writeUnsignedInt(google_id);
@@ -305,18 +367,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     public boolean getAddition(short parameter) {
         return ((addition & parameter) > 0);
     }
-/*
-    public boolean isDateInsideSpan(Date date) {
-        Logger.Log("TimetableEntry", "isDateInsideSpan(Date)");
-        return span.isInsideSpan(date);
-    }
-*/
-/*
-    public boolean isSpanOverlapping(DateSpan span) {
-        Logger.Log("TimetableEntry", "isSpanOverlapping(DateSpan)");
-        return span.isOverlapping(span);
-    }
-*/
+
     public int getId() {
         return id;
     }
@@ -376,8 +427,8 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         b[9] =  (addition & NOTIFY_SELF)        > 0;
         b[10] = (addition & NOTIFY_ALL)         > 0;
         b[11] = (addition & REPEAT_UNTIL)       > 0;
-        b[12] = false;
-        b[13] = false;
+        b[12] = (addition & REPEAT_DAILY)       > 0;
+        b[13] = (addition & WHOLE_DAY)          > 0;
         b[14] = false;
         b[15] = false;
         return b;
@@ -479,7 +530,11 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Event e;
 
         if(days == 0) {
-            if (time_start == Time.MIN_TIME) {
+
+            if(getAddition(WHOLE_DAY)) {
+                e = new Event.WholeDay(this, d.day, d.month, d.year);
+
+            }else if (time_start == Time.MIN_TIME) {
                 if(time_end == Time.MAX_TIME) {
                     e = new Event.WholeDay(this, d.day, d.month, d.year);
 
@@ -499,7 +554,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
 
         if(date >= start) {
-            if (time_start == Time.MIN_TIME) {
+            if(getAddition(WHOLE_DAY)) {
+                e = new Event.WholeDay(this, d.day, d.month, d.year);
+
+            }else if (time_start == Time.MIN_TIME) {
                 e = new Event.WholeDay(this, d.day, d.month, d.year);
             } else {
                 e = new Event.Start(this, d.day, d.month, d.year);
@@ -520,7 +578,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
             return;
         }
 
-        if(time_end == Time.MAX_TIME) {
+        if(getAddition(WHOLE_DAY)) {
+            e = new Event.WholeDay(this, d.day, d.month, d.year);
+
+        }else if(time_end == Time.MAX_TIME) {
             e = new Event.WholeDay(this, d.day, d.month, d.year);
         }else {
             e = new Event.End(this, d.day, d.month, d.year);

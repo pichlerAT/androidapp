@@ -33,8 +33,10 @@ public class ConnectionManager {
         */
         if(entry instanceof Category) {
             entries.add(0, entry);
+
+        }else {
+            entries.add(entry);
         }
-        entries.add(entry);
         sync();
     }
 

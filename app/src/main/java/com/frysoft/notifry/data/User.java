@@ -25,26 +25,32 @@ public class User {
 
     protected static final Pattern emailPattern = Pattern.compile("^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$", Pattern.CASE_INSENSITIVE);
 
-    public static final String LOCAL = "local";
-
     private static final String CODE = "xQjQEFdcSMmdvlYCcuxsayrty6O2HqQridfuOpnl";
 
     private static boolean online = false;
 
+    private static boolean loggedIn = false;
+
     private static int id;
 
-    private static String email = LOCAL;
+    private static String email = null;
 
     private static String name = null;
 
     private static String password = null;
+
+    private static int UserTimezoneOffset;
+
+    public static boolean isLoggedIn() {
+        return loggedIn;
+    }
 
     public static boolean isOnline() {
         return (online && App.hasInternetConnection);
     }
 
     public static boolean isLocal() {
-        return email.equals(LOCAL);
+        return (email != null);
     }
 
     public static int getId() {
@@ -65,24 +71,26 @@ public class User {
         MySQL.setLoginData(0, "");
 
         id = 0;
-        email = LOCAL;
+        email = null;
         name = null;
         password = null;
         online = false;
+        loggedIn = false;
 
         Data.load();
     }
 
     public static boolean login(String email, String password) {
         User.email = email;
+        User.password = password;
 
         FileInputStream inputStream;
         try {
             inputStream = App.getFileInputStream(User.getFileName());
         }catch(FileNotFoundException ex) {
+
             System.out.println("# NO USER FILE: " + User.getEmail());
             //ex.printStackTrace();
-            User.email = LOCAL;
             return false;
         }
 
@@ -90,20 +98,16 @@ public class User {
         if(!fry.loadFromStream(inputStream)) {
             Logger.Log("App#load()","Could not load local file");
             // TODO could not load local file
-            User.email = LOCAL;
             return false;
         }
 
         if(!User.decode(fry)) {
-            User.email = LOCAL;
             return false;
         }
 
-        System.out.println("Fry-Soft: Succesfully loaded user data");
-        System.out.println("Fry-Soft: email = "+User.getEmail());
+        System.out.println("# LOADED " + email + " DATA");
 
-        User.email = email;
-        User.password = password;
+        loggedIn = true;
         Data.load();
         NetworkStateReciever.checkInternet();
 
@@ -156,6 +160,7 @@ public class User {
 
         name = r[1];
         online = true;
+        loggedIn = true;
 
         ConnectionManager.performUpdate();
         return true;
@@ -185,7 +190,7 @@ public class User {
         try {
             inputStream = App.getFileInputStream("login.fry");
         } catch (FileNotFoundException ex) {
-            System.out.println("# NO LOGIN FILE");
+            System.out.println("# LOGGED IN AS local");
             //ex.printStackTrace();
             return;
         }
@@ -196,8 +201,7 @@ public class User {
         email = fry.getString().split("=")[1];
         password = fry.getString().split("=")[1];
 
-        System.out.println("Fry-Soft: Succesfully loaded login data");
-        System.out.println("Fry-Soft: email = "+email);
+        System.out.println("# LOGGED IN AS "+email);
     }
 
     protected static String getFileName() {
