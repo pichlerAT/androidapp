@@ -201,7 +201,7 @@ public class Date implements Fryable {
         month = (month + months) % 12;
 
         if(month == 0) {
-            month = 1;
+            month = 12;
         }
     }
 
@@ -214,7 +214,7 @@ public class Date implements Fryable {
         month = (month - months) % 12;
 
         if(month == 0) {
-            month = 1;
+            month = 12;
         }
     }
 
