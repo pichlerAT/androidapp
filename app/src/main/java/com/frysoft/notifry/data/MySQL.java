@@ -167,9 +167,9 @@ public abstract class MySQL implements Fryable {
 
 
 
-    protected char type;
+    private char type;
 
-    public int id;
+    protected int id;
 
     protected int user_id;
 
@@ -181,14 +181,8 @@ public abstract class MySQL implements Fryable {
     }
 
     protected MySQL(FryFile fry) {
+        this((char)0, fry.getUnsignedInt(), fry.getUnsignedInt());
         Logger.Log("MySQL", "MySQL(FryFile,boolean)");
-        /*
-        if(!online) {
-            this.type = fry.getChar();
-        }
-        */
-        this.id = fry.getUnsignedInt();
-        this.user_id = fry.getUnsignedInt();
 
         if(user_id == 0) {
             create();
@@ -215,6 +209,7 @@ public abstract class MySQL implements Fryable {
         if((type & BASETYPE_CREATE) > 0) {
             if(mysql_create()) {
                 type = (char)(type & TYPE);
+                user_id = User.getId();
                 return true;
             }
             return false;
@@ -285,6 +280,10 @@ public abstract class MySQL implements Fryable {
 
     public int getUserID(){
         return this.user_id;
+    }
+
+    public boolean type(char type) {
+        return ((this.type & type) > 0);
     }
 
 }

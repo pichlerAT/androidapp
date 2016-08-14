@@ -9,10 +9,10 @@ public abstract class Event {
 
     protected TimetableEntry entry;
 
-    protected Event(TimetableEntry entry, int day, int month, int year) {
+    protected Event(TimetableEntry entry, final Date date) {
         this.entry = entry;
 
-        date = new Date(day, month, year);
+        this.date = new Date(date.day, date.month, date.year);
     }
 
     public Time getTimeStart() {
@@ -52,8 +52,8 @@ public abstract class Event {
      */
     public static class WholeDay extends Event {
 
-        public WholeDay(TimetableEntry entry, int day, int month, int year) {
-            super(entry, day, month, year);
+        public WholeDay(TimetableEntry entry, Date date) {
+            super(entry, date);
         }
 
         @Override
@@ -70,8 +70,8 @@ public abstract class Event {
 
         protected short time_start;
 
-        public Start(TimetableEntry entry, int day, int month, int year) {
-            super(entry, day, month, year);
+        public Start(TimetableEntry entry, Date date) {
+            super(entry, date);
 
             time_start = entry.time_start;
         }
@@ -90,8 +90,8 @@ public abstract class Event {
 
         protected short time_end;
 
-        public End(TimetableEntry entry, int day, int month, int year) {
-            super(entry, day, month, year);
+        public End(TimetableEntry entry, Date date) {
+            super(entry, date);
 
             time_end = entry.time_end;
         }
@@ -112,8 +112,8 @@ public abstract class Event {
 
         protected short time_end;
 
-        public StartEnd(TimetableEntry entry, int day, int month, int year) {
-            super(entry, day, month, year);
+        public StartEnd(TimetableEntry entry, Date date) {
+            super(entry, date);
 
             time_start = entry.time_start;
             time_end = entry.time_end;

@@ -70,6 +70,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
             return false;
         }
         id = Integer.parseInt(resp);
+        user_id = User.getId();
         ContactList.getAllContactsGroup().contacts.add(this);
         return true;
     }
@@ -77,8 +78,9 @@ public class Contact extends MySQL implements Fryable, Searchable {
     @Override
     protected boolean mysql_delete() { // contact request decline
         Logger.Log("Contact", "mysql_delete()");
-        if((type & TYPE_CONTACT_REQUEST) > 0) {
+        if(type(TYPE_CONTACT_REQUEST)) {
             return (executeMySQL(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
+
         }else {
             return (executeMySQL(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
         }

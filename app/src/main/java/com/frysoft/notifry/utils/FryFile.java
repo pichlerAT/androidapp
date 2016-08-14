@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 public abstract class FryFile {
 
+    protected int version = 0;
+
     public abstract boolean saveToStream(OutputStream outputStream);
 
     public abstract boolean loadFromStream(InputStream inputStream);
@@ -75,6 +77,14 @@ public abstract class FryFile {
     public abstract int getUnsignedInt();
 
     public abstract boolean hasNext();
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public int getVersion() {
+        return version;
+    }
 
     public boolean save(File file) {
         File dir = file.getParentFile();

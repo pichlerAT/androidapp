@@ -81,30 +81,54 @@ public class Date implements Fryable {
 
     public boolean isSmallerThen(Date date) {
         Logger.Log("Date", "isSmallerThen(Date)");
-        return (getShort() < date.getShort());
+
+        if(year < date.year) {
+            return true;
+        }else if(year > date.year) {
+            return false;
+        }
+
+        if(month < date.month) {
+            return true;
+        }else if(month > date.month) {
+            return false;
+        }
+
+        return (day < date.day);
     }
 
     public boolean isSmallerEqualThen(Date date) {
-        return (getShort() <= date.getShort());
+        return !isGreaterThen(date);
     }
 
     public boolean isGreaterThen(Date date) {
         Logger.Log("Date", "isGreaterThen(Date)");
-        return (getShort() > date.getShort());
+
+        if(year > date.year) {
+            return true;
+        }else if(year < date.year) {
+            return false;
+        }
+
+        if(month > date.month) {
+            return true;
+        }else if(month < date.month) {
+            return false;
+        }
+
+        return (day > date.day);
     }
 
     public boolean isGreaterEqualThen(Date date) {
-        return (getShort() >= date.getShort());
+        return !isSmallerThen(date);
     }
 
     public boolean isBetween(Date start, Date end) {
-        short date = getShort();
-        return (date > start.getShort() && date < end.getShort());
+        return (isGreaterThen(start) && isSmallerThen(end));
     }
 
     public boolean isInBetween(Date start, Date end) {
-        short date = getShort();
-        return (date >= start.getShort() && date <= end.getShort());
+        return (isGreaterEqualThen(start) && isSmallerEqualThen(end));
     }
 
     public int getInt() {

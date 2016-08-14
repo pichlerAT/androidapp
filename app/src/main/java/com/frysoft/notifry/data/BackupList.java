@@ -125,6 +125,7 @@ public class BackupList<E extends MySQLEntry> {
                 E element = list.get(i);
                 if(element.isOffline()) {
                     element.create();
+
                 }else {
                     list.remove(i);
                 }
@@ -146,8 +147,7 @@ public class BackupList<E extends MySQLEntry> {
                     online.delete();
 
                 }else {
-                    // delete share
-                    (new Share(online.getType(), 0, User.getId(), online.id, (byte)0, null, null)).deleteWithoutId();
+                    list.add(online);
 
                 }
             }

@@ -52,8 +52,9 @@ public class ConnectionManager {
     }
 
     public static boolean hasEntry(MySQL entry, char type) {
+        Class clazz  = entry.getClass();
         for(MySQL ent : entries) {
-            if(ent == entry || (ent.id == entry.id && ent.type == type)) {
+            if(ent == entry || (ent.id == entry.id && ent.getClass().equals(clazz))) {
                 return true;
             }
         }

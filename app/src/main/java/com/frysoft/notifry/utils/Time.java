@@ -123,6 +123,10 @@ public class Time implements Fryable {
         if(time == MAX_TIME) {
             time = MIN_TIME;
             return (t / MAX_TIME + 1);
+
+        }else if(time < MIN_TIME) {
+            time += MAX_TIME + 1;
+            return (t / MAX_TIME - 1);
         }
 
         return (t / MAX_TIME);
@@ -139,6 +143,10 @@ public class Time implements Fryable {
 
         if(time == MAX_TIME) {
             time = MIN_TIME;
+            return (t / MAX_TIME + 1);
+
+        }else if(time < MIN_TIME) {
+            time += MAX_TIME + 1;
             return (t / MAX_TIME - 1);
         }
 

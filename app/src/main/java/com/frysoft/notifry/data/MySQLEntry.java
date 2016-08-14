@@ -47,4 +47,6 @@ public abstract class MySQLEntry extends MySQL {
 
     public abstract boolean canEdit();
 
+    public abstract int getShareId();
+
 }

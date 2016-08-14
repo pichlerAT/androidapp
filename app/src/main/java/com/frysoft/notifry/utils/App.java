@@ -177,4 +177,132 @@ public class App extends Application {
 
         return sdf.format(cal.getTime());
     }
+
+    public static class Settings {
+
+        public static final int SHOW_CONTACT_NAME_PRIMARY_EMAIL_SECONDARY = 0;
+
+        public static final int SHOW_CONTACT_EMAIL_PRIMARY_NAME_SECONDARY = 1;
+
+        public static final int SHOW_CONTACT_NAME_ONLY = 2;
+
+        public static final int SHOW_CONTACT_EMAIL_ONLY = 3;
+
+        private static int displayContactsMode = 0;
+
+
+        public static final int THEME_BRIGHT = 0;
+
+        public static final int THEME_DARK = 1;
+
+        private static int theme = 0;
+
+
+        private static boolean moveFinishedTasklistToBottom = false;
+
+        private static boolean notifyWhenTasklistFinished = false;
+
+        private static boolean notifyOnOwnTimetableEvent = true;
+
+        private static boolean notifyOnAllTimetableEvent = false;
+
+        private static boolean showAllContactsGroupAtBottom = true;
+
+
+        public static void setDisplayContactsMode(int mode) {
+            displayContactsMode = mode;
+        }
+
+        public static void setTheme(int theme) {
+            Settings.theme = theme;
+        }
+
+        public static void setMoveFinishedTasklistToBottom(boolean moveFinishedTasklistToBottom) {
+            Settings.moveFinishedTasklistToBottom = moveFinishedTasklistToBottom;
+        }
+
+        public static void setNotifyWhenTasklistFinished(boolean notifyWhenTasklistFinished) {
+            Settings.notifyWhenTasklistFinished = notifyWhenTasklistFinished;
+        }
+
+        public static void setNotifyOnOwnTimetableEvent(boolean notifyOnOwnTimetableEvent) {
+            Settings.notifyOnOwnTimetableEvent = notifyOnOwnTimetableEvent;
+        }
+
+        public static void setNotifyOnAllTimetableEvent(boolean notifyOnAllTimetableEvent) {
+            Settings.notifyOnAllTimetableEvent = notifyOnAllTimetableEvent;
+        }
+
+        public static void setShowAllContactsGroupAtBottom(boolean showAllContactsGroupAtBottom) {
+            Settings.showAllContactsGroupAtBottom = showAllContactsGroupAtBottom;
+        }
+
+
+        public static boolean moveFinishedTasklistToBottom() {
+            return moveFinishedTasklistToBottom;
+        }
+
+        public static boolean notifyWhenTasklistFinished() {
+            return notifyWhenTasklistFinished;
+        }
+
+        public static boolean notifyOnOwnTimetableEvent() {
+            return notifyOnOwnTimetableEvent;
+        }
+
+        public static boolean notifyOnAllTimetableEvent() {
+            return notifyOnAllTimetableEvent;
+        }
+
+        public static boolean showAllContactsGroupAtBottom() {
+            return showAllContactsGroupAtBottom;
+        }
+
+        public static int getDisplayContactsMode() {
+            return displayContactsMode;
+        }
+
+        public static int getTheme() {
+            return theme;
+        }
+
+        public static void readFrom(FryFile fry) {
+            displayContactsMode = fry.getByte();
+            theme = fry.getByte();
+
+            byte bools = fry.getByte();
+            moveFinishedTasklistToBottom    = ((bools & 0x01) > 0);
+            notifyWhenTasklistFinished      = ((bools & 0x02) > 0);
+            notifyOnOwnTimetableEvent       = ((bools & 0x04) > 0);
+            notifyOnAllTimetableEvent       = ((bools & 0x08) > 0);
+            showAllContactsGroupAtBottom    = ((bools & 0x20) > 0);
+        }
+
+        public static void writeTo(FryFile fry) {
+            fry.writeByte((byte)displayContactsMode);
+            fry.writeByte((byte)theme);
+
+            byte bools = 0;
+
+            if(moveFinishedTasklistToBottom) {
+                bools |= 0x01;
+            }
+            if(notifyWhenTasklistFinished) {
+                bools |= 0x02;
+            }
+            if(notifyOnOwnTimetableEvent) {
+                bools |= 0x04;
+            }
+            if(notifyOnAllTimetableEvent) {
+                bools |= 0x08;
+            }
+            if(showAllContactsGroupAtBottom) {
+                bools |= 0x10;
+            }
+
+            fry.writeByte(bools);
+        }
+
+    }
+
 }

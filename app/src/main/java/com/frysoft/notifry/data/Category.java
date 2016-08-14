@@ -95,7 +95,15 @@ public class Category extends MySQLEntry implements Fryable {
     @Override
     public boolean canEdit() {
         Logger.Log("TimetableCategory", "canEdit()");
-        return isOwner();
+        return (isOwner() || (shares != null && shares.size() > 0 && shares.getPermission(0) >= Share.PERMISSION_EDIT));
+    }
+
+    @Override
+    public int getShareId() {
+        if(shares != null && shares.size() > 0 && !isOwner()) {
+            return shares.getId(0);
+        }
+        return 0;
     }
 
     @Override

@@ -168,13 +168,17 @@ public class Tag extends MySQLEntry {
     }
 
     @Override
+    public int getShareId() {
+        return 0;
+    }
+
+    @Override
     protected boolean mysql_create() {
         String resp = executeMySQL(DIR_TAG + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title + "&description=" + description
                 + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
                 + "&addition="+signed(addition) + "&end=" + signed(end) + "&intervall=" + intervall + "&color=" + color + "&set=" + signed(vset));
         if(resp != null) {
             id = Integer.parseInt(resp);
-
             return true;
         }
         return false;

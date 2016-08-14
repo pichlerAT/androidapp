@@ -108,7 +108,17 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
                 d.addMonths(intervall * end);
 
             }else if(repeat_weekly) {
+                Date start = new Date(date_start);
 
+                int fwd = getFirstWeeklyDay();
+                int WeekdayDifference = fwd - start.getDayOfWeek();
+
+                if(WeekdayDifference != 0) {
+                    start.addDays(WeekdayDifference);
+                    d.addDays(WeekdayDifference);
+                }
+
+                d.addDays(intervall * end * 7 + (getLastWeeklyDay() - fwd));
 
             }else if(repeat_daily) {
                 d.addDays(intervall * end);
@@ -286,7 +296,15 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     @Override
     public boolean canEdit() {
         Logger.Log("TimetableEntry", "canEdit()");
-        return isOwner();
+        return (isOwner() || (shares != null && shares.size() > 0 && shares.getPermission(0) >= Share.PERMISSION_EDIT));
+    }
+
+    @Override
+    public int getShareId() {
+        if(shares != null && shares.size() > 0 && !isOwner()) {
+            return shares.getId(0);
+        }
+        return 0;
     }
 
 
@@ -316,6 +334,107 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "delete()");
         super.delete();
         Data.Timetable.Entries.remove(this);
+    }
+
+    protected int getFirstWeeklyDay() {
+        if((addition & REPEAT_MONDAY) > 0) {
+            return 0;
+
+        }else if((addition & REPEAT_TUESDAY) > 0) {
+            return 1;
+
+        }else if((addition & REPEAT_WEDNESDAY) > 0) {
+            return 2;
+
+        }else if((addition & REPEAT_THURSDAY) > 0) {
+            return 3;
+
+        }else if((addition & REPEAT_FRIDAY) > 0) {
+            return 4;
+
+        }else if((addition & REPEAT_SATURDAY) > 0) {
+            return 5;
+
+        }else if((addition & REPEAT_SUNDAY) > 0) {
+            return 6;
+
+        }
+        return 0;
+    }
+
+    protected int getLastWeeklyDay() {
+        if((addition & REPEAT_SUNDAY) > 0) {
+            return 6;
+
+        }else if((addition & REPEAT_SATURDAY) > 0) {
+            return 5;
+
+        }else if((addition & REPEAT_FRIDAY) > 0) {
+            return 4;
+
+        }else if((addition & REPEAT_THURSDAY) > 0) {
+            return 3;
+
+        }else if((addition & REPEAT_WEDNESDAY) > 0) {
+            return 2;
+
+        }else if((addition & REPEAT_TUESDAY) > 0) {
+            return 1;
+
+        }else if((addition & REPEAT_MONDAY) > 0) {
+            return 0;
+
+        }
+        return 6;
+    }
+
+    protected int[] getWeeklyAddMap() {
+        int[] dMap = new int[7];
+        int index = 0;
+
+        if((addition & REPEAT_MONDAY) > 0) {
+            dMap[index++] = 0;
+
+        }
+        if((addition & REPEAT_TUESDAY) > 0) {
+            dMap[index++] = 1;
+
+        }
+        if((addition & REPEAT_WEDNESDAY) > 0) {
+            dMap[index++] = 2;
+
+        }
+        if((addition & REPEAT_THURSDAY) > 0) {
+            dMap[index++] = 3;
+
+        }
+        if((addition & REPEAT_FRIDAY) > 0) {
+            dMap[index++] = 4;
+
+        }
+        if((addition & REPEAT_SATURDAY) > 0) {
+            dMap[index++] = 5;
+
+        }
+        if((addition & REPEAT_SUNDAY) > 0) {
+            dMap[index++] = 6;
+
+        }
+
+        int[] map = new int[index];
+        System.out.println("# dMap : map");
+        for(index=0; index<map.length; ++index) {
+
+            if(index == map.length - 1) {
+                map[index] = dMap[0] + (7 - dMap[index]);
+
+            }else {
+                map[index] = dMap[index + 1] - dMap[index];
+            }
+            System.out.println("# "+dMap[index] + " : " +map[index]);
+        }
+
+        return map;
     }
 
     protected int getCategoryId() {
@@ -434,67 +553,74 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return b;
     }
 
-    protected void addEventsToList(ArrayList<Event> list, final short start, final short end) {
-        if(date_end < start || date_start > end) {
+    protected void addEventsToList(ArrayList<Event> list, final Date dateStart, final Date dateEnd) {
+        Date entryDateStart = new Date(date_start);
+        Date entryDateEnd = new Date(date_end);
+
+        if(entryDateEnd.isSmallerThen(dateStart) || entryDateStart.isGreaterThen(dateEnd)) {
             return;
         }
 
-        short ending = (end < date_end ? end : date_end);
+        Date ending = (entryDateEnd.isSmallerThen(dateEnd) ? entryDateEnd : dateEnd);
 
         if(repeat_daily) {
             Date e = new Date(date_start);
             e.addDays(days);
 
-            while(e.getShort() < start) {
+            while(e.isSmallerThen(dateStart)) {
                 e.addDays(intervall);
             }
 
             Date s = e.copy();
             s.subtractDays(days);
 
-            while(s.getShort() <= ending) {
-                addEventToList(list, start, ending, s.getShort());
+            while(s.isSmallerEqualThen(ending)) {
+                addEventToList(list, dateStart, ending, s);
 
-                e.addDays(intervall);
                 s.addDays(intervall);
             }
 
 
         }else if(repeat_weekly) {
-            /*
-            Date e = new Date(this.date_start);
-            e.addDays(days);
+            int WeeklyDayDifference = getLastWeeklyDay() - getFirstWeeklyDay();
 
-            while(e.getShort() < start) {
-                e.addDays(repetitions * 7);
+            Date e = new Date(date_start);
+            e.addDays(days + WeeklyDayDifference);
+
+            while(e.isSmallerThen(dateStart)) {
+                e.addDays(7 * intervall);
             }
 
             Date s = e.copy();
-            s.subtractDays(days);
+            s.subtractDays(days + WeeklyDayDifference);
 
-            while(s.getShort() <= end) {
-                addEventToList(list, start, end, s.getShort());
+            int[] map = getWeeklyAddMap();
+            int index = 0;
 
-                e.addDays(repetitions * 7);
-                s.addDays(repetitions * 7);
+            while(s.isSmallerEqualThen(ending)) {
+                addEventToList(list, dateStart, ending, s);
+
+                s.addDays(map[index++]);
+                if(index == map.length) {
+                    index = 0;
+                }
             }
-            */
+
 
         }else if(repeat_monthly) {
             Date e = new Date(date_start);
             e.addDays(days);
 
-            while(e.getShort() < start) {
+            while(e.isSmallerThen(dateStart)) {
                 e.addMonths(intervall);
             }
 
             Date s = e.copy();
             s.subtractDays(days);
 
-            while(s.getShort() <= ending) {
-                addEventToList(list, start, ending, s.getShort());
+            while(s.isSmallerEqualThen(ending)) {
+                addEventToList(list, dateStart, ending, s);
 
-                e.addMonths(intervall);
                 s.addMonths(intervall);
             }
 
@@ -502,17 +628,16 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
             Date e = new Date(date_start);
             e.addDays(days);
 
-            while(e.getShort() < start) {
+            while(e.isSmallerThen(dateStart)) {
                 e.addYears(intervall);
             }
 
             Date s = e.copy();
             s.subtractDays(days);
 
-            while(s.getShort() <= ending) {
-                addEventToList(list, start, ending, s.getShort());
+            while(s.isSmallerEqualThen(ending)) {
+                addEventToList(list, dateStart, ending, s);
 
-                e.addYears(intervall);
                 s.addYears(intervall);
             }
 
@@ -520,73 +645,68 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }else {
 
 
-            addEventToList(list, start, ending, date_start);
+            addEventToList(list, dateStart, ending, entryDateStart);
         }
 
     }
 
-    protected void addEventToList(ArrayList<Event> list, final short start, final short end, short date) {
-        Date d = new Date(date);
-        Event e;
+    protected void addEventToList(ArrayList<Event> list, final Date dateStart, final Date dateEnd, final Date date) {
 
         if(days == 0) {
 
             if(getAddition(WHOLE_DAY)) {
-                e = new Event.WholeDay(this, d.day, d.month, d.year);
+                list.add(new Event.WholeDay(this, date));
 
             }else if (time_start == Time.MIN_TIME) {
                 if(time_end == Time.MAX_TIME) {
-                    e = new Event.WholeDay(this, d.day, d.month, d.year);
+                    list.add(new Event.WholeDay(this, date));
 
                 }else {
-                    e = new Event.Start(this, d.day, d.month, d.year);
+                    list.add(new Event.Start(this, date));
                 }
 
             }else if(time_end == Time.MAX_TIME) {
-                e = new Event.End(this, d.day, d.month, d.year);
+                list.add(new Event.End(this, date));
 
             }else {
-                e = new Event.StartEnd(this, d.day, d.month, d.year);
+                list.add(new Event.StartEnd(this, date));
             }
 
-            list.add(e);
             return;
         }
 
-        if(date >= start) {
+        if(date.isGreaterEqualThen(dateStart)) {
             if(getAddition(WHOLE_DAY)) {
-                e = new Event.WholeDay(this, d.day, d.month, d.year);
+                list.add(new Event.WholeDay(this, date));
 
             }else if (time_start == Time.MIN_TIME) {
-                e = new Event.WholeDay(this, d.day, d.month, d.year);
+                list.add(new Event.WholeDay(this, date));
             } else {
-                e = new Event.Start(this, d.day, d.month, d.year);
+                list.add(new Event.Start(this, date));
             }
-            list.add(e);
         }
 
+        Date d = date.copy();
         d.addDays(1);
 
         for(int i=1; i<days; ++i, d.addDays(1)) {
-            if(d.getShort() > end) {
+            if(d.isGreaterThen(dateEnd)) {
                 return;
             }
-            e = new Event.WholeDay(this, d.day, d.month, d.year);
-            list.add(e);
+            list.add(new Event.WholeDay(this, d));
         }
-        if(d.getShort() > end) {
+        if(d.isGreaterThen(dateEnd)) {
             return;
         }
 
         if(getAddition(WHOLE_DAY)) {
-            e = new Event.WholeDay(this, d.day, d.month, d.year);
+            list.add(new Event.WholeDay(this, d));
 
         }else if(time_end == Time.MAX_TIME) {
-            e = new Event.WholeDay(this, d.day, d.month, d.year);
+            list.add(new Event.WholeDay(this, d));
         }else {
-            e = new Event.End(this, d.day, d.month, d.year);
+            list.add(new Event.End(this, d));
         }
-        list.add(e);
     }
 
 }

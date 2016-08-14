@@ -15,8 +15,6 @@ public class Data {
 
     public static final char MOST_RECENT_SAVE_FILE_VERSION = 1;
 
-    private static char saveFileVersion = 0;
-
     public static Manager<Category> Categories = new Manager<>();
 
     public static Manager<Tag> Tags = new Manager<>();
@@ -32,7 +30,7 @@ public class Data {
         public static ArrayList<Event> getEvents(final Date start, final Date end) {
             ArrayList<Event> list = new ArrayList<>();
             for(TimetableEntry ent : Timetable.Entries.getList()) {
-                ent.addEventsToList(list, start.getShort(), end.getShort());
+                ent.addEventsToList(list, start, end);
             }
             return list;
         }
@@ -156,14 +154,9 @@ public class Data {
             return;
         }
 
-        switch(saveFileVersion) {
+        switch(fry.getVersion()) {
             case 1: load_v1(fry); break;
         }
-    }
-
-    protected static void load_v1(FryFile fry) {
-        ContactList.readFrom(fry);
-        Data.readFrom(fry);
     }
 
     public static void save() {
@@ -180,20 +173,20 @@ public class Data {
             User.encode(fry);
         }
 
-        ContactList.writeTo(fry);
-        Data.writeTo(fry);
+        save_v1(fry);
 
         try {
             FileOutputStream outputStream = App.getFileOutputStream(User.getFileName());
+
             if (!fry.saveToStream(outputStream)) {
                 Logger.Log("App#save()", "Could not save local file: FryFile.save() = false");
-                // TODO could not save local file
-
+                System.out.println("# Could not SAVE local file");
             }
+
         }catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             Logger.Log("App#save()", "Could not save local file: file not found");
-            // TODO could not save local file
+            System.out.println("# Could not SAVE local file");
         }
     }
 
@@ -215,11 +208,11 @@ public class Data {
         FryFile fry = new FryFile.Compact();
         if(!fry.loadFromStream(inputStream)) {
             Logger.Log("App#load()","Could not load local file");
-            // TODO could not load local file
+            System.out.println("# Could not LOAD local file");
             return getLocalFryFile();
         }
 
-        saveFileVersion = fry.getChar();
+        fry.setVersion(fry.getChar());
 
         if(User.decode(fry)) {
             System.out.println("# SUCCESSFULLY LOADED USER DATA");
@@ -233,6 +226,18 @@ public class Data {
         return getLocalFryFile();
     }
 
+    protected static void load_v1(FryFile fry) {
+        App.Settings.readFrom(fry);
+        ContactList.readFrom(fry);
+        Data.readFrom(fry);
+    }
+
+    protected static void save_v1(FryFile fry) {
+        App.Settings.writeTo(fry);
+        ContactList.writeTo(fry);
+        Data.writeTo(fry);
+    }
+
     protected static FryFile getLocalFryFile() {
         try {
             FileInputStream inputStream = App.getFileInputStream(User.getFileName());
@@ -240,7 +245,7 @@ public class Data {
             FryFile fry = new FryFile.Compact();
             if (fry.loadFromStream(inputStream)) {
 
-                saveFileVersion = fry.getChar();
+                fry.setVersion(fry.getChar());
 
                 System.out.println("# SUCCESSFULLY LOADED LOCAL DATA");
 

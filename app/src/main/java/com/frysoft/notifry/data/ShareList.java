@@ -28,6 +28,18 @@ public class ShareList implements Fryable {
         fry.writeObjects(storages);
     }
 
+    public int size() {
+        return storages.size();
+    }
+
+    public int getId(int index) {
+        return storages.get(index).id;
+    }
+
+    public byte getPermission(int index) {
+        return storages.get(index).permission;
+    }
+
     public void readFrom(FryFile fry) {
         int NoStorages = fry.getArrayLength();
         for(int i=0; i<NoStorages; ++i) {
@@ -77,10 +89,10 @@ public class ShareList implements Fryable {
             if(share == null) {
                 continue;
             }
-            share.type = type;
+            //share.type = type;
             share.id = storage.id;
             share.permission = storage.permission;
-            share.share_id = share_id;
+            //share.share_id = share_id;
         }
 
         for(ContactGroup grp : ContactList.getGroups()) {

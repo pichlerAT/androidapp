@@ -305,12 +305,12 @@ public class User {
 
         @Override
         protected boolean mysql_create() {
-            return false;
+            return true;
         }
 
         @Override
         protected boolean mysql_delete() {
-            return false;
+            return true;
         }
 
         protected static class register extends user {

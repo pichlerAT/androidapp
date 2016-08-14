@@ -35,7 +35,6 @@ public class Share extends Contact {
         String resp = executeMySQL(getFileUrl()+"create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(share_id) + "&permission=" + signed(permission));
         if(resp != null) {
             id = Integer.parseInt(resp);
-            type = getType();
             return store();
         }
         return false;
@@ -62,7 +61,7 @@ public class Share extends Contact {
     }
 
     protected boolean store() {
-        switch(type) {
+        switch(getType()) {
             case TYPE_CALENDAR:
                 Data.Timetable.Shares.addStorage(permission, id, user_id);
                 return true;
@@ -97,7 +96,7 @@ public class Share extends Contact {
         }
         return false;
     }
-
+/*
     protected void deleteWithoutId() {
         Logger.Log("Share", "deleteWithoutId()");
         if(user_id != 0 && share_id != 0) {
@@ -106,7 +105,7 @@ public class Share extends Contact {
             ConnectionManager.add(this);
         }
     }
-
+*/
     public void setPermission(byte permission) {
         Logger.Log("Share", "setPermission(byte)");
         this.permission = permission;

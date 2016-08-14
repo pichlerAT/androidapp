@@ -61,7 +61,6 @@ public class ContactGroup extends MySQLEntry {
     public ContactGroup backup() {
         Logger.Log("ContactGroup", "backup()");
         ContactGroup grp = new ContactGroup(id, name);
-        grp.type = type;
         grp.user_id = user_id;
         grp.contacts = contacts.clone();
         return grp;
@@ -102,6 +101,11 @@ public class ContactGroup extends MySQLEntry {
     public boolean canEdit() {
         Logger.Log("ContactGroup", "canEdit()");
         return true;
+    }
+
+    @Override
+    public int getShareId() {
+        return 0;
     }
 
     @Override

@@ -3,30 +3,38 @@
     android:id="@+id/linearlayout_test"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center_vertical|center_horizontal">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="createTimetableEntry"
+        android:text="b1"
         android:id="@+id/b1" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CreateTimetableCategory"
+        android:text="b2"
         android:id="@+id/b2" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"
+        android:text="b3"
         android:id="@+id/b3" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login as: stefan.fragner@rk.at"
+        android:text="b4"
         android:id="@+id/b4" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="b5"
+        android:id="@+id/b5" />
+
 </LinearLayout>
 

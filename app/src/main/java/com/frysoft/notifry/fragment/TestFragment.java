@@ -11,10 +11,13 @@ import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactList;
 import com.frysoft.notifry.data.Data;
+import com.frysoft.notifry.data.Event;
 import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.data.User;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.Time;
+
+import java.util.ArrayList;
 
 public class TestFragment extends Fragment {
 
@@ -29,8 +32,16 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                System.out.println("# ----- Entries -----");
+                System.out.println("# Number of Entries: "+Data.Timetable.Entries.size());
                 for(TimetableEntry ent : Data.Timetable.Entries.getList()) {
                     System.out.println("# " + ent.getTitle() + ": " + ent.getDateStart().getString() + " , " + ent.getTimeStart().getString());
+                }
+                System.out.println("# ----- Events -----");
+                ArrayList<Event> events = Data.Timetable.getEvents(new Date(10,8,2016), new Date(10,12,2017));
+                System.out.println("# Number of Events: "+events.size());
+                for(Event e : events) {
+                    System.out.println(" # "+e.getDate().getWeekdayName()+" the "+e.getDate().getString());
                 }
 
             }
@@ -42,7 +53,9 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Data.create.TimetableEntry(null, "testily", null, new Date(14,8,2016), new Date(15,8,2016), new Time(20, 41), new Time(23,49), 0, (short)0, (short)0);
+                Data.create.TimetableEntry(null, "MO-WE-SA", null, new Date(14,8,2016), new Date(14,8,2016),
+                        new Time(Time.MIN_TIME), new Time((short)(Time.MAX_TIME - 1)), 0, (short)5, (short)2,
+                        TimetableEntry.REPEAT_MONTHLY);
 
             }
         });
@@ -77,10 +90,21 @@ public class TestFragment extends Fragment {
                     @Override
                     public void run() {
                         System.out.println("# LOGIN");
-                        User.login("edwin.pichler@rk.at", "1234");
+                        int res = User.login("david.nguyen@rk.at", "1234");
                     }
 
                 })).start();
+
+            }
+        });
+
+        b = (Button) rootView.findViewById(R.id.b5);
+        b.setText("print userdata");
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                System.out.println("# User.email = " + User.getEmail());
 
             }
         });
