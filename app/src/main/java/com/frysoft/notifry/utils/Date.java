@@ -199,6 +199,10 @@ public class Date implements Fryable {
 
         year += (month + months) / 12;
         month = (month + months) % 12;
+
+        if(month == 0) {
+            month = 1;
+        }
     }
 
     public void subtractMonths(int months) {
@@ -208,6 +212,10 @@ public class Date implements Fryable {
 
         year -= (month - months) / 12;
         month = (month - months) % 12;
+
+        if(month == 0) {
+            month = 1;
+        }
     }
 
     public void addYears(int years) {
