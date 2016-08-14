@@ -197,11 +197,11 @@ public class Date implements Fryable {
             subtractMonths(-months);
         }
 
-        year += (month + months) / 12;
-        month = (month + months) % 12;
+        month += months;
 
-        if(month == 0) {
-            month = 12;
+        while(month > 12) {
+            month -= 12;
+            year++;
         }
     }
 
@@ -210,11 +210,11 @@ public class Date implements Fryable {
             addMonths(-months);
         }
 
-        year -= (month - months) / 12;
-        month = (month - months) % 12;
+        month -= months;
 
-        if(month == 0) {
-            month = 12;
+        while(month < 1) {
+            month += 12;
+            year--;
         }
     }
 
