@@ -50,23 +50,11 @@ public class Category extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TimetableCategory", "mysql_create()");
-        String resp = executeMySQL(DIR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(DIR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
-/*
-            for(TimetableEntry ent : offline_entries) {
-                ent.category = this;
-                ent.create();
-            }
-            offline_entries = new ArrayList<>();
 
-            for(Tasklist tl : offline_tasklists) {
-                tl.category = this;
-                tl.create();
-            }
-            offline_tasklists = new ArrayList<>();
-*/
             return true;
         }
         return false;
@@ -113,10 +101,6 @@ public class Category extends MySQLEntry implements Fryable {
         fry.writeString(name);
         fry.writeInt(color);
         shares.writeTo(fry);
-        /*
-        fry.writeObjects(offline_entries);
-        fry.writeObjects(offline_tasklists);
-        */
     }
 
     public int getColor() {
@@ -127,16 +111,7 @@ public class Category extends MySQLEntry implements Fryable {
         Logger.Log("TimetableCategory", "getName()");
         return name;
     }
-/*
-    protected void addOfflineEntry(TimetableEntry entry) {
-        Logger.Log("TimetableCategory", "addOfflineEntry(TimetableEntry)");
-        offline_entries.add(entry);
-    }
 
-    protected void addOfflineEntry(Tasklist tasklist) {
-        offline_tasklists.add(tasklist);
-    }
-*/
     public void set(String name, int color) {
         this.name = name;
         this.color = color;

@@ -12,6 +12,8 @@ public class ConnectionManager {
 
     protected static boolean PERFORM_UPDATE = false;
 
+    protected static boolean SYNC_ANDROID = false;
+
     protected static Sync syncTask = new Sync();
 
     protected static MySQLListener mysql_listener;
@@ -25,12 +27,6 @@ public class ConnectionManager {
 
     public static void add(MySQL entry) {
         Logger.Log("ConnectionManager", "add(MySQL)");
-        /*
-        if(entry.isOffline() || !hasEntry(entry)) {
-            entries.add(entry);
-            sync();
-        }
-        */
         if(entry instanceof Category) {
             entries.add(0, entry);
 
@@ -43,6 +39,12 @@ public class ConnectionManager {
     protected static void notifyMySQLListener() {
         Logger.Log("ConnectionManager", "notifyMySQLListener()");
         (new NotifyListener()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    protected static void synchronizeAndroidCalendar() {
+        PERFORM_UPDATE = true;
+        SYNC_ANDROID = true;
+        sync();
     }
 
     public static void performUpdate() {
@@ -60,27 +62,7 @@ public class ConnectionManager {
         }
         return false;
     }
-/*
-    public static boolean hasEntry(MySQL entry) {
-        return hasEntry(entry, entry.type);
-    }
-*/
-    /*
-    protected static boolean remove(MySQL entry) {
-        Logger.Log("ConnectionManager", "remove(MySQL)");
-        return entries.remove(entry);
-    }
 
-    protected static void remove(char type,int id) {
-        Logger.Log("ConnectionManager", "remove(char,int)");
-        for(int i=0; i<entries.size(); ++i) {
-            MySQL ent = entries.get(i);
-            if(ent.id == id && ent.type == type) {
-                entries.remove(i);
-            }
-        }
-    }
-*/
     protected static void sync() {
         Logger.Log("ConnectionManager", "sync()");
         if(User.isOnline()) {
@@ -93,35 +75,7 @@ public class ConnectionManager {
             NetworkStateReciever.checkInternet();
         }
     }
-/*
-    public static void writeTo(FryFile fry) {
-        Logger.Log("ConnectionManager", "writeTo(FryFile)");
-        ArrayList<MySQL> writeList = new ArrayList<>(entries.size());
-        for(MySQL m : entries) {
-            if(m instanceof MySQLEntry && m.isOnline()) {
-                writeList.add(m);
-            }
-        }
-        fry.writeArrayLength(writeList.size());
-        for(MySQL m : writeList) {
-            fry.writeChar(m.type);
-            fry.writeUnsignedInt(m.id);
-        }
-    }
-/*
-    public static void readFrom(FryFile fry) {
-        Logger.Log("ConnectionManager", "readFrom(FryFile)");
-        entries = new ArrayList<>();
 
-        int NoEntries = fry.getChar();
-        for(int i=0; i<NoEntries; ++i) {
-            MySQL entry = MySQLEntry.load(fry.getChar(),fry.getInt());
-            if(entry != null) {
-                entries.add(entry);
-            }
-        }
-    }
-*/
     public static String[] split(String str) {
         String buffer = "";
         ArrayList<String> list = new ArrayList<>();
@@ -145,9 +99,7 @@ public class ConnectionManager {
         return  list.toArray(new String[list.size()]);
     }
 
-    public static boolean synchronizeAll(String resp) {
-        FryFile fry = new FryFile.Split((char)0);
-        fry.loadFromString(resp);
+    public static boolean synchronizeAll(FryFile fry) {
         if(fry.size() < 8) {
             return false;
         }
@@ -183,6 +135,9 @@ public class ConnectionManager {
             Logger.Log("ConnectionManager$Sync", "doInBackground(String...)");
             if(PERFORM_UPDATE) {
                 PERFORM_UPDATE = !sync_all();
+                if(SYNC_ANDROID && !PERFORM_UPDATE) {
+                    Data.synchronizeAndroidCalendar();
+                }
             }
 
             int index = 0;
@@ -205,11 +160,8 @@ public class ConnectionManager {
 
         protected boolean sync_all() {
             Logger.Log("ConnectionManager$Sync", "sync_all()");
-            String resp = MySQL.executeMySQL("get.php","");
-            if(resp == null) {
-                return false;
-            }
-            return synchronizeAll(resp);
+            FryFile fry = MySQL.executeMySQL("get.php", "");
+            return (fry != null && synchronizeAll(fry));
         }
     }
 

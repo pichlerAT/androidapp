@@ -29,18 +29,23 @@ public class Manager<E extends MySQLEntry> implements Fryable {
         }
         return null;
     }
-/*
-    protected E getOfflineById(int id) {
-        for(E e : list.getList()) {
-            if(e.id == id && e.isOffline()) {
-                return e;
-            }
-        }
-        return null;
-    }
-*/
+
     public ArrayList<E> getList() {
         return list.getList();
+    }
+
+    protected void add(int index, E e) {
+        if(e.isOffline()) {
+
+            if(e.id == 0) {
+                e.id = nextId++;
+
+            }else {
+                nextId = e.id + 1;
+            }
+
+        }
+        list.add(index, e);
     }
 
     protected void add(E e) {

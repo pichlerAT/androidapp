@@ -19,9 +19,9 @@ public class ContactGroup extends MySQLEntry {
         name = fry.getString();
 
         ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
-        int NoContacts = fry.getChar();
+        int NoContacts = fry.getArrayLength();
         for(int i=0; i<NoContacts; ++i) {
-            Contact cont = all.getContactByUserId(fry.getInt());
+            Contact cont = all.getContactByUserId(fry.getUnsignedInt());
             if(cont != null) {
                 contacts.add(cont);
             }
@@ -69,9 +69,9 @@ public class ContactGroup extends MySQLEntry {
     @Override
     protected boolean mysql_create() {
         Logger.Log("ContactGroup", "mysql_create()");
-        String resp = executeMySQL(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             return true;
         }
         return false;

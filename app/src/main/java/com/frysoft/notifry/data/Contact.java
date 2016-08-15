@@ -65,11 +65,11 @@ public class Contact extends MySQL implements Fryable, Searchable {
     @Override
     protected boolean mysql_update() { // contact request accept
         Logger.Log("Contact", "mysql_update()");
-        String resp = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
-        if(resp == null) {
+        FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
+        if(fry == null) {
             return false;
         }
-        id = Integer.parseInt(resp);
+        id = fry.getUnsignedInt();
         user_id = User.getId();
         ContactList.getAllContactsGroup().contacts.add(this);
         return true;

@@ -6,15 +6,15 @@ import com.frysoft.notifry.utils.Time;
 
 public class Tag extends MySQLEntry {
 
+    protected static final byte VSET_OFFSET = 127;
+
     protected static final byte VSET_TITLE          = 0x01;
     protected static final byte VSET_DESCRIPTION    = 0x02;
     protected static final byte VSET_DATE_START     = 0x04;
     protected static final byte VSET_TIME_START     = 0x08;
-    protected static final byte VSET_COLOR          = 0x10;
-    //protected static final byte VSET_COLOR          = 0x20;
-    //protected static final byte VSET_COLOR          = 0x40;
-    //protected static final byte VSET_COLOR          = 0x80;
-
+    protected static final byte VSET_DATE_END       = 0x10;
+    protected static final byte VSET_TIME_END       = 0x20;
+    protected static final byte VSET_COLOR          = 0x40;
 
     protected Category category;
 
@@ -26,19 +26,17 @@ public class Tag extends MySQLEntry {
 
     protected short time_start;
 
-    protected int duration;
+    protected short date_end;
 
-    protected short addition;
+    protected short time_end;
 
-    protected short end;
-
-    protected short intervall; // (byte)
+    protected RRule rRule;
 
     protected int color;
 
     protected byte vset;
 
-    protected Tag(Category category, String title, String description, Date date_start, Time time_start, int duration, short addition, short end, short intervall, boolean set_color, int color) {
+    protected Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, boolean set_color, int color) {
         super(TYPE_TAG, 0, 0);
 
         this.category = category;
@@ -71,13 +69,21 @@ public class Tag extends MySQLEntry {
             this.time_start = time_start.time;
         }
 
-        this.duration = duration;
+        if(date_end == null) {
+            this.date_end = 0;
+        }else {
+            vset |= VSET_DATE_END;
+            this.date_end = date_end.getShort();
+        }
 
-        this.addition = addition;
+        if(time_end == null) {
+            this.time_end = 0;
+        }else {
+            vset |= VSET_TIME_END;
+            this.time_end = time_end.time;
+        }
 
-        this.end = end;
-
-        this.intervall = intervall;
+        this.rRule = rRule;
 
         this.color = color;
         if(set_color) {
@@ -88,8 +94,8 @@ public class Tag extends MySQLEntry {
     protected Tag(FryFile fry) {
         super(fry);
 
-        vset = fry.getByte();
-        category = Data.Categories.getById(fry.getInt());
+        vset = (byte)(fry.getUnsignedByte() - VSET_OFFSET);
+        category = Data.Categories.getById(fry.getUnsignedInt());
 
         if(issetTitle()) {
             title = fry.getString();
@@ -98,16 +104,19 @@ public class Tag extends MySQLEntry {
             description = fry.getString();
         }
         if(issetDateStart()) {
-            date_start = fry.getShort();
+            date_start = fry.getUnsignedShort();
         }
         if(issetTimeStart()) {
-            time_start = fry.getShort();
+            time_start = fry.getUnsignedShort();
+        }
+        if(issetDateEnd()) {
+            date_end = fry.getUnsignedShort();
+        }
+        if(issetTimeEnd()) {
+            time_end = fry.getUnsignedShort();
         }
 
-        duration = fry.getInt();
-        addition = fry.getShort();
-        end = fry.getShort();
-        intervall = fry.getShort();
+        rRule = new RRule(fry.getString());
 
         if(issetColor()) {
             color = fry.getInt();
@@ -118,8 +127,8 @@ public class Tag extends MySQLEntry {
     public void writeTo(FryFile fry) {
         super.writeTo(fry);
 
-        fry.writeByte(vset);
-        fry.writeInt(getCategoryId());
+        fry.writeUnsignedByte((byte)(vset + VSET_OFFSET));
+        fry.writeUnsignedInt(getCategoryId());
 
         if(issetTitle()) {
             fry.writeString(title);
@@ -128,16 +137,21 @@ public class Tag extends MySQLEntry {
             fry.writeString(description);
         }
         if(issetDateStart()) {
-            fry.writeShort(date_start);
+            fry.writeUnsignedShort(date_start);
         }
         if(issetTimeStart()) {
-            fry.writeShort(time_start);
+            fry.writeUnsignedShort(time_start);
         }
 
-        fry.writeInt(duration);
-        fry.writeShort(addition);
-        fry.writeShort(end);
-        fry.writeShort(intervall);
+        if(issetDateEnd()) {
+            fry.writeUnsignedShort(date_end);
+        }
+
+        if(issetTimeEnd()) {
+            fry.writeUnsignedShort(time_end);
+        }
+
+        fry.writeString(rRule.getString());
 
         if(issetColor()) {
             fry.writeInt(color);
@@ -174,11 +188,12 @@ public class Tag extends MySQLEntry {
 
     @Override
     protected boolean mysql_create() {
-        String resp = executeMySQL(DIR_TAG + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title + "&description=" + description
-                + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&end=" + signed(end) + "&intervall=" + intervall + "&color=" + color + "&set=" + signed(vset));
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(DIR_TAG + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title
+                + "&description=" + description + "&time_start=" + signed(time_start) + "&date_start=" + signed(date_start)
+                + "&time_start=" + signed(time_start) + "&date_end=" + signed(date_end) + "&time_end=" + signed(time_end)
+                + "&rrule="+rRule.getString() + "&color=" + color + "&set=" + signed((byte)(vset + VSET_OFFSET)));
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             return true;
         }
         return false;
@@ -187,8 +202,9 @@ public class Tag extends MySQLEntry {
     @Override
     protected boolean mysql_update() {
         return (executeMySQL(DIR_TAG + "update.php", "&id=" + signed(id) + "&category_id=" + signed(getCategoryId()) + "&title=" + title
-                + "&description=" + description + "&date_start=" + signed(date_start) + "&time_start=" + signed(time_start) + "&duration=" + signed(duration)
-                + "&addition="+signed(addition) + "&end=" + signed(end) + "&intervall=" + intervall + "&color=" + color + "&set=" + signed(vset)) != null);
+                + "&description=" + description + "&time_start=" + signed(time_start) + "&date_start=" + signed(date_start)
+                + "&time_start=" + signed(time_start) + "&date_end=" + signed(date_end) + "&time_end=" + signed(time_end)
+                + "&rrule="+rRule.getString() + "&color=" + color + "&set=" + signed((byte)(vset + VSET_OFFSET))) != null);
     }
 
     @Override
@@ -212,6 +228,14 @@ public class Tag extends MySQLEntry {
         return ((vset & VSET_TIME_START) > 0);
     }
 
+    public boolean issetDateEnd() {
+        return ((vset & VSET_DATE_END) > 0);
+    }
+
+    public boolean issetTimeEnd() {
+        return ((vset & VSET_TIME_END) > 0);
+    }
+
     public boolean issetColor() {
         return ((vset & VSET_COLOR) > 0);
     }
@@ -223,50 +247,21 @@ public class Tag extends MySQLEntry {
         return category.id;
     }
 
-    public Date getDateStart() {
-        return new Date(date_start);
-    }
-
     public Time getTimeStart() {
         return new Time(time_start);
     }
 
-    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, int duration, short intervall, short... additions) {
-        short addition = 0;
-        for(short a : additions) {
-            addition |= a;
-        }
-
-        set(category, title, description, date_start, time_start, duration, addition, date_end.getShort(), intervall, false, 0);
+    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, int duration, RRule rRule) {
+        set(category, title, description, date_start, time_start, date_end, time_end, rRule, false, 0);
     }
 
-    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, int duration, short intervall, int color, short... additions) {
-        short addition = TimetableEntry.REPEAT_UNTIL;
-        for(short a : additions) {
-            addition |= a;
-        }
-
-        set(category, title, description, date_start, time_start, duration, addition, date_end.getShort(), intervall, true, color);
+    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, int duration, RRule rRule, int color) {
+        set(category, title, description, date_start, time_start, date_end, time_end, rRule, true, color);
     }
 
-    public void set(Category category, String title, String description, Date date_start, Time time_start, short repetitions, int duration, short intervall, short... additions) {short addition = 0;
-        for(short a : additions) {
-            addition |= a;
-        }
+    protected void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, boolean set_color, int color) {
+        vset = 0;
 
-        set(category, title, description, date_start, time_start, duration, addition, repetitions, intervall, false, 0);
-    }
-
-    public void set(Category category, String title, String description, Date date_start, Time time_start, short repetitions, int duration, short intervall, int color, short... additions) {
-        short addition = 0;
-        for(short a : additions) {
-            addition |= a;
-        }
-
-        set(category, title, description, date_start, time_start, duration, addition, repetitions, intervall, true, color);
-    }
-
-    protected void set(Category category, String title, String description, Date date_start, Time time_start, int duration, short addition, short end, short intervall, boolean set_color, int color) {
         this.category = category;
 
         if(title == null) {
@@ -297,13 +292,21 @@ public class Tag extends MySQLEntry {
             this.time_start = time_start.time;
         }
 
-        this.duration = duration;
+        if(date_end == null) {
+            this.date_end = 0;
+        }else {
+            vset |= VSET_DATE_END;
+            this.date_end = date_end.getShort();
+        }
 
-        this.addition = addition;
+        if(time_end == null) {
+            this.time_end = 0;
+        }else {
+            vset |= VSET_TIME_END;
+            this.time_end = time_end.time;
+        }
 
-        this.end = end;
-
-        this.intervall = intervall;
+        this.rRule = rRule;
 
         this.color = color;
         if(set_color) {

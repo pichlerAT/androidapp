@@ -1,5 +1,9 @@
 package com.frysoft.notifry.data;
 
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CalendarContract;
+
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.FryFile;
@@ -10,6 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class Data {
 
@@ -29,10 +35,28 @@ public class Data {
 
         public static ArrayList<Event> getEvents(final Date start, final Date end) {
             ArrayList<Event> list = new ArrayList<>();
+            EventIterator it;
+            Event e;
             for(TimetableEntry ent : Timetable.Entries.getList()) {
-                ent.addEventsToList(list, start, end);
+                it = new EventIterator(ent, start, end);
+                while((e = it.next()) != null) {
+                    list.add(e);
+                }
             }
             return list;
+        }
+
+        public static void synchronizeAndroidCalendarIntoNotifry() {
+            ConnectionManager.synchronizeAndroidCalendar();
+        }
+
+        protected static TimetableEntry getByGoogleId(String google_id) {
+            for(TimetableEntry ent : Entries.getList()) {
+                if(ent.google_id.equals(google_id)) {
+                    return ent;
+                }
+            }
+            return null;
         }
 
     }
@@ -56,77 +80,68 @@ public class Data {
         }
 
         public static TimetableEntry TimetableEntry(Category category, String title, String description, Date date_start, Date date_end,
-                                                          Time time_start, Time time_end, int color, Date date_repeat_until, short intervall, short... additions) {
-
-            if(date_repeat_until == null) {
-                return TimetableEntry(category, title, description, date_start, date_end, time_start, time_end, color, (short)0, intervall, additions);
-            }
-
-            short addition = TimetableEntry.REPEAT_UNTIL;
-            for (short a : additions) {
-                addition |= a;
-            }
-
-            return TimetableEntry(category, title, description, date_start, date_end, time_start, time_end, color, date_repeat_until.getShort(), intervall, addition);
-        }
-
-        public static TimetableEntry TimetableEntry(Category category, String title, String description, Date date_start, Date date_end,
-                                                          Time time_start, Time time_end, int color, short repetitions, short intervall, short... additions) {
+                                                    Time time_start, Time time_end, int color, RRule rRule) {
             Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
 
-            short addition = 0;
-
-            for (short a : additions) {
-                addition |= a;
+            if(title == null) {
+                throw new IllegalArgumentException("title must not be null");
             }
 
-            int duration = time_end.time - time_start.time + Time.MAX_TIME * date_start.getDaysUntil(date_end);
+            if(date_start == null) {
+                throw new IllegalArgumentException("date_start must not be null");
+            }
 
-            TimetableEntry ent = new TimetableEntry(0, 0, category, title, description, date_start.getShort(), time_start.time, duration, addition, repetitions, intervall, color, 0);
+            if(description == null || description.length() == 0) {
+                description = " ";
+            }
+
+            if(rRule == null) {
+                rRule = new RRule();
+
+                if(time_start == null && time_end == null) {
+                    rRule.setWholeDay(true);
+                }
+            }
+
+            if(time_start == null) {
+                time_start = new Time(Time.MIN_TIME);
+            }
+
+            if(date_end == null) {
+                date_end = new Date(date_start);
+            }
+
+            if(time_end == null) {
+                time_end = new Time(Time.MAX_TIME - 1);
+            }
+
+            TimetableEntry ent = new TimetableEntry(0, 0, category, title, description, date_start.getShort(), time_start.time, date_end.getShort(), time_end.time, rRule, color, "E");
 
             Timetable.Entries.add(ent);
             ent.create();
             return ent;
         }
 
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, int duration, Date date_end, short intervall, short... additions) {
-            short addition = TimetableEntry.REPEAT_UNTIL;
-            for (short a : additions) {
-                addition |= a;
+        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule) {
+
+            if(rRule == null) {
+                rRule = new RRule();
             }
 
-            return Tag(category, title, description, date_start, time_start, duration, date_end.getShort(), intervall, addition);
-        }
-
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, int duration, Date date_end, short intervall, int color, short... additions) {
-            short addition = TimetableEntry.REPEAT_UNTIL;
-            for (short a : additions) {
-                addition |= a;
-            }
-
-            return Tag(category, title, description, date_start, time_start, duration, date_end.getShort(), intervall, color, addition);
-        }
-
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, int duration, short repetitions, short intervall, short... additions) {
-            short addition = 0;
-            for (short a : additions) {
-                addition |= a;
-            }
-
-            Tag tag = new Tag(category, title, description, date_start, time_start, duration, addition, repetitions, intervall, false, 0);
+            Tag tag = new Tag(category, title, description, date_start, time_start, date_end, time_end, rRule, false, 0);
 
             Tags.add(tag);
             tag.create();
             return tag;
         }
 
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, int duration, short repetitions, short intervall, int color, short... additions) {
-            short addition = 0;
-            for (short a : additions) {
-                addition |= a;
+        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, int color) {
+
+            if(rRule == null) {
+                rRule = new RRule();
             }
 
-            Tag tag = new Tag(category, title, description, date_start, time_start, duration, addition, repetitions, intervall, true, color);
+            Tag tag = new Tag(category, title, description, date_start, time_start, date_end, time_end, rRule, true, color);
 
             Tags.add(tag);
             tag.create();
@@ -289,9 +304,20 @@ public class Data {
         }
 
 
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Tasklists.add(new Tasklist(fry));
+        if(App.Settings.moveFinishedTasklistToBottom()) {
+            count = fry.getArrayLength();
+            for (int i = 0; i < count; ++i) {
+                Tasklist tl = new Tasklist(fry);
+                if(tl.isDone()) {
+                    Tasklists.add(tl);
+                }
+            }
+
+        }else {
+            count = fry.getArrayLength();
+            for (int i = 0; i < count; ++i) {
+                Tasklists.add(new Tasklist(fry));
+            }
         }
 
         count = fry.getArrayLength();
@@ -354,7 +380,7 @@ public class Data {
         Timetable.Shares = new ShareList(MySQL.TYPE_CALENDAR, User.getId());
         count = fry.getArrayLength();
         for(int i=0; i<count; ++i) {
-            Timetable.Shares.addStorage(fry.getByte(), fry.getUnsignedInt(), fry.getUnsignedInt());
+            Timetable.Shares.addStorage(fry.getUnsignedByte(), fry.getUnsignedInt(), fry.getUnsignedInt());
         }
 
         ArrayList<Tag> tagList = new ArrayList<>();
@@ -365,35 +391,20 @@ public class Data {
         Tags.synchronizeWith(tagList);
     }
 
-    /*
+    protected static void synchronizeAndroidCalendar() {
+        System.out.println("# ANDROID CALENDAR SYNC START");
+        long time = Calendar.getInstance().getTimeInMillis();
 
-
-    public static void synchronizeWithGoogleCalendar() {
-        String[] FIELDS = {
-                CalendarContract.Events._ID,
-                CalendarContract.Events.TITLE,
-                CalendarContract.Events.DISPLAY_COLOR,
-                CalendarContract.Events.DESCRIPTION,
-                CalendarContract.Events.DTSTART,
-                CalendarContract.Events.DURATION,
-                CalendarContract.Events.DTEND,
-                CalendarContract.Events.ALL_DAY,
-                CalendarContract.Events.EVENT_TIMEZONE
-        };
-    }
-
-    public static void printAndroidCalendar() {
         String[] FIELDS = {
                 CalendarContract.Events._SYNC_ID,
-                CalendarContract.Events._ID,
                 CalendarContract.Events.TITLE,
-                CalendarContract.Events.DISPLAY_COLOR,
                 CalendarContract.Events.DESCRIPTION,
+                CalendarContract.Events.DISPLAY_COLOR,
                 CalendarContract.Events.DTSTART,
-                CalendarContract.Events.DURATION,
                 CalendarContract.Events.DTEND,
                 CalendarContract.Events.ALL_DAY,
-                CalendarContract.Events.EVENT_TIMEZONE
+                CalendarContract.Events.EVENT_TIMEZONE,
+                CalendarContract.Events.RRULE
         };
 
         Uri uri = Uri.parse("content://com.android.calendar/events");
@@ -401,49 +412,95 @@ public class Data {
         Cursor cursor = App.getContext().getContentResolver().query(uri, FIELDS, null, null, null);
 
         if(cursor == null) {
-            System.out.println("CURSOR IS NULL");
+            System.out.println("# CURSOR IS NULL");
             return;
         }
 
-        int columns = cursor.getColumnCount();
-
-        System.out.print(cursor.getCount());
-
-        for(int i=0; i<columns; ++i) {
-            System.out.print(" | " + cursor.getColumnName(i));
+        if(cursor.getCount() == 0) {
+            System.out.println("# CURSOR COUNT IS 0");
+            return;
         }
-        System.out.println();
 
-        System.out.println("---------------------------------------------------------------------");
         cursor.moveToFirst();
+        ArrayList<TimetableEntry> list = new ArrayList<>();
 
         do {
-            System.out.print(cursor.getPosition());
+            String id = cursor.getString(0);
+            String title = cursor.getString(1);
+            String description = cursor.getString(2);
+            int color = cursor.getInt(3);
+            long start = cursor.getLong(4);
+            long end = cursor.getLong(5);
+            boolean allDay = (cursor.getInt(6) == 1);
+            String tz = cursor.getString(7);
+            String rrule = cursor.getString(8);
 
-            for(int i=0; i<columns; ++i) {
-                System.out.print(" | " + cursor.getString(i));
+
+            RRule rRule;
+            if(rrule == null) {
+                rRule = new RRule();
+            }else {
+                rRule = RRule.convertIOracleToFrySoft("RRULE:" + rrule);
             }
 
-            System.out.println();
+            Calendar cal = Calendar.getInstance();
+
+            cal.setTimeInMillis(start);
+            Date date_start = new Date(cal);
+            Time time_start = new Time(cal);
+            if(!rRule.wholeDay) {
+                int timeZoneOffset = (cal.getTimeZone().getRawOffset() / 60000);
+                date_start.addDays(time_start.subtractMinutes(timeZoneOffset));
+            }
+
+            cal.setTimeInMillis(end);
+            Date date_end = new Date(cal);
+            Time time_end = new Time(cal);
+            if(!rRule.wholeDay) {
+                int timeZoneOffset = (cal.getTimeZone().getRawOffset() / 60000);
+                date_end.addDays(time_end.subtractMinutes(timeZoneOffset));
+            }
+
+            if(title == null) {
+                continue;
+            }
+
+            if(description == null || description.length() == 0) {
+                description = " ";
+            }
+
+            TimetableEntry android = new TimetableEntry(0, 0, null, title, description, date_start.getShort(), time_start.time, date_end.getShort(), time_end.time, rRule, color, id);
+
+            if(android.google_id == null) {
+                System.out.println("# GOOGLE_ID == NULL : "+android.title);
+                android.google_id = "E";
+                Timetable.Entries.add(android);
+                android.create();
+                continue;
+            }
+
+            TimetableEntry notifry = Timetable.getByGoogleId(android.google_id);
+
+            if (notifry == null) {
+                Timetable.Entries.add(android);
+                android.create();
+
+            } else if (!android.equals(notifry)) {
+                notifry.synchronize(android);
+            }
+
         } while(cursor.moveToNext());
 
-        /*
-        TimeZone tz = TimeZone.getTimeZone("Europe/Amsterdam");
-        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
-        tz = TimeZone.getTimeZone("UTC+1");
-        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
-        tz = TimeZone.getTimeZone("GMT+1");
-        System.out.println(tz.getDisplayName() + " = " + tz.getRawOffset());
-        */
-    /*
-        System.out.println(TimeZone.getDefault().getDisplayName() + " = " + TimeZone.getDefault().getRawOffset());
-
         cursor.close();
+
+        Timetable.Entries.list.recreateBackup();
+
+        int dt = (int)(Calendar.getInstance().getTimeInMillis() - time) / 1000;
+        int s = dt % 60;
+        dt /= 60;
+        int m = dt % 60;
+        int h = dt / 60;
+        System.out.println("# ANDROID CALENDAR SYNC END, TOTAL TIME : "+h+"h "+m+"min "+s+"sec");
     }
-
-     */
-
-
-
 
 }

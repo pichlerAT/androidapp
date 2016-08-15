@@ -11,8 +11,7 @@ public abstract class Event {
 
     protected Event(TimetableEntry entry, final Date date) {
         this.entry = entry;
-
-        this.date = new Date(date.day, date.month, date.year);
+        this.date = date.copy();
     }
 
     public Time getTimeStart() {
@@ -72,8 +71,7 @@ public abstract class Event {
 
         public Start(TimetableEntry entry, Date date) {
             super(entry, date);
-
-            time_start = entry.time_start;
+            time_start = entry.getTimeStart().time;
         }
 
         @Override
@@ -92,8 +90,7 @@ public abstract class Event {
 
         public End(TimetableEntry entry, Date date) {
             super(entry, date);
-
-            time_end = entry.time_end;
+            time_end = entry.getTimeEnd().time;
         }
 
         @Override
@@ -114,9 +111,8 @@ public abstract class Event {
 
         public StartEnd(TimetableEntry entry, Date date) {
             super(entry, date);
-
-            time_start = entry.time_start;
-            time_end = entry.time_end;
+            time_start = entry.getTimeStart().time;
+            time_end = entry.getTimeEnd().time;
         }
 
         @Override

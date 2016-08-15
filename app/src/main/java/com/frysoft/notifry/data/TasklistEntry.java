@@ -16,7 +16,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         super(fry);
         Logger.Log("TasklistEntry", "TasklistEntry(FryFile)");
         description = fry.getString();
-        state = fry.getByte();
+        state = fry.getUnsignedByte();
     }
 
     protected TasklistEntry(int id, int user_id, Tasklist tasklist, String description, byte state) {
@@ -51,9 +51,9 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("TasklistEntry", "mysql_create()");
-        String resp = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(tasklist.id)+"&description="+description+"&state="+signed(state));
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(tasklist.id)+"&description="+description+"&state="+signed(state));
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             return true;
         }
         return false;

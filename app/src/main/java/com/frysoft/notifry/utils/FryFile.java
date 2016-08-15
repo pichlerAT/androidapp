@@ -14,7 +14,16 @@ import java.util.ArrayList;
 
 public abstract class FryFile {
 
+    protected int readIndex = 0;
+
     protected int version = 0;
+
+    public String asdf() {
+        int index = readIndex;
+        String str = getString();
+        readIndex = index;
+        return str;
+    }
 
     public abstract boolean saveToStream(OutputStream outputStream);
 
@@ -77,6 +86,8 @@ public abstract class FryFile {
     public abstract int getUnsignedInt();
 
     public abstract boolean hasNext();
+
+    public abstract int getWrittenLength();
 
     public void setVersion(int version) {
         this.version = version;
@@ -237,8 +248,6 @@ public abstract class FryFile {
 
 
     public static class Compact extends FryFile {
-
-        protected int readIndex = 0;
 
         protected char[] readLine = null;
 
@@ -469,6 +478,11 @@ public abstract class FryFile {
             return (readLine != null && readIndex < readLine.length);
         }
 
+        @Override
+        public int getWrittenLength() {
+            return writeLine.length();
+        }
+
     }
 
 
@@ -484,8 +498,6 @@ public abstract class FryFile {
         protected final String splitString;
 
         protected final int compile_mode;
-
-        protected int readIndex = 0;
 
         protected ArrayList<String> readLine = null;
 
@@ -782,10 +794,206 @@ public abstract class FryFile {
             return (readLine != null && readIndex < readLine.size());
         }
 
+        @Override
+        public int getWrittenLength() {
+            return writeLine.length();
+        }
+
         public Compact getCompact() {
             Compact comp = new Compact();
             comp.loadFromString(readLine.get(readIndex++));
             return comp;
+        }
+
+    }
+
+    public static class Tag extends FryFile {
+
+        protected String readLine;
+
+        @Override
+        public boolean saveToStream(OutputStream outputStream) {
+            return false;
+        }
+
+        @Override
+        public boolean loadFromStream(InputStream inputStream) {
+            return false;
+        }
+
+        @Override
+        public boolean loadFromString(String str) {
+            readLine = str;
+            readIndex = 0;
+            return true;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public byte getByte() {
+            return 0;
+        }
+
+        @Override
+        public char getChar() {
+            return readLine.charAt(readIndex++);
+        }
+
+        @Override
+        public short getShort() {
+            return 0;
+        }
+
+        @Override
+        public int getInt() {
+            return 0;
+        }
+
+        @Override
+        public long getLong() {
+            int v = 1;
+            char c = readLine.charAt(readIndex);
+            if(c == '+') {
+                c = readLine.charAt(readIndex);
+            }else if(c == '-') {
+                c = readLine.charAt(readIndex);
+                v = -1;
+            }
+
+            long n = 0;
+            int i;
+            while((i = getNumber(c)) != -1) {
+                n = 10 * n + i;
+                c = readLine.charAt(readIndex++);
+            }
+
+            return (n * v);
+        }
+
+        @Override
+        public String getString() {
+            return null;
+        }
+
+        @Override
+        public int getArrayLength() {
+            return 0;
+        }
+
+        @Override
+        public void writeByte(byte b) {
+
+        }
+
+        @Override
+        public void writeChar(char c) {
+
+        }
+
+        @Override
+        public void writeShort(short s) {
+
+        }
+
+        @Override
+        public void writeInt(int i) {
+
+        }
+
+        @Override
+        public void writeLong(long l) {
+
+        }
+
+        @Override
+        public void writeString(String s) {
+
+        }
+
+        @Override
+        public void writeArrayLength(int length) {
+
+        }
+
+        @Override
+        public void writeFryables(Fryable[] fry) {
+
+        }
+
+        @Override
+        public void writeObjects(Object[] fry) {
+
+        }
+
+        @Override
+        public void writeObjects(ArrayList<?> list) {
+
+        }
+
+        @Override
+        public void writeObjects(SearchableList<?> list) {
+
+        }
+
+        @Override
+        public void writeUnsignedByte(byte b) {
+
+        }
+
+        @Override
+        public void writeUnsignedShort(short s) {
+
+        }
+
+        @Override
+        public void writeUnsignedInt(int i) {
+
+        }
+
+        @Override
+        public void writeUnsignedLong(long l) {
+
+        }
+
+        @Override
+        public String getWrittenString() {
+            return null;
+        }
+
+        @Override
+        public byte getUnsignedByte() {
+            return 0;
+        }
+
+        @Override
+        public short getUnsignedShort() {
+            return 0;
+        }
+
+        @Override
+        public int getUnsignedInt() {
+            return 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (readIndex < readLine.length());
+        }
+
+        @Override
+        public int getWrittenLength() {
+            return 0;
+        }
+
+        protected int getNumber(char c) {
+            if(c > 47 && c < 58) {
+                return (c - 48);
+            }
+            return -1;
         }
 
     }

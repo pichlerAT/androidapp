@@ -4,30 +4,7 @@ import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 
 public abstract class MySQLEntry extends MySQL {
-/*
-    public static MySQLEntry load(char type, int id) {
-        Logger.Log("MySQLEntry", "load(char,int)");
-        switch((char)(type & TYPE)) {
 
-            case TYPE_CALENDAR_CATEGORY:
-                return Timetable.getCategoryById(id);
-
-            case TYPE_CALENDAR_ENTRY:
-                return Timetable.getEntryById(id);
-
-            case TYPE_CONTACT_GROUP:
-                return ContactList.getContactGroupById(id);
-
-            case TYPE_TASKLIST:
-                return TasklistManager.getTasklistById(id);
-
-            case TYPE_TASKLIST_ENTRY:
-                return TasklistManager.getTasklistEntryById(id);
-
-        }
-        return null;
-    }
-*/
     protected MySQLEntry(FryFile fry) {
         super(fry);
         Logger.Log("MySQLEntry", "MySQLEntry(FryFile)");

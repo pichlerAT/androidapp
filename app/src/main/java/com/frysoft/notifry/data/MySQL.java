@@ -9,6 +9,7 @@ import com.frysoft.notifry.utils.Logger;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -73,7 +74,7 @@ public abstract class MySQL implements Fryable {
     public static final char TYPE_TAG               = 0x1000;
 
     @Nullable
-    public static String execute(String addr, String data) {
+    public static FryFile execute(String addr, String data) {
         Logger.Log("MySQL", "execute(String,String)");
         try {
             URL url = new URL(addr);
@@ -92,44 +93,31 @@ public abstract class MySQL implements Fryable {
 
             con.connect();
 
-            BufferedReader br;
-            try {
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            FryFile fry = new FryFile.Split("" + (char)0);
+            fry.loadFromStream(con.getInputStream());
 
-            }catch(FileNotFoundException ex) {
-                //ex.printStackTrace();
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+            int code = con.getResponseCode();
+            if(code != HttpURLConnection.HTTP_OK) {
                 System.out.println("------------------------");
                 System.out.println(con.getResponseCode());
-                System.out.println("addr = "+addr);
+                System.out.println("addr = " + addr);
                 System.out.println("------------------------");
-                String line;
-                while((line=br.readLine())!=null) {
-                    System.out.println(line);
-                    System.out.println("------------------------");
-                }
-                return null;
-            }
-            String line=br.readLine();
-
-            if(line == null) {
-                return null;
-            }
-
-            if(line.contains("<br")) {
-                System.out.println(line);
-                String newLine;
-                while((newLine=br.readLine())!=null) {
-                    System.out.println(newLine);
+                InputStream is = con.getErrorStream();
+                if (is != null) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        System.out.println(line);
+                        System.out.println("------------------------");
+                    }
                 }
                 return null;
             }
 
-            br.close();
             os.close();
             con.disconnect();
 
-            return line;
+            return fry;
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -138,15 +126,32 @@ public abstract class MySQL implements Fryable {
     }
 
     @Nullable
-    public static String executeMySQL(String addr, String data) {
+    public static FryFile executeMySQL(String addr, String data) {
         Logger.Log("MySQL", "executeMySQL(String,String)");
-        String resp = execute(ADR_MYSQL + addr, UserIdAndPassword + data);
+        FryFile fry = execute(ADR_MYSQL + addr, UserIdAndPassword + data);
 
-        if(resp != null && resp.length()>3 && resp.substring(0,4).equals("err_")) {
+        if(fry == null) {
             return null;
         }
 
-        return resp;
+        String resp = fry.asdf();
+        if(resp == null) {
+            return null;
+        }
+
+        if(resp.length()>3 && resp.substring(0,4).equals("err_")) {
+            return null;
+        }
+
+        if(resp.contains("<br")) {
+            String newLine;
+            while((newLine = fry.getString())!=null) {
+                System.out.println("# fry: " + newLine);
+            }
+            return null;
+        }
+
+        return fry;
     }
 
     public static void setLoginData(int user_id, String password) {

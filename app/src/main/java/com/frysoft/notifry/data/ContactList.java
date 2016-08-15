@@ -53,7 +53,7 @@ public class ContactList {
 
         int NoContacts = fry.getArrayLength();
         for(int i=0; i<NoContacts; ++i) {
-            Contact on = new Contact(MySQL.TYPE_CONTACT, fry.getInt(), fry.getInt(), fry.getString(), fry.getString());
+            Contact on = new Contact(MySQL.TYPE_CONTACT, fry.getUnsignedInt(), fry.getUnsignedInt(), fry.getString(), fry.getString());
             int off_index = all.getContactIndexByUserId(on.user_id);
 
             if(off_index >= 0) {
@@ -86,11 +86,11 @@ public class ContactList {
 
         int NoContactGroups = fry.getArrayLength();
         for(int i=0; i<NoContactGroups; ++i) {
-            ContactGroup on = new ContactGroup(fry.getInt(), fry.getString());
+            ContactGroup on = new ContactGroup(fry.getUnsignedInt(), fry.getString());
 
             int NoContacts = fry.getArrayLength();
             for(int k=0; k<NoContacts; ++k) {
-                Contact cont = all.getContactByUserId(fry.getInt());
+                Contact cont = all.getContactByUserId(fry.getUnsignedInt());
                 if(cont != null) {
                     on.contacts.add(cont);
                 }
@@ -130,7 +130,7 @@ public class ContactList {
 
         int NoContactRequests = fry.getArrayLength();
         for(int i=0; i<NoContactRequests; ++i) {
-            contactRequests.add(new Contact(MySQL.TYPE_CONTACT_REQUEST, fry.getInt(), fry.getInt(), fry.getString(), fry.getString()));
+            contactRequests.add(new Contact(MySQL.TYPE_CONTACT_REQUEST, fry.getUnsignedInt(), fry.getUnsignedInt(), fry.getString(), fry.getString()));
         }
     }
 

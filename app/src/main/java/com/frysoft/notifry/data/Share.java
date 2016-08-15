@@ -32,9 +32,9 @@ public class Share extends Contact {
     @Override
     public boolean mysql_create() {
         Logger.Log("Share", "mysql_create()");
-        String resp = executeMySQL(getFileUrl()+"create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(share_id) + "&permission=" + signed(permission));
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(getFileUrl()+"create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(share_id) + "&permission=" + signed(permission));
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             return store();
         }
         return false;
@@ -96,16 +96,7 @@ public class Share extends Contact {
         }
         return false;
     }
-/*
-    protected void deleteWithoutId() {
-        Logger.Log("Share", "deleteWithoutId()");
-        if(user_id != 0 && share_id != 0) {
-            id = 0;
-            type = (char)((type & TYPE) | BASETYPE_DELETE);
-            ConnectionManager.add(this);
-        }
-    }
-*/
+
     public void setPermission(byte permission) {
         Logger.Log("Share", "setPermission(byte)");
         this.permission = permission;

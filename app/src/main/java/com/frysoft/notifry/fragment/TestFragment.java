@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.frysoft.notifry.R;
+import com.frysoft.notifry.data.ConnectionManager;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactList;
 import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.Event;
+import com.frysoft.notifry.data.RRule;
 import com.frysoft.notifry.data.TimetableEntry;
 import com.frysoft.notifry.data.User;
 import com.frysoft.notifry.utils.Date;
@@ -41,40 +43,39 @@ public class TestFragment extends Fragment {
                 ArrayList<Event> events = Data.Timetable.getEvents(new Date(10,8,2016), new Date(10,12,2017));
                 System.out.println("# Number of Events: "+events.size());
                 for(Event e : events) {
-                    System.out.println(" # "+e.getDate().getWeekdayName()+" the "+e.getDate().getString());
+                    System.out.println(" # "+e.getDate().getString()+" is a "+e.getDate().getWeekdayName());
                 }
 
             }
         });
 
         b = (Button) rootView.findViewById(R.id.b2);
-        b.setText("create entry");
+        b.setText("sync android calendar");
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                Data.create.TimetableEntry(null, "MO-WE-SA", null, new Date(14,8,2016), new Date(14,8,2016),
-                        new Time(Time.MIN_TIME), new Time((short)(Time.MAX_TIME - 1)), 0, (short)5, (short)2,
-                        TimetableEntry.REPEAT_MONTHLY);
+                Data.Timetable.synchronizeAndroidCalendarIntoNotifry();
 
             }
         });
 
         b = (Button) rootView.findViewById(R.id.b3);
-        b.setText("logout");
+        b.setText("create entry");
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                (new Thread(new Runnable() {
+                System.out.println("# CREATE ENTRY");
 
-                    @Override
-                    public void run() {
-                        System.out.println("# LOGOUT");
-                        User.logout();
-                    }
+                RRule rRule = new RRule();
+                rRule.setWholeDay(true);
+                rRule.setFrequencyDaily(true);
+                rRule.setUntil(new Date(31,12,2099));
+                rRule.setByDay(4, new int[]{0});
+                rRule.setByMonthDay(new int[]{13});
 
-                })).start();
+                Data.create.TimetableEntry(null, "Fr. 13th", "Oooh myy goood.\nIt is Friday the thirteenth", new Date(1,1,2000), null, null, null, 0, rRule);
 
             }
         });

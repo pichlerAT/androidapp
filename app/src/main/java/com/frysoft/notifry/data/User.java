@@ -47,7 +47,7 @@ public class User {
 
     private static String password = null;
 
-    private static int UserTimezoneOffset;
+    private static short TimezoneOffset;
 
     public static boolean isLoggedIn() {
         return loggedIn;
@@ -131,13 +131,14 @@ public class User {
     }
 
     protected static boolean logon() {
-        String resp = MySQL.execute(MySQL.ADR_USER + "login.php", "email=" + email + "&password=" + password);
+        FryFile fry = MySQL.execute(MySQL.ADR_USER + "login.php", "email=" + email + "&password=" + password);
 
-        if(resp == null) {
+        if(fry == null) {
             logout();
             return false;
         }
 
+        String resp = fry.getString();
         if(resp.equals("err_l0")) {
             // TODO Message: email not registered
             System.out.println("# LOGON FAILED");
@@ -162,14 +163,8 @@ public class User {
             return false;
         }
 
-        String[] r = resp.split("" + (char)0);
-        if(r.length != 2) {
-            logout();
-            return false;
-        }
-
         try {
-            id = Integer.parseInt(r[0]);
+            id = Integer.parseInt(resp);
         }catch(NumberFormatException ex) {
             logout();
             return false;
@@ -177,13 +172,13 @@ public class User {
 
         MySQL.setLoginData(id, password);
 
-        name = r[1];
+        name = fry.getString();
         online = true;
         loggedIn = true;
 
         ConnectionManager.performUpdate();
 
-        System.out.println("# LOGON SUCCESSFULL");
+        System.out.println("# LOGON SUCCESSFULL: "+email);
         return true;
     }
 
@@ -330,11 +325,12 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                String resp = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + email + "&password=" + password + "&name=" + name);
-                if(resp == null) {
+                FryFile fry = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + email + "&password=" + password + "&name=" + name);
+                if(fry == null) {
                     return false;
                 }
 
+                String resp = fry.getString();
                 if(resp.equals("err_r1")) {
                     // TODO Message: email already registered
                     return false;
@@ -369,8 +365,11 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                String resp = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&email=" + email);
-                if(resp == null || !resp.equals("success")) {
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&email=" + email);
+                if(fry == null) {
+                    return false;
+                }
+                if(!fry.getString().equals("success")) {
                     // TODO Message: error when trying to change email
 
                 }else {
@@ -393,8 +392,11 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                String resp = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&name=" + name);
-                if(resp == null || !resp.equals("success")) {
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&name=" + name);
+                if(fry == null) {
+                    return false;
+                }
+                if(!fry.getString().equals("success")) {
                     // TODO Message: error when trying to change name
 
                 }else {
@@ -417,8 +419,11 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                String resp = execute(MySQL.ADR_USER_CHANGE + "password.php", "user_id=" + id + "&password=" + User.password + "&new_password=" + password);
-                if(resp == null || !resp.equals("success")) {
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "password.php", "user_id=" + id + "&password=" + User.password + "&new_password=" + password);
+                if(fry == null) {
+                    return false;
+                }
+                if(!fry.getString().equals("success")) {
                     // TODO Message: error when trying to change password
 
                 }else {
@@ -438,8 +443,11 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                String resp = execute(MySQL.ADR_USER + "delete.php", "user_id=" + id + "&password=" + User.password + "&cmd=Delete");
-                if(resp == null || !resp.equals("success")) {
+                FryFile fry = execute(MySQL.ADR_USER + "delete.php", "user_id=" + id + "&password=" + User.password + "&cmd=Delete");
+                if(fry == null) {
+                    return false;
+                }
+                if(!fry.getString().equals("success")) {
                     // TODO Message: error when trying to delete account
 
                 }else {

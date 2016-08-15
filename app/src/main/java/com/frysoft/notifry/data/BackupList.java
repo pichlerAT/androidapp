@@ -39,6 +39,10 @@ public class BackupList<E extends MySQLEntry> {
         list.add(element);
     }
 
+    public void add(int index, E element) {
+        list.add(index, element);
+    }
+
     protected void addBackup(E element) {
         Logger.Log("BackupList", "addBackup(E)");
         backupList.add(element);
@@ -153,8 +157,8 @@ public class BackupList<E extends MySQLEntry> {
             }
         }else {
             if(backupIndex < 0) {
-                // TODO BackupList: ???
-                System.out.println("----- backupIndex < 0 : share_id="+online.id+", listIndex="+listIndex);
+                // TODO BackupList: use online or offline?
+                return true;
 
             }else {
                 if (online.isOwner()) {

@@ -85,6 +85,10 @@ public class Time implements Fryable {
         this.time = time;
     }
 
+    public Time(int time) {
+        this.time = (short)(time % MAX_TIME);
+    }
+
     public Time(Time time) {
         this(time.time);
         Logger.Log("Time", "Time(Time)");

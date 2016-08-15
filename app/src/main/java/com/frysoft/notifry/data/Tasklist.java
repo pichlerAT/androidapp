@@ -90,9 +90,9 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("Tasklist", "mysql_create()");
-        String resp = executeMySQL(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color));
-        if(resp != null) {
-            id = Integer.parseInt(resp);
+        FryFile fry = executeMySQL(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color));
+        if(fry != null) {
+            id = fry.getUnsignedInt();
             shares = new ShareList(TYPE_TASKLIST, id);
 
             for(TasklistEntry ent : entries) {
@@ -265,19 +265,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         Logger.Log("Tasklist", "delete(int)");
         entries.remove(index).delete();
     }
-/*
-    protected String getEntryStrings() {
-        Logger.Log("Tasklist", "getEntryStrings()");
-        if(entries.size() <= 0) {
-            return "n";
-        }
-        String s = "";
-        for(TasklistEntry e : entries) {
-            s += e.id + S + e.user_id + S + e.description + S + e.state + S;
-        }
-        return s;
-    }
-*/
+
     public boolean equals(Tasklist tl) {
         Logger.Log("Tasklist", "equals(Tasklist)");
         if(state != tl.state || entries.size() != tl.entries.size() || !name.equals(tl.name) || color!=tl.color) {

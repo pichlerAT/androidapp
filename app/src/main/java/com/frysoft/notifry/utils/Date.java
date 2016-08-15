@@ -282,8 +282,129 @@ public class Date implements Fryable {
         return new Date(day, month, year);
     }
 
+    public void goToNextDay() {
+        ++day;
+        if(day > getDaysOfMonth()) {
+            day = 1;
+            ++month;
+            if(month > 12) {
+                month = 1;
+                ++year;
+            }
+        }
+    }
+
+    public void goToPreviousDay() {
+        --day;
+        if(day < 1) {
+            --month;
+            if(month < 1) {
+                --year;
+                month = 12;
+            }
+            day = getDaysOfMonth();
+        }
+    }
+
+    public void goToNextMonth() {
+        ++month;
+        if(month > 12) {
+            month = 1;
+            ++year;
+        }
+    }
+
+    public void goToPreviousMonth() {
+        --month;
+        if(month < 1) {
+            month = 12;
+            --year;
+        }
+    }
+
+    public void goToNextYear() {
+        ++year;
+    }
+
+    public void goToPreviousYear() {
+        --year;
+    }
+
+    public boolean goToDate(int year, int month, int day) {
+        if(month < 1 || month > 12) {
+            return false;
+        }
+        if(day < 1 || day > getDaysOfMonth(month, year)) {
+            return false;
+        }
+        this.month = month;
+        this.day = day;
+        return true;
+    }
+
+    public boolean goToYearDate(int month, int day) {
+        if(month < 1 || month > 12) {
+            return false;
+        }
+        if(day < 1 || day > getDaysOfMonth(month, year)) {
+            return false;
+        }
+        this.month = month;
+        this.day = day;
+        return true;
+    }
+
+    public boolean goToMonthDay(int day) {
+        if(day < 1 || day > getDaysOfMonth()) {
+            return false;
+        }
+        this.day = day;
+        return true;
+    }
+
+    public boolean goToYearDay(int day) {
+        if(day < 1 || day > getDaysOfYear()) {
+            return false;
+        }
+        this.day = day;
+        this.month = day / 30;
+
+        int dom = getDaysOfMonth();
+        while(this.day > dom) {
+            ++month;
+            this.day -= dom;
+            dom = getDaysOfMonth();
+        }
+
+        return true;
+    }
+
+    public boolean goToMonth(int month) {
+        if(month < 1 || month > 12) {
+            return false;
+        }
+        this.month = month;
+        return true;
+    }
+
+    public void goToFirstDayOfWeek() {
+        subtractDays(getDayOfWeek());
+    }
+
     public int getWeekOfYear() {
         return (getFirstDayOfWeek(new Date(1, 1, year)).getDaysUntil(this) / 7 + 1);
+    }
+
+    public int getDayOfYear() {
+        return (getDaysUntilMonth(month, year) + day);
+    }
+
+    public String getISOString() {
+        return (year + "" + (month < 10 ? "0" : "") + month + "" + (day < 10 ? "0" : "") + day + "T000000");
+    }
+
+    public static Date getDateFromISOString(String str) {
+        return new Date(Integer.parseInt(str.substring(6, 8)), Integer.parseInt(str.substring(4, 6)), Integer.parseInt(str.substring(0, 4)));
     }
 
     public static boolean isLeapYear(int year) {
