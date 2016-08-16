@@ -12,9 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.frysoft.notifry.R;
+import com.frysoft.notifry.data.User;
 import com.frysoft.notifry.fragment.ContactFragment;
 import com.frysoft.notifry.fragment.TaskFragment;
 import com.frysoft.notifry.fragment.TestFragment;
@@ -54,6 +56,15 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View headerView = navigationView.getHeaderView(0);
+        TextView user = (TextView) headerView.findViewById(R.id.textview_nav_username);
+        TextView email = (TextView) headerView.findViewById(R.id.textview_nav_email);
+
+        if (User.isLoggedIn()){
+            user.setText(User.getName());
+            email.setText(User.getEmail());
+        }
 
     }
 
