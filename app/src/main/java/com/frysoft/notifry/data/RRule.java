@@ -142,7 +142,7 @@ public class RRule {
     }
 
     public boolean isByDay(int weekDay) {
-        return (byDay[weekDay] != null);
+        return (byDay != null && byDay[weekDay] != null);
     }
 
     public boolean isByWeekNo() {
@@ -159,6 +159,17 @@ public class RRule {
 
     public boolean isByYearDay() {
         return (byYearDay != null);
+    }
+
+    public byte[][] getByDay() {
+        return byDay;
+    }
+
+    public byte[] getByDay(int weekday) {
+        if(byDay == null) {
+            return null;
+        }
+        return byDay[weekday];
     }
 
     public byte[] getByWeekNo() {
@@ -226,10 +237,12 @@ public class RRule {
             throw new IllegalArgumentException("count must be smaller then " + (Short.MAX_VALUE + 1));
         }
         this.count = (short)count;
+        this.until = 0;
     }
 
     public void setUntil(Date until) {
         this.until = until.getShort();
+        this.count = 0;
     }
 
     public void setInterval(int interval) {
@@ -285,23 +298,48 @@ public class RRule {
         setByDay(6, offsets);
     }
 
-    public void resetByDay() {
+    public void removeFrequency() {
+        frequencyDaily = false;
+        frequencyWeekly = false;
+        frequencyMonthly = false;
+        frequencyYearly = false;
+    }
+
+    public void removeCount() {
+        count = 0;
+    }
+
+    public void removeUntil() {
+        until = 0;
+    }
+
+    public void removeInterval() {
+        interval = 0;
+    }
+
+    public void removeByDay() {
         byDay = null;
     }
 
-    public void resetByWeekNo() {
+    public void removeByDay(int weekday) {
+        if(byDay != null) {
+            byDay[weekday] = null;
+        }
+    }
+
+    public void removeByWeekNo() {
         byWeekNo = null;
     }
 
-    public void resetByMonth() {
+    public void removeByMonth() {
         byMonth = null;
     }
 
-    public void resetByMonthDay() {
+    public void removeByMonthDay() {
         byMonthDay = null;
     }
 
-    public void resetByYearDay() {
+    public void removeByYearDay() {
         byYearDay = null;
     }
 
