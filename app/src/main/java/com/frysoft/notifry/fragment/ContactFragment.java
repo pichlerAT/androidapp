@@ -2,14 +2,16 @@ package com.frysoft.notifry.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.AppCompatEditText;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -25,7 +27,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.frysoft.notifry.R;
@@ -43,7 +44,7 @@ import java.util.ArrayList;
  */
 public class ContactFragment extends Fragment {
 
-    protected SearchView mSearch;
+    protected AppCompatEditText mSearch;
     protected ContactAdapter adapter;
     protected ArrayList<Contact> childList;
     protected int request_number = 0;
@@ -223,21 +224,21 @@ public class ContactFragment extends Fragment {
         }
 
         //Search listener for the listview
-        SearchManager searchManager = (SearchManager) App.getContext().getSystemService(Context.SEARCH_SERVICE);
-        mSearch = (SearchView) rootView.findViewById(R.id.searchview_contact_id);
-        mSearch.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        mSearch.setIconifiedByDefault(false);
-        mSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearch = (AppCompatEditText) rootView.findViewById(R.id.searchview_contact_id);
+        mSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onQueryTextSubmit(String search) {
-                adapter.filterContacts(search);
-                return false;
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
             }
 
             @Override
-            public boolean onQueryTextChange(String search) {
-                adapter.filterContacts(search);
-                return false;
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                adapter.filterContacts(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 

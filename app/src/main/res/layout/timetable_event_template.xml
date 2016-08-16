@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:background="@drawable/daily_event_style">
+
+    <TextView
+        android:id="@+id/textview_timetable_event_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        android:text="x"
+        android:layout_alignParentRight="true"/>
+
+    <TextView
+        android:id="@+id/textview_timetable_event_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/textview_timetable_event_delete"
+        android:layout_alignParentLeft="true"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/textview_timetable_event_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@id/textview_timetable_event_title"/>
+
+    <TextView
+        android:id="@+id/textview_timetable_event_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@id/textview_timetable_event_time"/>
+
+
+</RelativeLayout>

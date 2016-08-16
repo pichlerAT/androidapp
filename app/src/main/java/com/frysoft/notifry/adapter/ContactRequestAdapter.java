@@ -1,6 +1,7 @@
 package com.frysoft.notifry.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,14 +54,15 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
 
         final Contact sender = getItem(position);
 
-        LinearLayout senderData = (LinearLayout) res.findViewById(R.id.linearlayout_contact_request_sender);
-        TextView senderName = (TextView) senderData.getChildAt(0);
-        TextView senderEmail = (TextView) senderData.getChildAt(1);
+        TextView senderIcon = (TextView) res.findViewById(R.id.textview_contact_request_icon);
+        TextView senderName = (TextView) res.findViewById(R.id.textview_contact_request_name);
+        TextView senderEmail = (TextView) res.findViewById(R.id.textview_contact_request_email);
 
         senderName.setText(sender.getName());
         senderEmail.setText(sender.getEmail());
+        senderIcon.setText(String.valueOf(sender.getName().charAt(0)).toUpperCase());
 
-        Button accept = (Button) res.findViewById(R.id.imagebutton_contact_request_accept);
+        AppCompatImageButton accept = (AppCompatImageButton) res.findViewById(R.id.imagebutton_contact_request_accept);
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +70,7 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
             }
         });
 
-        Button decline = (Button) res.findViewById(R.id.imagebutton_contact_request_decline);
+        AppCompatImageButton decline = (AppCompatImageButton) res.findViewById(R.id.imagebutton_contact_request_decline);
         decline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

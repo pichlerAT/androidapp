@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
@@ -22,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.activity.TaskCreateActivity;
@@ -86,7 +86,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
             res = convertView;
         }
         final RelativeLayout color_header = (RelativeLayout) res.findViewById(R.id.relativelayout_fragment_task_header);
-        TextView header = (TextView) res.findViewById(R.id.textview_listtemplate_header);
+        AppCompatTextView header = (AppCompatTextView) res.findViewById(R.id.textview_listtemplate_header);
         final Tasklist item = getItem(position);
         final String headerText = item.getName();
         header.setText(headerText);
@@ -96,7 +96,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
                 final TasklistEntry entry = item.getEntry(i);
-                CheckBox cb = new CheckBox(ctx);
+                AppCompatCheckBox cb = new AppCompatCheckBox(ctx);
                 String cbText = item.getTaskName(i);
                 cb.setText(cbText);
                 cb.setChecked(item.isDone(i));
@@ -156,8 +156,8 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                         }
 
                         else if (menuItem.getTitle().equals(App.getContext().getResources().getString(R.string.share))) {
-                            View taskSharelist = View.inflate(App.getContext(), R.layout.fragment_task_sharelist, null);
-                            ExpandableListView lv = (ExpandableListView) taskSharelist.findViewById(R.id.listview_task_sharelist);
+                            View taskSharelist = View.inflate(App.getContext(), R.layout.sharelist, null);
+                            ExpandableListView lv = (ExpandableListView) taskSharelist.findViewById(R.id.sharelist);
 
                             ArrayList<ContactGroup> shared_groups = item.shares.getList();
                             final TaskShareAdapter adapter = new TaskShareAdapter(shared_groups);

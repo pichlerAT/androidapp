@@ -18,13 +18,11 @@
     <com.frysoft.notifry.utils.DragableListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:divider="@color/colorBackground"
-        android:dividerHeight="16dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/elements_margin"
+        android:layout_marginBottom="@dimen/elements_margin"
+        android:layout_marginLeft="@dimen/elements_margin_small"
+        android:layout_marginRight="@dimen/elements_margin_small"
         />
 
 </RelativeLayout>

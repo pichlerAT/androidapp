@@ -1,31 +1,35 @@
 package com.frysoft.notifry.activity;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.fragment.ContactFragment;
 import com.frysoft.notifry.fragment.TaskFragment;
 import com.frysoft.notifry.fragment.TestFragment;
+import com.frysoft.notifry.fragment.TestFragmentEdwin;
 import com.frysoft.notifry.fragment.TimetableFragment;
+import com.frysoft.notifry.fragment.TimetableSlideFragment;
 import com.frysoft.notifry.utils.App;
 
-public class MainActivity extends mAppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Context ctx = this;
     public static FragmentManager fm;
     public static FloatingActionButton fab;
+    public static TextView TOOLBAR_TITLE;
+
 
 
     @Override
@@ -33,11 +37,13 @@ public class MainActivity extends mAppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         App.setContext(this);
-        fm = getFragmentManager();
+        fm = getSupportFragmentManager();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        TOOLBAR_TITLE = (TextView) toolbar.findViewById(R.id.toolbar_title);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -48,6 +54,7 @@ public class MainActivity extends mAppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -56,12 +63,21 @@ public class MainActivity extends mAppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
-        else if (fm.getBackStackEntryCount() != 0){
-            fm.popBackStack();
+        else if (getSupportFragmentManager().findFragmentByTag("timetable") != null) {
+            getSupportFragmentManager().popBackStackImmediate("timetable", 0);
         }
-        else {
+        else if (getSupportFragmentManager().findFragmentByTag("task") != null) {
+            getSupportFragmentManager().popBackStackImmediate("task", 0);
+        }
+        else if (getSupportFragmentManager().findFragmentByTag("contact") != null) {
+            getSupportFragmentManager().popBackStackImmediate("contact", 0);
+        }
+        else if (getSupportFragmentManager().findFragmentByTag("test") != null) {
+            getSupportFragmentManager().popBackStackImmediate("test", 0);
+        }
+        else
             super.onBackPressed();
-        }
+
     }
 
     @Override
@@ -91,35 +107,35 @@ public class MainActivity extends mAppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        fm.popBackStack();
         FragmentTransaction ft = fm.beginTransaction();
 
+        ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         if (id == R.id.nav_timetable) {
-            ft.replace(R.id.frame_fragment_main, new TimetableFragment());
-            ft.addToBackStack(null);
-            ft.commit();
+            ft.replace(R.id.frame_fragment_main, new TimetableSlideFragment());
+            ft.addToBackStack("timetable");
         } else if (id == R.id.nav_tasks) {
             ft.replace(R.id.frame_fragment_main, new TaskFragment());
-            ft.addToBackStack(null);
-            ft.commit();
+            ft.addToBackStack("task");
         } else if (id == R.id.nav_contacts) {
             ft.replace(R.id.frame_fragment_main, new ContactFragment());
-            ft.addToBackStack(null);
-            ft.commit();
+            ft.addToBackStack("contact");
         } else if (id == R.id.nav_info) {
 
         } else if (id == R.id.nav_settings) {
 
         }
-
         else if (id == R.id.nav_test) {
             ft.replace(R.id.frame_fragment_main, new TestFragment());
-            ft.addToBackStack(null);
-            ft.commit();
+            ft.addToBackStack("test");
         }
 
+        ft.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

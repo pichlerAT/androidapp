@@ -4,7 +4,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativelayout_contact_id"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundDark">
 
     <TextView
         android:id="@+id/textview_contact_message"
@@ -19,12 +20,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:divider="@color/colorBackground"
-        android:dividerHeight="16dp"
+        android:layout_margin="@dimen/elements_margin"
         />
 
 </RelativeLayout>

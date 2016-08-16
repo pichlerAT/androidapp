@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundDark">
+
+    <include android:id="@+id/timetable_create_toolbar" layout="@layout/toolbar"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/activity_toolbar_margin">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardview_timetable_week_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/cardview_margin"
+            android:background="@color/colorBackground"
+            android:elevation="3dp"
+            card_view:cardCornerRadius="0dp">
+
+            <TableLayout
+                android:id="@+id/tablelayout_timetable_create"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/content_padding">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:background="@drawable/ic_subject"
+                        android:layout_gravity="center_vertical"/>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:layout_weight="1">
+
+                        <android.support.v7.widget.AppCompatEditText
+                            android:id="@+id/edittext_timetable_create_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/event"
+                            android:inputType="text"
+                            style="@style/TextAppearance.AppCompat.Title"/>
+
+                    </android.support.design.widget.TextInputLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:background="@drawable/ic_tag_dark"
+                        android:layout_gravity="center_vertical"/>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:layout_weight="1">
+
+                        <com.frysoft.notifry.utils.InstantAutoComplete
+                            android:id="@+id/autotext_timetable_create_tag"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:background="@null"
+                            android:hint="@string/tag"
+                            style="@style/TextAppearance.AppCompat.Body2"/>
+
+                    </android.support.design.widget.TextInputLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:background="@drawable/ic_timetable"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:orientation="vertical"
+                        android:layout_weight="1">
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:text="@string/whole_day"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                            <android.support.v7.widget.SwitchCompat
+                                android:id="@+id/switch_timetable_create_whole_day"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                />
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/timetable_date_margin">
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_date_from"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Date"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_time_from"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:text="Time"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/timetable_date_margin">
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_date_to"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Date"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_time_to"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:text="Time"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/timetable_date_margin">
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_repeat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/repeat"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                            <RadioGroup
+                                android:layout_alignParentRight="true"
+                                android:gravity="right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <android.support.v7.widget.AppCompatRadioButton
+                                    android:id="@+id/radiobutton_timetable_create_repeat_once"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/once"
+                                    android:checked="true"
+                                    style="@style/TextAppearance.AppCompat.Body2"/>
+
+                                <android.support.v7.widget.AppCompatRadioButton
+                                    android:id="@+id/radiobutton_timetable_create_repeat_specific"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/specific"
+                                    style="@style/TextAppearance.AppCompat.Body2"/>
+                            </RadioGroup>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/timetable_date_margin">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:text="@string/notification"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+
+                            <TextView
+                                android:id="@+id/textview_timetable_create_notification"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:text="@string/none"
+                                style="@style/TextAppearance.AppCompat.Body2"/>
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/ic_category_dark"/>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:layout_weight="1">
+
+                        <com.frysoft.notifry.utils.InstantAutoComplete
+                            android:id="@+id/autotext_timetable_create_categories"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:background="@null"
+                            android:hint="@string/category"
+                            style="@style/TextAppearance.AppCompat.Body2"/>
+                    </android.support.design.widget.TextInputLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/ic_contacts_dark"/>
+
+                    <TextView
+                        android:id="@+id/textview_timetable_create_participants"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:text="@string/no_participants"
+                        style="@style/TextAppearance.AppCompat.Body2"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/timetable_table_margin">
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/ic_edit_dark"/>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/timetable_create"
+                        android:layout_weight="1">
+
+                        <android.support.v7.widget.AppCompatEditText
+                            android:id="@+id/edittext_timetable_create_description"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:background="@null"
+                            android:hint="@string/description"
+                            style="@style/TextAppearance.AppCompat.Body2"/>
+                    </android.support.design.widget.TextInputLayout>
+
+                </TableRow>
+
+            </TableLayout>
+
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
+</RelativeLayout>

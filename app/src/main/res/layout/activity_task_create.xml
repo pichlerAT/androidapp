@@ -1,34 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_content"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".activity.TaskCreateActivity">
+    android:background="@color/colorBackgroundDark">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar_task_create"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+    <include android:id="@+id/task_toolbar" layout="@layout/toolbar"/>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar_task_create"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorActionbar"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
-
-        </android.support.v7.widget.Toolbar>
-
-
-    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager_task_id"
+        android:layout_marginTop="@dimen/activity_toolbar_margin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -37,13 +20,11 @@
             android:id="@+id/viewpager_task_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorActionbar"
-            android:paddingBottom="10dp"
+            android:background="@color/colorPrimary"
+            android:padding="@dimen/content_padding"
             android:foregroundGravity="top"
             style="@style/viewPagerTitleStrip"/>
 
 
     </android.support.v4.view.ViewPager>
-
-
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

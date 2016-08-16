@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 public class App extends Application {
 
@@ -176,6 +177,33 @@ public class App extends Application {
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
 
         return sdf.format(cal.getTime());
+    }
+
+    public static Drawable getDrawableFromID(int resourceID){
+        return ContextCompat.getDrawable(getContext(), resourceID);
+    }
+
+
+    public static boolean containsCaseInsensitive(String s, List<String> l){
+        for (String string : l){
+            if (string.equalsIgnoreCase(s)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getStringFromResource(int resource){
+        return getContext().getResources().getString(resource);
+    }
+
+    public static void loginFailed(String message){
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+        builder.setTitle("Login failed");
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", null);
+        builder.show();
     }
 
     public static class Settings {

@@ -1,41 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativelayout_timetable_events"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorBackground"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clickable="true"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
-
-
-    <FrameLayout
-        android:id="@+id/framelayout_timetable_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:paddingBottom="10dp"
-        android:background="@color/colorActionbar">
-
-        <SearchView
-            android:id="@+id/searchview_timetable_events"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/searchview_style"
-            style=""/>
-    </FrameLayout>
+    android:layout_height="match_parent">
 
     <ExpandableListView
         android:id="@+id/listview_timetable_events"
-        android:layout_below="@id/framelayout_timetable_events"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
         android:choiceMode="multipleChoiceModal"
+        android:groupIndicator="@null"
         android:divider="@null"
 
         />

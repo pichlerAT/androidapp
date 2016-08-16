@@ -3,10 +3,31 @@
     android:id="@+id/linearlayout_timetable_events_list_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
-    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/daily_event_style"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:padding="@dimen/content_padding">
+
+        <TextView
+            android:id="@+id/textview_timetable_events_list_item_template_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/colorTextPrimary"
+            />
+
+        <TextView
+            android:id="@+id/textview_timetable_events_list_item_template_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorTextPrimary"/>
+    </LinearLayout>
 
 
 </LinearLayout>

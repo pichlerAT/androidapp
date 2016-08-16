@@ -1,57 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/linearlayout_timetable"
+
+<GridView android:id="@+id/gridview_timetable_dates"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="10">
+    android:numColumns="7"
+    android:verticalSpacing="1dp"
+    android:gravity="center"
+    android:background="@color/colorBackgroundDark"
+    android:stretchMode="columnWidth"
 
-
-    <GridView
-        android:id="@+id/gridview_timetable_dates"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="7"
-        android:verticalSpacing="1dp"
-        android:gravity="center"
-        android:background="@color/colorBackground"
-        android:stretchMode="columnWidth"
-        android:layout_weight="0.8"
-
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_weight="9.2"
-        android:weightSum="3">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/month"
-            android:layout_weight="1"
-            android:background="@color/colorAccent"
-            android:textColor="@color/colorTextLight"
-            android:gravity="center"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/week"
-            android:layout_weight="1"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/events"
-            android:layout_weight="1"
-            android:gravity="center"/>
-
-    </LinearLayout>
-
-
-</LinearLayout>
+    xmlns:android="http://schemas.android.com/apk/res/android" />

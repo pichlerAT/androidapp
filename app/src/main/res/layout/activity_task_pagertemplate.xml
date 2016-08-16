@@ -3,23 +3,27 @@
     android:id="@+id/relativelayout_task_id"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:background="@color/colorPrimary">
-    <EditText
-        android:id="@+id/edittext_task_name"
+    android:padding="@dimen/content_padding"
+    android:background="@color/colorBackground">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/textinputlayout_task_pagertemplate"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="22sp"
-        android:hint="@string/todo_list"/>
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/edittext_task_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/title"
+            style="@style/Base.TextAppearance.AppCompat.Title"/>
+
+    </android.support.design.widget.TextInputLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edittext_task_name"
+        android:layout_below="@id/textinputlayout_task_pagertemplate"
         >
 
         <TableLayout

@@ -32,33 +32,46 @@
     <string name="ok">Ok</string>
     <string name="description">Description</string>
     <string name="none">None</string>
+    <string name="permission_read">Read</string>
+    <string name="permission_write">Write</string>
+    <string name="permission_more">All</string>
+    <string name="category">Category</string>
+    <string name="add_category">Add category</string>
+    <string name="wrong_category">Unknown category, please select another</string>
+    <string name="title">Title</string>
 
     <string-array name="colors">
-        <item>#ff3232</item>
-        <item>#ff0000</item>
-        <item>#cc0000</item>
-        <item>#7f0000</item>
-        <item>#3273ff</item>
-        <item>#0051ff</item>
-        <item>#0040cc</item>
-        <item>#003099</item>
-        <item>#8bff32</item>
-        <item>#6fff00</item>
-        <item>#58cc00</item>
-        <item>#429900</item>
-    </string-array>
-
-    <string-array name="repeat_array">
-        <item>Once</item>
-        <item>Daily</item>
-        <item>Weekly</item>
-        <item>Monthly</item>
-        <item>Specific</item>
+        <item>#F44336</item>
+        <item>#B71C1C</item>
+        <item>#E91E63</item>
+        <item>#9C27B0</item>
+        <item>#673AB7</item>
+        <item>#3F51B5</item>
+        <item>#2196F3</item>
+        <item>#039BE5</item>
+        <item>#0097A7</item>
+        <item>#009688</item>
+        <item>#43A047</item>
+        <item>#689F38</item>
     </string-array>
 
     <!--              Messages                 -->
 
     <string name="delete_message">Do you really want to delete this?</string>
+
+    <!--                Login                  -->
+
+    <string name="email">EMail</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="or">or login with</string>
+    <string name="login_facebook">Facebook</string>
+    <string name="login_google">Google</string>
+    <string name="register">Register</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="not_registered">This email is not registered</string>
+    <string name="not_verified">Please verify your email, before login</string>
+    <string name="wrong_password">The password is incorrect</string>
 
     <!--              Timetable                -->
 
@@ -70,9 +83,25 @@
     <string name="event">Event</string>
     <string name="whole_day">Whole day</string>
     <string name="repeat">Repeat</string>
-    <string name="once">Once</string>
     <string name="no_participants">No participants</string>
     <string name="notification">Notification</string>
+    <string name="time_from">From</string>
+    <string name="time_to">To</string>
+    <string name="tag">Tag</string>
+    <string name="wrong_tag">Unknown tag, please select another</string>
+    <string name="entry">Entry</string>
+    <string name="add_tag">Add tag</string>
+    <string name="no_events">No events available</string>
+    <string name="today">Today</string>
+    <string name="specific">Specific</string>
+    <string name="once">Once</string>
+    <string name="interval">Interval</string>
+
+    <string-array name="repeat_array">
+        <item>Monthly</item>
+        <item>Annually</item>
+        <item>Choose days</item>
+    </string-array>
 
     <!--                Task                   -->
 
@@ -118,5 +147,13 @@
     <string name="weekday_fri">Friday</string>
     <string name="weekday_sat">Saturday</string>
     <string name="weekday_sun">Sunday</string>
+
+    <string name="weekday_mon_short">M</string>
+    <string name="weekday_tue_short">T</string>
+    <string name="weekday_wed_short">W</string>
+    <string name="weekday_thu_short">T</string>
+    <string name="weekday_fri_short">F</string>
+    <string name="weekday_sat_short">S</string>
+    <string name="weekday_sun_short">S</string>
 
 </resources>

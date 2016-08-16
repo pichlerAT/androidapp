@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/month_event_style"
+    android:paddingTop="@dimen/event_month_padding_top"
+    android:paddingBottom="@dimen/event_month_padding_top"
+    android:paddingLeft="@dimen/event_month_padding_sides"
+    android:paddingRight="@dimen/event_month_padding_sides"
+    android:textColor="@color/colorTextPrimary"
+    android:maxLines="1"
+    style="@style/TextAppearance.AppCompat.Body1"/>
+

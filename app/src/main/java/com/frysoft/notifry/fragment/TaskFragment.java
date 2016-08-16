@@ -1,8 +1,8 @@
 package com.frysoft.notifry.fragment;
 
-import android.app.ListFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +21,7 @@ import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.DragableListView;
 
-public class TaskFragment extends ListFragment{
+public class TaskFragment extends ListFragment {
 
     protected TaskAdapter adapter;
 

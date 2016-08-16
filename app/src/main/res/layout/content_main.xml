@@ -5,7 +5,7 @@
     android:id="@+id/relativelayout_frame_global"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@color/colorBackgroundDark"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activity.MainActivity"
     tools:showIn="@layout/app_bar_main">
@@ -13,5 +13,5 @@
     <FrameLayout
         android:id="@+id/frame_fragment_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_height="wrap_content"></FrameLayout>
 </RelativeLayout>

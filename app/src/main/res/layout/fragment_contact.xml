@@ -1,44 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativelayout_contact"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorBackgroundDark"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true">
 
-
-    <FrameLayout
-        android:id="@+id/framelayout_contact_id"
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview_contact_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:paddingBottom="10dp"
-        android:background="@color/colorActionbar">
+        android:layout_margin="@dimen/cardview_margin"
+        android:background="@color/colorBackground"
+        android:elevation="3dp"
+        card_view:cardCornerRadius="0dp">
 
-        <SearchView
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/content_padding">
+
+        <android.support.v7.widget.AppCompatEditText
             android:id="@+id/searchview_contact_id"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/searchview_style"
-            style=""/>
-    </FrameLayout>
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="@string/search"
+            style="@style/TextAppearance.AppCompat.Body1"/>
 
-    <ExpandableListView
-        android:id="@+id/listview_contact_id"
-        android:layout_below="@id/framelayout_contact_id"
+        </android.support.design.widget.TextInputLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview_contact"
+        android:layout_below="@id/cardview_contact_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:choiceMode="multipleChoiceModal"
-        android:divider="@null"
+        android:layout_margin="@dimen/cardview_margin"
+        android:background="@color/colorBackground"
+        android:elevation="3dp"
+        card_view:cardCornerRadius="0dp">
 
-        />
+        <ExpandableListView
+            android:id="@+id/listview_contact_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/elements_margin"
+            android:choiceMode="multipleChoiceModal"
+            android:divider="@null"
+
+            />
+    </android.support.v7.widget.CardView>
 
 
 

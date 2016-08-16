@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearlayout_repeat_dialog_header"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorBackground"
+    android:padding="@dimen/content_padding"
+    android:layout_marginBottom="@dimen/elements_margin">
+
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/spinner_repeat_dialog_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/elements_margin"/>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/elements_margin">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/edittext_repeat_dialog_interval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="@string/interval"
+            android:inputType="numberDecimal"
+            style="@style/TextAppearance.AppCompat.Body2"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>

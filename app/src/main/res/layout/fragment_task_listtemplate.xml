@@ -1,69 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/linearlayout_task_listtemplate"
+
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardview_timetable_week_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical">
-
-    <RelativeLayout
-        android:id="@+id/relativelayout_fragment_task_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorAccent">
-
-        <Button
-            android:id="@+id/button_listtemplate_more"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/ic_more"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true" />
-
-        <TextView
-            android:id="@+id/textview_listtemplate_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/button_listtemplate_more"
-            android:layout_toLeftOf="@+id/button_listtemplate_color"
-            android:layout_centerVertical="true"
-            android:padding="10dp"
-            android:textColor="@color/colorTextLight"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:text="Header"/>
-
-        <Button
-            android:id="@+id/button_listtemplate_color"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/button_listtemplate_done"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/ic_color"
-            />
-
-        <Button
-            android:id="@+id/button_listtemplate_done"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/ic_done"
-            />
-    </RelativeLayout>
+    android:elevation="3dp"
+    card_view:cardCornerRadius="0dp">
 
     <LinearLayout
-        android:id="@+id/linearlayout_listtemplate_id"
+        android:id="@+id/linearlayout_task_listtemplate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+            <RelativeLayout
+                android:id="@+id/relativelayout_fragment_task_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:paddingTop="@dimen/content_padding"
+                android:paddingBottom="@dimen/content_padding">
+
+                <Button
+                    android:id="@+id/button_listtemplate_more"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/ic_more"
+                    android:layout_alignParentLeft="true" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/textview_listtemplate_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/button_listtemplate_more"
+                    android:layout_toLeftOf="@+id/button_listtemplate_color"
+                    android:textColor="@color/colorTextLight"
+                    android:textStyle="bold"
+                    style="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                <Button
+                    android:id="@+id/button_listtemplate_color"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_toLeftOf="@+id/button_listtemplate_done"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/ic_color"
+                    />
+
+                <Button
+                    android:id="@+id/button_listtemplate_done"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/ic_done"
+                    />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/linearlayout_listtemplate_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+            </LinearLayout>
 
     </LinearLayout>
-
-
-
-</LinearLayout>
+</android.support.v7.widget.CardView>

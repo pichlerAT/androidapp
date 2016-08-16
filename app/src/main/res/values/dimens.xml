@@ -13,4 +13,21 @@
     <dimen name="timetable_table_margin">8dp</dimen>
     <dimen name="margin_color">7dp</dimen>
     <dimen name="dialog_padding">15dp</dimen>
+    <dimen name="weekday_margin">5dp</dimen>
+
+
+
+
+    <!-- final dimensions - only use these -->
+    <dimen name="content_padding">8dp</dimen> <!-- Padding of an element inside a container - e.g. title inside of a colored layout -->
+    <dimen name="content_padding_big">15dp</dimen>
+    <dimen name="elements_margin">15dp</dimen> <!-- Margin between 2 elements inside a container - e.g. text left <margin> text right -->
+    <dimen name="elements_margin_small">7dp</dimen>
+    <dimen name="cardview_margin">10dp</dimen> <!-- Margin of a main cardview to the border -->
+    <dimen name="event_month_padding_top">2dp</dimen>
+    <dimen name="event_month_padding_sides">4dp</dimen>
+    <dimen name="activity_toolbar_margin">40dp</dimen>
+    <dimen name="login_margin">30dp</dimen>
+    <dimen name="imagebutton_padding">5dp</dimen>
+    <dimen name="round_icon_size">25dp</dimen>
 </resources>

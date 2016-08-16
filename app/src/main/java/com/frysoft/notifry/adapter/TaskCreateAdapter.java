@@ -2,10 +2,13 @@ package com.frysoft.notifry.adapter;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.AppCompatEditText;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+
+import com.frysoft.notifry.R;
 
 import java.util.ArrayList;
 
@@ -74,7 +77,7 @@ public class TaskCreateAdapter extends PagerAdapter {
 
     public CharSequence setPageTitle(int position){
         RelativeLayout currentView = (RelativeLayout) getView(position);
-        EditText header = (EditText) currentView.getChildAt(0);
+        AppCompatEditText header = (AppCompatEditText) currentView.findViewById(R.id.edittext_task_name);
         String headerText = header.getText().toString();
         if (headerText.matches(""))
             return "New task";

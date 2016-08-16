@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
+import com.frysoft.notifry.activity.MainActivity;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Logger;
 
@@ -112,7 +113,10 @@ public class NetworkStateReciever extends BroadcastReceiver {
             boolean local = User.isLocal();
             boolean online = User.isOnline();
             if(!local && !online) {
-                User.logon();
+                if (User.logon()){
+                    Intent intent = new Intent(App.getContext(), MainActivity.class);
+                    App.getContext().startActivity(intent);
+                }
             }
 
             if(User.isOnline()) {
