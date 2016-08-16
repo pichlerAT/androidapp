@@ -23,7 +23,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.Log("NetworkStateReciever", "onReceive(Context,Intent)");
-        if(intent.getExtras() != null) {
+        if(App.isAppActive && intent.getExtras() != null) {
 
             NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {

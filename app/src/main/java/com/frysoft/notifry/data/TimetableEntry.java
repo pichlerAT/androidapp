@@ -296,6 +296,10 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return new Time(time_start);
     }
 
+    public Date getDateEnd() {
+        return new Date(date_end);
+    }
+
     public Time getTimeEnd() {
         return new Time(time_end);
     }
