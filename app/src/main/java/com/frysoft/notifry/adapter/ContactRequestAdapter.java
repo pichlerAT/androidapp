@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.frysoft.notifry.R;
@@ -53,6 +54,7 @@ public class ContactRequestAdapter extends ArrayAdapter<Contact>{
         }
 
         final Contact sender = getItem(position);
+
 
         TextView senderIcon = (TextView) res.findViewById(R.id.textview_contact_request_icon);
         TextView senderName = (TextView) res.findViewById(R.id.textview_contact_request_name);

@@ -4,12 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <RelativeLayout
+        android:id="@+id/relativelayout_contact_request_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:elevation="10dp">
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/imagebutton_contact_request_accept"
+            android:layout_width="@dimen/round_icon_size"
+            android:layout_height="@dimen/round_icon_size"
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/imagebutton_padding"
+            android:layout_marginRight="@dimen/elements_margin_small"
+            android:layout_toLeftOf="@+id/imagebutton_contact_request_decline"
+            android:scaleType="fitCenter"
+            android:background="@drawable/contacticon_style"
+            android:src="@drawable/ic_done"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/imagebutton_contact_request_decline"
+            android:layout_width="@dimen/round_icon_size"
+            android:layout_height="@dimen/round_icon_size"
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/imagebutton_padding"
+            android:layout_alignParentRight="true"
+            android:scaleType="fitCenter"
+            android:background="@drawable/contacticon_style"
+            android:src="@drawable/ic_decline"/>
+
+    </RelativeLayout>
+
+
     <android.support.v7.widget.CardView
+        android:id="@+id/cardview_contact_request_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:descendantFocusability="blocksDescendants"
         android:layout_margin="7dp"
-        android:elevation="3dp"
+        android:elevation="1dp"
         card_view:cardCornerRadius="2dp">
 
         <LinearLayout
@@ -53,36 +88,4 @@
                 </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true">
-
-        <android.support.v7.widget.AppCompatImageButton
-            android:id="@+id/imagebutton_contact_request_accept"
-            android:layout_width="@dimen/round_icon_size"
-            android:layout_height="@dimen/round_icon_size"
-            android:layout_alignParentBottom="true"
-            android:padding="@dimen/imagebutton_padding"
-            android:layout_marginRight="@dimen/elements_margin_small"
-            android:layout_toLeftOf="@+id/imagebutton_contact_request_decline"
-            android:scaleType="fitCenter"
-            android:background="@drawable/contacticon_style"
-            android:src="@drawable/ic_done"/>
-
-        <android.support.v7.widget.AppCompatImageButton
-            android:id="@+id/imagebutton_contact_request_decline"
-            android:layout_width="@dimen/round_icon_size"
-            android:layout_height="@dimen/round_icon_size"
-            android:layout_alignParentBottom="true"
-            android:padding="@dimen/imagebutton_padding"
-            android:layout_alignParentRight="true"
-            android:scaleType="fitCenter"
-            android:background="@drawable/contacticon_style"
-            android:src="@drawable/ic_decline"/>
-
-    </RelativeLayout>
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package com.frysoft.notifry.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Contact;
 import com.frysoft.notifry.data.ContactGroup;
 import com.frysoft.notifry.data.ContactList;
+import com.frysoft.notifry.utils.App;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +77,22 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         deleteGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ContactList.getGroup(groupPosition).delete();
-                notifyDataSetChanged();
+                AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(App.getContext());
+                deleteBuilder.setTitle(R.string.warning)
+                    .setMessage(R.string.delete_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ContactList.getGroup(groupPosition).delete();
+                            notifyDataSetChanged();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .show();
             }
         });
 

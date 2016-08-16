@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -109,10 +110,10 @@ public class ContactFragment extends Fragment {
                         actionMode.setTitle(null);
                         break;
                     case 1:
-                        actionMode.setTitle("1 contact selected");
+                        actionMode.setTitle("1 contact");
                         break;
                     default:
-                        actionMode.setTitle("" + checkedCount + " contacts selected");
+                        actionMode.setTitle("" + checkedCount + " contacts");
                         break;
                 }
             }
@@ -159,7 +160,7 @@ public class ContactFragment extends Fragment {
 
                         for (int i = 0; i < ContactList.getNoGroups() - 1; i++) {// -1 because user shouldn't assign contact to 'all contacts'
                             String groupName = ContactList.getGroup(i).getName();
-                            CheckBox cb = new CheckBox(App.getContext());
+                            AppCompatCheckBox cb = new AppCompatCheckBox(App.getContext());
                             cb.setText(groupName);
                             layout.addView(cb);
                         }
