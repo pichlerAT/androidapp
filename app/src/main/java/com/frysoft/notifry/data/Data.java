@@ -304,20 +304,9 @@ public class Data {
         }
 
 
-        if(App.Settings.moveFinishedTasklistToBottom()) {
-            count = fry.getArrayLength();
-            for (int i = 0; i < count; ++i) {
-                Tasklist tl = new Tasklist(fry);
-                if(tl.isDone()) {
-                    Tasklists.add(tl);
-                }
-            }
-
-        }else {
-            count = fry.getArrayLength();
-            for (int i = 0; i < count; ++i) {
-                Tasklists.add(new Tasklist(fry));
-            }
+        count = fry.getArrayLength();
+        for (int i = 0; i < count; ++i) {
+            Tasklists.add(new Tasklist(fry));
         }
 
         count = fry.getArrayLength();
