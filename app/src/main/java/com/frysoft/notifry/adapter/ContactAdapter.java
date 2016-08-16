@@ -2,6 +2,7 @@ package com.frysoft.notifry.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +23,6 @@ import java.util.List;
  */
 
 public class ContactAdapter extends BaseExpandableListAdapter {
-
-    protected Context mContext;
 
     @Override
     public int getGroupCount() {
@@ -71,7 +70,7 @@ public class ContactAdapter extends BaseExpandableListAdapter {
         TextView headerName = (TextView) convertView.findViewById(R.id.textview_contact_header);
         headerName.setTypeface(null, Typeface.BOLD);
         headerName.setText(headerString);
-        Button deleteGroup = (Button) convertView.findViewById(R.id.button_contact_group_delete);
+        AppCompatButton deleteGroup = (AppCompatButton) convertView.findViewById(R.id.button_contact_group_delete);
         deleteGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,15 +79,15 @@ public class ContactAdapter extends BaseExpandableListAdapter {
             }
         });
 
-            int lastPosition = getGroupCount() - 1;
-            //Has to be if / else, otherwise it doesn't work
-            if (lastPosition != groupPosition) {
-                deleteGroup.setAlpha(1);
-                deleteGroup.setEnabled(true);
-            } else {
-                deleteGroup.setAlpha(0);
-                deleteGroup.setEnabled(false);
-            }
+        int lastPosition = getGroupCount() - 1;
+        //Has to be if / else, otherwise it doesn't work
+        if (lastPosition != groupPosition) {
+            deleteGroup.setAlpha(.54f);
+            deleteGroup.setEnabled(true);
+        } else {
+            deleteGroup.setAlpha(0);
+            deleteGroup.setEnabled(false);
+        }
 
 
         return convertView;

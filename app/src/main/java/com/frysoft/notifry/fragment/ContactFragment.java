@@ -50,6 +50,8 @@ public class ContactFragment extends Fragment {
     protected int request_number = 0;
     private TextView request_number_text = null;
 
+    protected ExpandableListView lv;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_contact, container, false);
@@ -68,17 +70,9 @@ public class ContactFragment extends Fragment {
             }
         });
 
-        final ExpandableListView lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
+        lv = (ExpandableListView) rootView.findViewById(R.id.listview_contact_id);
         adapter = new ContactAdapter();
 
-        ViewTreeObserver vto = lv.getViewTreeObserver();
-
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                lv.setIndicatorBounds(lv.getRight() - App.pixelToDPScale(40), lv.getWidth());
-            }
-        });
         lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long l) {
@@ -219,9 +213,7 @@ public class ContactFragment extends Fragment {
             }
         });
 
-        for (int i = 0; i < adapter.getGroupCount(); i++) {
-            lv.expandGroup(i);
-        }
+        expandList();
 
         //Search listener for the listview
         mSearch = (AppCompatEditText) rootView.findViewById(R.id.searchview_contact_id);
@@ -282,6 +274,11 @@ public class ContactFragment extends Fragment {
         }
     }
 
+    private void expandList(){
+        for (int i = 0; i < adapter.getGroupCount(); i++) {
+            lv.expandGroup(i);
+        }
+    }
     public void ContactFABMenu(){
         final FABDialog dialog = new FABDialog(App.getContext());
         // it remove the dialog title
@@ -305,7 +302,7 @@ public class ContactFragment extends Fragment {
                 final View requestView = View.inflate(App.getContext(), R.layout.fragment_contact_dialog, null);
                 TextView title = (TextView) requestView.findViewById(R.id.textview_contact_dialog_title);
                 title.setText(R.string.contact_request);
-                EditText mail = (EditText) requestView.findViewById(R.id.edittext_contact_email);
+                AppCompatEditText mail = (AppCompatEditText) requestView.findViewById(R.id.edittext_contact_email);
                 mail.setHint(R.string.mail);
                 AlertDialog.Builder requestBuilder = new AlertDialog.Builder(App.getContext());
                 requestBuilder.setView(requestView)
@@ -337,7 +334,7 @@ public class ContactFragment extends Fragment {
                 final View groupView = View.inflate(App.getContext(), R.layout.fragment_contact_dialog, null);
                 TextView titleGroup = (TextView) groupView.findViewById(R.id.textview_contact_dialog_title);
                 titleGroup.setText(R.string.new_group);
-                EditText group = (EditText) groupView.findViewById(R.id.edittext_contact_email);
+                AppCompatEditText group = (AppCompatEditText) groupView.findViewById(R.id.edittext_contact_email);
                 group.setHint(R.string.name_of_group);
                 AlertDialog.Builder newGroupBuilder = new AlertDialog.Builder(App.getContext());
                 newGroupBuilder.setView(groupView)
@@ -346,6 +343,7 @@ public class ContactFragment extends Fragment {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String groupName = ((EditText) groupView.findViewById(R.id.edittext_contact_email)).getText().toString();
                                 adapter.addGroup(groupName);
+                                expandList();
 
                             }
                         })

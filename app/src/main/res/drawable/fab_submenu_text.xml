@@ -7,7 +7,7 @@
         android:left="10dp"
         android:right="10dp"/>
     <gradient
-        android:startColor="@color/colorPrimary"
+        android:startColor="@color/colorBackground"
         android:endColor="@color/colorPrimary"
         android:angle="0"/>
     <stroke
