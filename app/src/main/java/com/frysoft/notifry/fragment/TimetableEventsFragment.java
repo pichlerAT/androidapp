@@ -50,7 +50,7 @@ public class TimetableEventsFragment extends Fragment {
         switch (item.getItemId()){
             case R.id.action_month:
                 FragmentTransaction transaction = MainActivity.fm.beginTransaction();
-                transaction.replace(R.id.frame_fragment_main, new TimetableFragment()).commit();
+                transaction.replace(R.id.frame_fragment_main, new TimetableSlideFragment()).commit();
                 return true;
             case R.id.action_add:
                 Intent intent = new Intent(App.getContext(), TimetableCreateActivity.class);

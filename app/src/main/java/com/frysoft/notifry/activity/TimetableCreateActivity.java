@@ -501,10 +501,10 @@ public class TimetableCreateActivity extends mAppCompatActivity {
                 if (category_name != "")
                     category = Data.getCategoryByName(category_name);
                 if (passed_entry != null){
-                    //passed_entry.set(category, title_string, description_string, date_start, date_end, time_start, time_end, color, repeat_until, interval, repeat); // TODO: add color, repeat_until and interval
+                    passed_entry.set(category, title_string, description_string, date_start, date_end, time_start, time_end, null, 0); // TODO: add color, repeat_until and interval
                 }
                 else {
-                    //TimetableEntry entry = Data.create.TimetableEntry(category, title_string, description_string, date_start, date_end, time_start, time_end, color, repeat_until, interval, repeat);
+                    TimetableEntry entry = Data.create.TimetableEntry(category, title_string, description_string, date_start, date_end, time_start, time_end, 0, null);
                 }
                 /*
                 if (mSharedContactsView.size() > 0)

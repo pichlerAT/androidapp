@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/content_padding"
@@ -18,9 +18,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_toRightOf="@+id/timetable_week_item_template_time"
         android:textColor="@color/colorTextSecondaryDark"
         android:textStyle="bold"/>
 
 
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/button_timetable_week_item_template_delete"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentRight="true"
+        android:alpha="0.56"
+        android:background="@drawable/ic_decline_dark"/>
 
-</LinearLayout>
+
+
+</RelativeLayout>

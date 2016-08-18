@@ -2,11 +2,11 @@ package com.frysoft.notifry.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -75,6 +75,16 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
                     App.getContext().startActivity(intent);
                 }
             });
+
+            AppCompatButton delete = (AppCompatButton) view.findViewById(R.id.button_timetable_week_item_template_delete);
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    event.getEntry().delete();
+                    notifyDataSetChanged();
+                }
+            });
+
         }
         holder.mAddEntry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +104,7 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
         public TextView mDay, mDate;
         public LinearLayout mEvents;
         public RelativeLayout mHeader;
-        public Button mAddEntry;
+        public AppCompatButton mAddEntry;
 
         public TimetableViewHolder(View view){
             super(view);
@@ -102,7 +112,8 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
             mDate = (TextView) view.findViewById(R.id.textview_timetable_week_item_date);
             mHeader = (RelativeLayout) view.findViewById(R.id.relativelayout_timetable_week_item_header);
             mEvents = (LinearLayout) view.findViewById(R.id.linearlayout_timetable_week_item_events);
-            mAddEntry = (Button) view.findViewById(R.id.button_timetable_week_item_add);
+            mAddEntry = (AppCompatButton) view.findViewById(R.id.button_timetable_week_item_add);
+
         }
     }
 

@@ -38,7 +38,7 @@
                     android:layout_below="@+id/textview_timetable_week_item_day"
                     android:textColor="@color/colorTextPrimaryDark"/>
 
-                <Button
+                <android.support.v7.widget.AppCompatButton
                     android:id="@+id/button_timetable_week_item_add"
                     android:layout_width="25dp"
                     android:layout_height="25dp"

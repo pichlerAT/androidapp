@@ -176,6 +176,9 @@ public class ContactFragment extends Fragment {
                                             if (cb.isChecked()) {
                                                 ContactList.getGroup(j).addContacts(childList);
                                             }
+                                            else {
+                                                ContactList.getGroup(j).removeContacts(childList);
+                                            }
                                         }
                                         adapter.notifyDataSetChanged();
                                         onDestroyActionMode(actionMode);
