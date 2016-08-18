@@ -300,7 +300,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
                     if (passed_entry != null){
                         additions = passed_entry.getAdditions();
                     }
-                    View repeat_dialog_header = View.inflate(mContext, R.layout.repeat_dialog_header, null);
+                    View repeat_dialog_header = View.inflate(activityContext, R.layout.repeat_dialog_header, null);
 
                     int[] weekday_ids = {R.id.repeat_monday, R.id.repeat_tuesday, R.id.repeat_wednesday, R.id.repeat_thursday,
                             R.id.repeat_friday, R.id.repeat_saturday, R.id.repeat_sunday};
@@ -316,7 +316,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
                     }
 
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activityContext);
                     builder.setView(repeat_dialog_header)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override

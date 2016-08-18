@@ -110,9 +110,7 @@ public class NetworkStateReciever extends BroadcastReceiver {
         }
 
         public void doUserStuff() {
-            boolean local = User.isLocal();
-            boolean online = User.isOnline();
-            if(!local && !online) {
+            if(!User.isLocal() && !User.isOnline()) {
                 if (User.logon()){
                     Intent intent = new Intent(App.getContext(), MainActivity.class);
                     App.getContext().startActivity(intent);

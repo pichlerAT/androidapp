@@ -25,6 +25,7 @@ public class LoginActivity extends AppCompatActivity implements MySQLListener{
         final AppCompatEditText view_password = (AppCompatEditText) findViewById(R.id.login_password);
 
         App.setContext(this);
+        App.load();
 
         AppCompatButton button_login = (AppCompatButton) findViewById(R.id.button_login);
         button_login.setOnClickListener(new View.OnClickListener() {

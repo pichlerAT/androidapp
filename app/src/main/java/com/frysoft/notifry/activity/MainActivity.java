@@ -25,7 +25,7 @@ import com.frysoft.notifry.fragment.TimetableFragment;
 import com.frysoft.notifry.fragment.TimetableSlideFragment;
 import com.frysoft.notifry.utils.App;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends mAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static FragmentManager fm;

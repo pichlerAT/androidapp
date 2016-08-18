@@ -123,8 +123,8 @@ public class User {
 
         System.out.println("# LOADED " + email + " DATA");
 
-        loggedIn = true;
         Data.load();
+        loggedIn = true;
         NetworkStateReciever.checkInternet();
 
         return SUCCESS;

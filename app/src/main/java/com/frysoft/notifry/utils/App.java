@@ -15,7 +15,6 @@ import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.MySQLListener;
 import com.frysoft.notifry.data.NetworkStateReciever;
 import com.frysoft.notifry.data.Updater;
-import com.frysoft.notifry.data.User;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +29,7 @@ public class App extends Application {
 
     public static boolean hasInternetConnection = false;
 
-    protected static Context mContext;
+    protected static Context activityContext;
 
     protected static Context appContext;
 
@@ -42,12 +41,15 @@ public class App extends Application {
         super.onCreate();
         appContext = this;
 
-        // -----------------------------------------------------
-        // TODO DEVLOG: these two lines are for the test versions only !
-        defaultEH = new AlphaExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(defaultEH);
-        // -----------------------------------------------------
+        //** -----------------------------------------------------
+        /*** TODO DEVLOG: these two lines are for the test versions only !
+        /**/ defaultEH = new AlphaExceptionHandler();
+        /**/ Thread.setDefaultUncaughtExceptionHandler(defaultEH);
+        //** -----------------------------------------------------
 
+    }
+
+    public static void load() {
         Data.load();
         NetworkStateReciever.checkInternet();
     }
@@ -72,15 +74,19 @@ public class App extends Application {
 
     public static Context getContext() {
         Logger.Log("App", "getContext()");
-        if(mContext == null) {
+        if(activityContext == null) {
             return appContext;
         }
-        return mContext;
+        return activityContext;
+    }
+
+    public static boolean hasActivityContext() {
+        return (activityContext != null);
     }
 
     public static void setContext(Context mContext) {
         Logger.Log("App", "setContext(Context)");
-        App.mContext = mContext;
+        App.activityContext = mContext;
 
         if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof AlphaExceptionHandler)) {
             Thread.setDefaultUncaughtExceptionHandler(defaultEH);
@@ -101,7 +107,7 @@ public class App extends Application {
 
     public static void errorDialog(String title,String message) {
         Logger.Log("App", "errorDialog(String,String)");
-        new AlertDialog.Builder(mContext)
+        new AlertDialog.Builder(activityContext)
                 .setTitle(title)
                 .setMessage(message)
                 .setNeutralButton(R.string.error_message_neutral_button, new DialogInterface.OnClickListener() {
@@ -116,7 +122,7 @@ public class App extends Application {
 
     public static int pixelToDPScale(int dp){
         //Logger.Log("App", "pixelToDPScale(int)");
-        float scale = mContext.getResources().getDisplayMetrics().density;
+        float scale = activityContext.getResources().getDisplayMetrics().density;
         return (int) (dp*scale + 0.5f);
     }
 
