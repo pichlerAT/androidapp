@@ -60,6 +60,11 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     @Override
+    protected void remove() {
+        Data.Tasklists.remove(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         Logger.Log("Tasklist", "equals(Object)");
         if(o instanceof Tasklist) {
@@ -107,12 +112,6 @@ public class Tasklist extends MySQLEntry implements Fryable {
     protected boolean mysql_update() {
         Logger.Log("Tasklist", "mysql_update()");
         return (executeMySQL(DIR_TASKLIST + "update.php", "&id=" + signed(id) + "&category_id=" + getCategoryId() + "&name=" + name + "&state=" + signed(state) + "&color=" + signed(color)) != null);
-    }
-
-    @Override
-    protected boolean mysql_delete() {
-        Logger.Log("Tasklist", "mysql_delete()");
-        return (executeMySQL(DIR_TASKLIST + "delete.php", "&id=" + signed(id)) != null);
     }
 
     @Override
@@ -272,13 +271,6 @@ public class Tasklist extends MySQLEntry implements Fryable {
             return 0;
         }
         return category.id;
-    }
-
-    @Override
-    public void delete() {
-        Logger.Log("Tasklist", "delete()");
-        super.delete();
-        Data.Tasklists.remove(this);
     }
 
     public void delete(int index) {

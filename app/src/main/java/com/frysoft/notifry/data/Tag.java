@@ -209,11 +209,6 @@ public class Tag extends MySQLEntry {
     }
 
     @Override
-    protected boolean mysql_delete() {
-        return (executeMySQL(DIR_TAG + "delete.php", "&id=" + signed(id)) != null);
-    }
-
-    @Override
     protected byte getType() {
         return TYPE_TAG;
     }
@@ -221,6 +216,11 @@ public class Tag extends MySQLEntry {
     @Override
     protected String getPath() {
         return DIR_TAG;
+    }
+
+    @Override
+    protected void remove() {
+        Data.Tags.remove(this);
     }
 
     public boolean issetTitle() {

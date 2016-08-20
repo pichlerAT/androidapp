@@ -167,8 +167,8 @@ public abstract class MySQL implements Fryable {
         return fry;
     }
 
-    public static void setLoginData(int user_id, String password) {
-        UserIdAndPassword = "user_id=" + signed(user_id) + "&password=" + password;
+    public static void setLoginData(String email, String password) {
+        UserIdAndPassword = "email=" + email + "&password=" + password;
     }
 
     public static short signed(byte b) {
@@ -214,11 +214,11 @@ public abstract class MySQL implements Fryable {
         fry.writeUnsignedInt(user_id);
     }
 
+    protected abstract void remove();
+
     protected abstract boolean mysql_create();
 
     protected abstract boolean mysql_update();
-
-    protected abstract boolean mysql_delete();
 
     protected abstract byte getType();
 
@@ -237,13 +237,6 @@ public abstract class MySQL implements Fryable {
 
         }else if((type & BASETYPE_UPDATE) > 0) {
             if(mysql_update()) {
-                type = BASETYPE_NOTHING;
-                return true;
-            }
-            return false;
-
-        }else if((type & BASETYPE_DELETE) > 0) {
-            if(mysql_delete()) {
                 type = BASETYPE_NOTHING;
                 return true;
             }
@@ -280,11 +273,11 @@ public abstract class MySQL implements Fryable {
         }
     }
 
-    public void delete() {
+    public final void delete() {
         Logger.Log("MySQL", "delete()");
+        remove();
         if(isOnline()) {
-            type = BASETYPE_DELETE;
-            ConnectionManager.add(this);
+            Delete.create(getType(), id);
         }
     }
 

@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
-                    android:text="edwin.pichler@rk.at"
+                    android:text="stefan.fragner@rk.at"
                     android:background="@android:color/transparent"
                     style="@style/Base.TextAppearance.AppCompat.Body2"/>
 

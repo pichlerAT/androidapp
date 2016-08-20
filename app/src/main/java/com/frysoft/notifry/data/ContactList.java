@@ -173,6 +173,12 @@ public class ContactList {
         return null;
     }
 
+    protected static void removeContact(Contact cont) {
+        for(ContactGroup grp : groups) {
+            grp.removeContact(cont);
+        }
+    }
+
     public static void deleteContact(Contact cont) {
         Logger.Log("ContactList", "deleteContact(Contact)");
         for(ContactGroup grp : groups) {

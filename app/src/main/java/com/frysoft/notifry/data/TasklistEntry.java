@@ -67,12 +67,6 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     }
 
     @Override
-    protected boolean mysql_delete() {
-        Logger.Log("TasklistEntry", "mysql_delete()");
-        return (executeMySQL(DIR_TASKLIST_ENTRY + "delete.php","&id="+signed(id)) != null);
-    }
-
-    @Override
     protected byte getType() {
         return TYPE_TASKLIST_ENTRY;
     }
@@ -107,6 +101,11 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         super.writeTo(fry);
         fry.writeString(description);
         fry.writeUnsignedByte(state);
+    }
+
+    @Override
+    protected void remove() {
+        tasklist.entries.remove(this);
     }
 
     public void set(String description,boolean state) {

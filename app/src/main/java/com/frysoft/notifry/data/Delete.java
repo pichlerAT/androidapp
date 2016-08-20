@@ -6,12 +6,16 @@ class Delete extends MySQL {
 
     static void create(byte type, int id) {
         Delete del = new Delete(type, id);
-        del.delete();
+        del.update();
     }
 
     private Delete(byte type, int id) {
-        super(id, 0);
+        super(id, User.getId());
         deleteType = type;
+    }
+
+    @Override
+    protected void remove() {
     }
 
     @Override
@@ -21,11 +25,6 @@ class Delete extends MySQL {
 
     @Override
     protected boolean mysql_update() {
-        return true;
-    }
-
-    @Override
-    protected boolean mysql_delete() {
         return (executeMySQL(getPath(deleteType) + "delete.php", "&id=" + id) != null);
     }
 

@@ -68,12 +68,6 @@ public class Category extends MySQLEntry implements Fryable {
     }
 
     @Override
-    protected boolean mysql_delete() {
-        Logger.Log("TimetableCategory", "mysql_delete()");
-        return (executeMySQL(DIR_CATEGORY + "delete.php", "&share_id=" + signed(id)) != null);
-    }
-
-    @Override
     protected byte getType() {
         return TYPE_CATEGORY;
     }
@@ -139,9 +133,8 @@ public class Category extends MySQLEntry implements Fryable {
     }
 
     @Override
-    public void delete() {
+    public void remove() {
         Logger.Log("TimetableCategory", "delete()");
-        super.delete();
         Data.Categories.remove(this);
     }
 

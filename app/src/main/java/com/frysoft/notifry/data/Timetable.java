@@ -41,17 +41,16 @@ public class Timetable extends MySQL {
     }
 
     @Override
+    protected void remove() {
+    }
+
+    @Override
     protected boolean mysql_create() {
         return true;
     }
 
     @Override
     protected boolean mysql_update() {
-        return true;
-    }
-
-    @Override
-    protected boolean mysql_delete() {
         return true;
     }
 

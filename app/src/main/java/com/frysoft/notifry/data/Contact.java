@@ -45,6 +45,11 @@ public class Contact extends MySQL implements Fryable, Searchable {
     }
 
     @Override
+    protected void remove() {
+        ContactList.removeContact(this);
+    }
+
+    @Override
     public boolean search(String... keyWords) {
         Logger.Log("Contact", "search(String...)");
         String name = this.name.toLowerCase();
@@ -66,12 +71,6 @@ public class Contact extends MySQL implements Fryable, Searchable {
     protected boolean mysql_update() {
         Logger.Log("Contact", "mysql_update()");
         return true;
-    }
-
-    @Override
-    protected boolean mysql_delete() {
-        Logger.Log("Contact", "mysql_delete()");
-        return (executeMySQL(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
     }
 
     @Override
@@ -132,12 +131,6 @@ public class Contact extends MySQL implements Fryable, Searchable {
             id = fry.getUnsignedInt();
             ContactList.getAllContactsGroup().contacts.add(this);
             return true;
-        }
-
-        @Override
-        protected boolean mysql_delete() { // contact request decline
-            Logger.Log("Contact", "mysql_delete()");
-            return (executeMySQL(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
         }
 
         @Override

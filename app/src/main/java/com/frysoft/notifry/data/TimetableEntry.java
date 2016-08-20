@@ -176,12 +176,6 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     @Override
-    protected boolean mysql_delete() {
-        Logger.Log("TimetableEntry", "mysql_delete()");
-        return (executeMySQL(DIR_CALENDAR_ENTRY+  "delete.php", "&id=" + signed(id)) != null);
-    }
-
-    @Override
     protected byte getType() {
         return TYPE_CALENDAR_ENTRY;
     }
@@ -242,9 +236,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     @Override
-    public void delete() {
-        Logger.Log("TimetableEntry", "delete()");
-        super.delete();
+    public void remove() {
         Data.Timetable.Entries.remove(this);
     }
 

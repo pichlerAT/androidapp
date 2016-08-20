@@ -85,12 +85,6 @@ public class ContactGroup extends MySQLEntry {
     }
 
     @Override
-    protected boolean mysql_delete() {
-        Logger.Log("ContactGroup", "mysql_delete()");
-        return (executeMySQL(DIR_CONTACT_GROUP+"delete.php", "&id="+signed(id)) != null);
-    }
-
-    @Override
     protected byte getType() {
         return TYPE_CONTACT_GROUP;
     }
@@ -197,9 +191,8 @@ public class ContactGroup extends MySQLEntry {
     }
 
     @Override
-    public void delete() {
+    public void remove() {
         Logger.Log("ContactGroup", "delete()");
-        super.delete();
         ContactList.groups.remove(this);
     }
 

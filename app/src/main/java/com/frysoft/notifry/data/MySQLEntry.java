@@ -14,10 +14,7 @@ public abstract class MySQLEntry extends MySQL {
         super(id, user_id);
         Logger.Log("MySQLEntry", "MySQLEntry(char,int,int)");
     }
-/*
-    @Override
-    public abstract boolean equals(Object o);
-*/
+
     public abstract Object backup();
 
     protected abstract void synchronize(MySQL mysql);

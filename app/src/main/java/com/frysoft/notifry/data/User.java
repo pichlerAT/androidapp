@@ -76,7 +76,7 @@ public class User {
     public static void logout() {
         Data.save();
         deleteLogin();
-        MySQL.setLoginData(0, "");
+        MySQL.setLoginData("", "");
 
         local = true;
         id = 0;
@@ -170,7 +170,7 @@ public class User {
             return false;
         }
 
-        MySQL.setLoginData(id, password);
+        MySQL.setLoginData(email, password);
 
         name = fry.getString();
         online = true;
@@ -308,11 +308,6 @@ public class User {
         }
 
         @Override
-        protected boolean mysql_delete() {
-            return true;
-        }
-
-        @Override
         protected byte getType() {
             return 0;
         }
@@ -320,6 +315,10 @@ public class User {
         @Override
         protected String getPath() {
             return null;
+        }
+
+        @Override
+        protected void remove() {
         }
 
         protected static class register extends user {
@@ -339,7 +338,7 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                FryFile fry = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + email + "&password=" + password + "&name=" + name);
+                FryFile fry = MySQL.execute(MySQL.ADR_REGISTER + "register.php", "email=" + User.email + "&password=" + password + "&name=" + name);
                 if(fry == null) {
                     return false;
                 }
@@ -379,7 +378,7 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&email=" + email);
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "email=" + User.email + "&password=" + password + "&new_email=" + this.email);
                 if(fry == null) {
                     return false;
                 }
@@ -387,7 +386,7 @@ public class User {
                     // TODO Message: error when trying to change email
 
                 }else {
-                    User.email = email;
+                    User.email = this.email;
                     // TODO Message: email change successfull
                 }
                 return true;
@@ -406,7 +405,7 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "user_id=" + id + "&password=" + password + "&name=" + name);
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "email.php", "email=" + User.email + "&password=" + password + "&name=" + name);
                 if(fry == null) {
                     return false;
                 }
@@ -433,7 +432,7 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "password.php", "user_id=" + id + "&password=" + User.password + "&new_password=" + password);
+                FryFile fry = execute(MySQL.ADR_USER_CHANGE + "password.php", "email=" + User.email + "&password=" + User.password + "&new_password=" + this.password);
                 if(fry == null) {
                     return false;
                 }
@@ -441,7 +440,7 @@ public class User {
                     // TODO Message: error when trying to change password
 
                 }else {
-                    User.password = password;
+                    User.password = this.password;
                     // TODO Message: password change successfull
                 }
                 return true;
@@ -457,7 +456,7 @@ public class User {
 
             @Override
             protected boolean mysql_update() {
-                FryFile fry = execute(MySQL.ADR_USER + "delete.php", "user_id=" + id + "&password=" + User.password + "&cmd=Delete");
+                FryFile fry = execute(MySQL.ADR_USER + "delete.php", "email=" + User.email + "&password=" + User.password + "&cmd=Delete");
                 if(fry == null) {
                     return false;
                 }

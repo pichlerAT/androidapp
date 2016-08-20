@@ -49,17 +49,16 @@ public class Share extends Contact {
     }
 
     @Override
-    public boolean mysql_delete() {
-        Logger.Log("Share", "mysql_delete()");
-        return (executeMySQL(getPath()+"share/delete.php", "&id="+signed(id)) != null);
-    }
-
-    @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Share", "writeTo(FryFile)");
         super.writeTo(fry);
         fry.writeUnsignedInt(sharedEntry.id);
         fry.writeUnsignedByte(permission);
+    }
+
+    @Override
+    protected void remove() {
+        // TODO remove share
     }
 
     protected void store() {
