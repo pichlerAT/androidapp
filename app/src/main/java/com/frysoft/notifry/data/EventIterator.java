@@ -77,8 +77,8 @@ public class EventIterator {
             iterator = new OnceIterator();
         }
 
-        current = iterator.first();
         pos = 0;
+        current = iterator.first();
     }
 
     protected Event next() {
@@ -100,22 +100,34 @@ public class EventIterator {
                 if(entry.rRule.wholeDay) {
                     e = new Event.WholeDay(entry, current);
                 }else {
-                    e = new Event.StartEnd(entry, current);
+                    e = new Event.Start(entry, current);
                 }
+                current.addDays(1);
                 ++pos;
 
             }
 
         }else if(pos == entry.days) {
-            if(entry.rRule.wholeDay) {
+            if(current.isGreaterThen(rangeEnd)) {
+                current = iterator.next();
+                return null;
+            }
+
+            if (entry.rRule.wholeDay) {
                 e = new Event.WholeDay(entry, current);
-            }else {
+            } else {
                 e = new Event.End(entry, current);
             }
+
             current = iterator.next();
             pos = 0;
 
         }else {
+            if(current.isGreaterThen(rangeEnd)) {
+                current = iterator.next();
+                return null;
+            }
+
             e = new Event.WholeDay(entry, current);
             current.addDays(1);
             ++pos;
@@ -128,7 +140,21 @@ public class EventIterator {
 
         @Override
         protected Date first() {
-            return entry.getDateStart();
+            Date start = entry.getDateStart();
+            Date end = new Date(start);
+            end.addDays(entry.days);
+            if(end.isSmallerThen(rangeStart) || start.isGreaterThen(rangeEnd)) {
+                return null;
+            }
+
+            pos = start.getDaysUntil(rangeStart);
+            if(pos < 0) {
+                pos = 0;
+                return start;
+
+            }else {
+                return new Date(rangeStart);
+            }
         }
 
         @Override
@@ -690,10 +716,6 @@ public class EventIterator {
 
         protected boolean isByDay = entry.rRule.isByDay();
 
-        protected int byMonthDayIndex = 0;
-
-        protected int byYearDayIndex = 0;
-
         protected boolean isByDayZero = false;
 
         protected boolean[] isByDayMap;
@@ -731,9 +753,22 @@ public class EventIterator {
         protected Date first() {
             Date d;
             while((d = next()) != null) {
+                Date end = new Date(d);
+                end.addDays(entry.days);
+                if(!end.isSmallerThen(rangeStart)) {
 
-                if(!d.isSmallerThen(rangeStart)) {
-                    return d;
+                    pos = 0;
+                    do {
+
+                        if(!d.isSmallerThen(rangeStart)) {
+                            return d;
+                        }
+
+                        d.goToNextDay();
+                        ++pos;
+
+                    } while(pos <= entry.days);
+
                 }
 
             }

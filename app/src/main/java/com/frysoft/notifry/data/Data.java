@@ -14,51 +14,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 public class Data {
 
-    public static final char MOST_RECENT_SAVE_FILE_VERSION = 1;
+    public static final char MOST_RECENT_SAVE_FILE_VERSION = 2;
 
     public static Manager<Category> Categories = new Manager<>();
 
     public static Manager<Tag> Tags = new Manager<>();
 
+    public static final Timetable Timetable = new Timetable();
+
     public static Manager<Tasklist> Tasklists = new Manager<>();
-
-    public static class Timetable {
-
-        public static Manager<TimetableEntry> Entries = new Manager<>();
-
-        public static ShareList Shares = new ShareList(MySQL.TYPE_CALENDAR, User.getId());
-
-        public static ArrayList<Event> getEvents(final Date start, final Date end) {
-            ArrayList<Event> list = new ArrayList<>();
-            EventIterator it;
-            Event e;
-            for(TimetableEntry ent : Timetable.Entries.getList()) {
-                it = new EventIterator(ent, start, end);
-                while((e = it.next()) != null) {
-                    list.add(e);
-                }
-            }
-            return list;
-        }
-
-        public static void synchronizeAndroidCalendarIntoNotifry() {
-            ConnectionManager.synchronizeAndroidCalendar();
-        }
-
-        protected static TimetableEntry getByGoogleId(String google_id) {
-            for(TimetableEntry ent : Entries.getList()) {
-                if(ent.google_id.equals(google_id)) {
-                    return ent;
-                }
-            }
-            return null;
-        }
-
-    }
 
     public static class create {
 
@@ -158,6 +125,50 @@ public class Data {
         return null;
     }
 
+    public static TasklistEntry getTasklistEntryById(int id) {
+        for(Tasklist tl : Tasklists.getList()) {
+            TasklistEntry ent = tl.getEntryById(id);
+            if(ent != null) {
+                return ent;
+            }
+        }
+        return null;
+    }
+
+    public static Share getCategoryShareById(int id) {
+        for(Category cat : Categories.getList()) {
+            Share share = cat.shares.getById(id);
+            if(share != null) {
+                return share;
+            }
+        }
+        return null;
+    }
+
+    public static Share getTimetableShareById(int id) {
+        return Timetable.Shares.getById(id);
+    }
+
+    public static Share getTimetableEntryShareById(int id) {
+        for(TimetableEntry ent : Timetable.Entries.getList()) {
+            Share share = ent.shares.getById(id);
+            if(share != null) {
+                return share;
+            }
+        }
+        return null;
+    }
+
+    public static Share getTasklistShareById(int id) {
+        for(Tasklist tl : Tasklists.getList()) {
+            Share share = tl.shares.getById(id);
+            if(share != null) {
+                return share;
+            }
+        }
+        return null;
+    }
+
     public static void load() {
         User.loadLogin();
         FryFile fry = getFryFile();
@@ -170,6 +181,7 @@ public class Data {
 
         switch(fry.getVersion()) {
             case 1: load_v1(fry); break;
+            case 2: load_v2(fry); break;
         }
     }
 
@@ -187,7 +199,7 @@ public class Data {
             User.encode(fry);
         }
 
-        save_v1(fry);
+        save_v(fry);
 
         try {
             FileOutputStream outputStream = App.getFileOutputStream(User.getFileName());
@@ -246,12 +258,26 @@ public class Data {
         Data.readFrom(fry);
     }
 
+    protected static void load_v2(FryFile fry) {
+        App.Settings.readFrom(fry);
+        ContactList.readFrom(fry);
+        Data.readFrom(fry);
+        ConnectionManager.readFrom(fry);
+    }
+
+    protected static void save_v(FryFile fry) {
+        App.Settings.writeTo(fry);
+        ContactList.writeTo(fry);
+        Data.writeTo(fry);
+        ConnectionManager.writeTo(fry);
+    }
+/*
     protected static void save_v1(FryFile fry) {
         App.Settings.writeTo(fry);
         ContactList.writeTo(fry);
         Data.writeTo(fry);
     }
-
+*/
     protected static FryFile getLocalFryFile() {
         try {
             FileInputStream inputStream = App.getFileInputStream(User.getFileName());
@@ -284,7 +310,7 @@ public class Data {
         Categories = new Manager<>();
         Tasklists = new Manager<>();
         Timetable.Entries = new Manager<>();
-        Timetable.Shares = new ShareList(MySQL.TYPE_CALENDAR, User.getId());
+        Timetable.Shares = new ShareList(Timetable);
         Tags = new Manager<>();
     }
 
@@ -365,7 +391,7 @@ public class Data {
         }
         Timetable.Entries.synchronizeWith(entList);
 
-        Timetable.Shares = new ShareList(MySQL.TYPE_CALENDAR, User.getId());
+        Timetable.Shares = new ShareList(Timetable);
         count = fry.getArrayLength();
         for(int i=0; i<count; ++i) {
             Timetable.Shares.addStorage(fry.getUnsignedByte(), fry.getUnsignedInt(), fry.getUnsignedInt());

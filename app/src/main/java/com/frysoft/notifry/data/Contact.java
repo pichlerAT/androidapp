@@ -17,7 +17,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
         if(!App.hasInternetConnection) {
             return null;
         }
-        Contact cont = new Contact(TYPE_CONTACT_REQUEST, 0, 0, email, null);
+        Contact cont = new Contact.Request(0, 0, email, null);
         cont.create();
         return cont;
     }
@@ -29,8 +29,8 @@ public class Contact extends MySQL implements Fryable, Searchable {
         name = fry.getString();
     }
 
-    protected Contact(char type, int id, int user_id, String email, String name) {
-        super(type, id, user_id);
+    protected Contact(int id, int user_id, String email, String name) {
+        super(id, user_id);
         Logger.Log("Contact", "Contact(char,int,int,String,String)");
         this.email = email;
         this.name = name;
@@ -57,33 +57,31 @@ public class Contact extends MySQL implements Fryable, Searchable {
     }
 
     @Override
-    protected boolean mysql_create() { // contact request send
+    protected boolean mysql_create() {
         Logger.Log("Contact", "mysql_create()");
-        return (executeMySQL(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
-    }
-
-    @Override
-    protected boolean mysql_update() { // contact request accept
-        Logger.Log("Contact", "mysql_update()");
-        FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
-        if(fry == null) {
-            return false;
-        }
-        id = fry.getUnsignedInt();
-        user_id = User.getId();
-        ContactList.getAllContactsGroup().contacts.add(this);
         return true;
     }
 
     @Override
-    protected boolean mysql_delete() { // contact request decline
-        Logger.Log("Contact", "mysql_delete()");
-        if(type(TYPE_CONTACT_REQUEST)) {
-            return (executeMySQL(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
+    protected boolean mysql_update() {
+        Logger.Log("Contact", "mysql_update()");
+        return true;
+    }
 
-        }else {
-            return (executeMySQL(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
-        }
+    @Override
+    protected boolean mysql_delete() {
+        Logger.Log("Contact", "mysql_delete()");
+        return (executeMySQL(DIR_CONTACT+"delete.php", "&share_id="+id) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_CONTACT;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_CONTACT;
     }
 
     public void accept() {
@@ -106,6 +104,52 @@ public class Contact extends MySQL implements Fryable, Searchable {
     public String getName() {
         Logger.Log("Contact", "getName()");
         return name;
+    }
+
+    public static class Request extends Contact {
+
+        protected Request(FryFile fry) {
+            super(fry);
+        }
+
+        protected Request(int id, int user_id, String email, String name) {
+            super(id, user_id, email, name);
+        }
+
+        @Override
+        protected boolean mysql_create() { // contact request send
+            Logger.Log("Contact", "mysql_create()");
+            return (executeMySQL(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
+        }
+
+        @Override
+        protected boolean mysql_update() { // contact request accept
+            Logger.Log("Contact", "mysql_update()");
+            FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
+            if(fry == null) {
+                return false;
+            }
+            id = fry.getUnsignedInt();
+            ContactList.getAllContactsGroup().contacts.add(this);
+            return true;
+        }
+
+        @Override
+        protected boolean mysql_delete() { // contact request decline
+            Logger.Log("Contact", "mysql_delete()");
+            return (executeMySQL(DIR_CONTACT_REQUEST+"delete.php", "&share_id="+id) != null);
+        }
+
+        @Override
+        protected byte getType() {
+            return TYPE_CONTACT_REQUEST;
+        }
+
+        @Override
+        protected String getPath() {
+            return DIR_CONTACT_REQUEST;
+        }
+
     }
 
 }

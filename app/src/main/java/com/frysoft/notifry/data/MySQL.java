@@ -17,61 +17,68 @@ import java.net.URL;
 
 public abstract class MySQL implements Fryable {
 
-    public static final String ADDRESS = "http://www.notifry.com/notifry/";
+    private static final String ADDRESS = "http://www.notifry.com/notifry/";
+    private static final String ADR_MYSQL            = ADDRESS               + "mysql/"    ;
 
-    public static final String ADR_MYSQL                    = ADDRESS               + "mysql/"    ;
-    public static final String ADR_REGISTER                 = ADDRESS               + "register/" ;
-    public static final String ADR_USER                     = ADDRESS               + "user/"     ;
-    public static final String ADR_USER_CHANGE              = ADR_USER              + "change/"   ;
+    static final String ADR_REGISTER                 = ADDRESS               + "register/" ;
+    static final String ADR_USER                     = ADDRESS               + "user/"     ;
+    static final String ADR_USER_CHANGE              = ADR_USER              + "change/"   ;
 
-    public static final String DIR_TASKLIST                 =                         "tasklist/" ;
-    public static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"    ;
-    public static final String DIR_TASKLIST_SHARE           = DIR_TASKLIST          + "share/"    ;
-    public static final String DIR_CONTACT                  =                         "contact/"  ;
-    public static final String DIR_CONTACT_GROUP            = DIR_CONTACT           + "group/"    ;
-    public static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"  ;
-    public static final String DIR_CALENDAR                 =                         "calendar/" ;
-    public static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"    ;
-    public static final String DIR_CATEGORY                 =                         "category/" ;
-    public static final String DIR_CATEGORY_SHARE           = DIR_CATEGORY          + "share/"    ;
-    public static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"    ;
-    public static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"    ;
-    public static final String DIR_TAG                      =                         "tag/"      ;
+    static final String DIR_TASKLIST                 =                         "tasklist/" ;
+    static final String DIR_TASKLIST_ENTRY           = DIR_TASKLIST          + "entry/"    ;
+    static final String DIR_TASKLIST_SHARE           = DIR_TASKLIST          + "share/"    ;
+    static final String DIR_CONTACT                  =                         "contact/"  ;
+    static final String DIR_CONTACT_GROUP            = DIR_CONTACT           + "group/"    ;
+    static final String DIR_CONTACT_REQUEST          = DIR_CONTACT           + "request/"  ;
+    static final String DIR_CALENDAR                 =                         "calendar/" ;
+    static final String DIR_CALENDAR_SHARE           = DIR_CALENDAR          + "share/"    ;
+    static final String DIR_CATEGORY                 =                         "category/" ;
+    static final String DIR_CATEGORY_SHARE           = DIR_CATEGORY          + "share/"    ;
+    static final String DIR_CALENDAR_ENTRY           = DIR_CALENDAR          + "entry/"    ;
+    static final String DIR_CALENDAR_ENTRY_SHARE     = DIR_CALENDAR_ENTRY    + "share/"    ;
+    static final String DIR_TAG                      =                         "tag/"      ;
 
     public static final String S = "" + (char)0;
 
     private static String UserIdAndPassword = "";
 
 
-    public static final char BASETYPE           = 0x000F;
 
-    public static final char BASETYPE_CREATE    = 0x0001;
+    protected static final byte BASETYPE_NOTHING   = 0;
 
-    public static final char BASETYPE_UPDATE    = 0x0002;
+    protected static final byte BASETYPE_CREATE    = 1;
 
-    public static final char BASETYPE_DELETE    = 0x0004;
+    protected static final byte BASETYPE_UPDATE    = 2;
+
+    protected static final byte BASETYPE_DELETE    = 3;
 
 
 
-    public static final char TYPE                   = 0xFFF0;
+    static final byte TYPE_CONTACT              = 1;
 
-    public static final char TYPE_CONTACT           = 0x0010;
+    static final byte TYPE_CONTACT_GROUP        = 2;
 
-    public static final char TYPE_CONTACT_GROUP     = 0x0020;
+    static final byte TYPE_CONTACT_REQUEST      = 3;
 
-    public static final char TYPE_CONTACT_REQUEST   = 0x0040;
+    static final byte TYPE_TASKLIST             = 4;
 
-    public static final char TYPE_TASKLIST          = 0x0080;
+    static final byte TYPE_TASKLIST_ENTRY       = 5;
 
-    public static final char TYPE_TASKLIST_ENTRY    = 0x0100;
+    static final byte TYPE_TASKLIST_SHARE       = 6;
 
-    public static final char TYPE_CALENDAR          = 0x0200;
+    static final byte TYPE_CALENDAR             = 7;
 
-    public static final char TYPE_CALENDAR_CATEGORY = 0x0400;
+    static final byte TYPE_CALENDAR_SHARE       = 8;
 
-    public static final char TYPE_CALENDAR_ENTRY    = 0x0800;
+    static final byte TYPE_CATEGORY             = 9;
 
-    public static final char TYPE_TAG               = 0x1000;
+    static final byte TYPE_CATEGORY_SHARE       = 10;
+
+    static final byte TYPE_CALENDAR_ENTRY       = 11;
+
+    static final byte TYPE_CALENDAR_ENTRY_SHARE = 12;
+
+    static final byte TYPE_TAG                  = 13;
 
     @Nullable
     public static FryFile execute(String addr, String data) {
@@ -140,6 +147,12 @@ public abstract class MySQL implements Fryable {
         }
 
         if(resp.length()>3 && resp.substring(0,4).equals("err_")) {
+            System.out.println("# MYSQLI - ERROR: " + fry.getString());
+            FryFile f = new FryFile.Split("\n");
+            f.loadFromString(fry.getString());
+            while(f.hasNext()) {
+                System.out.println("# " + f.getString());
+            }
             return null;
         }
 
@@ -172,21 +185,21 @@ public abstract class MySQL implements Fryable {
 
 
 
-    private char type;
+    private byte type;
 
     protected int id;
 
     protected int user_id;
 
-    protected MySQL(char type, int id, int user_id) {
+    protected MySQL(int id, int user_id) {
         Logger.Log("MySQL", "MySQL(char,int,int)");
-        this.type = type;
+        type = BASETYPE_NOTHING;
         this.id = id;
         this.user_id = user_id;
     }
 
     protected MySQL(FryFile fry) {
-        this((char)0, fry.getUnsignedInt(), fry.getUnsignedInt());
+        this(fry.getUnsignedInt(), fry.getUnsignedInt());
         Logger.Log("MySQL", "MySQL(FryFile,boolean)");
 
         if(user_id == 0) {
@@ -197,7 +210,6 @@ public abstract class MySQL implements Fryable {
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("MySQL", "writeTo(FryFile)");
-        //fry.writeChar(type);
         fry.writeUnsignedInt(id);
         fry.writeUnsignedInt(user_id);
     }
@@ -208,12 +220,16 @@ public abstract class MySQL implements Fryable {
 
     protected abstract boolean mysql_delete();
 
+    protected abstract byte getType();
+
+    protected abstract String getPath();
+
     protected final boolean mysql() {
         Logger.Log("MySQL", "mysql()");
 
         if((type & BASETYPE_CREATE) > 0) {
             if(mysql_create()) {
-                type = (char)(type & TYPE);
+                type = BASETYPE_NOTHING;
                 user_id = User.getId();
                 return true;
             }
@@ -221,14 +237,14 @@ public abstract class MySQL implements Fryable {
 
         }else if((type & BASETYPE_UPDATE) > 0) {
             if(mysql_update()) {
-                type = (char)(type & TYPE);
+                type = BASETYPE_NOTHING;
                 return true;
             }
             return false;
 
         }else if((type & BASETYPE_DELETE) > 0) {
             if(mysql_delete()) {
-                type = (char)(type & TYPE);
+                type = BASETYPE_NOTHING;
                 return true;
             }
             return false;
@@ -236,6 +252,10 @@ public abstract class MySQL implements Fryable {
         }
 
         return true;
+    }
+
+    protected byte getBaseType() {
+        return type;
     }
 
     protected boolean isOffline() {
@@ -248,14 +268,14 @@ public abstract class MySQL implements Fryable {
 
     protected final void create() {
         Logger.Log("MySQL", "create()");
-        type = (char)((type & TYPE) | BASETYPE_CREATE);
+        type = BASETYPE_CREATE;
         ConnectionManager.add(this);
     }
 
     protected final void update() {
         Logger.Log("MySQL", "update()");
         if(isOnline()) {
-            type = (char)((type & TYPE) | BASETYPE_UPDATE);
+            type = BASETYPE_UPDATE;
             ConnectionManager.add(this);
         }
     }
@@ -263,7 +283,7 @@ public abstract class MySQL implements Fryable {
     public void delete() {
         Logger.Log("MySQL", "delete()");
         if(isOnline()) {
-            type = (char)((type & TYPE) | BASETYPE_DELETE);
+            type = BASETYPE_DELETE;
             ConnectionManager.add(this);
         }
     }
@@ -273,22 +293,94 @@ public abstract class MySQL implements Fryable {
         return (user_id == User.getId() || user_id == 0);
     }
 
-    public final char getBaseType() {
-        Logger.Log("MySQL", "getBaseType()");
-        return (char)(type & BASETYPE);
-    }
-
-    public final char getType() {
-        Logger.Log("MySQL", "getType()");
-        return (char) (type & TYPE);
-    }
-
     public int getUserID(){
         return this.user_id;
     }
 
-    public boolean type(char type) {
-        return ((this.type & type) > 0);
+    protected String getPath(byte type) {
+        switch(type) {
+
+            case TYPE_CONTACT:
+                return DIR_CONTACT;
+
+            case TYPE_CONTACT_GROUP:
+                return DIR_CONTACT_GROUP;
+
+            case TYPE_CONTACT_REQUEST:
+                return DIR_CONTACT_REQUEST;
+
+            case TYPE_TASKLIST:
+                return DIR_TASKLIST;
+
+            case TYPE_TASKLIST_SHARE:
+                return DIR_TASKLIST_SHARE;
+
+            case TYPE_TASKLIST_ENTRY:
+                return DIR_TASKLIST_ENTRY;
+
+            case TYPE_CALENDAR:
+                return DIR_CALENDAR;
+
+            case TYPE_CALENDAR_SHARE:
+                return DIR_CALENDAR_SHARE;
+
+            case TYPE_CATEGORY:
+                return DIR_CATEGORY;
+
+            case TYPE_CATEGORY_SHARE:
+                return DIR_CATEGORY_SHARE;
+
+            case TYPE_CALENDAR_ENTRY:
+                return DIR_CALENDAR_ENTRY;
+
+            case TYPE_CALENDAR_ENTRY_SHARE:
+                return DIR_CALENDAR_ENTRY_SHARE;
+
+            case TYPE_TAG:
+                return DIR_TAG;
+
+            default:
+                return null;
+        }
+    }
+
+    protected static MySQL getMySQL(byte type, int id) {
+        switch(type) {
+
+            case TYPE_CONTACT_GROUP:
+                return ContactList.getContactGroupById(id);
+
+            case TYPE_TASKLIST:
+                return Data.Tasklists.getById(id);
+
+            case TYPE_TASKLIST_SHARE:
+                return Data.getTasklistShareById(id);
+
+            case TYPE_TASKLIST_ENTRY:
+                return Data.getTasklistEntryById(id);
+
+            case TYPE_CALENDAR_SHARE:
+                return Data.getTimetableShareById(id);
+
+            case TYPE_CATEGORY:
+                return Data.Categories.getById(id);
+
+            case TYPE_CATEGORY_SHARE:
+                return Data.getCategoryShareById(id);
+
+            case TYPE_CALENDAR_ENTRY:
+                return Data.Timetable.Entries.getById(id);
+
+            case TYPE_CALENDAR_ENTRY_SHARE:
+                return Data.getTimetableEntryShareById(id);
+
+            case TYPE_TAG:
+                return Data.Tags.getById(id);
+
+            default:
+                return null;
+
+        }
     }
 
 }

@@ -53,7 +53,7 @@ public class ContactList {
 
         int NoContacts = fry.getArrayLength();
         for(int i=0; i<NoContacts; ++i) {
-            Contact on = new Contact(MySQL.TYPE_CONTACT, fry.getUnsignedInt(), fry.getUnsignedInt(), fry.getString(), fry.getString());
+            Contact on = new Contact(fry);
             int off_index = all.getContactIndexByUserId(on.user_id);
 
             if(off_index >= 0) {
@@ -130,7 +130,7 @@ public class ContactList {
 
         int NoContactRequests = fry.getArrayLength();
         for(int i=0; i<NoContactRequests; ++i) {
-            contactRequests.add(new Contact(MySQL.TYPE_CONTACT_REQUEST, fry.getUnsignedInt(), fry.getUnsignedInt(), fry.getString(), fry.getString()));
+            contactRequests.add(new Contact.Request(fry.getUnsignedInt(), fry.getUnsignedInt(), fry.getString(), fry.getString()));
         }
     }
 

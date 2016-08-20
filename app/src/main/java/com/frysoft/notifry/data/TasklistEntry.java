@@ -20,7 +20,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     }
 
     protected TasklistEntry(int id, int user_id, Tasklist tasklist, String description, byte state) {
-        super(TYPE_TASKLIST_ENTRY, id, user_id);
+        super(id, user_id);
         Logger.Log("TasklistEntry", "TasklistEntry(int,int,byte,int,String)");
         this.tasklist = tasklist;
         this.description = description;
@@ -54,6 +54,7 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         FryFile fry = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(tasklist.id)+"&description="+description+"&state="+signed(state));
         if(fry != null) {
             id = fry.getUnsignedInt();
+            //user_id = User.getId();
             return true;
         }
         return false;
@@ -62,13 +63,23 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TasklistEntry", "mysql_update()");
-        return (executeMySQL(DIR_TASKLIST_ENTRY + "update.php","&share_id="+signed(id)+"&description="+description+"&state="+signed(state)) != null);
+        return (executeMySQL(DIR_TASKLIST_ENTRY + "update.php","&id="+signed(id)+"&description="+description+"&state="+signed(state)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("TasklistEntry", "mysql_delete()");
-        return (executeMySQL(DIR_TASKLIST_ENTRY + "delete.php","&share_id="+signed(id)) != null);
+        return (executeMySQL(DIR_TASKLIST_ENTRY + "delete.php","&id="+signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_TASKLIST_ENTRY;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_TASKLIST_ENTRY;
     }
 
     @Override

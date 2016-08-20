@@ -11,16 +11,13 @@ public class ShareList implements Fryable {
     /**
      * MySQL TYPE_...
      */
-    protected char type;
-
-    protected int share_id;
+    protected MySQL sharedEntry;
 
     protected ArrayList<ShareStorage> storages = new ArrayList<>();
 
-    public ShareList(char type, int share_id) {
+    public ShareList(MySQL sharedEntry) {
         Logger.Log("ShareList", "ShareList(char,int)");
-        this.type = type;
-        this.share_id = share_id;
+        this.sharedEntry = sharedEntry;
     }
 
     @Override
@@ -34,6 +31,18 @@ public class ShareList implements Fryable {
 
     public int getId(int index) {
         return storages.get(index).id;
+    }
+
+    public Share getById(int id) {
+        for(ShareStorage storage : storages) {
+            if(storage.id == id) {
+                Contact cont = ContactList.getContactByUserId(storage.user_id);
+                if(cont != null) {
+                    return new Share(storage.id, storage.user_id, storage.permission, cont.email, cont.name, sharedEntry);
+                }
+            }
+        }
+        return null;
     }
 
     public byte getPermission(int index) {
@@ -54,7 +63,7 @@ public class ShareList implements Fryable {
 
     public void add(Contact cont, byte permission) {
         Logger.Log("ShareList", "add(Contact,byte)");
-        Share share = new Share(type, 0, cont.user_id, share_id, permission, cont.email, cont.name);
+        Share share = new Share(0, cont.user_id, permission, cont.email, cont.name, sharedEntry);
         share.create();
     }
 
@@ -81,7 +90,7 @@ public class ShareList implements Fryable {
         ContactGroup allShares = new ContactGroup(allContacts.name);
 
         for(Contact cont : allContacts.contacts) {
-            allShares.contacts.add(new Share(type, share_id, Share.PERMISSION_NONE, cont));
+            allShares.contacts.add(new Share(Share.PERMISSION_NONE, cont, sharedEntry));
         }
 
         for(ShareStorage storage : storages) {

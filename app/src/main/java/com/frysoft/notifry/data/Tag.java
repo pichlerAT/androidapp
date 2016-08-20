@@ -37,7 +37,7 @@ public class Tag extends MySQLEntry {
     protected byte vset;
 
     protected Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, boolean set_color, int color) {
-        super(TYPE_TAG, 0, 0);
+        super(0, 0);
 
         this.category = category;
 
@@ -194,6 +194,7 @@ public class Tag extends MySQLEntry {
                 + "&rrule="+rRule.getString() + "&color=" + color + "&set=" + signed((byte)(vset + VSET_OFFSET)));
         if(fry != null) {
             id = fry.getUnsignedInt();
+            //user_id = User.getId();
             return true;
         }
         return false;
@@ -210,6 +211,16 @@ public class Tag extends MySQLEntry {
     @Override
     protected boolean mysql_delete() {
         return (executeMySQL(DIR_TAG + "delete.php", "&id=" + signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_TAG;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_TAG;
     }
 
     public boolean issetTitle() {

@@ -214,6 +214,10 @@ public class User {
         FryFile fry = new FryFile.Split("\n");
         fry.loadFromStream(inputStream);
 
+        if(fry.size() < 2) {
+            return;
+        }
+
         local = false;
         email = fry.getString().split("=")[1];
         password = fry.getString().split("=")[1];
@@ -295,7 +299,7 @@ public class User {
     private static abstract class user extends MySQL {
 
         protected user() {
-            super(BASETYPE_UPDATE, 0, 0);
+            super(0, 0);
         }
 
         @Override
@@ -306,6 +310,16 @@ public class User {
         @Override
         protected boolean mysql_delete() {
             return true;
+        }
+
+        @Override
+        protected byte getType() {
+            return 0;
+        }
+
+        @Override
+        protected String getPath() {
+            return null;
         }
 
         protected static class register extends user {

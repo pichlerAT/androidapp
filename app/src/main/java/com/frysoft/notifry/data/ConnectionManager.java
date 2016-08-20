@@ -76,6 +76,47 @@ public class ConnectionManager {
         }
     }
 
+    protected static void writeTo(FryFile fry) {
+        int length = 0;
+        char[] types = new char[entries.size()];
+        int[] ids = new int[entries.size()];
+
+        for(MySQL ent : entries) {
+            byte type = ent.getBaseType();
+            if(type == MySQL.BASETYPE_UPDATE || type == MySQL.BASETYPE_DELETE) {
+                types[length] = (char)(type | (ent.getType() << 8));
+                ids[length++] = ent.id;
+            }
+        }
+
+        fry.writeArrayLength(length);
+        for(int i=0; i<length; ++i) {
+            fry.writeChar(types[i]);
+            fry.writeUnsignedInt(ids[i]);
+        }
+    }
+
+    protected static void readFrom(FryFile fry) {
+        int length = fry.getArrayLength();
+        for(int i=0; i<length; ++i) {
+            char type = fry.getChar();
+            int id = fry.getUnsignedInt();
+            byte t = (byte)type;
+
+            if(t == MySQL.BASETYPE_UPDATE) {
+                MySQL ent = MySQL.getMySQL((byte)(type >> 8), id);
+                if(ent != null) {
+                    ent.update();
+                }
+
+            }else if(t == MySQL.BASETYPE_DELETE) {
+                Delete.create((byte)(type >> 8), id);
+
+            }
+        }
+    }
+
+/*
     public static String[] split(String str) {
         String buffer = "";
         ArrayList<String> list = new ArrayList<>();
@@ -98,8 +139,8 @@ public class ConnectionManager {
 
         return  list.toArray(new String[list.size()]);
     }
-
-    public static boolean synchronizeAll(FryFile fry) {
+*/
+    private static boolean synchronizeAll(FryFile fry) {
         if(fry.size() < 8) {
             return false;
         }

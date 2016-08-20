@@ -29,7 +29,7 @@ public class ContactGroup extends MySQLEntry {
     }
 
     protected ContactGroup(int id, String name) {
-        super(TYPE_CONTACT_GROUP, id, 0);
+        super(id, 0);
         Logger.Log("ContactGroup", "ContactGroup(int,String)");
         this.name = name;
     }
@@ -72,6 +72,7 @@ public class ContactGroup extends MySQLEntry {
         FryFile fry = executeMySQL(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
         if(fry != null) {
             id = fry.getUnsignedInt();
+            //user_id = User.getId();
             return true;
         }
         return false;
@@ -87,6 +88,16 @@ public class ContactGroup extends MySQLEntry {
     protected boolean mysql_delete() {
         Logger.Log("ContactGroup", "mysql_delete()");
         return (executeMySQL(DIR_CONTACT_GROUP+"delete.php", "&id="+signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_CONTACT_GROUP;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_CONTACT_GROUP;
     }
 
     @Override

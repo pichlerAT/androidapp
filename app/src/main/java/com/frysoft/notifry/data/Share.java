@@ -15,27 +15,29 @@ public class Share extends Contact {
 
     protected byte permission;
 
-    protected int share_id;
+    protected MySQL sharedEntry;
 
-    protected Share(char type, int id, int user_id, int share_id, byte permission, String email, String name) {
-        super(type, id, user_id, email, name);
+    protected Share(int id, int user_id, byte permission, String email, String name, MySQL sharedEntry) {
+        super(id, user_id, email, name);
         Logger.Log("Share", "Share(char,int,int,byte,int,String,String)");
-        this.share_id = share_id;
+        this.sharedEntry = sharedEntry;
         this.permission = permission;
     }
 
-    protected Share(char type, int share_id, byte permission, Contact contact) {
-        this(type, 0, contact.user_id, share_id, permission, contact.email, contact.name);
+    protected Share(byte permission, Contact contact, MySQL sharedEntry) {
+        this(0, contact.user_id, permission, contact.email, contact.name, sharedEntry);
         Logger.Log("Share", "Share(char,byte,int,Contact)");
     }
 
     @Override
     public boolean mysql_create() {
         Logger.Log("Share", "mysql_create()");
-        FryFile fry = executeMySQL(getFileUrl()+"create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(share_id) + "&permission=" + signed(permission));
+        FryFile fry = executeMySQL(getPath()+"share/create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(sharedEntry.id) + "&permission=" + signed(permission));
         if(fry != null) {
             id = fry.getUnsignedInt();
-            return store();
+            //user_id = User.getId();
+            store();
+            return true;
         }
         return false;
     }
@@ -43,58 +45,41 @@ public class Share extends Contact {
     @Override
     public boolean mysql_update() {
         Logger.Log("Share", "mysql_update()");
-        return (executeMySQL(getFileUrl()+"update.php", "&id="+signed(id)+"&permission="+signed(permission)) != null);
+        return (executeMySQL(getPath()+"share/update.php", "&id="+signed(id)+"&permission="+signed(permission)) != null);
     }
 
     @Override
     public boolean mysql_delete() {
         Logger.Log("Share", "mysql_delete()");
-        return (executeMySQL(getFileUrl()+"delete.php", "&id="+signed(id)) != null);
+        return (executeMySQL(getPath()+"share/delete.php", "&id="+signed(id)) != null);
     }
 
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Share", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeUnsignedInt(share_id);
+        fry.writeUnsignedInt(sharedEntry.id);
         fry.writeUnsignedByte(permission);
     }
 
-    protected boolean store() {
-        switch(getType()) {
+    protected void store() {
+        switch(sharedEntry.getType()) {
             case TYPE_CALENDAR:
                 Data.Timetable.Shares.addStorage(permission, id, user_id);
-                return true;
+                return;
 
-            case TYPE_CALENDAR_CATEGORY:
-                Category cat = Data.Categories.getById(share_id);
-                if(cat == null) {
-                    delete();
-                    return false;
-                }
-                cat.shares.addStorage(permission, id, user_id);
-                return true;
+            case TYPE_CATEGORY:
+                ((Category)sharedEntry).shares.addStorage(permission, id, user_id);
+                return;
 
             case TYPE_CALENDAR_ENTRY:
-                TimetableEntry ent = Data.Timetable.Entries.getById(share_id);
-                if(ent == null) {
-                    delete();
-                    return false;
-                }
-                ent.shares.addStorage(permission, id, user_id);
-                return true;
+                ((TimetableEntry)sharedEntry).shares.addStorage(permission, id, user_id);
+                return;
 
             case TYPE_TASKLIST:
-                Tasklist tl = Data.Tasklists.getById(share_id);
-                if(tl == null) {
-                    delete();
-                    return false;
-                }
-                tl.shares.addStorage(permission, id, user_id);
-                return true;
+                ((Tasklist)sharedEntry).shares.addStorage(permission, id, user_id);
 
         }
-        return false;
     }
 
     public void setPermission(byte permission) {
@@ -129,10 +114,10 @@ public class Share extends Contact {
         Logger.Log("Share", "equals(Contact)");
         return ( contact.user_id == user_id );
     }
-
+/*
     protected String getFileUrl() {
         Logger.Log("Share", "getFileUrl()");
-        switch(getType()) {
+        switch(sharedEntry.getType()) {
 
             case TYPE_TASKLIST:
                 return DIR_TASKLIST_SHARE;
@@ -140,7 +125,7 @@ public class Share extends Contact {
             case TYPE_CALENDAR:
                 return DIR_CALENDAR_SHARE;
 
-            case TYPE_CALENDAR_CATEGORY:
+            case TYPE_CATEGORY:
                 return DIR_CATEGORY_SHARE;
 
             case TYPE_CALENDAR_ENTRY:
@@ -149,5 +134,5 @@ public class Share extends Contact {
         }
         return null;
     }
-
+*/
 }

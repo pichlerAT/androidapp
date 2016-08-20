@@ -10,8 +10,8 @@ public abstract class MySQLEntry extends MySQL {
         Logger.Log("MySQLEntry", "MySQLEntry(FryFile)");
     }
 
-    protected MySQLEntry(char type, int id, int user_id) {
-        super(type, id, user_id);
+    protected MySQLEntry(int id, int user_id) {
+        super(id, user_id);
         Logger.Log("MySQLEntry", "MySQLEntry(char,int,int)");
     }
 /*

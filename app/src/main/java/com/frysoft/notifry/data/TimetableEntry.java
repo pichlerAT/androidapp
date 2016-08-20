@@ -33,8 +33,6 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected short raw_time_end;
 
-    //protected int duration;
-
     protected RRule rRule;
 
     protected int color;
@@ -52,7 +50,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected int days;
 
-    public ShareList shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
+    public ShareList shares = new ShareList(this);
 
     protected void setValues() {
         Date dateStart = new Date(raw_date_start);
@@ -113,7 +111,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected TimetableEntry(int id, int user_id, Category category, String title, String description, short date_start,
                              short time_start, short date_end, short time_end, RRule rRule, int color, String google_id) {
-        super(TYPE_CALENDAR_ENTRY, id, user_id);
+        super(id, user_id);
 
         this.category = category;
         this.title = title;
@@ -162,10 +160,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
                 + "&time_end=" + signed(raw_time_end) + "&rrule="+rRule.getString() + "&color=" + color + "&google_id=" + google_id);
         if(fry != null) {
             id = fry.getUnsignedInt();
-
-            if(isOnline()) {
-                shares = new ShareList(TYPE_CALENDAR_ENTRY, id);
-            }
+            shares = new ShareList(this);
             return true;
         }
         return false;
@@ -184,6 +179,16 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     protected boolean mysql_delete() {
         Logger.Log("TimetableEntry", "mysql_delete()");
         return (executeMySQL(DIR_CALENDAR_ENTRY+  "delete.php", "&id=" + signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_CALENDAR_ENTRY;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_CALENDAR_ENTRY;
     }
 
     @Override

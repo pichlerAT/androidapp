@@ -20,7 +20,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     protected ArrayList<TasklistEntry> entries = new ArrayList<>();
 
-    public ShareList shares = new ShareList(TYPE_TASKLIST, id);
+    public ShareList shares = new ShareList(this);
 
     protected Tasklist(FryFile fry) {
         super(fry);
@@ -31,7 +31,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         state = fry.getUnsignedByte();
         color = fry.getInt();
 
-        int NoEntries = fry.getChar();
+        int NoEntries = fry.getArrayLength();
         for(int i=0; i<NoEntries; ++i) {
             TasklistEntry ent = new TasklistEntry(fry);
             ent.tasklist = this;
@@ -42,7 +42,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     protected Tasklist(int id, int user_id, Category category, String name, byte state, int color) {
-        super(TYPE_TASKLIST, id, user_id);
+        super(id, user_id);
         Logger.Log("Tasklist", "Tasklist(int,int,byte,String)");
         this.state = state;
         this.name = name;
@@ -51,7 +51,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         this.category = category;
 
         if(id != 0) {
-            shares = new ShareList(TYPE_TASKLIST, id);
+            shares = new ShareList(this);
         }
     }
 
@@ -90,10 +90,11 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_create() {
         Logger.Log("Tasklist", "mysql_create()");
-        FryFile fry = executeMySQL(DIR_TASKLIST + "create.php", "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color));
+        FryFile fry = executeMySQL(DIR_TASKLIST + "create.php", "&category_id=" + getCategoryId() + "&name=" + name + "&state=" + signed(state) + "&color=" + signed(color));
         if(fry != null) {
             id = fry.getUnsignedInt();
-            shares = new ShareList(TYPE_TASKLIST, id);
+            //user_id = User.getId();
+            shares = new ShareList(this);
 
             for(TasklistEntry ent : entries) {
                 ent.create();
@@ -105,13 +106,23 @@ public class Tasklist extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("Tasklist", "mysql_update()");
-        return (executeMySQL(DIR_TASKLIST + "update.php", "&share_id=" + signed(id) + "&name=" + name + "&state=" + signed(state) + "$color=" + signed(color)) != null);
+        return (executeMySQL(DIR_TASKLIST + "update.php", "&id=" + signed(id) + "&category_id=" + getCategoryId() + "&name=" + name + "&state=" + signed(state) + "&color=" + signed(color)) != null);
     }
 
     @Override
     protected boolean mysql_delete() {
         Logger.Log("Tasklist", "mysql_delete()");
-        return (executeMySQL(DIR_TASKLIST + "delete.php", "&share_id=" + signed(id)) != null);
+        return (executeMySQL(DIR_TASKLIST + "delete.php", "&id=" + signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_TASKLIST;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_TASKLIST;
     }
 
     @Override
@@ -148,6 +159,15 @@ public class Tasklist extends MySQLEntry implements Fryable {
         fry.writeInt(color);
         fry.writeObjects(entries);
         shares.writeTo(fry);
+    }
+
+    protected TasklistEntry getEntryById(int id) {
+        for(TasklistEntry ent : entries) {
+            if(ent.id == id) {
+                return ent;
+            }
+        }
+        return null;
     }
 
     public int getNoEntries() {
@@ -207,21 +227,21 @@ public class Tasklist extends MySQLEntry implements Fryable {
         }
     }
 
-    public void setState(boolean state) {
-        Logger.Log("Tasklist", "change(boolean)");
-        set(name, state, color);
-    }
-
-    public void set(String name,boolean state, int color) {
-        Logger.Log("Tasklist", "change(String,boolean)");
-        set(name, state ? (byte)1 : (byte)0, color);
-    }
-
     public void set(String name, byte state, int color) {
         this.name = name;
         this.state = state;
         this.color = color;
         update();
+    }
+
+    public void set(String name,boolean done, int color) {
+        Logger.Log("Tasklist", "change(String,boolean)");
+        set(name, done ? (byte)1 : (byte)0, color);
+    }
+
+    public void setState(boolean done) {
+        Logger.Log("Tasklist", "change(boolean)");
+        set(name, done, color);
     }
 
     public void setName(String name) {

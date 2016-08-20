@@ -10,7 +10,7 @@ public class Category extends MySQLEntry implements Fryable {
 
     protected int color;
 
-    public ShareList shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
+    public ShareList shares = new ShareList(this);
 
     protected Category(FryFile fry) {
         super(fry);
@@ -21,13 +21,13 @@ public class Category extends MySQLEntry implements Fryable {
     }
 
     protected Category(int id, int user_id, String name, int color) {
-        super(TYPE_CALENDAR_CATEGORY, id, user_id);
+        super(id, user_id);
         Logger.Log("TimetableCategory", "TimetableCategory(int,int,String)");
         this.name = name;
         this.color = color;
 
         if(id != 0) {
-            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
+            shares = new ShareList(this);
         }
     }
 
@@ -53,7 +53,8 @@ public class Category extends MySQLEntry implements Fryable {
         FryFile fry = executeMySQL(DIR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
         if(fry != null) {
             id = fry.getUnsignedInt();
-            shares = new ShareList(TYPE_CALENDAR_CATEGORY, id);
+            //user_id = User.getId();
+            shares = new ShareList(this);
 
             return true;
         }
@@ -70,6 +71,16 @@ public class Category extends MySQLEntry implements Fryable {
     protected boolean mysql_delete() {
         Logger.Log("TimetableCategory", "mysql_delete()");
         return (executeMySQL(DIR_CATEGORY + "delete.php", "&share_id=" + signed(id)) != null);
+    }
+
+    @Override
+    protected byte getType() {
+        return TYPE_CATEGORY;
+    }
+
+    @Override
+    protected String getPath() {
+        return DIR_CATEGORY;
     }
 
     @Override
