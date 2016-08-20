@@ -3,9 +3,11 @@ package com.frysoft.notifry.adapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.frysoft.notifry.R;
@@ -76,7 +78,7 @@ public class TaskCreateAdapter extends PagerAdapter {
     }
 
     public CharSequence setPageTitle(int position){
-        RelativeLayout currentView = (RelativeLayout) getView(position);
+        LinearLayout currentView = (LinearLayout) getView(position);
         AppCompatEditText header = (AppCompatEditText) currentView.findViewById(R.id.edittext_task_name);
         String headerText = header.getText().toString();
         if (headerText.matches(""))

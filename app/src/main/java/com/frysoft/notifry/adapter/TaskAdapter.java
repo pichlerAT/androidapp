@@ -92,6 +92,7 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
         header.setText(headerText);
         LinearLayout entries = (LinearLayout) res.findViewById(R.id.linearlayout_listtemplate_id);
         entries.removeAllViews(); //Change later, because this isn't the best solution
+        color_header.setBackgroundColor(item.getColor());
 
         if (item.length() > 0) {//item.length is the number of entries
             for (int i = 0; i < item.length(); i++) {
@@ -226,7 +227,8 @@ public class TaskAdapter extends ArrayAdapter<Tasklist>{
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         ImageView color_item = (ImageView) view.findViewById(R.id.color_item);
-                        color_header.setBackgroundColor(((ColorDrawable)color_item.getBackground()).getColor());
+                        color_header.setBackgroundColor(App.getColorFromDrawable(color_item.getBackground()));
+                        item.setColor(App.getColorFromDrawable(color_item.getBackground()));
                         dialog.dismiss();
                     }
                 });

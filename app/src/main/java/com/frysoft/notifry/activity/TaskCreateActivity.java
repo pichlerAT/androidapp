@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -34,7 +35,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
     private TaskCreateAdapter adapter = null;
 
     protected Context ctx = this;
-    protected ArrayList<RelativeLayout> layouts;
+    protected ArrayList<LinearLayout> layouts;
     protected int lastPos = 0;
     protected boolean swipeSave = false;
 
@@ -86,7 +87,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
 
         //Initialize the first view for viewpager, which is an empty task
         LayoutInflater inflater = getLayoutInflater();
-        RelativeLayout taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
+        LinearLayout taskView = (LinearLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
         TableLayout taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
         AppCompatEditText taskName = (AppCompatEditText) taskView.findViewById(R.id.edittext_task_name);
         layouts.add(taskView);
@@ -109,7 +110,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
 
         //Add all active tasks from the database of the current user to the viewpager
         for (Tasklist tdl : Data.Tasklists.getList()) {
-            taskView = (RelativeLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
+            taskView = (LinearLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (AppCompatEditText) taskView.findViewById(R.id.edittext_task_name);
             taskName.setText(tdl.getName());

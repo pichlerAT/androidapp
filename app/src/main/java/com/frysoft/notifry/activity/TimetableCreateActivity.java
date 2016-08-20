@@ -71,8 +71,6 @@ public class TimetableCreateActivity extends mAppCompatActivity {
     protected Date date_start;
     protected Date date_end;
     protected int color;
-    protected Date repeat_until;
-    protected short interval;
 
     protected ArrayList<Contact> mSharedContactsView = new ArrayList<>();
     protected ArrayList<Contact> mSharedContactsEdit = new ArrayList<>();
@@ -155,9 +153,16 @@ public class TimetableCreateActivity extends mAppCompatActivity {
 
         Bundle data = getIntent().getExtras();
         int entry_id = 0;
+        int passed_day = 0;
+        int passed_month = 0;
+        int passed_year = 0;
 
-        if ( data != null )
+        if ( data != null ) {
             entry_id = data.getInt("entry");
+            passed_day = data.getInt("day");
+            passed_month = data.getInt("month");
+            passed_year = data.getInt("year");
+        }
 
         if (entry_id != 0) {
             passed_entry = Data.Timetable.Entries.getById(entry_id);
@@ -179,7 +184,12 @@ public class TimetableCreateActivity extends mAppCompatActivity {
 
 
         else{
-            Date date = Date.getToday();
+            Date date = null;
+            if (passed_day != 0)
+                date = new Date(passed_day, passed_month, passed_year);
+
+            else
+                date = Date.getToday();
             Time time = Time.getCurrentTime(2); //2 means it's rounded half an hour
 
             //Set start

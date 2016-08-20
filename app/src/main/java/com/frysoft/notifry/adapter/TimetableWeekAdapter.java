@@ -57,6 +57,7 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
         if (events.size() > 0) {
             holder.mEvents.removeView(holder.mEvents.findViewById(R.id.textview_timetable_week_item_no_events));
         }
+        holder.mEvents.removeAllViews();
         for (final Event event : events){
             View view = inflater.inflate(R.layout.timetable_week_item_template, null);
             TextView time_view = (TextView) view.findViewById(R.id.timetable_week_item_template_time);
@@ -90,6 +91,9 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(App.getContext(), TimetableCreateActivity.class);
+                intent.putExtra("day", date.day);
+                intent.putExtra("month", date.month);
+                intent.putExtra("year", date.year);
                 App.getContext().startActivity(intent);
             }
         });

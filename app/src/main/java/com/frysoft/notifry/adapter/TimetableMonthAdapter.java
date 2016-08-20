@@ -40,8 +40,10 @@ public class TimetableMonthAdapter extends BaseAdapter {
     private int mTitleHeight, mDayHeight;
     private final String[] mDays = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
     private Date mFirstOfMonth;
+    private ArrayList<Event> mEvents;
 
     public TimetableMonthAdapter(int month, int year, DisplayMetrics metrics) {
+        mEvents = Data.Timetable.getEvents(new Date(1, month, year), new Date(Date.getDaysOfMonth(month, year), month, year));
         mFirstOfMonth = new Date(1, month, year);
         mMonth = month;
         mYear = year;
@@ -50,6 +52,7 @@ public class TimetableMonthAdapter extends BaseAdapter {
     }
 
     public void setDate(int month, int year){
+        mEvents = Data.Timetable.getEvents(new Date(1, month, year), new Date(Date.getDaysOfMonth(month, year), month, year));
         mFirstOfMonth = new Date(1, month, year);
         this.mMonth = month;
         this.mYear = year;
@@ -156,6 +159,11 @@ public class TimetableMonthAdapter extends BaseAdapter {
         // If item is a date
         if (date != null) {
             final Date current_date = new Date(date[0], date[1], date[2]);
+            final ArrayList<Event> events = new ArrayList<>();
+            for (Event mEvent : mEvents){
+                if (mEvent.getDate().getString().equals(current_date.getString()))
+                    events.add(mEvent);
+            }
             if (convertView == null)
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_timetable_grid_date, parent, false);
             convertView.setBackgroundColor(colorBackground);
@@ -169,7 +177,7 @@ public class TimetableMonthAdapter extends BaseAdapter {
                     convertView.setBackgroundColor(App.getColorFromID(R.color.colorHighlight));
                 }
             }
-            final ArrayList<Event> events = Data.Timetable.getEvents(current_date, current_date);
+
             LinearLayout events_layout = (LinearLayout) convertView.findViewById(R.id.linearlayout_timetable_grid_events);
             if (events.size() > 0 && events_layout != null) {
                 events_layout.removeAllViews();
