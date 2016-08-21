@@ -64,7 +64,7 @@ public class Category extends MySQLEntry implements Fryable {
     @Override
     protected boolean mysql_update() {
         Logger.Log("TimetableCategory", "mysql_update()");
-        return (executeMySQL(DIR_CATEGORY + "update.php", "&share_id=" + signed(id) + "&name=" + name + "&color=" + signed(color)) != null);
+        return (executeMySQL(DIR_CATEGORY + "update.php", "&id=" + signed(id) + "&name=" + name + "&color=" + signed(color)) != null);
     }
 
     @Override

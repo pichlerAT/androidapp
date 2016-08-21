@@ -118,13 +118,13 @@ public class Contact extends MySQL implements Fryable, Searchable {
         @Override
         protected boolean mysql_create() { // contact request send
             Logger.Log("Contact", "mysql_create()");
-            return (executeMySQL(DIR_CONTACT_REQUEST+"create.php", "&email="+email) != null);
+            return (executeMySQL(DIR_CONTACT_REQUEST+"create.php", "&contact_email="+email) != null);
         }
 
         @Override
         protected boolean mysql_update() { // contact request accept
             Logger.Log("Contact", "mysql_update()");
-            FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&share_id="+id);
+            FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&id="+id);
             if(fry == null) {
                 return false;
             }

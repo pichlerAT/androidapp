@@ -105,7 +105,7 @@ public class ShareList implements Fryable {
         }
 
         for(ContactGroup grp : ContactList.getGroups()) {
-            ContactGroup grpShare = new ContactGroup(grp.id, grp.name);
+            ContactGroup grpShare = new ContactGroup(grp.id, grp.user_id, grp.name);
             for(Contact cont : grp.contacts) {
                 grpShare.contacts.add(allShares.getContactByUserId(cont.user_id));
             }

@@ -86,7 +86,7 @@ public class ContactList {
 
         int NoContactGroups = fry.getArrayLength();
         for(int i=0; i<NoContactGroups; ++i) {
-            ContactGroup on = new ContactGroup(fry.getUnsignedInt(), fry.getString());
+            ContactGroup on = new ContactGroup(fry.getUnsignedInt(), User.getId(), fry.getString());
 
             int NoContacts = fry.getArrayLength();
             for(int k=0; k<NoContacts; ++k) {

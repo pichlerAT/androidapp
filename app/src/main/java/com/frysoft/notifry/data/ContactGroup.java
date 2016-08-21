@@ -28,14 +28,14 @@ public class ContactGroup extends MySQLEntry {
         }
     }
 
-    protected ContactGroup(int id, String name) {
-        super(id, 0);
+    protected ContactGroup(int id, int user_id, String name) {
+        super(id, user_id);
         Logger.Log("ContactGroup", "ContactGroup(int,String)");
         this.name = name;
     }
 
     protected ContactGroup(String name) {
-        this(0, name);
+        this(0, 0, name);
         Logger.Log("ContactGroup", "ContactGroup(String)");
     }
 
@@ -60,8 +60,7 @@ public class ContactGroup extends MySQLEntry {
     @Override
     public ContactGroup backup() {
         Logger.Log("ContactGroup", "backup()");
-        ContactGroup grp = new ContactGroup(id, name);
-        grp.user_id = user_id;
+        ContactGroup grp = new ContactGroup(id, user_id, name);
         grp.contacts = contacts.clone();
         return grp;
     }
@@ -126,6 +125,11 @@ public class ContactGroup extends MySQLEntry {
         fry.writeIntArray(uids);
     }
 
+    @Override
+    public void remove() {
+        ContactList.groups.remove(this);
+    }
+
     public String getContactsString() {
         Logger.Log("ContactGroup", "getContactsString()");
         String s = "" + contacts.size();
@@ -188,12 +192,6 @@ public class ContactGroup extends MySQLEntry {
             this.contacts.remove(c);
         }
         update();
-    }
-
-    @Override
-    public void remove() {
-        Logger.Log("ContactGroup", "delete()");
-        ContactList.groups.remove(this);
     }
 
     public String getName() {

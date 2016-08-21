@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
-                    android:text="stefan.fragner@rk.at"
+                    android:text=""
                     android:background="@android:color/transparent"
                     style="@style/Base.TextAppearance.AppCompat.Body2"/>
 
@@ -73,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/password"
-                    android:text="1234"
+                    android:text=""
                     android:inputType="textPassword"
                     android:background="@android:color/transparent"
                     style="@style/Base.TextAppearance.AppCompat.Body2"/>

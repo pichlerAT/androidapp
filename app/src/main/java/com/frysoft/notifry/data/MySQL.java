@@ -100,32 +100,32 @@ public abstract class MySQL implements Fryable {
 
             con.connect();
 
-            FryFile fry = new FryFile.Split("" + (char)0);
-            fry.loadFromStream(con.getInputStream());
+            try {
+                FryFile fry = new FryFile.Split("" + (char) 0);
+                fry.loadFromStream(con.getInputStream());
 
-            int code = con.getResponseCode();
-            if(code != HttpURLConnection.HTTP_OK) {
-                System.out.println("------------------------");
-                System.out.println(con.getResponseCode());
-                System.out.println("addr = " + addr);
-                System.out.println("------------------------");
-                InputStream is = con.getErrorStream();
-                if (is != null) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        System.out.println(line);
-                        System.out.println("------------------------");
+                os.close();
+                con.disconnect();
+
+                return fry;
+            }catch (FileNotFoundException ex) {
+                System.out.println("# HttpURLConnection ERROR");
+
+                int code = con.getResponseCode();
+                if (code != HttpURLConnection.HTTP_OK) {
+                    System.out.println(con.getResponseCode());
+                    System.out.println(" # addr = " + addr);
+                    InputStream es = con.getErrorStream();
+                    if (es != null) {
+                        BufferedReader br = new BufferedReader(new InputStreamReader(es));
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            System.out.println(" # " + line);
+                        }
                     }
                 }
                 return null;
             }
-
-            os.close();
-            con.disconnect();
-
-            return fry;
-
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
@@ -148,10 +148,12 @@ public abstract class MySQL implements Fryable {
 
         if(resp.length()>3 && resp.substring(0,4).equals("err_")) {
             System.out.println("# MYSQLI - ERROR: " + fry.getString());
-            FryFile f = new FryFile.Split("\n");
-            f.loadFromString(fry.getString());
-            while(f.hasNext()) {
-                System.out.println("# " + f.getString());
+            if(fry.hasNext()) {
+                FryFile f = new FryFile.Split("\n");
+                f.loadFromString(fry.getString());
+                while (f.hasNext()) {
+                    System.out.println("# " + f.getString());
+                }
             }
             return null;
         }
@@ -278,6 +280,9 @@ public abstract class MySQL implements Fryable {
         remove();
         if(isOnline()) {
             Delete.create(getType(), id);
+
+        }else {
+            ConnectionManager.entries.remove(this);
         }
     }
 
