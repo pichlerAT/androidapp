@@ -10,7 +10,7 @@
         android:id="@+id/textview_contact_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorTextSecondary"
+        android:textColor="@color/colorTextDark"
         style="@style/TextAppearance.AppCompat.Widget.DropDownItem"/>
 
     <android.support.v7.widget.AppCompatButton

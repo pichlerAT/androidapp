@@ -5,11 +5,12 @@ package com.frysoft.notifry.utils;
  */
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.widget.Spinner;
 
 /** Spinner extension that calls onItemSelected even when the selection is the same as its previous value */
-public class SpinnerSelectable extends Spinner {
+public class SpinnerSelectable extends AppCompatSpinner {
 
     public SpinnerSelectable(Context context) {
         super(context);

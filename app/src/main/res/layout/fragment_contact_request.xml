@@ -5,7 +5,7 @@
     android:id="@+id/relativelayout_contact_id"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackgroundDark">
+    android:background="@color/colorBackground">
 
     <TextView
         android:id="@+id/textview_contact_message"

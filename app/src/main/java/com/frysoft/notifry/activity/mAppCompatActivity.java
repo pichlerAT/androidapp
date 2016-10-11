@@ -28,6 +28,7 @@ public abstract class mAppCompatActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        App.setContext(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);

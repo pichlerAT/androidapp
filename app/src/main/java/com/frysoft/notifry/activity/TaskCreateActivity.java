@@ -1,8 +1,14 @@
 package com.frysoft.notifry.activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
@@ -11,8 +17,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
@@ -21,10 +32,12 @@ import android.widget.TableRow;
 import java.util.ArrayList;
 
 import com.frysoft.notifry.R;
+import com.frysoft.notifry.adapter.ColorAdapter;
 import com.frysoft.notifry.adapter.TaskCreateAdapter;
 import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.Tasklist;
 import com.frysoft.notifry.data.TasklistEntry;
+import com.frysoft.notifry.utils.App;
 
 /**
  * Created by Edwin Pichler on 04.05.2016.
@@ -38,15 +51,25 @@ public class TaskCreateActivity extends mAppCompatActivity {
     protected ArrayList<LinearLayout> layouts;
     protected int lastPos = 0;
     protected boolean swipeSave = false;
+    protected int mCurrentColor = 0;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_create);
+        App.setContext(this);
 
         //Initialize variables
         layouts = new ArrayList<>();
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_task_create);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveList();
+                finish();
+            }
+        });
 
         //Initialize toolbar and set the back button within it
         Toolbar toolbar = (Toolbar) findViewById(R.id.task_toolbar);
@@ -110,11 +133,15 @@ public class TaskCreateActivity extends mAppCompatActivity {
 
         //Add all active tasks from the database of the current user to the viewpager
         for (Tasklist tdl : Data.Tasklists.getList()) {
+
             taskView = (LinearLayout) inflater.inflate(R.layout.activity_task_pagertemplate, null);
             taskEntries = (TableLayout) taskView.findViewById(R.id.tablelayout_task_entries);
             taskName = (AppCompatEditText) taskView.findViewById(R.id.edittext_task_name);
             taskName.setText(tdl.getName());
             layouts.add(taskView);
+
+            ImageButton buttonColor = (ImageButton) taskView.findViewById(R.id.button_task_pagertemplate_color);
+            buttonColor.setColorFilter(tdl.getColor(), PorterDuff.Mode.SRC_ATOP);
 
             if (tdl.getNoEntries() > 0) {
                 for (TasklistEntry ent : tdl.getEntries()) {
@@ -151,20 +178,60 @@ public class TaskCreateActivity extends mAppCompatActivity {
             }
         }
 
+
+    }
+
+    public void onClickColor(final View v){
+        View colorDialog = View.inflate(App.getContext(), R.layout.color_dialog, null);
+        GridView color_gridview = (GridView) colorDialog.findViewById(R.id.gridview_color_dialog);
+        ColorAdapter color_adapter = new ColorAdapter(App.getContext(), R.layout.color_dialog_item, App.getContext().getResources().getStringArray(R.array.colors), "");
+
+        color_gridview.setAdapter(color_adapter);
+        AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext());
+        builder.setView(color_gridview)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+        final Dialog dialog = builder.create();
+        dialog.show();
+
+        color_gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ImageView color_item = (ImageView) view.findViewById(R.id.color_item);
+                int color = App.getColorFromDrawable(color_item.getBackground());
+                //App.getDrawableFromID(R.drawable.ic_color).setColorFilter(App.getColorFromDrawable(color_item.getBackground()), PorterDuff.Mode.SRC_ATOP);
+                ((ImageButton) v).setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+                mCurrentColor = color;
+                dialog.dismiss();
+            }
+        });
     }
 
     protected void taskList(Tasklist task, int viewPage) {
-        RelativeLayout currentView = (RelativeLayout) adapter.getView(viewPage);
+        LinearLayout currentView = (LinearLayout) adapter.getView(viewPage);
         EditText header = (EditText) currentView.findViewById(R.id.edittext_task_name);
         String headerString = header.getText().toString();
+
+        if (mCurrentColor == 0 && task != null){
+            mCurrentColor = task.getColor();
+        }
+        else if (mCurrentColor == 0){
+            mCurrentColor = App.getColorFromID(R.color.colorDefault);
+        }
 
         if (!headerString.matches("")) {
             TableLayout taskEntries = (TableLayout) currentView.findViewById(R.id.tablelayout_task_entries);
             //When no task is found, then it creates a new one, otherwise the name of the task will be changed
             if (task == null) {
-                task = Data.create.Tasklist(null, header.getText().toString(), 0); // TODO: Category
+                task = Data.create.Tasklist(null, headerString, mCurrentColor); // TODO: Category
             } else {
-                task.rename(headerString);
+                task.setName(headerString);
+                task.setColor(mCurrentColor);
             }
 
             //In this loop task entries are created, or changed if they already exist
@@ -192,6 +259,7 @@ public class TaskCreateActivity extends mAppCompatActivity {
 
             }
         }
+        mCurrentColor = 0;
     }
 
     //This method saves the current task to the database
@@ -310,9 +378,6 @@ public class TaskCreateActivity extends mAppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (MainActivity.fab.isShown()) {
-            MainActivity.fab.hide();
-        }
     }
 }
 

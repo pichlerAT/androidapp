@@ -54,9 +54,6 @@ public class TimetableWeekAdapter extends RecyclerView.Adapter<TimetableWeekAdap
 
         LayoutInflater inflater = (LayoutInflater) App.getContext().getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
-        if (events.size() > 0) {
-            holder.mEvents.removeView(holder.mEvents.findViewById(R.id.textview_timetable_week_item_no_events));
-        }
         holder.mEvents.removeAllViews();
         for (final Event event : events){
             View view = inflater.inflate(R.layout.timetable_week_item_template, null);

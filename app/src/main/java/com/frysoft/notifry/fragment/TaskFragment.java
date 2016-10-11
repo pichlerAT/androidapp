@@ -48,13 +48,23 @@ public class TaskFragment extends ListFragment {
             }
         });
 
+        MainActivity.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(App.getContext(), TaskCreateActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return rootView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        MainActivity.fab.hide();
+        if (!MainActivity.fab.isShown())
+            MainActivity.fab.show();
+        MainActivity.fab.setImageDrawable(App.getDrawableFromID(R.drawable.ic_add_dark));
         adapter.notifyDataSetChanged();
     }
 

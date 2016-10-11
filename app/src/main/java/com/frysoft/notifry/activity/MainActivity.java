@@ -32,13 +32,11 @@ public class MainActivity extends mAppCompatActivity
     public static FloatingActionButton fab;
     public static TextView TOOLBAR_TITLE;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        App.setContext(this);
+
         fm = getSupportFragmentManager();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

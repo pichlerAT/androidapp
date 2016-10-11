@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.frysoft.notifry.R;
 import com.frysoft.notifry.data.Data;
+import com.frysoft.notifry.utils.App;
 
 /**
  * Created by Edwin Pichler on 31.07.2016.
@@ -20,6 +21,7 @@ public class TimetableCategoryActivity extends mAppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_create);
+        App.setContext(this);
 
         //Initialize toolbar and set the back button within it
         Toolbar toolbar = (Toolbar) findViewById(R.id.category_create_toolbar);

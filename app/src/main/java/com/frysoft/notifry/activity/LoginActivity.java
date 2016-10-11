@@ -39,6 +39,16 @@ public class LoginActivity extends AppCompatActivity implements MySQLListener{
             }
         });
 
+        AppCompatButton button_local = (AppCompatButton) findViewById(R.id.button_login_local);
+        button_local.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(App.getContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
 
     }
 

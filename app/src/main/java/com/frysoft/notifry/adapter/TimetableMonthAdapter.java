@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -170,11 +169,11 @@ public class TimetableMonthAdapter extends BaseAdapter {
             gridItemText = (TextView) convertView.findViewById(R.id.textview_timetable_grid_date);
             convertView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, mDayHeight));
             if (date[1] != mMonth) {
-                convertView.setBackgroundColor(App.getColorFromID(R.color.colorPreviousMonth));
+                convertView.setBackgroundColor(App.getColorFromID(R.color.colorForeground));
             } else {
                 // If date is today
                 if (current_date.getString().equals(Date.getToday().getString())) {
-                    convertView.setBackgroundColor(App.getColorFromID(R.color.colorHighlight));
+                    convertView.setBackgroundColor(App.getColorFromID(R.color.colorForeground));
                 }
             }
 
@@ -276,10 +275,7 @@ public class TimetableMonthAdapter extends BaseAdapter {
 
                     //Add each entry to the list
                     for (final Event event_in_dialog : events){
-                        final RelativeLayout entry_template = (RelativeLayout) View.inflate(App.getContext(), R.layout.timetable_event_template, null);
-                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                        params.setMargins(0, 10, 0, 10); //Setting margin with the XML template didn't work
-                        entry_template.setLayoutParams(params);
+                        final LinearLayout entry_template = (LinearLayout) View.inflate(App.getContext(), R.layout.timetable_event_template, null);
 
                         TextView entry_title = (TextView) entry_template.findViewById(R.id.textview_timetable_event_title);
                         entry_title.setText(event_in_dialog.getTitle());

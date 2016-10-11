@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linearlayout_repeat_dialog_header"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorBackground"
+    android:background="@color/colorForeground"
     android:padding="@dimen/content_padding"
     android:layout_marginBottom="@dimen/elements_margin">
 
@@ -15,21 +15,77 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/elements_margin"/>
 
-
-    <android.support.design.widget.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/elements_margin">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/content_padding">
 
-        <android.support.v7.widget.AppCompatEditText
-            android:id="@+id/edittext_repeat_dialog_interval"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:hint="@string/interval"
-            android:inputType="numberDecimal"
-            style="@style/TextAppearance.AppCompat.Body2"/>
+            android:paddingBottom="@dimen/content_padding">
 
-    </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/edittext_repeat_dialog_interval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:inputType="numberDecimal"
+                    android:hint="@string/interval"
+                    style="@style/TextAppearance.AppCompat.Body2"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/content_padding">
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/edittext_repeat_dialog_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:inputType="numberDecimal"
+                    android:hint="@string/count"
+                    style="@style/TextAppearance.AppCompat.Body2"/>
+
+            </android.support.design.widget.TextInputLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date_until"
+                style="@style/TextAppearance.AppCompat.Body2"/>
+
+            <TextView
+                android:id="@+id/textview_repeat_dialog_date"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Body2"/>
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

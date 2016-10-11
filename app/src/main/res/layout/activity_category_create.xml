@@ -3,7 +3,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackgroundDark">
+    android:background="@color/colorBackground">
 
     <include android:id="@+id/category_create_toolbar" layout="@layout/toolbar"/>
 
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/cardview_margin"
-            android:background="@color/colorBackground"
+            android:background="@color/colorForeground"
             android:elevation="3dp"
             card_view:cardCornerRadius="0dp">
 

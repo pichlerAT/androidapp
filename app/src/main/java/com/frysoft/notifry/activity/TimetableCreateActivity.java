@@ -2,6 +2,7 @@ package com.frysoft.notifry.activity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -11,9 +12,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -42,10 +43,12 @@ import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.DateSpan;
 import com.frysoft.notifry.utils.InstantAutoComplete;
+import com.frysoft.notifry.utils.SpinnerSelectable;
 import com.frysoft.notifry.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -60,10 +63,17 @@ public class TimetableCreateActivity extends mAppCompatActivity {
     protected String time_type;
     protected SwitchCompat whole_day;
     protected InstantAutoComplete mCategory;
-    protected AppCompatRadioButton mRepeatOnce;
-    protected AppCompatRadioButton mRepeatSpecific;
+    protected SpinnerSelectable mRepeat;
+    protected Date mRepeatUntil;
+    protected TextView mRepeatUntilText;
 
-    protected byte repeat;
+    protected boolean mRepeatMonday = false;
+    protected boolean mRepeatTuesday = false;
+    protected boolean mRepeatWednesday = false;
+    protected boolean mRepeatThursday = false;
+    protected boolean mRepeatFriday = false;
+    protected boolean mRepeatSaturday = false;
+    protected boolean mRepeatSunday = false;
     protected AppCompatEditText title;
     protected EditText description;
     protected Time time_start;
@@ -71,6 +81,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
     protected Date date_start;
     protected Date date_end;
     protected int color;
+    protected Date mToday;
 
     protected ArrayList<Contact> mSharedContactsView = new ArrayList<>();
     protected ArrayList<Contact> mSharedContactsEdit = new ArrayList<>();
@@ -88,7 +99,9 @@ public class TimetableCreateActivity extends mAppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable_create);
+        App.setContext(this);
 
+        mToday = Date.getToday();
         test_tags = Arrays.asList("Work", "Work", "Training", "Party");
         //Initialize toolbar and set the back button within it
         Toolbar toolbar = (Toolbar) findViewById(R.id.timetable_create_toolbar);
@@ -139,8 +152,6 @@ public class TimetableCreateActivity extends mAppCompatActivity {
             }
         });
 
-        repeat = 0; //delete this line later
-
         title = (AppCompatEditText) findViewById(R.id.edittext_timetable_create_title);
         description = (EditText) findViewById(R.id.edittext_timetable_create_description);
         whole_day = (SwitchCompat) findViewById(R.id.switch_timetable_create_whole_day);
@@ -148,7 +159,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
         date_to_text = (TextView) findViewById(R.id.textview_timetable_create_date_to);
         time_from_text = (TextView) findViewById(R.id.textview_timetable_create_time_from);
         time_to_text = (TextView) findViewById(R.id.textview_timetable_create_time_to);
-        mRepeatSpecific = (AppCompatRadioButton) findViewById(R.id.radiobutton_timetable_create_repeat_specific);
+        mRepeat = (SpinnerSelectable) findViewById(R.id.spinner_timetable_create_repeat);
         final TextView participants = (TextView) findViewById(R.id.textview_timetable_create_participants);
 
         Bundle data = getIntent().getExtras();
@@ -163,7 +174,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
             passed_month = data.getInt("month");
             passed_year = data.getInt("year");
         }
-
+/*
         if (entry_id != 0) {
             passed_entry = Data.Timetable.Entries.getById(entry_id);
 
@@ -180,9 +191,31 @@ public class TimetableCreateActivity extends mAppCompatActivity {
             title.setText(passed_entry.getTitle());
             description.setText(passed_entry.getDescription());
 
+            RRule rrule = passed_entry.getRRule();
+            is_daily = rrule.isFrequencyDaily();
+            is_weekly = rrule.isFrequencyWeekly();
+            is_monthly = rrule.isFrequencyMonthly();
+            is_yearly = rrule.isFrequencyYearly();
+            count = rrule.getCount();
+            until = rrule.getUntil();
+            interval = rrule.getInterval();
+            is_whole_day = rrule.isWholeDay();
+
+            if (is_daily){
+
+            }
+            else if (is_weekly){
+
+            }
+            else if (is_monthly){
+
+            }
+            else if (is_yearly){
+
+            }
+
         }
-
-
+*/
         else{
             Date date = null;
             if (passed_day != 0)
@@ -239,94 +272,176 @@ public class TimetableCreateActivity extends mAppCompatActivity {
             }
         });
 
+        ArrayAdapter<CharSequence> repeat_adapter = ArrayAdapter.createFromResource(this, R.array.repeat_array, R.layout.spinner_layout);
+        repeat_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRepeat.setAdapter(repeat_adapter);
 
-        mRepeatSpecific.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final View repeat_dialog_header = View.inflate(mContext, R.layout.repeat_dialog_header, null);
-                AppCompatSpinner repeat_spinner = (AppCompatSpinner) repeat_dialog_header.findViewById(R.id.spinner_repeat_dialog_header);
-
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(App.getContext(),
-                        R.array.repeat_array, android.R.layout.simple_spinner_item);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                repeat_spinner.setAdapter(adapter);
-
-                if (mAdditionsTemp.size() > 0){
-                    repeat_spinner.setSelection(2);
-                }
-                repeat_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                        LinearLayout header_layout = (LinearLayout) repeat_dialog_header.findViewById(R.id.linearlayout_repeat_dialog_header);
-                        if (position == 2){ // 2 is last position, which is "choose days"
-                            View repeat_dialog_specific = View.inflate(mContext, R.layout.repeat_dialog_specific, null);
-                            header_layout.addView(repeat_dialog_specific);
-
-                        }
-                        else{
-                            if(header_layout.getChildCount() > 2)
-                                header_layout.removeViewAt(2);
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {
-
-                    }
-                });
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setView(repeat_dialog_header)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                for (String addition : mAdditionsTemp){
-                                    mAdditions |= Short.parseShort(addition);
-                                }
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-
-/*
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.repeat_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        repeat.setAdapter(adapter);
-
-        repeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mRepeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                if (position == 3) { //last Position
-                    boolean[] additions = null;
-                    if (passed_entry != null){
-                        additions = passed_entry.getAdditions();
-                    }
-                    View repeat_dialog_header = View.inflate(activityContext, R.layout.repeat_dialog_header, null);
+                if (position == 5){ //if last position (Specific)
+                    final View repeat_dialog_header = View.inflate(App.getContext(), R.layout.repeat_dialog_header, null);
+                    AppCompatSpinner repeat_spinner = (AppCompatSpinner) repeat_dialog_header.findViewById(R.id.spinner_repeat_dialog_header);
 
-                    int[] weekday_ids = {R.id.repeat_monday, R.id.repeat_tuesday, R.id.repeat_wednesday, R.id.repeat_thursday,
-                            R.id.repeat_friday, R.id.repeat_saturday, R.id.repeat_sunday};
+                    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(App.getContext(),
+                            R.array.repeat_array_specific, R.layout.spinner_layout);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    repeat_spinner.setAdapter(adapter);
 
-                    int weekday_count = 0;
-                    for (int weekday_id : weekday_ids){
-                        if (additions != null)
-                            selectWeekday(repeat_dialog_header, weekday_id, additions[weekday_count]);
-                        else
-                            selectWeekday(repeat_dialog_header, weekday_id, false);
+                    repeat_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                            LinearLayout header_layout = (LinearLayout) repeat_dialog_header.findViewById(R.id.linearlayout_repeat_dialog_header);
+                            if (position == 1 || position == 2){
+                                View repeat_dialog_specific = View.inflate(mContext, R.layout.repeat_dialog_specific, null);
+                                header_layout.addView(repeat_dialog_specific);
+                                TextView repeat_monday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_monday);
+                                repeat_monday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatMonday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatMonday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatMonday = false;
+                                        }
+                                    }
+                                });
 
-                        weekday_count++;
-                    }
+                                TextView repeat_tuesday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_tuesday);
+                                repeat_tuesday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatTuesday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatTuesday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatTuesday = false;
+                                        }
+                                    }
+                                });
 
+                                TextView repeat_wednesday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_wednesday);
+                                repeat_wednesday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatWednesday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatWednesday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatWednesday = false;
+                                        }
+                                    }
+                                });
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activityContext);
+                                TextView repeat_thursday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_thursday);
+                                repeat_thursday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatThursday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatThursday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatThursday = false;
+                                        }
+                                    }
+                                });
+
+                                TextView repeat_friday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_friday);
+                                repeat_friday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatFriday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatFriday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatFriday = false;
+                                        }
+                                    }
+                                });
+
+                                TextView repeat_saturday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_saturday);
+                                repeat_saturday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatSaturday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatSaturday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatSaturday = false;
+                                        }
+                                    }
+                                });
+
+                                TextView repeat_sunday = (TextView) repeat_dialog_specific.findViewById(R.id.repeat_sunday);
+                                repeat_sunday.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!mRepeatSunday) {
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_selected_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextPrimary));
+                                            mRepeatSunday = true;
+                                        }
+                                        else{
+                                            view.setBackground(App.getDrawableFromID(R.drawable.weekday_style));
+                                            ((TextView)view).setTextColor(App.getColorFromID(R.color.colorTextDark));
+                                            mRepeatSunday = false;
+                                        }
+                                    }
+                                });
+                                
+                                
+
+                            }
+                            else{
+                                if(header_layout.getChildCount() > 2)
+                                    header_layout.removeViewAt(2);
+                            }
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
+
+                    mRepeatUntilText = (TextView) repeat_dialog_header.findViewById(R.id.textview_repeat_dialog_date);
+                    mRepeatUntilText.setText(mToday.getString());
+                    mRepeatUntilText.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            DatePickerDialog dialog = new DatePickerDialog(App.getContext(), mDateSetListener, mToday.day, mToday.month-1, mToday.year);// -1 Because date picker returns month from 0-11
+                            dialog.show();
+                            dialog.getDatePicker().setTag("date_until");
+                        }
+
+                    });
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     builder.setView(repeat_dialog_header)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
@@ -334,14 +449,11 @@ public class TimetableCreateActivity extends mAppCompatActivity {
                                     for (String addition : mAdditionsTemp){
                                         mAdditions |= Short.parseShort(addition);
                                     }
-                                    if (mAdditions == 0)
-                                        repeat.setSelection(0);
                                 }
                             })
                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    repeat.setSelection(0);
                                 }
                             });
                     AlertDialog dialog = builder.create();
@@ -354,7 +466,7 @@ public class TimetableCreateActivity extends mAppCompatActivity {
 
             }
         });
-*/
+
         whole_day.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -462,14 +574,19 @@ public class TimetableCreateActivity extends mAppCompatActivity {
 
     private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            String date_text = App.formatDate(dayOfMonth, monthOfYear, year);
+            monthOfYear+=1;
+            String date_text = new Date(dayOfMonth, monthOfYear, year).getString();
             if (view.getTag().equals("date_from")) {
                 date_from_text.setText(date_text);
-                date_start = new Date(dayOfMonth, monthOfYear+1, year);//+1 Because the picker returns month from 0-11
+                date_start = new Date(dayOfMonth, monthOfYear, year);//+1 Because the picker returns month from 0-11
             }
             else if (view.getTag().equals("date_to")) {
                 date_to_text.setText(date_text);
-                date_end = new Date(dayOfMonth, monthOfYear+1, year);//+1 Because the picker returns month from 0-11
+                date_end = new Date(dayOfMonth, monthOfYear, year);//+1 Because the picker returns month from 0-11
+            }
+
+            else if (view.getTag().equals("date_until")){
+                mRepeatUntilText.setText(date_text);
             }
         }
     };
@@ -549,6 +666,26 @@ public class TimetableCreateActivity extends mAppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            // Do something with the date chosen by the user
         }
     }
 }

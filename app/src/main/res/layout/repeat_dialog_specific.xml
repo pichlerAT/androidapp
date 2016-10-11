@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearlayout_repeat_dialog_specific"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical"
@@ -16,7 +17,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_mon_short"/>
 
@@ -26,7 +27,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_tue_short"/>
 
@@ -36,7 +37,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_wed_short"/>
 
@@ -46,7 +47,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_thu_short"/>
     </LinearLayout>
@@ -61,7 +62,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_fri_short"/>
 
@@ -71,7 +72,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_sat_short"/>
 
@@ -81,7 +82,7 @@
             android:layout_width="30dp"
             android:background="@drawable/weekday_style"
             android:gravity="center"
-            android:textColor="@color/colorTextSecondary"
+            android:textColor="@color/colorTextDark"
             android:layout_margin="@dimen/weekday_margin"
             android:text="@string/weekday_sun_short"/>
     </LinearLayout>

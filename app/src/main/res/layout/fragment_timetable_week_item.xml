@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/content_padding"
-                android:background="@color/colorSecondary">
+                android:background="@color/colorForeground">
 
                 <TextView
                     android:id="@+id/textview_timetable_week_item_day"
@@ -36,7 +36,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/textview_timetable_week_item_day"
-                    android:textColor="@color/colorTextPrimaryDark"/>
+                    android:textColor="@color/colorTextSecondary"/>
 
                 <android.support.v7.widget.AppCompatButton
                     android:id="@+id/button_timetable_week_item_add"
@@ -56,16 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/relativelayout_timetable_week_item_header"
                 android:orientation="vertical"
-                android:padding="@dimen/content_padding"
-                android:background="@color/colorBackground">
-
-                <TextView
-                    android:id="@+id/textview_timetable_week_item_no_events"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:gravity="center"
-                    android:textColor="@color/colorTextSecondary"
-                    android:text="@string/no_events"/>
+                android:background="@color/colorForeground">
 
             </LinearLayout>
 

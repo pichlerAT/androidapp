@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:numColumns="4"
     android:gravity="center"
-    android:background="@color/colorBackground"
+    android:background="@color/colorForeground"
     android:stretchMode="columnWidth"
     android:layout_centerInParent="true"
     android:columnWidth="30dp"

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativelayout_contact"
-    android:background="@color/colorBackgroundDark"
+    android:background="@color/colorBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/cardview_margin"
-        android:background="@color/colorBackground"
+        android:background="@color/colorForeground"
         android:elevation="3dp"
         card_view:cardCornerRadius="0dp">
 
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/cardview_margin"
-        android:background="@color/colorBackground"
+        android:background="@color/colorForeground"
         android:elevation="3dp"
         card_view:cardCornerRadius="0dp">
 

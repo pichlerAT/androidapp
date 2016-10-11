@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Predefined color attributes by android -->
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#1A237E</color>
-    <color name="colorAccent">#FF3F80</color>
+    <color name="colorPrimary">#212121</color>
+    <color name="colorPrimaryDark">#000</color>
+    <color name="colorAccent">#FBC02D</color>
 
     <!-- Selfdefined color attribtes -->
     <color name="colorTextPrimary">#FFF</color>
-    <color name="colorTextPrimaryDark">#E5E5E5</color>
-    <color name="colorTextSecondary">#2E2E2E</color>
-    <color name="colorTextSecondaryDark">#1A1A1A</color>
-    <color name="colorBackground">#FFF</color>
-    <color name="colorBackgroundDark">#DDD</color>
-    <color name="colorSecondary">#5C6BC0</color>
-    <color name="colorHighlight">#C5CAE9</color>
+    <color name="colorTextSecondary">#B2B2B2</color>
+    <color name="colorTextDark">#2E2E2E</color>
+
+    <color name="colorForeground">#424242</color>
+    <color name="colorBackground">#303030</color>
+    <color name="colorHighlight">#616161</color>
+    <color name="colorIcon">#909298</color>
 
 
 
-    <color name="colorActionbar">#1d1d1d</color>
+    <color name="colorActionbar">#212121</color>
     <color name="colorBorder">#CCC</color>
     <color name="colorTextLight">#FFF</color>
 
@@ -32,7 +32,7 @@
 
 
     <!-- Color templates -->
-    <color name="colorDefault">#F63</color>
+    <color name="colorDefault">#607D8B</color>
     <color name="colorRed">#df2626</color>
     <color name="colorBlue">#2a79ff</color>
     <color name="colorGreen">#6dd40c</color>

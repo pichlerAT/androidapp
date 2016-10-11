@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.frysoft.notifry.adapter.TaskAdapter;
+import com.frysoft.notifry.data.Data;
 import com.frysoft.notifry.data.Tasklist;
 
 import java.util.ArrayList;
@@ -267,7 +268,7 @@ public class DragableListView extends ListView {
                 return;
             }
 
-            //swapElements(TasklistManager.getTasklists(), originalItem, getPositionForView(switchView));
+            swapElements(Data.Tasklists.getList(), originalItem, getPositionForView(switchView));
             mobileView.setVisibility(View.VISIBLE);
             ((TaskAdapter) getAdapter()).notifyDataSetChanged();
 

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/content_padding"
+    android:padding="@dimen/content_padding"
     android:orientation="horizontal">
 
     <TextView
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/elements_margin"
         android:gravity="center_vertical"
-        android:textColor="@color/colorTextSecondary"/>
+        android:textColor="@color/colorTextDark"/>
 
     <TextView
         android:id="@+id/timetable_week_item_template_name"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_toRightOf="@+id/timetable_week_item_template_time"
-        android:textColor="@color/colorTextSecondaryDark"
+        android:textColor="@color/colorTextDark"
         android:textStyle="bold"/>
 
 

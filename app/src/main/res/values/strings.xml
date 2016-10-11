@@ -72,6 +72,7 @@
     <string name="not_registered">This email is not registered</string>
     <string name="not_verified">Please verify your email, before login</string>
     <string name="wrong_password">The password is incorrect</string>
+    <string name="local">Use local</string>
 
     <!--              Timetable                -->
 
@@ -96,11 +97,25 @@
     <string name="specific">Specific</string>
     <string name="once">Once</string>
     <string name="interval">Interval</string>
+    <string name="frequency">Frequency</string>
+    <string name="count">How often?</string>
+    <string name="number">Number</string>
+    <string name="date_until">Repeat event until</string>
 
     <string-array name="repeat_array">
+        <item>Once</item>
+        <item>Daily</item>
+        <item>Weekly</item>
         <item>Monthly</item>
-        <item>Annually</item>
-        <item>Choose days</item>
+        <item>Yearly</item>
+        <item>Specific</item>
+    </string-array>
+
+    <string-array name="repeat_array_specific">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Yearly</item>
     </string-array>
 
     <!--                Task                   -->

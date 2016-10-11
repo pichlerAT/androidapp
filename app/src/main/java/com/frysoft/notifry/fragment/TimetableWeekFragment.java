@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * Created by Edwin Pichler on 04.08.2016.
  */
 public class TimetableWeekFragment extends Fragment {
-    private TimetableWeekAdapter mAdapter;
+    private TimetableWeekAdapter mAdapter = null;
     private RecyclerView mRecyclerView;
 
     @Override
@@ -49,6 +49,13 @@ public class TimetableWeekFragment extends Fragment {
         mRecyclerView.smoothScrollToPosition(position);
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAdapter != null)
+            mAdapter.notifyDataSetChanged();
     }
 
     private void calculateWeek(){

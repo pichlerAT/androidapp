@@ -56,6 +56,7 @@ public class TimetableTagActivity extends mAppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable_tag);
+        App.setContext(this);
 
         //Initialize toolbar and set the back button within it
         Toolbar toolbar = (Toolbar) findViewById(R.id.timetable_tag_toolbar);

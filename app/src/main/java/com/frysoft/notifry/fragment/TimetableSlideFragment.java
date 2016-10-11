@@ -42,6 +42,7 @@ public class TimetableSlideFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_timetable_slide, container, false);
         setHasOptionsMenu(true);
 
+        TimetableFragment.mCurrentDate = null; //Reset current date everytime timetable is reopened, to deny false month display
         mPager = (ViewPager) rootView.findViewById(R.id.viewpager_timetable_slide);
         mPagerAdapter = new ScreenSlidePagerAdapter(MainActivity.fm, Date.getToday());
         mPager.setAdapter(mPagerAdapter);
@@ -53,7 +54,11 @@ public class TimetableSlideFragment extends Fragment {
 
 
     private DatePickerDialog createDialogWithoutDateField() {
-        DatePickerDialog dialog = new DatePickerDialog(App.getContext(), mDateSetListener, Date.getToday().day, Date.getToday().month-1, Date.getToday().year);//Because date picker returns month from 0-11
+        int day = Date.getToday().day;
+        int month = Date.getToday().month-1;
+        int year = Date.getToday().year;
+        DatePickerDialog dialog = new DatePickerDialog(App.getContext(), mDateSetListener, day, month, year);//Because date picker returns month from 0-11
+        dialog.getDatePicker().updateDate(year, month, day);
 
         try {
             Field[] datePickerDialogFields = dialog.getClass().getDeclaredFields();
