@@ -1,21 +1,22 @@
 package com.frysoft.notifry.utils;
 
-import com.frysoft.notifry.R;
-
 import java.util.Calendar;
 
-public class Date implements Fryable {
+import com.frysoft.notifry.R;
 
-    public static final int YEAR_OFFSET = 2000;
+public class Date {
 
-    public static final int MIN_YEAR = YEAR_OFFSET;
+    public static final byte INTERVAL_NO_INTERVAL  = 0;
 
-    public static final int MAX_YEAR = YEAR_OFFSET + 0x7F;
+    public static final byte INTERVAL_HOUR 		   = 1;
 
-    public static Date getToday() {
-        Logger.Log("Date", "getToday()");
-        return new Date(Calendar.getInstance());
-    }
+    public static final byte INTERVAL_HALF_HOUR    = 2;
+
+    public static final byte INTERVAL_QUARTER_HOUR = 3;
+
+    public int minute;
+
+    public int hour;
 
     public int day;
 
@@ -23,136 +24,163 @@ public class Date implements Fryable {
 
     public int year;
 
-    public Date(FryFile fry) {
-        this(fry.getShort());
-        Logger.Log("Date", "Date(FryFile)");
-    }
-
-    public Date(Calendar cal) {
-        Logger.Log("Date", "Date(Calendar)");
-        day = cal.get(Calendar.DAY_OF_MONTH);
-        month = cal.get(Calendar.MONTH) + 1;
-        year = cal.get(Calendar.YEAR);
-    }
-
-    public Date(short date) {
-        Logger.Log("Date", "Date(short)");
-        day = date & 0x1F;
-        month = (date >> 5) & 0x0F;
-        year = ((date >> 9) & 0x7F) + YEAR_OFFSET;
-    }
-
-    public Date(int day,int month,int year) {
-        Logger.Log("Date", "Date(int,int,int)");
-        this.day   = day;
+    public Date(int minute, int hour, int day, int month, int year) {
+        this.minute = minute;
+        this.hour = hour;
+        this.day = day;
         this.month = month;
-        this.year  = year;
-    }
-/*
-    public Date(String date) {
-        Logger.Log("Date", "Date(String)");
-        String[] r = date.split("-");
-        day   = Integer.parseInt(r[0]);
-        month = Integer.parseInt(r[1]);
-        year  = Integer.parseInt(r[2]);
-    }
-*/
-    public Date(Date date) {
-        day = date.day;
-        month = date.month;
-        year = date.year;
+        this.year = year;
     }
 
-    @Override
-    public void writeTo(FryFile fry) {
-        Logger.Log("Date", "writeTo(FryFile)");
-        fry.writeShort(getShort());
+    public Date(int date) {
+        this((date & 0x3F),
+            ((date >> 6) & 0x1F),
+            ((date >> 11) & 0x1F),
+            ((date >> 16) & 0xF),
+            ((date >> 20) & 0xFFF));
+    }
+
+    public Date(char d1, char d2) {
+        this((d1 & 0x3F),
+            ((d1 >> 6) & 0x1F),
+            ((d1 >> 11) & 0x1F),
+            ((d2) & 0xF),
+            ((d2 >> 4) & 0xFFF));
+    }
+
+    public Date(int minute, int hour) {
+        this(minute, hour, 0, 0, 0);
+    }
+
+    public Date(int day, int month, int year) {
+        this(0, 0, day, month, year);
+    }
+
+    public Date(Calendar calendar) {
+        this(calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.YEAR));
     }
 
     @Override
     public boolean equals(Object o) {
-        Logger.Log("Date", "equals(Object)");
         if(o instanceof Date) {
             Date d = (Date) o;
-            return (d.day == day && d.month == month && d.year == year);
+            return (d.minute == minute
+                    && d.hour == hour
+                    && d.day == day
+                    && d.month == month
+                    && d.year == year);
         }
         return false;
     }
 
-    public boolean isSmallerThen(Date date) {
-        Logger.Log("Date", "isSmallerThen(Date)");
-
-        if(year < date.year) {
-            return true;
-        }else if(year > date.year) {
-            return false;
-        }
-
-        if(month < date.month) {
-            return true;
-        }else if(month > date.month) {
-            return false;
-        }
-
-        return (day < date.day);
-    }
-
-    public boolean isSmallerEqualThen(Date date) {
-        return !isGreaterThen(date);
-    }
-
-    public boolean isGreaterThen(Date date) {
-        Logger.Log("Date", "isGreaterThen(Date)");
-
-        if(year > date.year) {
-            return true;
-        }else if(year < date.year) {
-            return false;
-        }
-
-        if(month > date.month) {
-            return true;
-        }else if(month < date.month) {
-            return false;
-        }
-
-        return (day > date.day);
-    }
-
-    public boolean isGreaterEqualThen(Date date) {
-        return !isSmallerThen(date);
-    }
-
-    public boolean isBetween(Date start, Date end) {
-        return (isGreaterThen(start) && isSmallerThen(end));
-    }
-
-    public boolean isInBetween(Date start, Date end) {
-        return (isGreaterEqualThen(start) && isSmallerEqualThen(end));
-    }
-
     public int getInt() {
-        return (day + (month << 5) + ((year - YEAR_OFFSET) << 9));
+        return ( minute |
+                (hour << 6) |
+                (day << 11) |
+                (month << 16) |
+                (year << 20));
     }
 
-    public short getShort() {
-        Logger.Log("Date", "getShort()");
-        return (short)getInt();
+    public char[] getChars() {
+        return new char[]{
+                (char)( minute |
+                       (hour << 6) |
+                       (day << 11) ),
+                (char)( month |
+                       (year << 4) )
+        };
     }
 
-    public Date getNextDay() {
-        int dom = getDaysOfMonth();
-        if(day == dom) {
-            if(month == 12) {
-                return new Date(1, 1, year + 1);
-            }
-            return new Date(1, month + 1, year);
+    public void setTime(Date date) {
+        minute = date.minute;
+        hour = date.hour;
+    }
+
+    public void addMinutes(int minutes) {
+        if(minutes < 0) {
+            subtractMinutes(-minutes);
+            return;
         }
-        return new Date(day + 1, month, year);
+
+        minute += minutes;
+
+        if(minute > 59) {
+            int r = minute / 60;
+            minute -= r * 60;
+            hour += r;
+
+            if(hour > 23) {
+                r = hour / 24;
+                hour -= r * 24;
+                addDays(r);
+            }
+        }
+    }
+
+    public void subtractMinutes(int minutes) {
+        if(minutes < 0) {
+            addMinutes(-minutes);
+            return;
+        }
+
+        minute -= minutes;
+
+        if(minute < 0) {
+            int r = 1 - minute / 60;
+            minute += r * 60;
+            hour -= r;
+
+            if(hour < 0) {
+                r = 1 - hour / 24;
+                hour += r * 24;
+                subtractDays(r);
+            }
+        }
+    }
+
+    public void addHours(int hours) {
+        if(hours < 0) {
+            subtractMinutes(-hours);
+            return;
+        }
+
+        hour += hours;
+
+        if(hour > 23) {
+            int r = hour / 24;
+            hour -= r * 24;
+            addDays(r);
+        }
+    }
+
+    public void subtractHours(int hours) {
+        if(hours < 0) {
+            addMinutes(-hours);
+            return;
+        }
+
+        hour -= hours;
+
+        if(hour < 0) {
+            int r = 1 - hour / 24;
+            hour += r * 24;
+            subtractDays(r);
+        }
+    }
+
+    public void addTime(int hours, int minutes) {
+        addMinutes(hours * 60 + minutes);
+    }
+
+    public void subtractTime(int hours, int minutes) {
+        subtractMinutes(hours * 60 + minutes);
     }
 
     public void addDays(int days) {
-        Logger.Log("Date", "addDays(int)");
         if(days < 0) {
             subtractDays(-days);
         }
@@ -222,54 +250,200 @@ public class Date implements Fryable {
         year += years;
     }
 
-    public void substractYears(int years) {
+    public void subtractYears(int years) {
         year -= years;
     }
 
+    public String getTimeString() {
+        return ((hour < 10 ? "0" : "") + hour + ":" + (minute < 10 ? "0" : "") + minute);
+    }
+
+    public String getDateString() {
+        return ((day < 10 ? "0" : "") + day + "." + (month < 10 ? "0" : "") + month + "." + year);
+    }
+
+    public String getString() {
+        return (getDateString() + " , " + getTimeString());
+    }
+
+    public Date copy() {
+        return new Date(minute, hour, day, month, year);
+    }
+
+    public boolean isBeforeTime(Date time) {
+        if(hour < time.hour) {
+            return true;
+        }else if(hour > time.hour) {
+            return false;
+        }
+
+        return (minute < time.minute);
+    }
+
+    public boolean isBeforeDate(Date date) {
+        if(year < date.year) {
+            return true;
+        }else if(year > date.year) {
+            return false;
+        }
+
+        if(month < date.month) {
+            return true;
+        }else if(month > date.month) {
+            return false;
+        }
+
+        return (day < date.day);
+    }
+
+    public boolean isBefore(Date date) {
+        if(year < date.year) {
+            return true;
+        }else if(year > date.year) {
+            return false;
+        }
+
+        if(month < date.month) {
+            return true;
+        }else if(month > date.month) {
+            return false;
+        }
+
+        if(day < date.day) {
+            return true;
+        }else if(day > date.day) {
+            return false;
+        }
+
+        if(hour < date.hour) {
+            return true;
+        }else if(hour > date.hour) {
+            return false;
+        }
+
+        return (minute < date.minute);
+    }
+
+    public boolean isAfterTime(Date time) {
+        if(hour > time.hour) {
+            return true;
+        }else if(hour < time.hour) {
+            return false;
+        }
+
+        return (minute > time.minute);
+    }
+
+    public boolean isAfterDate(Date date) {
+        if(year > date.year) {
+            return true;
+        }else if(year < date.year) {
+            return false;
+        }
+
+        if(month > date.month) {
+            return true;
+        }else if(month < date.month) {
+            return false;
+        }
+
+        return (day > date.day);
+    }
+
+    public boolean isAfter(Date date) {
+        if(year > date.year) {
+            return true;
+        }else if(year < date.year) {
+            return false;
+        }
+
+        if(month > date.month) {
+            return true;
+        }else if(month < date.month) {
+            return false;
+        }
+
+        if(day > date.day) {
+            return true;
+        }else if(day < date.day) {
+            return false;
+        }
+
+        if(hour > date.hour) {
+            return true;
+        }else if(hour < date.hour) {
+            return false;
+        }
+
+        return (minute > date.minute);
+    }
+
+    public boolean isBetweenTime(Date start, Date end) {
+        return (isAfterTime(start) && isBeforeTime(end));
+    }
+
+    public boolean isBetweenDate(Date start, Date end) {
+        return (isAfterDate(start) && isBeforeDate(end));
+    }
+
+    public boolean isBetween(Date start, Date end) {
+        return (isAfter(start) && isBefore(end));
+    }
+
+    public boolean isInBetweenTime(Date start, Date end) {
+        return !(isBeforeTime(start) && isAfterTime(end));
+    }
+
+    public boolean isInBetweenDate(Date start, Date end) {
+        return !(isBeforeDate(start) && isAfterDate(end));
+    }
+
+    public boolean isInBetween(Date start, Date end) {
+        return !(isBefore(start) && isAfter(end));
+    }
+
+    public Date getNextDay() {
+        int dom = getDaysOfMonth();
+        if(day == dom) {
+            if(month == 12) {
+                return new Date(1, 1, year + 1);
+            }
+            return new Date(1, month + 1, year);
+        }
+        return new Date(day + 1, month, year);
+    }
+
     public boolean isLeapYear() {
-        Logger.Log("Date", "isLeapYear()");
         return isLeapYear(year);
     }
 
     public int getDaysOfMonth() {
-        Logger.Log("Date", "getDaysOfMonth()");
         return getDaysOfMonth(month, year);
     }
 
     public int getDaysOfYear() {
-        Logger.Log("Date", "getDaysOfYear()");
         return getDaysOfYear(year);
     }
 
     public int getTotalDays() {
-        Logger.Log("Date", "getTotalDays()");
-        return getTotalDaysUntil(this);
+        return getTotalDaysUntil();
     }
 
     public int getDaysUntil(Date date) {
-        Logger.Log("Date", "getDaysUntil(Date)");
-        return ( getTotalDaysUntil(date) - getTotalDaysUntil(this) );
+        return (date.getTotalDaysUntil() - getTotalDaysUntil());
     }
 
     public int getDayOfWeek() {
-        Logger.Log("Date", "getDayOfWeek()");
-        return ((getTotalDaysUntil(this) + 4) % 7);
+        return ((getTotalDaysUntil() + 4) % 7);
     }
 
-    public String getString() {
-        Logger.Log("Date", "getString()");
-        return ((day < 10 ? "0" : "") + day + "." + (month < 10 ? "0" : "") + month + "." + year);
-    }
+        public String getMonthName() {
+            return getMonthName(month);
+        }
 
-    public String getMonthName() {
-        Logger.Log("Date", "getMonthName()");
-        return getMonthName(month);
-    }
-
-    public String getWeekdayName() {
-        Logger.Log("Date", "getWeekdayName()");
-        return getWeekdayName(getDayOfWeek());
-    }
+        public String getWeekdayName() {
+            return getWeekdayName(getDayOfWeek());
+        }
 
     public Date getFirstDayOfWeek() {
         Date date = new Date(day, month, year);
@@ -277,126 +451,16 @@ public class Date implements Fryable {
         return date;
     }
 
-    public Date copy() {
-        Logger.Log("Date", "copy()");
-        return new Date(day, month, year);
-    }
-
-    public void goToNextDay() {
-        ++day;
-        if(day > getDaysOfMonth()) {
-            day = 1;
-            ++month;
-            if(month > 12) {
-                month = 1;
-                ++year;
-            }
-        }
-    }
-
-    public void goToPreviousDay() {
-        --day;
-        if(day < 1) {
-            --month;
-            if(month < 1) {
-                --year;
-                month = 12;
-            }
-            day = getDaysOfMonth();
-        }
-    }
-
-    public void goToNextMonth() {
-        ++month;
-        if(month > 12) {
-            month = 1;
-            ++year;
-        }
-    }
-
-    public void goToPreviousMonth() {
-        --month;
-        if(month < 1) {
-            month = 12;
-            --year;
-        }
-    }
-
-    public void goToNextYear() {
-        ++year;
-    }
-
-    public void goToPreviousYear() {
-        --year;
-    }
-
-    public boolean goToDate(int year, int month, int day) {
-        if(month < 1 || month > 12) {
-            return false;
-        }
-        if(day < 1 || day > getDaysOfMonth(month, year)) {
-            return false;
-        }
-        this.month = month;
-        this.day = day;
-        return true;
-    }
-
-    public boolean goToYearDate(int month, int day) {
-        if(month < 1 || month > 12) {
-            return false;
-        }
-        if(day < 1 || day > getDaysOfMonth(month, year)) {
-            return false;
-        }
-        this.month = month;
-        this.day = day;
-        return true;
-    }
-
-    public boolean goToMonthDay(int day) {
-        if(day < 1 || day > getDaysOfMonth()) {
-            return false;
-        }
-        this.day = day;
-        return true;
-    }
-
-    public boolean goToYearDay(int day) {
-        if(day < 1 || day > getDaysOfYear()) {
-            return false;
-        }
-        this.day = day;
-        this.month = day / 30;
-
-        int dom = getDaysOfMonth();
-        while(this.day > dom) {
-            ++month;
-            this.day -= dom;
-            dom = getDaysOfMonth();
-        }
-
-        return true;
-    }
-
-    public boolean goToMonth(int month) {
-        if(month < 1 || month > 12) {
-            return false;
-        }
-        this.month = month;
-        return true;
-    }
-
-    public void goToFirstDayOfWeek() {
-        subtractDays(getDayOfWeek());
-    }
-
     public int getWeekOfYear() {
-        return (getFirstDayOfWeek(new Date(1, 1, year)).getDaysUntil(this) / 7 + 1);
+        return (getFirstDayOfWeek().getDaysUntil(this) / 7 + 1);
     }
 
     public int getDayOfYear() {
         return (getDaysUntilMonth(month, year) + day);
+    }
+
+    public int getTotalDaysUntil() {
+        return getDaysUntilYear(year) + getDaysUntilMonth(month, year) + day;
     }
 
     public String getISOString() {
@@ -408,22 +472,18 @@ public class Date implements Fryable {
     }
 
     public static boolean isLeapYear(int year) {
-        Logger.Log("Date", "isLeapYear(int)");
         return ((year % 4) == 0);
     }
 
     public static int getDaysOfYear(int year) {
-        Logger.Log("Date", "getDaysOfYear(int)");
         return (isLeapYear(year) ? 366 : 365);
     }
 
     public static int getDaysUntilYear(int year) {
-        Logger.Log("Date", "getDaysUntilYear(int)");
-        return (int)(year * 365.25 - 730499.25);
+        return (int)(year * 365.25);
     }
 
     public static int getDaysOfMonth(int month, int year) {
-        Logger.Log("Date", "getDaysOfMonth(int,int)");
         switch(month) {
             case 1:
             case 3:
@@ -448,13 +508,7 @@ public class Date implements Fryable {
         }
     }
 
-    public static int getTotalDaysUntil(Date date) {
-        Logger.Log("Date", "getTotalDaysUntil(Date)");
-        return getDaysUntilYear(date.year) + getDaysUntilMonth(date.month, date.year) + date.day;
-    }
-
     public static int getDaysUntilMonth(int month, int year) {
-        Logger.Log("Date", "getDaysUntilMonth(int,int)");
         int days;
         switch(month) {
             case 1: return 0;
@@ -478,7 +532,6 @@ public class Date implements Fryable {
     }
 
     public static String getWeekdayName(int weekday) {
-        Logger.Log("Date", "getWeekdayName(int)");
         switch(weekday) {
             case 0: return App.getContext().getResources().getString(R.string.weekday_mon);
             case 1: return App.getContext().getResources().getString(R.string.weekday_tue);
@@ -492,7 +545,6 @@ public class Date implements Fryable {
     }
 
     public static String getMonthName(int month) {
-        Logger.Log("Date", "getMonthName(int)");
         switch(month) {
             case 1: return App.getContext().getResources().getString(R.string.month_jan);
             case 2: return App.getContext().getResources().getString(R.string.month_feb);
@@ -510,12 +562,205 @@ public class Date implements Fryable {
         }
     }
 
-    public static Date getFirstDayOfWeek(Date date) {
-        return date.getFirstDayOfWeek();
+    public static Date getCurrent() {
+        return new Date(Calendar.getInstance());
     }
 
-    public static int getWeekOfYear(Date date) {
-        return date.getWeekOfYear();
+    public static short getTimezoneOffset() {
+        return (short)(Calendar.getInstance().getTimeZone().getRawOffset() / 60000);
+    }
+
+    public static long getMillis() {
+        return Calendar.getInstance().getTimeInMillis();
+    }
+
+    public static Date getCurrent(int timeIntervall) {
+        Date date = getCurrent();
+
+        if(timeIntervall == INTERVAL_HOUR) {
+            if(date.minute > 0) {
+                date.addHours(1);
+            }
+            date.minute = 0;
+
+        }else if(timeIntervall == INTERVAL_HALF_HOUR) {
+
+            if(date.minute > 30) {
+                date.minute = 0;
+                date.addHours(1);
+
+            }else if(date.minute > 0) {
+                date.minute = 30;
+
+            }else {
+                date.minute = 0;
+
+            }
+
+        }else if(timeIntervall == INTERVAL_QUARTER_HOUR) {
+
+            if(date.minute > 45) {
+                date.minute = 0;
+                date.addHours(1);
+
+            }else if(date.minute > 30) {
+                date.minute = 45;
+
+            }else if(date.minute > 15) {
+                date.minute = 30;
+
+            }else if(date.minute > 0) {
+                date.minute = 15;
+
+            }else {
+                date.minute = 0;
+
+            }
+
+        }
+
+        return date;
+    }
+
+    public static class Cursor extends Date {
+
+        public Cursor(int minute, int hour, int day, int month, int year) {
+            super(minute, hour, day, month, year);
+        }
+
+        public Cursor(int date) {
+            super(date);
+        }
+
+        public Cursor(char d1, char d2) {
+            super(d1, d2);
+        }
+
+        public Cursor(int minute, int hour) {
+            super(minute, hour);
+        }
+
+        public Cursor(int day, int month, int year) {
+            super(day, month, year);
+        }
+
+        public Cursor(Calendar calendar) {
+            super(calendar);
+        }
+
+        public Cursor(Date date) {
+            super(date.minute, date.hour, date.day, date.month, date.year);
+        }
+
+        public void goToNextDay() {
+            ++day;
+            if(day > getDaysOfMonth()) {
+                day = 1;
+                ++month;
+                if(month > 12) {
+                    month = 1;
+                    ++year;
+                }
+            }
+        }
+
+        public void goToPreviousDay() {
+            --day;
+            if(day < 1) {
+                --month;
+                if(month < 1) {
+                    --year;
+                    month = 12;
+                }
+                day = getDaysOfMonth();
+            }
+        }
+
+        public void goToNextMonth() {
+            ++month;
+            if(month > 12) {
+                month = 1;
+                ++year;
+            }
+        }
+
+        public void goToPreviousMonth() {
+            --month;
+            if(month < 1) {
+                month = 12;
+                --year;
+            }
+        }
+
+        public void goToNextYear() {
+            ++year;
+        }
+
+        public void goToPreviousYear() {
+            --year;
+        }
+
+        public boolean goToDate(int year, int month, int day) {
+            if(month < 1 || month > 12) {
+                return false;
+            }
+            if(day < 1 || day > getDaysOfMonth(month, year)) {
+                return false;
+            }
+            this.month = month;
+            this.day = day;
+            return true;
+        }
+
+        public boolean goToYearDate(int month, int day) {
+            if(month < 1 || month > 12) {
+                return false;
+            }
+            if(day < 1 || day > getDaysOfMonth(month, year)) {
+                return false;
+            }
+            this.month = month;
+            this.day = day;
+            return true;
+        }
+
+        public boolean goToMonthDay(int day) {
+            if(day < 1 || day > getDaysOfMonth()) {
+                return false;
+            }
+            this.day = day;
+            return true;
+        }
+
+        public boolean goToYearDay(int day) {
+            if(day < 1 || day > getDaysOfYear()) {
+                return false;
+            }
+            this.day = day;
+            this.month = day / 30;
+
+            int dom = getDaysOfMonth();
+            while(this.day > dom) {
+                ++month;
+                this.day -= dom;
+                dom = getDaysOfMonth();
+            }
+
+            return true;
+        }
+
+        public boolean goToMonth(int month) {
+            if(month < 1 || month > 12) {
+                return false;
+            }
+            this.month = month;
+            return true;
+        }
+
+        public void goToFirstDayOfWeek() {
+            subtractDays(getDayOfWeek());
+        }
+
     }
 
 }
