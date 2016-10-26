@@ -4,15 +4,15 @@ import com.frysoft.notifry.utils.Date;
 
 import java.util.ArrayList;
 
-public class Timetable extends MySQL {
+public class Timetable extends MySQLEntry {
 
     protected Timetable() {
-        super(0, User.getId());
+        super(0, 0, 0);
     }
 
     public Manager<TimetableEntry> Entries = new Manager<>();
 
-    public ShareList Shares = new ShareList(this);
+    public ShareList shares = new ShareList(this);
 
     public ArrayList<Event> getEvents(final Date start, final Date end) {
         ArrayList<Event> list = new ArrayList<>();
@@ -45,22 +45,26 @@ public class Timetable extends MySQL {
     }
 
     @Override
-    protected boolean mysql_create() {
-        return true;
+    protected void addData(MySQL mysql) {
     }
 
     @Override
-    protected boolean mysql_update() {
-        return true;
+    public boolean canEdit() {
+        return false;
     }
 
     @Override
-    protected byte getType() {
-        return TYPE_CALENDAR;
+    public int getShareId() {
+        return 0;
     }
 
     @Override
-    protected String getPath() {
-        return DIR_CALENDAR;
+    protected void sync(MySQLEntry entry) {
     }
+
+    @Override
+    protected char getType() {
+        return TYPE_TIMETABLE;
+    }
+
 }

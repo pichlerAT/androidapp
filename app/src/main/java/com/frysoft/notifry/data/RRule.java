@@ -48,7 +48,7 @@ public class RRule {
     protected boolean frequencyYearly  = false;
 
     protected short count    = 0;
-    protected short until    = 0;
+    protected int until      = 0;
     protected short interval = 0;
 
     protected byte[][] byDay    = null;
@@ -241,7 +241,7 @@ public class RRule {
     }
 
     public void setUntil(Date until) {
-        this.until = until.getShort();
+        this.until = until.getInt();
         this.count = 0;
     }
 
@@ -254,7 +254,7 @@ public class RRule {
 
     /**
      * @param weekDay range: 0 - 6
-     * @param offsets ex: weekDay = 0; offsets = 1, -1; freq = monthly; every first and last monday of a month
+     * @param offsets ex: weekDay = 0; offsets = { 1 , -1 }; freq = monthly; every first and last monday of a month
      */
     public void setByDay(int weekDay, int[] offsets) {
         if(byDay == null) {
@@ -429,7 +429,18 @@ public class RRule {
 
 
                 case RRULE_UNTIL:
-                    until = (short)(rRule.charAt(index++) - RRULE_CHAR_OFFSET);
+                    char c1 = rRule.charAt(index++);
+                    if(c1 == 60) {
+                        c1 = 38;
+                    }
+
+                    char c2 = rRule.charAt(index++);
+                    if(c2 == 13) {
+                        c2 = 38;
+                    }
+
+                    until = (c1 | (c2 <<16));
+                    //until = (short)(rRule.charAt(index++) - RRULE_CHAR_OFFSET);
                     break;
 
 
@@ -523,7 +534,18 @@ public class RRule {
             rRule += RRULE_COUNT + "" + (char)(count + RRULE_CHAR_OFFSET);
         }
         if(until != 0) {
-            rRule += RRULE_UNTIL + "" + (char)(until + RRULE_CHAR_OFFSET);
+            char c1 = (char)until;
+            if(c1 == 38) {
+                c1 = 60;
+            }
+
+            char c2 = (char)(until >> 16);
+            if(c2 == 38) {
+                c2 = 13;
+            }
+
+            rRule += RRULE_UNTIL + "" + c1 + "" + c2;
+            //rRule += RRULE_UNTIL + "" + (char)(until + RRULE_CHAR_OFFSET);
         }
         if(interval > 0) {
             rRule += RRULE_INTERVAL + "" + (char)(interval + RRULE_CHAR_OFFSET);

@@ -1,34 +1,40 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueInteger;
+import com.frysoft.notifry.data.value.ValueString;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.Date;
 
 public class Category extends MySQLEntry implements Fryable {
 
-    protected String name;
+    protected int owner_id;
 
-    protected int color;
+    protected ValueString name = new ValueString();
+
+    protected ValueInteger color = new ValueInteger();
 
     public ShareList shares = new ShareList(this);
 
     protected Category(FryFile fry) {
         super(fry);
-        Logger.Log("TimetableCategory", "TimetableCategory(FryFile)");
-        name = fry.getString();
-        color = fry.getInt();
+        owner_id = fry.readId();
+
+        name.readFrom(fry);
+        color.readFrom(fry);
+
         shares.readFrom(fry);
+
+        if(name.isChanged() || color.isChanged()) {
+            update();
+        }
     }
 
     protected Category(int id, int user_id, String name, int color) {
-        super(id, user_id);
-        Logger.Log("TimetableCategory", "TimetableCategory(int,int,String)");
-        this.name = name;
-        this.color = color;
-
-        if(id != 0) {
-            shares = new ShareList(this);
-        }
+        super(id, user_id, Date.getMillis());
+        this.name.setValue(name);
+        this.color.setValue(color);
     }
 
     @Override
@@ -36,53 +42,15 @@ public class Category extends MySQLEntry implements Fryable {
         Logger.Log("TimetableCategory", "equals(Object)");
         if(o instanceof Category) {
             Category c = (Category) o;
-            return (c.id == id && c.name.equals(name) && color == c.color);
+            return (c.id == id && c.name.equals(name) && c.color.equals(color));
         }
         return false;
     }
 
     @Override
-    public Category backup() {
-        Logger.Log("TimetableCategory", "backup()");
-        return new Category(id, user_id, name, color);
-    }
-
-    @Override
-    protected boolean mysql_create() {
-        Logger.Log("TimetableCategory", "mysql_create()");
-        FryFile fry = executeMySQL(DIR_CATEGORY + "create.php", "&name=" + name + "&color=" + signed(color));
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            shares = new ShareList(this);
-
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        Logger.Log("TimetableCategory", "mysql_update()");
-        return (executeMySQL(DIR_CATEGORY + "update.php", "&id=" + signed(id) + "&name=" + name + "&color=" + signed(color)) != null);
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_CATEGORY;
-    }
-
-    @Override
-    protected String getPath() {
-        return DIR_CATEGORY;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-        Logger.Log("TimetableCategory", "synchronize(MySQL)");
-        Category c = (Category) mysql;
-        name = c.name;
-        color = c.color;
+    protected void addData(MySQL mysql) {
+        mysql.add("name", name);
+        mysql.add("color", color);
     }
 
     @Override
@@ -100,42 +68,69 @@ public class Category extends MySQLEntry implements Fryable {
     }
 
     @Override
+    protected void sync(MySQLEntry entry) {
+        Category cat = (Category) entry;
+        boolean update = false;
+
+        if(name.doUpdate(cat.name)) {
+            update = true;
+        }
+        if(color.doUpdate(cat.color)) {
+            update = true;
+        }
+
+        shares = cat.shares;
+
+        if(update) {
+            update();
+        }
+    }
+
+    @Override
+    protected char getType() {
+        return TYPE_CATEGORY;
+    }
+
+    @Override
     public void writeTo(FryFile fry) {
         Logger.Log("TimetableCategory", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeString(name);
-        fry.writeInt(color);
+        fry.writeId(owner_id);
+        name.writeTo(fry);
+        color.writeTo(fry);
+
         shares.writeTo(fry);
     }
 
+    @Override
+    protected void remove() {
+        Logger.Log("TimetableCategory", "delete()");
+        Data.Categories.remove(this);
+    }
+
     public int getColor() {
-        return color;
+        return color.getValue();
     }
 
     public String getName() {
         Logger.Log("TimetableCategory", "getName()");
-        return name;
+        return name.getValue();
     }
 
     public void set(String name, int color) {
-        this.name = name;
-        this.color = color;
+        this.name.setValue(name);
+        this.color.setValue(color);
         update();
     }
 
     public void setColor(int color) {
-        set(name, color);
+        this.color.setValue(color);
+        update();
     }
 
     public void setName(String name) {
-        Logger.Log("TimetableCategory", "setName(String)");
-        set(name, color);
-    }
-
-    @Override
-    public void remove() {
-        Logger.Log("TimetableCategory", "delete()");
-        Data.Categories.remove(this);
+        this.name.setValue(name);
+        update();
     }
 
 }

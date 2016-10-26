@@ -1,25 +1,52 @@
 package com.frysoft.notifry.data;
 
 import com.frysoft.notifry.utils.Date;
-import com.frysoft.notifry.utils.Time;
 
-public abstract class Event {
+public class Event {
 
-    protected final Date date;
+    public static final int TYPE_START_END  = 0 ;
+    public static final int TYPE_START      = 1 ;
+    public static final int TYPE_END        = 2 ;
+    public static final int TYPE_WHOLE_DAY  = 3 ;
+
+    protected final Date start;
+
+    protected final Date end;
 
     protected TimetableEntry entry;
 
-    protected Event(TimetableEntry entry, final Date date) {
+    protected Event(TimetableEntry entry, final Date date, int type) {
         this.entry = entry;
-        this.date = date.copy();
-    }
+        start = date.copy();
+        end = date.copy();
 
-    public Time getTimeStart() {
-        return Time.TIME_MIN;
-    }
+        switch(type) {
 
-    public Time getTimeEnd() {
-        return Time.TIME_MAX;
+            case TYPE_START_END:
+                start.setTime(entry.getStart());
+                end.setTime(entry.getEnd());
+                break;
+
+            case TYPE_START:
+                start.setTime(entry.getStart());
+                end.minute = 59;
+                end.hour = 23;
+                break;
+
+            case TYPE_END:
+                start.minute = 0;
+                start.hour = 0;
+                end.setTime(entry.getEnd());
+                break;
+
+            case TYPE_WHOLE_DAY:
+                start.minute = 0;
+                start.hour = 0;
+                end.minute = 59;
+                end.hour = 23;
+                break;
+
+        }
     }
 
     public TimetableEntry getEntry() {
@@ -27,104 +54,27 @@ public abstract class Event {
     }
 
     public String getTitle() {
-        return entry.title;
+        return entry.title.getValue();
     }
 
     public String getDescription() {
-        return entry.description;
+        return entry.description.getValue();
     }
 
-    public Date getDate() {
-        return date;
+    public Date getStart() {
+        return start;
+    }
+
+    public Date getEnd() {
+        return end;
     }
 
     public int getColor() {
-        return entry.color;
+        return entry.color.getValue();
     }
 
     public boolean isWholeDay() {
-        return false;
-    }
-
-    /**
-     * This is a class
-     */
-    public static class WholeDay extends Event {
-
-        public WholeDay(TimetableEntry entry, Date date) {
-            super(entry, date);
-        }
-
-        @Override
-        public boolean isWholeDay() {
-            return true;
-        }
-
-    }
-
-    /**
-     * This is a class
-     */
-    public static class Start extends Event {
-
-        protected short time_start;
-
-        public Start(TimetableEntry entry, Date date) {
-            super(entry, date);
-            time_start = entry.getTimeStart().time;
-        }
-
-        @Override
-        public Time getTimeStart() {
-            return new Time(time_start);
-        }
-
-    }
-
-    /**
-     * This is a class
-     */
-    public static class End extends Event {
-
-        protected short time_end;
-
-        public End(TimetableEntry entry, Date date) {
-            super(entry, date);
-            time_end = entry.getTimeEnd().time;
-        }
-
-        @Override
-        public Time getTimeEnd() {
-            return new Time(time_end);
-        }
-
-    }
-
-    /**
-     * This is a class
-     */
-    public static class StartEnd extends Event {
-
-        protected short time_start;
-
-        protected short time_end;
-
-        public StartEnd(TimetableEntry entry, Date date) {
-            super(entry, date);
-            time_start = entry.getTimeStart().time;
-            time_end = entry.getTimeEnd().time;
-        }
-
-        @Override
-        public Time getTimeStart() {
-            return new Time(time_start);
-        }
-
-        @Override
-        public Time getTimeEnd() {
-            return new Time(time_end);
-        }
-
+        return entry.rRule.getValue().isWholeDay();
     }
 
 }

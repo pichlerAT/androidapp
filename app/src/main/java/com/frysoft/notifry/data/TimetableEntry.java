@@ -1,136 +1,120 @@
 package com.frysoft.notifry.data;
 
-import com.frysoft.notifry.utils.Date;
+import com.frysoft.notifry.data.value.ValueCategory;
+import com.frysoft.notifry.data.value.ValueDate;
+import com.frysoft.notifry.data.value.ValueInteger;
+import com.frysoft.notifry.data.value.ValueRRule;
+import com.frysoft.notifry.data.value.ValueString;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.Time;
-
-import java.util.ArrayList;
-import java.util.Calendar;
+import com.frysoft.notifry.utils.Date;
 
 public class TimetableEntry extends MySQLEntry implements Fryable {
 
 
-    protected static short TimezoneOffset = Time.getTimezoneOffset();
+    protected static short TimezoneOffset = Date.getTimezoneOffset();
 
     public static void setTimezoneOffset(int offsetInMillis) {
         TimezoneOffset = (short)(offsetInMillis / 60000);
     }
 
 
-    protected Category category;
+    protected int owner_id;
 
-    protected String title;
+    protected ValueCategory category = new ValueCategory();
 
-    protected String description;
+    protected ValueString title = new ValueString();
 
-    protected short raw_date_start;
+    protected ValueString description = new ValueString();
 
-    protected short raw_time_start;
+    protected ValueDate raw_start = new ValueDate();
 
-    protected short raw_date_end;
+    protected ValueDate raw_end = new ValueDate();
 
-    protected short raw_time_end;
+    protected ValueRRule rRule = new ValueRRule();
 
-    protected RRule rRule;
-
-    protected int color;
+    protected ValueInteger color = new ValueInteger();
 
     protected String google_id;
 
 
-    protected short date_start;
+    protected int start;
 
-    protected short time_start;
-
-    protected short date_end;
-
-    protected short time_end;
+    protected int end;
 
     protected int days;
 
     public ShareList shares = new ShareList(this);
 
     protected void setValues() {
-        Date dateStart = new Date(raw_date_start);
-        Time timeStart = new Time(raw_time_start);
-        Date dateEnd = new Date(raw_date_end);
-        Time timeEnd = new Time(raw_time_end);
+        Date d_start = raw_start.getDate();
+        Date d_end = raw_end.getDate();
 
-        if(!rRule.wholeDay) {
-            dateStart.addDays(timeStart.addMinutes(TimezoneOffset));
-            dateEnd.addDays(timeEnd.addMinutes(TimezoneOffset));
+        if(!rRule.getValue().wholeDay) {
+            d_start.addMinutes(TimezoneOffset);
+            d_end.addMinutes(TimezoneOffset);
         }
 
-        date_start = dateStart.getShort();
-        time_start = timeStart.time;
-        date_end = dateEnd.getShort();
-        time_end = timeEnd.time;
+        start = d_start.getInt();
+        end = d_end.getInt();
 
-        days = dateStart.getDaysUntil(dateEnd);
+        days = d_start.getDaysUntil(d_end);
     }
 
     protected void setRawValues() {
-        Date dateStart = new Date(date_start);
-        Time timeStart = new Time(time_start);
-        Date dateEnd = new Date(date_end);
-        Time timeEnd = new Time(time_end);
+        Date d_start = new Date(start);
+        Date d_end = new Date(start);
 
-        if(!rRule.wholeDay) {
-            dateStart.addDays(timeStart.subtractMinutes(TimezoneOffset));
-            dateEnd.addDays(timeEnd.subtractMinutes(TimezoneOffset));
+        if(!rRule.getValue().wholeDay) {
+            d_start.subtractMinutes(TimezoneOffset);
+            d_end.subtractMinutes(TimezoneOffset);
         }
 
-        raw_date_start = dateStart.getShort();
-        raw_time_start = timeStart.time;
-        raw_date_end = dateEnd.getShort();
-        raw_time_end = timeEnd.time;
+        raw_start.setValue(d_start.getInt());
+        raw_start.setValue(d_end.getInt());
 
-        days = dateStart.getDaysUntil(dateEnd);
+        days = d_start.getDaysUntil(d_end);
     }
 
     protected TimetableEntry(FryFile fry) {
         super(fry);
         Logger.Log("TimetableEntry", "TimetableEntry(FryFile)");
 
-        category = Data.Categories.getById(fry.getUnsignedInt());
-        title = fry.getString();
-        description = fry.getString();
-        raw_date_start = fry.getUnsignedShort();
-        raw_time_start = fry.getUnsignedShort();
-        raw_date_end = fry.getUnsignedShort();
-        raw_time_end = fry.getUnsignedShort();
-        rRule = new RRule(fry.getString());
-        color = fry.getInt();
-        google_id = fry.getString();
+        owner_id = fry.readId();
+
+        category.readFrom(fry);
+        title.readFrom(fry);
+        description.readFrom(fry);
+        raw_start.readFrom(fry);
+        raw_end.readFrom(fry);
+        rRule.readFrom(fry);
+        color.readFrom(fry);
+        google_id = fry.readString();
         shares.readFrom(fry);
+
+        if(category.isChanged() || title.isChanged() || description.isChanged() || raw_start.isChanged() || raw_end.isChanged() || rRule.isChanged() || color.isChanged()) {
+            update();
+        }
 
         setValues();
     }
 
-    protected TimetableEntry(int id, int user_id, Category category, String title, String description, short date_start,
-                             short time_start, short date_end, short time_end, RRule rRule, int color, String google_id) {
-        super(id, user_id);
+    protected TimetableEntry(int id, int user_id, Category category, String title, String description,
+                             int start, int end, RRule rRule, int color, String google_id) {
+        super(id, user_id, Date.getMillis());
 
-        this.category = category;
-        this.title = title;
-        this.description = description;
-        this.date_start = date_start;
-        this.time_start = time_start;
-        this.date_end = date_end;
-        this.time_end = time_end;
-        this.rRule = rRule;
-        this.color = color;
+        this.category.setValue(category);
+        this.title.setValue(title);
+        this.description.setValue(description);
+
+        this.start = start;
+        this.end = end;
+        this.rRule.setValue(rRule);
+        this.color.setValue(color);
         this.google_id = google_id;
 
         setRawValues();
-    }
-
-    protected TimetableEntry(int id, int user_id, int category_id, String title, String description, short date_start,
-                             short time_start, short date_end, short time_end, String rRule, int color, String google_id) {
-        this(id, user_id, Data.Categories.getById(category_id), title, description, date_start,
-                time_start, date_end, time_end, new RRule(rRule), color, google_id);
     }
 
     @Override
@@ -138,68 +122,23 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         Logger.Log("TimetableEntry", "equals(Object)");
         if(o instanceof TimetableEntry) {
             TimetableEntry e = (TimetableEntry) o;
-            return (e.id == id && e.getCategoryId() == getCategoryId() && e.title.equals(title) && e.description.equals(description)
-                    && e.raw_date_start == raw_date_start && e.raw_time_start == raw_time_start && e.date_end == date_end
-                    && e.time_end == time_end && e.color == color && e.rRule.equals(rRule) );
+            return (e.id == id && e.category.getId() == category.getId() && e.title.equals(title)
+                    && e.description.equals(description)&& e.raw_start.equals(raw_start)
+                    && e.raw_end.equals(raw_end) && e.color.equals(color) && e.rRule.equals(rRule) );
         }
         return false;
     }
 
     @Override
-    public TimetableEntry backup() {
-        Logger.Log("TimetableEntry", "backup()");
-        return new TimetableEntry(id, user_id, getCategoryId(), title, description, date_start, time_start, date_end, time_end, rRule.getString(), color, google_id);
-    }
-
-    @Override
-    protected boolean mysql_create() {
-        Logger.Log("TimetableEntry", "mysql_create()");
-
-        FryFile fry = executeMySQL(DIR_CALENDAR_ENTRY + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title + "&description=" + description
-                + "&date_start=" + signed(raw_date_start) + "&time_start=" + signed(raw_time_start) + "&date_end=" + signed(raw_date_end)
-                + "&time_end=" + signed(raw_time_end) + "&rrule="+rRule.getString() + "&color=" + color + "&google_id=" + google_id);
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            shares = new ShareList(this);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        Logger.Log("TimetableEntry", "mysql_update()");
-
-        return (executeMySQL(DIR_CALENDAR_ENTRY + "update.php", "&id=" + signed(id) + "&category_id=" + signed(getCategoryId()) + "&title=" + title
-                + "&description=" + description + "&date_start=" + signed(raw_date_start) + "&time_start=" + signed(raw_time_start)
-                + "&date_end=" + signed(raw_date_end) + "&time_end=" + signed(raw_time_end) + "&rrule="+rRule.getString() + "&color=" + color + "&google_id=" + google_id) != null);
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_CALENDAR_ENTRY;
-    }
-
-    @Override
-    protected String getPath() {
-        return DIR_CALENDAR_ENTRY;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-        Logger.Log("TimetableEntry", "synchronize(MySQL)");
-        TimetableEntry e = (TimetableEntry) mysql;
-        category = e.category;
-        title = e.title;
-        description = e.description;
-        raw_date_start = e.raw_date_start;
-        raw_time_start = e.raw_time_start;
-        raw_date_end = e.raw_date_end;
-        raw_time_end = e.raw_time_end;
-        rRule = e.rRule;
-        color = e.color;
-
-        setValues();
+    protected void addData(MySQL mysql) {
+        mysql.addId("category_id", category.getId());
+        mysql.add("title", title);
+        mysql.add("description", description);
+        mysql.add("start", raw_start);
+        mysql.add("end", raw_end);
+        mysql.addString("rrule", rRule.getString());
+        mysql.add("color", color);
+        mysql.addString("google_id", google_id);
     }
 
     @Override
@@ -216,21 +155,59 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         return 0;
     }
 
+    @Override
+    protected void sync(MySQLEntry entry) {
+        TimetableEntry te = (TimetableEntry) entry;
+        boolean update = false;
+
+        if(category.doUpdate(te.category)) {
+            update = true;
+        }
+        if(title.doUpdate(te.title)) {
+            update = true;
+        }
+        if(description.doUpdate(te.description)) {
+            update = true;
+        }
+        if(raw_start.doUpdate(te.raw_start)) {
+            update = true;
+        }
+        if(raw_end.doUpdate(te.raw_end)) {
+            update = true;
+        }
+        if(rRule.doUpdate(te.rRule)) {
+            update = true;
+        }
+        if(color.doUpdate(te.color)) {
+            update = true;
+        }
+        google_id = te.google_id;
+        setValues();
+
+        if(update) {
+            update();
+        }
+    }
+
+    @Override
+    protected char getType() {
+        return TYPE_TIMETABLE_ENTRY;
+    }
 
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("TimetableEntry", "writeTo(FryFile)");
         super.writeTo(fry);
 
-        fry.writeUnsignedInt(getCategoryId());
-        fry.writeString(title);
-        fry.writeString(description);
-        fry.writeUnsignedShort(raw_date_start);
-        fry.writeUnsignedShort(raw_time_start);
-        fry.writeUnsignedShort(raw_date_end);
-        fry.writeUnsignedShort(raw_time_end);
-        fry.writeString(rRule.getString());
-        fry.writeInt(color);
+        fry.writeId(owner_id);
+
+        category.writeTo(fry);
+        title.writeTo(fry);
+        description.writeTo(fry);
+        raw_start.writeTo(fry);
+        raw_end.writeTo(fry);
+        rRule.writeTo(fry);
+        color.writeTo(fry);
         fry.writeString(google_id);
         shares.writeTo(fry);
     }
@@ -241,29 +218,25 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     protected int getCategoryId() {
-        if(category == null) {
-            return 0;
-        }
-        return category.id;
+        return category.getId();
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title.setValue(title);
         update();
     }
 
-    public void set(Category category, String title, String description, Date date_start, Date date_end,
-                    Time time_start, Time time_end, RRule rRule, int color) {
+    public void set(Category category, String title, String description, Date start, Date end, RRule rRule, int color) {
 
-        this.category = category;
-        this.title = title;
-        this.description = description;
-        this.date_start = date_start.getShort();
-        this.time_start = time_start.time;
-        this.date_end = date_end.getShort();
-        this.time_end = time_end.time;
-        this.rRule = rRule;
-        this.color = color;
+        this.category.setValue(category);
+        this.title.setValue(title);
+        this.description.setValue(description);
+
+        this.start = start.getInt();
+        this.end = end.getInt();
+
+        this.rRule.setValue(rRule);
+        this.color.setValue(color);
 
         setRawValues();
         update();
@@ -274,39 +247,31 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
     }
 
     public Category getCategory() {
-        return category;
+        return category.getValue();
     }
 
     public String getTitle() {
-        return title;
+        return title.getValue();
     }
 
     public String getDescription() {
-        return description;
+        return description.getValue();
     }
 
-    public Date getDateStart() {
-        return new Date(date_start);
+    public Date getStart() {
+        return new Date(start);
     }
 
-    public Time getTimeStart() {
-        return new Time(time_start);
-    }
-
-    public Date getDateEnd() {
-        return new Date(date_end);
-    }
-
-    public Time getTimeEnd() {
-        return new Time(time_end);
+    public Date getEnd() {
+        return new Date(end);
     }
 
     public RRule getRRule() {
-        return rRule;
+        return rRule.getValue();
     }
 
     public int getColor() {
-        return color;
+        return color.getValue();
     }
 
 }

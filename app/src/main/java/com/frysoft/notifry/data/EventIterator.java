@@ -16,9 +16,11 @@ public class EventIterator {
 
     protected Iterator iterator;
 
-    protected Date cursor;
+    protected Date.Cursor cursor;
 
     protected Date current;
+    
+    protected RRule rRule;
 
     protected int pos;
 
@@ -26,47 +28,48 @@ public class EventIterator {
         this.rangeStart = rangeStart;
         this.rangeEnd = rangeEnd;
         this.entry = entry;
+        this.rRule = entry.getRRule();
 
-        if(entry.rRule.isCount()) {
+        if(rRule.isCount()) {
             ending = new EndingCount();
 
-        }else if(entry.rRule.isUntil()) {
+        }else if(rRule.isUntil()) {
             ending = new EndingUntil();
 
         }else {
             ending = new EndingInfinite();
         }
 
-        if(entry.rRule.frequencyDaily) {
+        if(rRule.frequencyDaily) {
             iterator = new DailyIterator();
 
-        }else if(entry.rRule.frequencyWeekly) {
-            if(entry.rRule.isByDay()) {
+        }else if(rRule.frequencyWeekly) {
+            if(rRule.isByDay()) {
                 iterator = new WeeklyIteratorByDay();
 
             }else {
                 iterator = new WeeklyIterator();
             }
 
-        }else if(entry.rRule.frequencyMonthly) {
-            if(entry.rRule.isByMonthDay()) {
+        }else if(rRule.frequencyMonthly) {
+            if(rRule.isByMonthDay()) {
                 iterator = new MonthlyIteratorByMonthDay();
 
             }else {
                 iterator = new MonthlyIterator();
             }
 
-        }else if(entry.rRule.frequencyYearly) {
-            if(entry.rRule.isByYearDay()) {
+        }else if(rRule.frequencyYearly) {
+            if(rRule.isByYearDay()) {
                 iterator = new YearlyIteratorByYearDay();
 
-            }else if(entry.rRule.isByMonthDay()) {
+            }else if(rRule.isByMonthDay()) {
                 iterator = new YearlyIteratorByMonthDay();
 
-            }else if(entry.rRule.isByWeekNo()) {
+            }else if(rRule.isByWeekNo()) {
                 iterator = new YearlyIteratorByWeekNo();
 
-            }else if(entry.rRule.isByMonth()) {
+            }else if(rRule.isByMonth()) {
                 iterator = new YearlyIteratorByMonth();
 
             }else {
@@ -89,18 +92,18 @@ public class EventIterator {
 
         if(pos == 0) {
             if(entry.days == 0) {
-                if(entry.rRule.wholeDay) {
-                    e = new Event.WholeDay(entry, current);
+                if(rRule.wholeDay) {
+                    e = new Event(entry, current, Event.TYPE_WHOLE_DAY);
                 }else {
-                    e = new Event.StartEnd(entry, current);
+                    e = new Event(entry, current, Event.TYPE_START);
                 }
                 current = iterator.next();
 
             }else {
-                if(entry.rRule.wholeDay) {
-                    e = new Event.WholeDay(entry, current);
+                if(rRule.wholeDay) {
+                    e = new Event(entry, current, Event.TYPE_WHOLE_DAY);
                 }else {
-                    e = new Event.Start(entry, current);
+                    e = new Event(entry, current, Event.TYPE_START);
                 }
                 current.addDays(1);
                 ++pos;
@@ -108,27 +111,27 @@ public class EventIterator {
             }
 
         }else if(pos == entry.days) {
-            if(current.isGreaterThen(rangeEnd)) {
+            if(current.isAfterDate(rangeEnd)) {
                 current = iterator.next();
                 return null;
             }
 
-            if (entry.rRule.wholeDay) {
-                e = new Event.WholeDay(entry, current);
+            if (rRule.wholeDay) {
+                e = new Event(entry, current, Event.TYPE_WHOLE_DAY);
             } else {
-                e = new Event.End(entry, current);
+                e = new Event(entry, current, Event.TYPE_END);
             }
 
             current = iterator.next();
             pos = 0;
 
         }else {
-            if(current.isGreaterThen(rangeEnd)) {
+            if(current.isAfterDate(rangeEnd)) {
                 current = iterator.next();
                 return null;
             }
 
-            e = new Event.WholeDay(entry, current);
+            e = new Event(entry, current, Event.TYPE_WHOLE_DAY);
             current.addDays(1);
             ++pos;
         }
@@ -140,10 +143,10 @@ public class EventIterator {
 
         @Override
         protected Date first() {
-            Date start = entry.getDateStart();
-            Date end = new Date(start);
+            Date start = entry.getStart();
+            Date end = start.copy();
             end.addDays(entry.days);
-            if(end.isSmallerThen(rangeStart) || start.isGreaterThen(rangeEnd)) {
+            if(end.isBeforeDate(rangeStart) || start.isAfterDate(rangeEnd)) {
                 return null;
             }
 
@@ -153,7 +156,7 @@ public class EventIterator {
                 return start;
 
             }else {
-                return new Date(rangeStart);
+                return rangeStart.copy();
             }
         }
 
@@ -197,7 +200,7 @@ public class EventIterator {
 
     protected class WeeklyIterator extends Iterator {
 
-        protected int interval = 7 * entry.rRule.interval - 6;
+        protected int interval = 7 * rRule.interval - 6;
 
         protected int weekDay = 0;
 
@@ -253,7 +256,7 @@ public class EventIterator {
 
             for(int i=0; i<7; ++i) {
 
-                if(entry.rRule.isByDay(i)) {
+                if(rRule.isByDay(i)) {
                     if (firstIndex == -1) {
                         firstIndex = i;
                     } else {
@@ -265,7 +268,7 @@ public class EventIterator {
             }
 
             map = Arrays.copyOf(bufferMap, index + 1);
-            map[index] = 7 * entry.rRule.interval - lastIndex + firstIndex;
+            map[index] = 7 * rRule.interval - lastIndex + firstIndex;
 
         }
 
@@ -308,7 +311,7 @@ public class EventIterator {
 
         protected int monthDay = 0;
 
-        protected int daysOfMonth = entry.getDateStart().getDaysOfMonth();
+        protected int daysOfMonth = entry.getStart().getDaysOfMonth();
 
         protected MonthlyIterator() {
             super();
@@ -321,7 +324,7 @@ public class EventIterator {
 
                 if(monthDay == daysOfMonth) {
                     monthDay = 0;
-                    cursor.addMonths(entry.rRule.interval);
+                    cursor.addMonths(rRule.interval);
 
                 }else {
                     ++monthDay;
@@ -354,12 +357,12 @@ public class EventIterator {
         protected MonthlyIteratorByMonthDay() {
             super();
 
-            map = new int[entry.rRule.byMonthDay.length - 1];
+            map = new int[rRule.byMonthDay.length - 1];
 
-            int lastIndex = entry.rRule.byMonthDay[0];
+            int lastIndex = rRule.byMonthDay[0];
 
             for(int i=0; i<map.length; ++i) {
-                int nextIndex = entry.rRule.byMonthDay[i + 1];
+                int nextIndex = rRule.byMonthDay[i + 1];
                 map[i] = nextIndex - lastIndex;
             }
 
@@ -372,8 +375,8 @@ public class EventIterator {
 
                 if(index == map.length) {
                     index = 0;
-                    cursor.addMonths(entry.rRule.interval);
-                    if(!cursor.goToMonthDay(entry.rRule.byMonthDay[0])) {
+                    cursor.addMonths(rRule.interval);
+                    if(!cursor.goToMonthDay(rRule.byMonthDay[0])) {
                         continue;
                     }
 
@@ -407,11 +410,11 @@ public class EventIterator {
         protected YearlyIteratorByYearDay() {
             super();
 
-            map = new int[entry.rRule.byYearDay.length - 1];
+            map = new int[rRule.byYearDay.length - 1];
 
-            int lastDay = entry.rRule.byYearDay[0];
+            int lastDay = rRule.byYearDay[0];
             for(int i=0; i<map.length; ++i) {
-                int nextDay = entry.rRule.byYearDay[i + 1];
+                int nextDay = rRule.byYearDay[i + 1];
                 map[i] = nextDay - lastDay;
                 lastDay = nextDay;
             }
@@ -425,8 +428,8 @@ public class EventIterator {
 
                 if(index == map.length) {
                     index = 0;
-                    cursor.addYears(entry.rRule.interval);
-                    if(!cursor.goToYearDay(entry.rRule.byYearDay[0])) {
+                    cursor.addYears(rRule.interval);
+                    if(!cursor.goToYearDay(rRule.byYearDay[0])) {
                         continue;
                     }
 
@@ -461,12 +464,12 @@ public class EventIterator {
         protected YearlyIteratorByMonthDay() {
             super();
 
-            map = new int[entry.rRule.byMonthDay.length - 1];
+            map = new int[rRule.byMonthDay.length - 1];
 
-            int lastIndex = entry.rRule.byMonthDay[0];
+            int lastIndex = rRule.byMonthDay[0];
 
             for(int i=0; i<map.length; ++i) {
-                int nextIndex = entry.rRule.byMonthDay[i + 1];
+                int nextIndex = rRule.byMonthDay[i + 1];
                 map[i] = nextIndex - lastIndex;
             }
 
@@ -479,8 +482,8 @@ public class EventIterator {
 
                 if(index == map.length) {
                     index = 0;
-                    cursor.addYears(entry.rRule.interval);
-                    if(!cursor.goToMonthDay(entry.rRule.byMonthDay[0])) {
+                    cursor.addYears(rRule.interval);
+                    if(!cursor.goToMonthDay(rRule.byMonthDay[0])) {
                         continue;
                     }
 
@@ -519,17 +522,17 @@ public class EventIterator {
         protected YearlyIteratorByWeekNo() {
             super();
 
-            firstWeek = (entry.rRule.byWeekNo[0] - 1 ) * 7;
-            map = new int[entry.rRule.byWeekNo.length - 1];
+            firstWeek = (rRule.byWeekNo[0] - 1 ) * 7;
+            map = new int[rRule.byWeekNo.length - 1];
 
-            int lastIndex = entry.rRule.byWeekNo[0];
+            int lastIndex = rRule.byWeekNo[0];
 
             for(int i=0; i<map.length; ++i) {
-                int nextIndex = entry.rRule.byWeekNo[i + 1];
+                int nextIndex = rRule.byWeekNo[i + 1];
                 map[i] = (nextIndex - lastIndex) * 7 - 6;
             }
 
-            currentYear = entry.getDateStart().year;
+            currentYear = entry.getStart().year;
         }
 
         @Override
@@ -541,7 +544,7 @@ public class EventIterator {
 
                     if (index == map.length) {
                         index = 0;
-                        cursor.addYears(entry.rRule.interval);
+                        cursor.addYears(rRule.interval);
                         cursor.goToYearDate(1, 1);
                         cursor.addDays(firstWeek);
                         cursor.goToFirstDayOfWeek();
@@ -552,7 +555,7 @@ public class EventIterator {
 
                         if(cursor.year > currentYear) {
                             cursor.goToDate(currentYear, 1, 1);
-                            cursor.addYears(entry.rRule.interval);
+                            cursor.addYears(rRule.interval);
                             cursor.addDays(firstWeek);
                             cursor.goToFirstDayOfWeek();
                             currentYear = cursor.year;
@@ -565,7 +568,7 @@ public class EventIterator {
 
                     if(cursor.year > currentYear) {
                         cursor.goToDate(currentYear, 1, 1);
-                        cursor.addYears(entry.rRule.interval);
+                        cursor.addYears(rRule.interval);
                         cursor.addDays(firstWeek);
                         cursor.goToFirstDayOfWeek();
                         currentYear = cursor.year;
@@ -602,16 +605,16 @@ public class EventIterator {
         protected YearlyIteratorByMonth() {
             super();
 
-            map = new int[entry.rRule.byMonth.length - 1];
+            map = new int[rRule.byMonth.length - 1];
 
-            int lastIndex = entry.rRule.byMonth[0];
+            int lastIndex = rRule.byMonth[0];
 
             for(int i=0; i<map.length; ++i) {
-                int nextIndex = entry.rRule.byMonth[i + 1];
+                int nextIndex = rRule.byMonth[i + 1];
                 map[i] = nextIndex - lastIndex;
             }
 
-            Date start = entry.getDateStart();
+            Date start = entry.getStart();
             daysOfMonth = start.getDaysOfMonth();
             currentYear = start.year;
         }
@@ -625,9 +628,9 @@ public class EventIterator {
 
                     if(index == map.length) {
                         index = 0;
-                        cursor.addYears(entry.rRule.interval);
+                        cursor.addYears(rRule.interval);
                         currentYear = cursor.year;
-                        if(!cursor.goToMonth(entry.rRule.byMonth[0])) {
+                        if(!cursor.goToMonth(rRule.byMonth[0])) {
                             continue;
                         }
 
@@ -636,8 +639,8 @@ public class EventIterator {
                         cursor.addMonths(map[index++]);
 
                         if(cursor.year > currentYear) {
-                            cursor.goToDate(currentYear, entry.rRule.byMonth[0], 1);
-                            cursor.addYears(entry.rRule.interval);
+                            cursor.goToDate(currentYear, rRule.byMonth[0], 1);
+                            cursor.addYears(rRule.interval);
                             currentYear = cursor.year;
                         }
                     }
@@ -647,8 +650,8 @@ public class EventIterator {
                     cursor.goToNextDay();
 
                     if(cursor.year > currentYear) {
-                        cursor.goToDate(currentYear, entry.rRule.byMonth[0], 1);
-                        cursor.addYears(entry.rRule.interval);
+                        cursor.goToDate(currentYear, rRule.byMonth[0], 1);
+                        cursor.addYears(rRule.interval);
                         currentYear = cursor.year;
                     }
                 }
@@ -673,7 +676,7 @@ public class EventIterator {
 
         protected YearlyIterator() {
             super();
-            currentYear = entry.getDateStart().year;
+            currentYear = entry.getStart().year;
         }
 
         @Override
@@ -685,7 +688,7 @@ public class EventIterator {
 
                 if(cursor.year > currentYear) {
                     cursor.goToDate(currentYear, 1, 1);
-                    cursor.addYears(entry.rRule.interval);
+                    cursor.addYears(rRule.interval);
                     currentYear = cursor.year;
                 }
 
@@ -706,15 +709,15 @@ public class EventIterator {
 
     protected abstract class Iterator {
 
-        protected boolean isByMonthDay = entry.rRule.isByMonthDay();
+        protected boolean isByMonthDay = rRule.isByMonthDay();
 
-        protected boolean isByMonth = entry.rRule.isByMonth();
+        protected boolean isByMonth = rRule.isByMonth();
 
-        protected boolean isByYearDay = entry.rRule.isByYearDay();
+        protected boolean isByYearDay = rRule.isByYearDay();
 
-        protected boolean isByWeekNo = entry.rRule.isByWeekNo();
+        protected boolean isByWeekNo = rRule.isByWeekNo();
 
-        protected boolean isByDay = entry.rRule.isByDay();
+        protected boolean isByDay = rRule.isByDay();
 
         protected boolean isByDayZero = false;
 
@@ -723,16 +726,16 @@ public class EventIterator {
         protected boolean[] isByDayZeroMap;
 
         protected Iterator() {
-            cursor = entry.getDateStart();
+            cursor = new Date.Cursor(entry.start);
 
             if(isByDay) {
                 isByDayMap = new boolean[7];
                 isByDayZeroMap = new boolean[7];
 
                 for(int i=0; i<7; ++i) {
-                    if(entry.rRule.isByDay(i)) {
+                    if(rRule.isByDay(i)) {
                         isByDayMap[i] = true;
-                        for(byte b : entry.rRule.byDay[i]) {
+                        for(byte b : rRule.byDay[i]) {
                             if(b == 0) {
                                 isByDayZeroMap[i] = true;
                                 isByDayZero = true;
@@ -753,18 +756,19 @@ public class EventIterator {
         protected Date first() {
             Date d;
             while((d = next()) != null) {
-                Date end = new Date(d);
+                Date.Cursor c = new Date.Cursor(d);
+                Date end = c.copy();
                 end.addDays(entry.days);
-                if(!end.isSmallerThen(rangeStart)) {
+                if(!end.isBeforeDate(rangeStart)) {
 
                     pos = 0;
                     do {
 
-                        if(!d.isSmallerThen(rangeStart)) {
-                            return d;
+                        if(!c.isBeforeDate(rangeStart)) {
+                            return c;
                         }
 
-                        d.goToNextDay();
+                        c.goToNextDay();
                         ++pos;
 
                     } while(pos <= entry.days);
@@ -776,7 +780,7 @@ public class EventIterator {
         }
 
         protected boolean isByMonthDayValid() {
-            for(byte day : entry.rRule.byMonthDay) {
+            for(byte day : rRule.byMonthDay) {
                 if(day == cursor.day) {
                     return true;
                 }
@@ -785,7 +789,7 @@ public class EventIterator {
         }
 
         protected boolean isByMonthValid() {
-            for(byte month : entry.rRule.byMonth) {
+            for(byte month : rRule.byMonth) {
                 if(month == cursor.month) {
                     return true;
                 }
@@ -795,7 +799,7 @@ public class EventIterator {
 
         protected boolean isByWeekNoValid() {
             int weekNo = cursor.getWeekOfYear();
-            for(byte week : entry.rRule.byWeekNo) {
+            for(byte week : rRule.byWeekNo) {
                 if(week == weekNo) {
                     return true;
                 }
@@ -805,7 +809,7 @@ public class EventIterator {
 
         protected boolean isByYearDayValid() {
             int yearDay = cursor.getDayOfYear();
-            for(short day : entry.rRule.byYearDay) {
+            for(short day : rRule.byYearDay) {
                 if(day == yearDay) {
                     return true;
                 }
@@ -825,7 +829,7 @@ public class EventIterator {
             if(isByDayMap[dayOfWeek]) {
                 int tof = (cursor.day - 1) / 7 + 1;
                 int tol = -((cursor.getDaysOfMonth() - cursor.day) / 7 + 1);
-                for (byte b : entry.rRule.byDay[dayOfWeek]) {
+                for (byte b : rRule.byDay[dayOfWeek]) {
                     if (b == tof || b == tol) {
                         return true;
                     }
@@ -847,7 +851,7 @@ public class EventIterator {
             int day = cursor.getDayOfYear();
             int tof = (day - 1) / 7 + 1;
             int tol = -((cursor.getDaysOfYear() - day) / 7 + 1);
-            for(byte b : entry.rRule.byDay[dayOfWeek]) {
+            for(byte b : rRule.byDay[dayOfWeek]) {
                 if(b == tof || b == tol) {
                     return true;
                 }
@@ -863,20 +867,20 @@ public class EventIterator {
         private Date until;
 
         protected EndingUntil() {
-            until = entry.rRule.getUntil();
-            if(rangeEnd.isSmallerThen(until)) {
+            until = rRule.getUntil();
+            if(rangeEnd.isBeforeDate(until)) {
                 until = rangeEnd;
             }
         }
 
         @Override
         protected boolean reached() {
-            return cursor.isGreaterThen(until);
+            return cursor.isAfterDate(until);
         }
 
         @Override
         protected boolean reached(Date date) {
-            return date.isGreaterThen(until);
+            return date.isAfterDate(until);
         }
 
     }
@@ -887,12 +891,12 @@ public class EventIterator {
 
         @Override
         protected boolean reached() {
-            return (count++ < entry.rRule.count && cursor.isGreaterThen(rangeEnd));
+            return (count++ < rRule.count && cursor.isAfterDate(rangeEnd));
         }
 
         @Override
         protected boolean reached(Date date) {
-            return (count < entry.rRule.count && date.isGreaterThen(rangeEnd));
+            return (count < rRule.count && date.isAfterDate(rangeEnd));
         }
     }
 
@@ -900,12 +904,12 @@ public class EventIterator {
 
         @Override
         protected boolean reached() {
-            return cursor.isGreaterThen(rangeEnd);
+            return cursor.isAfterDate(rangeEnd);
         }
 
         @Override
         protected boolean reached(Date date) {
-            return date.isGreaterThen(rangeEnd);
+            return date.isAfterDate(rangeEnd);
         }
 
     }

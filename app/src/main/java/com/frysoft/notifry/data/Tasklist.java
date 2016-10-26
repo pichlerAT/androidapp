@@ -1,8 +1,13 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueCategory;
+import com.frysoft.notifry.data.value.ValueInteger;
+import com.frysoft.notifry.data.value.ValueString;
+import com.frysoft.notifry.data.value.ValueUnsignedByte;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.Date;
 
 import java.util.ArrayList;
 
@@ -10,13 +15,15 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public int drag_id;
 
-    protected int color;
+    protected int owner_id;
 
-    protected byte state;
+    protected ValueCategory category = new ValueCategory();
 
-    protected String name;
+    protected ValueString name = new ValueString();
 
-    protected Category category;
+    protected ValueUnsignedByte state = new ValueUnsignedByte();
+
+    protected ValueInteger color = new ValueInteger();
 
     protected ArrayList<TasklistEntry> entries = new ArrayList<>();
 
@@ -25,13 +32,14 @@ public class Tasklist extends MySQLEntry implements Fryable {
     protected Tasklist(FryFile fry) {
         super(fry);
         Logger.Log("Tasklist", "Tasklist(FryFile)");
+        owner_id = fry.readId();
 
-        category = Data.Categories.getById(fry.getUnsignedInt());
-        name = fry.getString();
-        state = fry.getUnsignedByte();
-        color = fry.getInt();
+        category.readFrom(fry);
+        name.readFrom(fry);
+        state.readFrom(fry);
+        color.readFrom(fry);
 
-        int NoEntries = fry.getArrayLength();
+        int NoEntries = fry.readArrayLength();
         for(int i=0; i<NoEntries; ++i) {
             TasklistEntry ent = new TasklistEntry(fry);
             ent.tasklist = this;
@@ -39,24 +47,19 @@ public class Tasklist extends MySQLEntry implements Fryable {
         }
 
         shares.readFrom(fry);
-    }
 
-    protected Tasklist(int id, int user_id, Category category, String name, byte state, int color) {
-        super(id, user_id);
-        Logger.Log("Tasklist", "Tasklist(int,int,byte,String)");
-        this.state = state;
-        this.name = name;
-        this.color = color;
-
-        this.category = category;
-
-        if(id != 0) {
-            shares = new ShareList(this);
+        if(category.isChanged() || name.isChanged() || state.isChanged() || color.isChanged()) {
+            update();
         }
     }
 
-    protected Tasklist(int id, int user_id, int category_id, String name, byte state, int color) {
-        this(id, user_id, Data.Categories.getById(category_id), name, state, color);
+    protected Tasklist(int id, int user_id, Category category, String name, byte state, int color) {
+        super(id, user_id, Date.getMillis());
+        Logger.Log("Tasklist", "Tasklist(int,int,byte,String)");
+        this.state.setValue(state);
+        this.name.setValue(name);
+        this.color.setValue(color);
+        this.category.setValue(category);
     }
 
     @Override
@@ -69,69 +72,24 @@ public class Tasklist extends MySQLEntry implements Fryable {
         Logger.Log("Tasklist", "equals(Object)");
         if(o instanceof Tasklist) {
             Tasklist t = (Tasklist) o;
-            if(t.id != id || t.state != state || !t.name.equals(name) || color!=t.color || t.entries.size() != entries.size()) {
-                return false;
-            }
-            for(int i=0; i<entries.size(); ++i) {
-                if(!t.entries.get(i).equals(entries.get(i))) {
-                    return false;
+            if (t.id == id || t.state.equals(state) || t.name.equals(name) || t.color.equals(color) || t.entries.size() == entries.size()) {
+                for (int i = 0; i < entries.size(); ++i) {
+                    if (!t.entries.get(i).equals(entries.get(i))) {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
         }
         return false;
     }
 
     @Override
-    public Tasklist backup() {
-        Logger.Log("Tasklist", "backup()");
-        Tasklist tl = new Tasklist(id, user_id, category, name, state, color);
-        for(TasklistEntry ent : entries) {
-            tl.entries.add(ent.backup());
-        }
-        return tl;
-    }
-
-    @Override
-    protected boolean mysql_create() {
-        Logger.Log("Tasklist", "mysql_create()");
-        FryFile fry = executeMySQL(DIR_TASKLIST + "create.php", "&category_id=" + getCategoryId() + "&name=" + name + "&state=" + signed(state) + "&color=" + signed(color));
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            shares = new ShareList(this);
-
-            for(TasklistEntry ent : entries) {
-                ent.create();
-            }
-            return true;
-        }
-        return false;
-    }
-    @Override
-    protected boolean mysql_update() {
-        Logger.Log("Tasklist", "mysql_update()");
-        return (executeMySQL(DIR_TASKLIST + "update.php", "&id=" + signed(id) + "&category_id=" + getCategoryId() + "&name=" + name + "&state=" + signed(state) + "&color=" + signed(color)) != null);
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_TASKLIST;
-    }
-
-    @Override
-    protected String getPath() {
-        return DIR_TASKLIST;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-        Logger.Log("Tasklist", "synchronize(MySQL)");
-        Tasklist t = (Tasklist) mysql;
-        state = t.state;
-        name = t.name;
-        entries = t.entries;
-        color = t.color;
+    protected void addData(MySQL mysql) {
+        mysql.addId("category_id", id);
+        mysql.add("name", name);
+        mysql.add("state", state);
+        mysql.add("color", color);
     }
 
     @Override
@@ -149,13 +107,43 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     @Override
+    protected void sync(MySQLEntry entry) {
+        Tasklist tl = (Tasklist) entry;
+        boolean update = false;
+
+        if(category.doUpdate(tl.category)) {
+            update = true;
+        }
+        if(name.doUpdate(tl.name)) {
+            update = true;
+        }
+        if(state.doUpdate(tl.state)) {
+            update = true;
+        }
+        if(color.doUpdate(tl.color)) {
+            update = true;
+        }
+
+        if(update) {
+            update();
+        }
+    }
+
+    @Override
+    protected char getType() {
+        return TYPE_TASKLIST;
+    }
+
+    @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Tasklist", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeUnsignedInt(getCategoryId());
-        fry.writeString(name);
-        fry.writeUnsignedByte(state);
-        fry.writeInt(color);
+        fry.writeId(owner_id);
+
+        category.writeTo(fry);
+        name.writeTo(fry);
+        state.writeTo(fry);
+        color.writeTo(fry);
         fry.writeObjects(entries);
         shares.writeTo(fry);
     }
@@ -181,7 +169,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public String getName() {
         Logger.Log("Tasklist", "getName()");
-        return name;
+        return name.getValue();
     }
 
     public Contact getOwner() {
@@ -199,16 +187,16 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public boolean isDone() {
         Logger.Log("Tasklist", "isDone()");
-        return ( state == 1 );
+        return ( state.getValue() == 1 );
     }
 
     public void rename(String name) {
         Logger.Log("Tasklist", "rename(String)");
-        this.name = name;
+        this.name.setValue(name);
         update();
     }
 
-    public void addEntry(String task,boolean state) {
+    public void addEntry(String task, boolean state) {
         Logger.Log("Tasklist", "addEntry(String,boolean)");
         TasklistEntry ent = new TasklistEntry(this, task, state);
         entries.add(ent);
@@ -217,7 +205,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
         }
     }
 
-    public void addEntry(int index,String task,boolean state) {
+    public void addEntry(int index, String task, boolean state) {
         Logger.Log("Tasklist", "addEntry(int,String,boolean)");
         TasklistEntry ent = new TasklistEntry(this, task, state);
         entries.add(index,ent);
@@ -227,28 +215,31 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public void set(String name, byte state, int color) {
-        this.name = name;
-        this.state = state;
-        this.color = color;
+        this.name.setValue(name);
+        this.state.setValue(state);
+        this.color.setValue(color);
         update();
     }
 
-    public void set(String name,boolean done, int color) {
+    public void set(String name, boolean done, int color) {
         Logger.Log("Tasklist", "change(String,boolean)");
         set(name, done ? (byte)1 : (byte)0, color);
     }
 
     public void setState(boolean done) {
         Logger.Log("Tasklist", "change(boolean)");
-        set(name, done, color);
+        this.state.setValue(done ? (byte)1 : (byte)0);
+        update();
     }
 
     public void setName(String name) {
-        set(name, state, color);
+        this.name.setValue(name);
+        update();
     }
 
     public void setColor(int color) {
-        set(name, state, color);
+        this.color.setValue(color);
+        update();
     }
 
     public boolean isDone(int index) {
@@ -263,14 +254,11 @@ public class Tasklist extends MySQLEntry implements Fryable {
 
     public String getTaskName(int index) {
         Logger.Log("Tasklist", "getTaskName(int)");
-        return entries.get(index).description;
+        return entries.get(index).description.getValue();
     }
 
     public int getCategoryId() {
-        if(category == null) {
-            return 0;
-        }
-        return category.id;
+        return category.getId();
     }
 
     public void delete(int index) {
@@ -292,7 +280,7 @@ public class Tasklist extends MySQLEntry implements Fryable {
     }
 
     public int getColor() {
-        return color;
+        return color.getValue();
     }
 
 }

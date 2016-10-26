@@ -26,8 +26,8 @@ public class NetworkStateReciever extends BroadcastReceiver {
         Logger.Log("NetworkStateReciever", "onReceive(Context,Intent)");
         if(App.isAppActive && intent.getExtras() != null) {
 
-            NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
-            if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
+            NetworkInfo ni = (NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
+            if(ni != null && ni.getState() == NetworkInfo.State.CONNECTED) {
 
                 checkInternet();
 

@@ -7,14 +7,11 @@ import java.util.ArrayList;
 
 public class Manager<E extends MySQLEntry> implements Fryable {
 
-    protected int nextId = 0;
-
-    protected BackupList<E> list = new BackupList<>();
+    protected ArrayList<E> list = new ArrayList<>();
 
     @Override
     public void writeTo(FryFile fry) {
-        fry.writeObjects(list.getList());
-        fry.writeObjects(list.getBackupList());
+        fry.writeObjects(list);
     }
 
     public E get(int index) {
@@ -22,8 +19,8 @@ public class Manager<E extends MySQLEntry> implements Fryable {
     }
 
     public E getById(int id) {
-        for(E e : list.getList()) {
-            if(e.id == id /*&& e.isOnline()*/) {
+        for(E e : list) {
+            if(e.id == id) {
                 return e;
             }
         }
@@ -31,39 +28,15 @@ public class Manager<E extends MySQLEntry> implements Fryable {
     }
 
     public ArrayList<E> getList() {
-        return list.getList();
+        return list;
     }
 
     protected void add(int index, E e) {
-        if(e.isOffline()) {
-
-            if(e.id == 0) {
-                e.id = nextId++;
-
-            }else {
-                nextId = e.id + 1;
-            }
-
-        }
         list.add(index, e);
     }
 
     protected void add(E e) {
-        if(e.isOffline()) {
-
-            if(e.id == 0) {
-                e.id = nextId++;
-
-            }else {
-                nextId = e.id + 1;
-            }
-
-        }
         list.add(e);
-    }
-
-    protected void addBackup(E e) {
-        list.addBackup(e);
     }
 
     protected boolean remove(E e) {
@@ -74,17 +47,37 @@ public class Manager<E extends MySQLEntry> implements Fryable {
         return list.size();
     }
 
-    protected void synchronizeWith(ArrayList<E> eList) {
-        list.synchronizeWith(eList);
-    }
+    protected void synchronizeWith(E[] onList) {
+        boolean[] online = new boolean[list.size()];
 
-    protected void optimizeIds() {
-        nextId = 1;
-        for(E e : list.getList()) {
-            if(e.isOffline()) {
-                e.id = nextId++;
+        for(int i=0; i<onList.length; ++i) {
+            int index = indexOf(onList[i]);
+
+            if(index < 0) {
+                if(!ConnectionManager.hasEntry(onList[i], MySQLEntry.BASETYPE_DELETE)) {
+                    list.add(onList[i]);
+                }
+
+            }else {
+                online[index] = true;
+                list.get(index).synchronize(onList[i]);
             }
         }
+
+        for(int i=online.length-1; i>=0; --i) {
+            if(!online[i]) {
+                list.remove(i);
+            }
+        }
+    }
+
+    protected int indexOf(E e) {
+        for(int i=0; i<list.size(); ++i) {
+            if(list.get(i).equals(e)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

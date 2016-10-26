@@ -5,10 +5,10 @@ import android.net.Uri;
 import android.provider.CalendarContract;
 
 import com.frysoft.notifry.utils.App;
-import com.frysoft.notifry.utils.Date;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
-import com.frysoft.notifry.utils.Time;
+import com.frysoft.notifry.utils.Date;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -23,7 +23,7 @@ public class Data {
 
     public static Manager<Tag> Tags = new Manager<>();
 
-    public static final Timetable Timetable = new Timetable();
+    public static Timetable Timetable = new Timetable();
 
     public static Manager<Tasklist> Tasklists = new Manager<>();
 
@@ -45,16 +45,15 @@ public class Data {
             return tl;
         }
 
-        public static TimetableEntry TimetableEntry(Category category, String title, String description, Date date_start, Date date_end,
-                                                    Time time_start, Time time_end, int color, RRule rRule) {
+        public static TimetableEntry TimetableEntry(Category category, String title, String description, Date start, Date end, int color, RRule rRule) {
             Logger.Log("TimetableEntry", "create(byte,String,String,DateSpan,TimetableCategory)");
 
             if(title == null) {
                 throw new IllegalArgumentException("title must not be null");
             }
 
-            if(date_start == null) {
-                throw new IllegalArgumentException("date_start must not be null");
+            if(start == null) {
+                throw new IllegalArgumentException("start must not be null");
             }
 
             if(description == null || description.length() == 0) {
@@ -64,50 +63,43 @@ public class Data {
             if(rRule == null) {
                 rRule = new RRule();
 
-                if(time_start == null && time_end == null) {
+                if(start.minute == 0 && start.hour == 0 && end.minute == 59 && end.hour == 23) {
                     rRule.setWholeDay(true);
                 }
             }
 
-            if(time_start == null) {
-                time_start = new Time(Time.MIN_TIME);
+            if(end == null) {
+                end = start.copy();
+                rRule.setWholeDay(true);
             }
 
-            if(date_end == null) {
-                date_end = new Date(date_start);
-            }
-
-            if(time_end == null) {
-                time_end = new Time(Time.MAX_TIME - 1);
-            }
-
-            TimetableEntry ent = new TimetableEntry(0, 0, category, title, description, date_start.getShort(), time_start.time, date_end.getShort(), time_end.time, rRule, color, "E");
+            TimetableEntry ent = new TimetableEntry(0, 0, category, title, description, start.getInt(), end.getInt(), rRule, color, "E");
 
             Timetable.Entries.add(ent);
             ent.create();
             return ent;
         }
 
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule) {
+        public static Tag Tag(Category category, String title, String description, Date start, Date end, RRule rRule) {
 
             if(rRule == null) {
                 rRule = new RRule();
             }
 
-            Tag tag = new Tag(category, title, description, date_start, time_start, date_end, time_end, rRule, false, 0);
+            Tag tag = new Tag(category, title, description, start, end, rRule, false, 0);
 
             Tags.add(tag);
             tag.create();
             return tag;
         }
 
-        public static Tag Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, int color) {
+        public static Tag Tag(Category category, String title, String description, Date start, Date end, RRule rRule, int color) {
 
             if(rRule == null) {
                 rRule = new RRule();
             }
 
-            Tag tag = new Tag(category, title, description, date_start, time_start, date_end, time_end, rRule, true, color);
+            Tag tag = new Tag(category, title, description, start, end, rRule, true, color);
 
             Tags.add(tag);
             tag.create();
@@ -146,7 +138,7 @@ public class Data {
     }
 
     public static Share getTimetableShareById(int id) {
-        return Timetable.Shares.getById(id);
+        return Timetable.shares.getById(id);
     }
 
     public static Share getTimetableEntryShareById(int id) {
@@ -238,7 +230,7 @@ public class Data {
             return getLocalFryFile();
         }
 
-        fry.setVersion(fry.getChar());
+        fry.setVersion(fry.readChar());
 
         if(User.decode(fry)) {
             System.out.println("# SUCCESSFULLY LOADED USER DATA");
@@ -285,7 +277,7 @@ public class Data {
             FryFile fry = new FryFile.Compact();
             if (fry.loadFromStream(inputStream)) {
 
-                fry.setVersion(fry.getChar());
+                fry.setVersion(fry.readChar());
 
                 System.out.println("# SUCCESSFULLY LOADED LOCAL DATA");
 
@@ -299,108 +291,127 @@ public class Data {
     }
 
     protected static void writeTo(FryFile fry) {
+        ConnectionManager.setReady(false);
+        setOfflineIds();
         Categories.writeTo(fry);
         Tasklists.writeTo(fry);
         Timetable.Entries.writeTo(fry);
-        Timetable.Shares.writeTo(fry);
+        Timetable.shares.writeTo(fry);
         Tags.writeTo(fry);
+        removeOfflineIds();
+        ConnectionManager.setReady(true);
     }
 
     protected static void resetData() {
         Categories = new Manager<>();
         Tasklists = new Manager<>();
+        Timetable = new Timetable();
         Timetable.Entries = new Manager<>();
-        Timetable.Shares = new ShareList(Timetable);
+        Timetable.shares = new ShareList(Timetable);
         Tags = new Manager<>();
     }
 
     protected static void readFrom(FryFile fry) {
         int count;
 
-
-        count = fry.getArrayLength();
+        count = fry.readArrayLength();
         for(int i=0; i<count; ++i) {
             Categories.add(new Category(fry));
         }
 
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Categories.addBackup(new Category(fry));
-        }
-
-
-        count = fry.getArrayLength();
+        count = fry.readArrayLength();
         for (int i = 0; i < count; ++i) {
             Tasklists.add(new Tasklist(fry));
         }
 
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Tasklists.addBackup(new Tasklist(fry));
-        }
-
-
-        count = fry.getArrayLength();
+        count = fry.readArrayLength();
         for(int i=0; i<count; ++i) {
             Timetable.Entries.add(new TimetableEntry(fry));
         }
 
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Timetable.Entries.addBackup(new TimetableEntry(fry));
-        }
+        Timetable.shares.readFrom(fry);
 
-        Timetable.Shares.readFrom(fry);
-
-
-        count = fry.getArrayLength();
+        count = fry.readArrayLength();
         for(int i=0; i<count; ++i) {
             Tags.add(new Tag(fry));
         }
 
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Tags.addBackup(new Tag(fry));
-        }
-
+        /*
         Categories.optimizeIds();
         Tasklists.optimizeIds();
         Timetable.Entries.optimizeIds();
         Tags.optimizeIds();
+        */
+
+        removeOfflineIds();
+        ConnectionManager.setReady(true);
+    }
+
+    protected static void removeOfflineIds() {
+        for(int i=0; i<Categories.size(); ++i) {
+            Category cat = Categories.get(i);
+            if(cat.user_id == 0) {
+                cat.id = 0;
+            }
+        }
+    }
+
+    protected static void setOfflineIds() {
+        if(Categories.size() == 0) {
+            return;
+        }
+
+        int nextId = 2;
+        int minId = 0;
+        for(int i=0; i<Categories.size(); ++i) {
+            Category cat = Categories.get(i);
+            if(minId == 0 || (cat.id != 0 && cat.id < minId)) {
+                minId = cat.id;
+            }
+        }
+
+        for(int i=0; i<Categories.size(); ++i) {
+            Category cat = Categories.get(i);
+            if(cat.id == 0) {
+
+                if(nextId >= minId) {
+                    for (int j = 0; j < Categories.size(); ++j) {
+                        if(nextId == Categories.get(j).id) {
+                            nextId++;
+                            j = 0;
+                        }
+                    }
+                }
+                cat.id = nextId++;
+            }
+        }
     }
 
     protected static void synchronizeFromMySQL(FryFile fry) {
-        ArrayList<Category> catList = new ArrayList<>();
-        int count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            catList.add(new Category(fry));
+        Category[] catList = new Category[fry.readArrayLength()];
+        for(int i=0; i<catList.length; ++i) {
+            catList[i] = new Category(fry);
         }
         Categories.synchronizeWith(catList);
 
-        ArrayList<Tasklist> taskList = new ArrayList<>();
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            taskList.add(new Tasklist(fry));
+        Tasklist[] taskList = new Tasklist[fry.readArrayLength()];
+        for(int i=0; i<taskList.length; ++i) {
+            taskList[i] = new Tasklist(fry);
         }
         Tasklists.synchronizeWith(taskList);
 
-        ArrayList<TimetableEntry> entList = new ArrayList<>();
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            entList.add(new TimetableEntry(fry));
+        TimetableEntry[] entList = new TimetableEntry[fry.readArrayLength()];
+        for(int i=0; i<entList.length; ++i) {
+            entList[i] = new TimetableEntry(fry);
         }
         Timetable.Entries.synchronizeWith(entList);
 
-        Timetable.Shares = new ShareList(Timetable);
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            Timetable.Shares.addStorage(fry.getUnsignedByte(), fry.getUnsignedInt(), fry.getUnsignedInt());
-        }
+        Timetable.shares = new ShareList(Timetable);
+        Timetable.shares.readFrom(fry);
 
-        ArrayList<Tag> tagList = new ArrayList<>();
-        count = fry.getArrayLength();
-        for(int i=0; i<count; ++i) {
-            tagList.add(new Tag(fry));
+        Tag[] tagList = new Tag[fry.readArrayLength()];
+        for(int i=0; i<tagList.length; ++i) {
+            tagList[i] = new Tag(fry);
         }
         Tags.synchronizeWith(tagList);
     }
@@ -460,19 +471,15 @@ public class Data {
             Calendar cal = Calendar.getInstance();
 
             cal.setTimeInMillis(start);
-            Date date_start = new Date(cal);
-            Time time_start = new Time(cal);
-            if(!rRule.wholeDay) {
-                int timeZoneOffset = (cal.getTimeZone().getRawOffset() / 60000);
-                date_start.addDays(time_start.subtractMinutes(timeZoneOffset));
-            }
+            Date d_start = new Date(cal);
 
             cal.setTimeInMillis(end);
-            Date date_end = new Date(cal);
-            Time time_end = new Time(cal);
+            Date d_end = new Date(cal);
+
             if(!rRule.wholeDay) {
                 int timeZoneOffset = (cal.getTimeZone().getRawOffset() / 60000);
-                date_end.addDays(time_end.subtractMinutes(timeZoneOffset));
+                d_start.subtractMinutes(timeZoneOffset);
+                d_end.subtractMinutes(timeZoneOffset);
             }
 
             if(title == null) {
@@ -483,7 +490,7 @@ public class Data {
                 description = " ";
             }
 
-            TimetableEntry android = new TimetableEntry(0, 0, null, title, description, date_start.getShort(), time_start.time, date_end.getShort(), time_end.time, rRule, color, id);
+            TimetableEntry android = new TimetableEntry(0, 0, null, title, description, d_start.getInt(), d_end.getInt(), rRule, color, id);
 
             if(android.google_id == null) {
                 System.out.println("# GOOGLE_ID == NULL : "+android.title);
@@ -500,14 +507,12 @@ public class Data {
                 android.create();
 
             } else if (!android.equals(notifry)) {
-                notifry.synchronize(android);
+                notifry.sync(android);
             }
 
         } while(cursor.moveToNext());
 
         cursor.close();
-
-        Timetable.Entries.list.recreateBackup();
 
         int dt = (int)(Calendar.getInstance().getTimeInMillis() - time) / 1000;
         int s = dt % 60;

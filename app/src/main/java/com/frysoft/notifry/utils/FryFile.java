@@ -18,13 +18,6 @@ public abstract class FryFile {
 
     protected int version = 0;
 
-    public String asdf() {
-        int index = readIndex;
-        String str = getString();
-        readIndex = index;
-        return str;
-    }
-
     public abstract boolean saveToStream(OutputStream outputStream);
 
     public abstract boolean loadFromStream(InputStream inputStream);
@@ -33,19 +26,19 @@ public abstract class FryFile {
 
     public abstract int size();
 
-    public abstract byte getByte();
+    public abstract byte readByte();
 
-    public abstract char getChar();
+    public abstract char readChar();
 
-    public abstract short getShort();
+    public abstract short readShort();
 
-    public abstract int getInt();
+    public abstract int readInt();
 
-    public abstract long getLong();
+    public abstract long readLong();
 
-    public abstract String getString();
+    public abstract String readString();
 
-    public abstract int getArrayLength();
+    public abstract int readArrayLength();
 
     public abstract void writeByte(byte b);
 
@@ -79,15 +72,23 @@ public abstract class FryFile {
 
     public abstract String getWrittenString();
 
-    public abstract byte getUnsignedByte();
+    public abstract byte readUnsignedByte();
 
-    public abstract short getUnsignedShort();
+    public abstract short readUnsignedShort();
 
-    public abstract int getUnsignedInt();
+    public abstract int readUnsignedInt();
 
     public abstract boolean hasNext();
 
     public abstract int getWrittenLength();
+
+    public final int readId() {
+        return readUnsignedInt();
+    }
+
+    public final void writeId(int id) {
+        writeUnsignedInt(id);
+    }
 
     public void setVersion(int version) {
         this.version = version;
@@ -129,51 +130,51 @@ public abstract class FryFile {
     }
 
     public byte[] getByteArray() {
-        byte[] b = new byte[getArrayLength()];
+        byte[] b = new byte[readArrayLength()];
         for (int k = 0; k < b.length; ++k) {
-            b[k] = getByte();
+            b[k] = readByte();
         }
         return b;
     }
 
-    public char[] getCharArray() {
-        char[] c = new char[getArrayLength()];
+    public char[] readCharArray() {
+        char[] c = new char[readArrayLength()];
         for (int k = 0; k < c.length; ++k) {
-            c[k] = getChar();
+            c[k] = readChar();
         }
         return c;
     }
 
-    public short[] getShortArray() {
-        short[] s = new short[getArrayLength()];
+    public short[] readShortArray() {
+        short[] s = new short[readArrayLength()];
         for (int k = 0; k < s.length; ++k) {
-            s[k] = getShort();
+            s[k] = readShort();
         }
         return s;
     }
 
-    public int[] getIntArray() {
-        int[] i = new int[getArrayLength()];
+    public int[] readIntArray() {
+        int[] i = new int[readArrayLength()];
         for (int k = 0; k < i.length; ++k) {
-            i[k] = getInt();
+            i[k] = readInt();
         }
         return i;
     }
 
-    public String[] getStringArray() {
-        String[] str = new String[getArrayLength()];
+    public String[] readStringArray() {
+        String[] str = new String[readArrayLength()];
         for (int k = 0; k < str.length; ++k) {
-            str[k] = getString();
+            str[k] = readString();
         }
         return str;
     }
 
-    public String getDecoded(String code, int codeOffset) {
+    public String readDecoded(String code, int codeOffset) {
         if(codeOffset >= code.length()) {
             codeOffset = code.length() % codeOffset;
         }
 
-        String str = getString();
+        String str = readString();
         String string = "";
         int codeIndex = codeOffset;
 
@@ -312,38 +313,42 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getByte() {
-            return (byte) getChar();
+        public byte readByte() {
+            return (byte) readChar();
         }
 
         @Override
-        public char getChar() {
+        public char readChar() {
             return readLine[readIndex++];
         }
 
         @Override
-        public short getShort() {
-            return (short) getChar();
+        public short readShort() {
+            return (short) readChar();
         }
 
         @Override
-        public int getInt() {
-            return (getChar() | (getChar() << 16));
+        public int readInt() {
+            return (readChar() | (readChar() << 16));
         }
 
         @Override
-        public long getLong() {
-            return (getChar() | (getChar() << 16) | ((long)getChar() << 32) | ((long)getChar() << 48));
+        public long readLong() {
+            return (readChar() | (readChar() << 16) | ((long) readChar() << 32) | ((long) readChar() << 48));
         }
 
         @Override
-        public String getString() {
-            return new String(getCharArray());
+        public String readString() {
+            char[] string= readCharArray();
+            if(string.length == 1 && string[0] == 1) {
+                return null;
+            }
+            return new String(string);
         }
 
         @Override
-        public int getArrayLength() {
-            return getChar();
+        public int readArrayLength() {
+            return readChar();
         }
 
         @Override
@@ -373,8 +378,12 @@ public abstract class FryFile {
 
         @Override
         public void writeString(String str) {
-            writeArrayLength(str.length());
-            writeLine.append(str);
+            if(str == null) {
+                writeChars((char)1, (char)1);
+            }else {
+                writeArrayLength(str.length());
+                writeLine.append(str);
+            }
         }
 
         @Override
@@ -459,18 +468,18 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getUnsignedByte() {
-            return getByte();
+        public byte readUnsignedByte() {
+            return readByte();
         }
 
         @Override
-        public short getUnsignedShort() {
-            return getShort();
+        public short readUnsignedShort() {
+            return readShort();
         }
 
         @Override
-        public int getUnsignedInt() {
-            return getInt();
+        public int readUnsignedInt() {
+            return readInt();
         }
 
         @Override
@@ -647,33 +656,37 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getByte() {
+        public byte readByte() {
             return Byte.parseByte(readLine.get(readIndex++));
         }
 
         @Override
-        public char getChar() {
+        public char readChar() {
             return readLine.get(readIndex++).charAt(0);
         }
 
         @Override
-        public short getShort() {
+        public short readShort() {
             return Short.parseShort(readLine.get(readIndex++));
         }
 
         @Override
-        public int getInt() {
+        public int readInt() {
             return Integer.parseInt(readLine.get(readIndex++));
         }
 
         @Override
-        public long getLong() {
+        public long readLong() {
             return Long.parseLong(readLine.get(readIndex++));
         }
 
         @Override
-        public String getString() {
+        public String readString() {
             String s = readLine.get(readIndex++);
+
+            if(s.length() == 1 && s.charAt(0) == (char)1) {
+                return null;
+            }
 
             if(compile_mode == COMPILER_INCLUDES_COMPACT) {
                 if(s.equals(emptyString)) {
@@ -685,8 +698,8 @@ public abstract class FryFile {
         }
 
         @Override
-        public int getArrayLength() {
-            return getInt();
+        public int readArrayLength() {
+            return readInt();
         }
 
         @Override
@@ -696,7 +709,11 @@ public abstract class FryFile {
 
         @Override
         public void writeChar(char c) {
-            writeLine += c + splitString;
+            if(writeLine.length() == 0) {
+                writeLine += c;
+            }else {
+                writeLine += splitString + c;
+            }
         }
 
         @Override
@@ -716,12 +733,21 @@ public abstract class FryFile {
 
         @Override
         public void writeString(String s) {
-            if(compile_mode == COMPILER_INCLUDES_COMPACT) {
-                if (s.isEmpty()) {
-                    s += emptyString;
+            if(s == null) {
+                writeLine += splitString + (char)1;
+
+            }else {
+                if (compile_mode == COMPILER_INCLUDES_COMPACT) {
+                    if (s.isEmpty()) {
+                        s += emptyString;
+                    }
+                }
+                if (writeLine.length() == 0) {
+                    writeLine = s;
+                } else {
+                    writeLine += splitString + s;
                 }
             }
-            writeLine += s + splitString;
         }
 
         @Override
@@ -775,18 +801,18 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getUnsignedByte() {
-            return (byte)getShort();
+        public byte readUnsignedByte() {
+            return (byte) readShort();
         }
 
         @Override
-        public short getUnsignedShort() {
-            return (short)getInt();
+        public short readUnsignedShort() {
+            return (short) readInt();
         }
 
         @Override
-        public int getUnsignedInt() {
-            return (int)getLong();
+        public int readUnsignedInt() {
+            return (int) readLong();
         }
 
         @Override
@@ -834,27 +860,27 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getByte() {
+        public byte readByte() {
             return 0;
         }
 
         @Override
-        public char getChar() {
+        public char readChar() {
             return readLine.charAt(readIndex++);
         }
 
         @Override
-        public short getShort() {
+        public short readShort() {
             return 0;
         }
 
         @Override
-        public int getInt() {
+        public int readInt() {
             return 0;
         }
 
         @Override
-        public long getLong() {
+        public long readLong() {
             int v = 1;
             char c = readLine.charAt(readIndex);
             if(c == '+') {
@@ -875,12 +901,12 @@ public abstract class FryFile {
         }
 
         @Override
-        public String getString() {
+        public String readString() {
             return null;
         }
 
         @Override
-        public int getArrayLength() {
+        public int readArrayLength() {
             return 0;
         }
 
@@ -965,17 +991,17 @@ public abstract class FryFile {
         }
 
         @Override
-        public byte getUnsignedByte() {
+        public byte readUnsignedByte() {
             return 0;
         }
 
         @Override
-        public short getUnsignedShort() {
+        public short readUnsignedShort() {
             return 0;
         }
 
         @Override
-        public int getUnsignedInt() {
+        public int readUnsignedInt() {
             return 0;
         }
 

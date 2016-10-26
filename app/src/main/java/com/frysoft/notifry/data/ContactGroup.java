@@ -1,14 +1,18 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueString;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.SearchableList;
+import com.frysoft.notifry.utils.Date;
 
 import java.util.ArrayList;
 
 public class ContactGroup extends MySQLEntry {
 
-    protected String name;
+    protected ValueString name = new ValueString();
+
+    protected boolean contacts_changed = false;
 
     protected SearchableList<Contact> contacts = new SearchableList<>();
 
@@ -16,22 +20,30 @@ public class ContactGroup extends MySQLEntry {
         super(fry);
         Logger.Log("ContactGroup", "ContactGroup(FryFile)");
 
-        name = fry.getString();
+        name.readFrom(fry);
 
         ContactGroup all = ContactList.groups.get(ContactList.groups.size() - 1);
-        int NoContacts = fry.getArrayLength();
+        int NoContacts = fry.readArrayLength();
         for(int i=0; i<NoContacts; ++i) {
-            Contact cont = all.getContactByUserId(fry.getUnsignedInt());
+            Contact cont = all.getContactByUserId(fry.readId());
             if(cont != null) {
                 contacts.add(cont);
             }
         }
+
+        if(fry instanceof FryFile.Compact) {
+            contacts_changed = (fry.readChar() == 1);
+        }
+
+        if(name.isChanged() || contacts_changed) {
+            update();
+        }
     }
 
     protected ContactGroup(int id, int user_id, String name) {
-        super(id, user_id);
+        super(id, user_id, Date.getMillis());
         Logger.Log("ContactGroup", "ContactGroup(int,String)");
-        this.name = name;
+        this.name.setValue(name);
     }
 
     protected ContactGroup(String name) {
@@ -44,61 +56,22 @@ public class ContactGroup extends MySQLEntry {
         Logger.Log("ContactGroup", "equals(Object)");
         if(o instanceof ContactGroup) {
             ContactGroup g = (ContactGroup) o;
-            if(g.id != id || !g.name.equals(name) || g.contacts.size() != contacts.size()) {
-                return false;
-            }
-            for(int i=0; i<contacts.size(); ++i) {
-                if(!g.contacts.get(i).equals(contacts.get(i))) {
-                    return false;
+            if(g.id != id || !g.name.equals(name) || g.contacts.baseLength() != contacts.baseLength()) {
+                for (int i = 0; i < contacts.baseLength(); ++i) {
+                    if (!g.contacts.getBase(i).equals(contacts.getBase(i))) {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
         }
         return false;
     }
 
     @Override
-    public ContactGroup backup() {
-        Logger.Log("ContactGroup", "backup()");
-        ContactGroup grp = new ContactGroup(id, user_id, name);
-        grp.contacts = contacts.clone();
-        return grp;
-    }
-
-    @Override
-    protected boolean mysql_create() {
-        Logger.Log("ContactGroup", "mysql_create()");
-        FryFile fry = executeMySQL(DIR_CONTACT_GROUP+"create.php","&name="+name+"&contacts="+getContactsString());
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        Logger.Log("ContactGroup", "mysql_update()");
-        return (executeMySQL(DIR_CONTACT_GROUP+"update.php", "&id="+signed(id)+"&name="+name+"&contacts="+getContactsString()) != null);
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_CONTACT_GROUP;
-    }
-
-    @Override
-    protected String getPath() {
-        return DIR_CONTACT_GROUP;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-        Logger.Log("ContactGroup", "synchronize(MySQL)");
-        ContactGroup g = (ContactGroup) mysql;
-        name = g.name;
-        contacts = g.contacts;
+    protected void addData(MySQL mysql) {
+        mysql.add("name", name);
+        mysql.addString("contacts", getContactsString());
     }
 
     @Override
@@ -113,30 +86,54 @@ public class ContactGroup extends MySQLEntry {
     }
 
     @Override
+    protected void sync(MySQLEntry entry) {
+        ContactGroup cg = (ContactGroup) entry;
+        boolean update = false;
+
+        if(name.doUpdate(cg.name)) {
+            update = true;
+        }
+
+        contacts = cg.contacts;
+
+        if(update) {
+            update();
+        }
+    }
+
+    @Override
+    protected char getType() {
+        return TYPE_CONTACT_GROUP;
+    }
+
+    @Override
     public void writeTo(FryFile fry) {
         Logger.Log("ContactGroup", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeString(name);
+        name.writeTo(fry);
 
         int[] uids = new int[contacts.size()];
         for(int i=0; i<uids.length; ++i) {
             uids[i] = contacts.get(i).user_id;
         }
         fry.writeIntArray(uids);
+
+        fry.writeChar((char)(contacts_changed ? 1 : 0));
     }
 
     @Override
-    public void remove() {
+    protected void remove() {
         ContactList.groups.remove(this);
     }
 
     public String getContactsString() {
         Logger.Log("ContactGroup", "getContactsString()");
-        String s = "" + contacts.size();
+        FryFile fry = new FryFile.Split((char)0);
+        fry.writeArrayLength(contacts.size());
         for(Contact c : contacts) {
-            s += S + signed(c.user_id) ;
+            fry.writeId(c.user_id);
         }
-        return s;
+        return fry.getWrittenString();
     }
 
     public int getContactIndexByUserId(int user_id) {
@@ -165,38 +162,45 @@ public class ContactGroup extends MySQLEntry {
     }
 
     public void setName(String name) {
-        Logger.Log("ContactGroup", "setName(String)");
-        this.name = name;
+        this.name.setValue(name);
         update();
     }
 
+    public void addContact(Contact contact) {
+        if(getContactByUserId(contact.user_id) == null) {
+            contacts.add(contact);
+            contacts_changed = true;
+            update();
+        }
+    }
+
     public void addContacts(ArrayList<Contact> contacts) {
-        Logger.Log("ContactGroup", "addContacts(ArrayList<Contact>)");
-        for(Contact c : contacts) {
-            if(getContactByUserId(c.user_id) == null) {
-                this.contacts.add(c);
+        for(Contact contact : contacts) {
+            if(getContactByUserId(contact.user_id) == null) {
+                this.contacts.add(contact);
             }
         }
+        contacts_changed = true;
         update();
     }
 
     public void removeContact(Contact contact) {
-        Logger.Log("ContactGroup", "removeContact(Contact)");
         contacts.remove(contact);
+        contacts_changed = true;
         update();
     }
 
     public void removeContacts(ArrayList<Contact> contacts) {
-        Logger.Log("ContactGroup", "removeContacts(ArrayList<Contact>)");
         for(Contact c : contacts) {
             this.contacts.remove(c);
         }
+        contacts_changed = true;
         update();
     }
 
     public String getName() {
         Logger.Log("ContactGroup", "getName()");
-        return name;
+        return name.getValue();
     }
 
     public int getNoContacts() {

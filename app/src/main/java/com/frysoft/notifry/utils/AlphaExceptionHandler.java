@@ -33,7 +33,7 @@ public class AlphaExceptionHandler implements Thread.UncaughtExceptionHandler {
         intent.putExtra(Intent.EXTRA_TEXT, stackTrace + "\n\n" + log);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //App.getContext().startActivity(Intent.createChooser(intent, "Send Bugreport"));
-        App.getContext().startActivity(intent);
+        //App.getContext().startActivity(intent);
 
         defaultEH.uncaughtException(thread, ex);
     }

@@ -1,35 +1,41 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueString;
+import com.frysoft.notifry.data.value.ValueUnsignedByte;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
+import com.frysoft.notifry.utils.Date;
 
 public class TasklistEntry extends MySQLEntry implements Fryable {
 
-    protected byte state;
+    protected ValueString description = new ValueString();
 
-    protected String description;
+    protected ValueUnsignedByte state = new ValueUnsignedByte();
 
     protected Tasklist tasklist;
 
     protected TasklistEntry(FryFile fry) {
         super(fry);
         Logger.Log("TasklistEntry", "TasklistEntry(FryFile)");
-        description = fry.getString();
-        state = fry.getUnsignedByte();
+        description.readFrom(fry);
+        state.readFrom(fry);
+
+        if(description.isChanged() || state.isChanged()) {
+            update();
+        }
     }
 
     protected TasklistEntry(int id, int user_id, Tasklist tasklist, String description, byte state) {
-        super(id, user_id);
+        super(id, user_id, Date.getMillis());
         Logger.Log("TasklistEntry", "TasklistEntry(int,int,byte,int,String)");
         this.tasklist = tasklist;
-        this.description = description;
-        this.state = state;
+        this.description.setValue(description);
+        this.state.setValue(state);
     }
 
     protected TasklistEntry(Tasklist tasklist, String description, boolean state) {
         this(0, 0, tasklist, description, (state ? (byte)1 : (byte)0));
-        Logger.Log("TasklistEntry", "TasklistEntry(String,boolean)");
     }
 
     @Override
@@ -37,51 +43,16 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         Logger.Log("TasklistEntry", "equals(Object)");
         if(o instanceof TasklistEntry) {
             TasklistEntry e = (TasklistEntry) o;
-            return (e.id == id && e.state == state && e.description.equals(description));
+            return (e.id == id && e.state.equals(state) && e.description.equals(description));
         }
         return false;
     }
 
     @Override
-    public TasklistEntry backup() {
-        Logger.Log("TasklistEntry", "backup()");
-        return new TasklistEntry(id, user_id, tasklist, description, state);
-    }
-
-    @Override
-    protected boolean mysql_create() {
-        Logger.Log("TasklistEntry", "mysql_create()");
-        FryFile fry = executeMySQL(DIR_TASKLIST_ENTRY + "create.php","&table_id="+signed(tasklist.id)+"&description="+description+"&state="+signed(state));
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean mysql_update() {
-        Logger.Log("TasklistEntry", "mysql_update()");
-        return (executeMySQL(DIR_TASKLIST_ENTRY + "update.php","&id="+signed(id)+"&description="+description+"&state="+signed(state)) != null);
-    }
-
-    @Override
-    protected byte getType() {
-        return TYPE_TASKLIST_ENTRY;
-    }
-
-    @Override
-    protected String getPath() {
-        return DIR_TASKLIST_ENTRY;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-        Logger.Log("TasklistEntry", "synchronize(MySQL)");
-        TasklistEntry e = (TasklistEntry) mysql;
-        state = e.state;
-        description = e.description;
+    protected void addData(MySQL mysql) {
+        mysql.addId("table_id", tasklist.id);
+        mysql.add("description", description);
+        mysql.add("state", state);
     }
 
     @Override
@@ -96,11 +67,33 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
     }
 
     @Override
+    protected void sync(MySQLEntry entry) {
+        TasklistEntry tle = (TasklistEntry) entry;
+        boolean update = false;
+
+        if(state.doUpdate(tle.state)) {
+            update = true;
+        }
+        if(description.doUpdate(tle.description)) {
+            update = true;
+        }
+
+        if(update) {
+            update();
+        }
+    }
+
+    @Override
+    protected char getType() {
+        return TYPE_TASKLIST_ENTRY;
+    }
+
+    @Override
     public void writeTo(FryFile fry) {
         Logger.Log("TasklistEntry", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeString(description);
-        fry.writeUnsignedByte(state);
+        description.writeTo(fry);
+        state.writeTo(fry);
     }
 
     @Override
@@ -108,39 +101,33 @@ public class TasklistEntry extends MySQLEntry implements Fryable {
         tasklist.entries.remove(this);
     }
 
-    public void set(String description,boolean state) {
-        Logger.Log("TasklistEntry", "set(String,boolean)");
-        this.description = description;
-        this.state = ( state ? (byte)1 : (byte)0 );
-        if(tasklist.isOnline()) {
-            update();
-        }
+    public void set(String description, byte state) {
+        this.description.setValue(description);
+        this.state.setValue(state);
+        update();
+    }
+    public void set(String description, boolean state) {
+        set(description, (state ? (byte)1 : (byte)0));
     }
 
-    public void setDescription(String description, boolean state) {
-        Logger.Log("TasklistEntry", "setDescription(String,boolean)");
-        this.description = description;
-        if(tasklist.isOnline()) {
-            update();
-        }
+    public void setDescription(String description) {
+        this.description.setValue(description);
+        update();
     }
 
     public void setState(boolean state) {
-        Logger.Log("TasklistEntry", "setState(boolean)");
-        this.state = ( state ? (byte)1 : (byte)0 );
-        if(tasklist.isOnline()) {
-            update();
-        }
+        this.state.setValue(state ? (byte)1 : (byte)0);
+        update();
     }
 
     public String getDescription() {
         Logger.Log("TasklistEntry", "getDescription()");
-        return description;
+        return description.getValue();
     }
 
     public boolean isDone() {
         Logger.Log("TasklistEntry", "isDone()");
-        return ( state == 1 );
+        return ( state.getValue() == 1 );
     }
 
     public Contact getOwner() {

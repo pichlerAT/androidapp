@@ -11,48 +11,78 @@ public class ShareList implements Fryable {
     /**
      * MySQL TYPE_...
      */
-    protected MySQL sharedEntry;
+    protected MySQLEntry sharedEntry;
 
-    protected ArrayList<ShareStorage> storages = new ArrayList<>();
+    public ArrayList<Share> shares = new ArrayList<>();
 
-    public ShareList(MySQL sharedEntry) {
+    public ShareList(MySQLEntry sharedEntry) {
         Logger.Log("ShareList", "ShareList(char,int)");
         this.sharedEntry = sharedEntry;
     }
 
     @Override
     public void writeTo(FryFile fry) {
-        fry.writeObjects(storages);
+        fry.writeObjects(shares);
     }
 
     public int size() {
-        return storages.size();
+        return shares.size();
+    }
+
+    public Share get(int index) {
+        return shares.get(index);
+        /*
+        ShareStorage storage = storages.get(index);
+        Contact cont = ContactList.getContactByUserId(storage.user_id);
+        if(cont != null) {
+            return new Share(storage.id, storage.user_id, storage.permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
+        }
+        return null;
+        */
     }
 
     public int getId(int index) {
-        return storages.get(index).id;
+        return shares.get(index).id;
     }
 
-    public Share getById(int id) {
-        for(ShareStorage storage : storages) {
-            if(storage.id == id) {
-                Contact cont = ContactList.getContactByUserId(storage.user_id);
-                if(cont != null) {
-                    return new Share(storage.id, storage.user_id, storage.permission, cont.email, cont.name, sharedEntry);
-                }
+    public Share getByUserId(int user_id) {
+        for (Share share : shares) {
+            if (share.user_id == user_id) {
+                return share;
             }
         }
         return null;
     }
 
+    public Share getById(int id) {
+        for(Share share : shares) {
+            if(share.id == id) {
+                return share;
+            }
+        }
+        /*
+        for(ShareStorage storage : storages) {
+            if(storage.id == id) {
+                Contact cont = ContactList.getContactByUserId(storage.user_id);
+                if(cont != null) {
+                    return new Share(storage.id, storage.user_id, storage.permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
+                }
+            }
+        }
+        */
+        return null;
+    }
+
     public byte getPermission(int index) {
-        return storages.get(index).permission;
+        return shares.get(index).permission.getValue();
     }
 
     public void readFrom(FryFile fry) {
-        int NoStorages = fry.getArrayLength();
-        for(int i=0; i<NoStorages; ++i) {
-            storages.add(new ShareStorage(fry));
+        int NoShares = fry.readArrayLength();
+        for(int i=0; i<NoShares; ++i) {
+            Share share = new Share(fry);
+            share.sharedEntry = sharedEntry;
+            shares.add(share);
         }
     }
 
@@ -61,19 +91,28 @@ public class ShareList implements Fryable {
         add(cont, Share.PERMISSION_VIEW);
     }
 
-    public void add(Contact cont, byte permission) {
+    public void add(Contact contact, byte permission) {
         Logger.Log("ShareList", "add(Contact,byte)");
-        Share share = new Share(0, cont.user_id, permission, cont.email, cont.name, sharedEntry);
-        share.create();
-    }
+        //Share share = new Share(0, cont.user_id, permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
+        if(getByUserId(contact.user_id) == null) {
+            Share share = new Share(permission, contact, sharedEntry);
+            shares.add(share);
+            share.create();
 
+        }else {
+            // TODO message: entry is already shared with this user
+        }
+    }
+/*
     protected void addStorage(byte permission, int id, int user_id) {
         Logger.Log("ShareList", "addStorage(byte,int,int)");
         storages.add(new ShareStorage(id, user_id, permission));
     }
-
+*/
     public boolean remove(Share share) {
         Logger.Log("ShareList", "remove(Share)");
+        return shares.remove(share);
+        /*
         for(int i = 0; i< storages.size(); ++i) {
             if(storages.get(i).id == share.id) {
                 storages.remove(i);
@@ -81,18 +120,28 @@ public class ShareList implements Fryable {
             }
         }
         return false;
+        */
     }
 
     public ArrayList<ContactGroup> getList() {
         Logger.Log("ShareList", "getList()");
         ArrayList<ContactGroup> groupList = new ArrayList<>();
         ContactGroup allContacts = ContactList.getAllContactsGroup();
-        ContactGroup allShares = new ContactGroup(allContacts.name);
-
-        for(Contact cont : allContacts.contacts) {
-            allShares.contacts.add(new Share(Share.PERMISSION_NONE, cont, sharedEntry));
+        ContactGroup allShares = new ContactGroup(allContacts.name.getValue());
+/*
+        for(Contact contact : allContacts.contacts) {
+            Share share = getByUserId(contact.user_id);
+            if(share == null) {
+                allShares.contacts.add()
+            }else {
+                allShares.contacts.add(share);
+            }
         }
-
+        /*
+        for(Contact cont : allContacts.contacts) {
+            allShares.contacts.add(new Share(0, cont.user_id, Share.PERMISSION_NONE, cont.email.getValue(), cont.name.getValue(), sharedEntry));
+        }
+/*
         for(ShareStorage storage : storages) {
             Share share = (Share) allShares.getContactByUserId(storage.user_id);
             if(share == null) {
@@ -100,12 +149,12 @@ public class ShareList implements Fryable {
             }
             //share.type = type;
             share.id = storage.id;
-            share.permission = storage.permission;
+            share.permission.setValue(storage.permission);
             //share.share_id = share_id;
         }
-
+*/
         for(ContactGroup grp : ContactList.getGroups()) {
-            ContactGroup grpShare = new ContactGroup(grp.id, grp.user_id, grp.name);
+            ContactGroup grpShare = new ContactGroup(grp.id, grp.user_id, grp.name.getValue());
             for(Contact cont : grp.contacts) {
                 grpShare.contacts.add(allShares.getContactByUserId(cont.user_id));
             }
@@ -117,16 +166,23 @@ public class ShareList implements Fryable {
         return groupList;
     }
 
-    public boolean isSharedWithUserId(int id) {
+    public boolean isSharedWithUserId(int user_id) {
         Logger.Log("ShareList", "isSharedWithUserId(int)");
+        for(Share share : shares) {
+            if(share.user_id == user_id) {
+                return true;
+            }
+        }
+        /*
         for(ShareStorage s : storages) {
             if(s.user_id == id) {
                 return true;
             }
         }
+        */
         return false;
     }
-
+/*
     protected static class ShareStorage implements Fryable {
 
         protected byte permission;
@@ -135,10 +191,13 @@ public class ShareList implements Fryable {
 
         protected int user_id;
 
+        protected long update_time;
+
         protected ShareStorage(FryFile fry) {
-            id = fry.getUnsignedInt();
-            user_id = fry.getUnsignedInt();
-            permission = fry.getUnsignedByte();
+            id = fry.readId();
+            user_id = fry.readId();
+            update_time = fry.readLong();
+            permission = fry.readUnsignedByte();
         }
 
         protected ShareStorage(int id, int user_id, byte permission) {
@@ -150,10 +209,10 @@ public class ShareList implements Fryable {
 
         @Override
         public void writeTo(FryFile fry) {
-            fry.writeUnsignedInt(id);
-            fry.writeUnsignedInt(user_id);
+            fry.writeId(id);
+            fry.writeId(user_id);
             fry.writeUnsignedByte(permission);
         }
     }
-
+*/
 }

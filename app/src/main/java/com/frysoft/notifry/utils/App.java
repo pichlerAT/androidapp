@@ -301,10 +301,10 @@ public class App extends Application {
         }
 
         public static void readFrom(FryFile fry) {
-            displayContactsMode = fry.getByte();
-            theme = fry.getByte();
+            displayContactsMode = fry.readByte();
+            theme = fry.readByte();
 
-            byte bools = fry.getByte();
+            byte bools = fry.readByte();
             moveFinishedTasklistToBottom    = ((bools & 0x01) > 0);
             notifyWhenTasklistFinished      = ((bools & 0x02) > 0);
             notifyOnOwnTimetableEvent       = ((bools & 0x04) > 0);

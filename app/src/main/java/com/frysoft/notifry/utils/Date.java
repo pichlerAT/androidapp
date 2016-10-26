@@ -1,5 +1,6 @@
 package com.frysoft.notifry.utils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.frysoft.notifry.R;
@@ -62,6 +63,16 @@ public class Date {
                 calendar.get(Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.YEAR));
+    }
+
+    public Date(long millis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(millis);
+        this.minute = calendar.get(Calendar.MINUTE);
+        this.hour = calendar.get(Calendar.HOUR_OF_DAY);
+        this.day = calendar.get(Calendar.DAY_OF_MONTH);
+        this.month = calendar.get(Calendar.MONTH) + 1;
+        this.year = calendar.get(Calendar.YEAR);
     }
 
     @Override
@@ -170,6 +181,27 @@ public class Date {
             hour += r * 24;
             subtractDays(r);
         }
+    }
+
+    public void setMinTime() {
+        hour = 0;
+        minute = 0;
+    }
+
+    public void setMaxTime() {
+        hour = 23;
+        minute = 59;
+    }
+
+    public void setDate(int day, int month, int year) {
+        this.day = day;
+        this.month = month;
+        this.year = year;
+    }
+
+    public void setTime(int hour, int minute) {
+        this.hour = hour;
+        this.minute = minute;
     }
 
     public void addTime(int hours, int minutes) {
@@ -620,6 +652,19 @@ public class Date {
         }
 
         return date;
+    }
+
+    public static ArrayList<Date> getWeek() {
+        Cursor date = (Cursor) getCurrent().getFirstDayOfWeek();
+        ArrayList<Date> week = new ArrayList<>(7);
+        week.add(date.copy());
+
+        for(int i=0; i<6; ++i) {
+            date.goToNextDay();
+            week.add(date.copy());
+        }
+
+        return week;
     }
 
     public static class Cursor extends Date {

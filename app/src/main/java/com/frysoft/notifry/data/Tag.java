@@ -1,125 +1,119 @@
 package com.frysoft.notifry.data;
 
-import com.frysoft.notifry.utils.Date;
+import com.frysoft.notifry.data.value.ValueCategory;
+import com.frysoft.notifry.data.value.ValueDate;
+import com.frysoft.notifry.data.value.ValueInteger;
+import com.frysoft.notifry.data.value.ValueRRule;
+import com.frysoft.notifry.data.value.ValueString;
+import com.frysoft.notifry.data.value.ValueUnsignedByte;
 import com.frysoft.notifry.utils.FryFile;
-import com.frysoft.notifry.utils.Time;
+import com.frysoft.notifry.utils.Date;
 
 public class Tag extends MySQLEntry {
 
-    protected static final byte VSET_OFFSET = 127;
+    protected static final byte VSET_TITLE        = 0x01;
+    protected static final byte VSET_DESCRIPTION  = 0x02;
+    protected static final byte VSET_START        = 0x04;
+    protected static final byte VSET_END          = 0x08;
+    protected static final byte VSET_COLOR        = 0x10;
 
-    protected static final byte VSET_TITLE          = 0x01;
-    protected static final byte VSET_DESCRIPTION    = 0x02;
-    protected static final byte VSET_DATE_START     = 0x04;
-    protected static final byte VSET_TIME_START     = 0x08;
-    protected static final byte VSET_DATE_END       = 0x10;
-    protected static final byte VSET_TIME_END       = 0x20;
-    protected static final byte VSET_COLOR          = 0x40;
+    protected ValueCategory category = new ValueCategory();
 
-    protected Category category;
+    protected ValueString title = new ValueString();
 
-    protected String title;
+    protected ValueString description = new ValueString();
 
-    protected String description;
+    protected ValueDate start = new ValueDate();
 
-    protected short date_start;
+    protected ValueDate end = new ValueDate();
 
-    protected short time_start;
+    protected ValueRRule rRule = new ValueRRule();
 
-    protected short date_end;
+    protected ValueInteger color = new ValueInteger();
 
-    protected short time_end;
+    protected ValueUnsignedByte vset = new ValueUnsignedByte();
 
-    protected RRule rRule;
+    protected Tag(Category category, String title, String description, Date start, Date end, RRule rRule, boolean set_color, int color) {
+        super(0, 0, Date.getMillis());
 
-    protected int color;
-
-    protected byte vset;
-
-    protected Tag(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, boolean set_color, int color) {
-        super(0, 0);
-
-        this.category = category;
+        vset.setValue((byte)0xFF);
+        this.category.setValue(category);
 
         if(title == null) {
-            this.title = " ";
+            this.title.setValue(" ");
         }else {
-            vset |= VSET_TITLE;
-            this.title = title;
+            vset.unsetBit(VSET_TITLE);
+            this.title.setValue(title);
         }
 
         if(description == null) {
-            this.description = " ";
+            this.description.setValue(" ");
         }else {
-            vset |= VSET_DESCRIPTION;
-            this.description = description;
+            vset.unsetBit(VSET_DESCRIPTION);
+            this.description.setValue(description);
         }
 
-        if(date_start == null) {
-            this.date_start = 0;
+        if(start == null) {
+            this.start.setValue(0);
         }else {
-            vset |= VSET_DATE_START;
-            this.date_start = date_start.getShort();
+            vset.unsetBit(VSET_START);
+            this.start.setValue(start.getInt());
         }
 
-        if(time_start == null) {
-            this.time_start = 0;
+        if(end == null) {
+            this.end.setValue(0);
         }else {
-            vset |= VSET_TIME_START;
-            this.time_start = time_start.time;
+            vset.unsetBit(VSET_END);
+            this.end.setValue(end.getInt());
         }
 
-        if(date_end == null) {
-            this.date_end = 0;
-        }else {
-            vset |= VSET_DATE_END;
-            this.date_end = date_end.getShort();
-        }
+        this.rRule.setValue(rRule);
 
-        if(time_end == null) {
-            this.time_end = 0;
-        }else {
-            vset |= VSET_TIME_END;
-            this.time_end = time_end.time;
-        }
-
-        this.rRule = rRule;
-
-        this.color = color;
+        this.color.setValue(color);
         if(set_color) {
-            vset |= VSET_TIME_START;
+            vset.unsetBit(VSET_COLOR);
         }
     }
 
     protected Tag(FryFile fry) {
         super(fry);
 
-        vset = (byte)(fry.getUnsignedByte() - VSET_OFFSET);
-        category = Data.Categories.getById(fry.getUnsignedInt());
+        if(fry instanceof FryFile.Compact) {
+            vset.readFrom(fry);
+            category.readFrom(fry);
 
-        if(issetTitle()) {
-            title = fry.getString();
-        }
-        if(issetDescription()) {
-            description = fry.getString();
-        }
-        if(issetDateStart()) {
-            date_start = fry.getUnsignedShort();
-        }
-        if(issetTimeStart()) {
-            time_start = fry.getUnsignedShort();
-        }
-        if(issetDateEnd()) {
-            date_end = fry.getUnsignedShort();
-        }
-        if(issetTimeEnd()) {
-            time_end = fry.getUnsignedShort();
-        }
+            if (issetTitle()) {
+                title.readFrom(fry);
+            }
+            if (issetDescription()) {
+                description.readFrom(fry);
+            }
+            if (issetStart()) {
+                start.readFrom(fry);
+            }
+            if (issetEnd()) {
+                end.readFrom(fry);
+            }
 
-        rRule = new RRule(fry.getString());
+            rRule.readFrom(fry);
 
-        if(issetColor()) {
-            color = fry.getInt();
+            if (issetColor()) {
+                color.readFrom(fry);
+            }
+
+            if(category.isChanged() || title.isChanged() || description.isChanged() || start.isChanged() || end.isChanged() || rRule.isChanged() || color.isChanged() || vset.isChanged()) {
+                update();
+            }
+
+        }else {
+            category.readFrom(fry);
+            title.readFrom(fry);
+            description.readFrom(fry);
+            start.readFrom(fry);
+            end.readFrom(fry);
+            rRule.readFrom(fry);
+            color.readFrom(fry);
+            vset.readFrom(fry);
         }
     }
 
@@ -127,53 +121,44 @@ public class Tag extends MySQLEntry {
     public void writeTo(FryFile fry) {
         super.writeTo(fry);
 
-        fry.writeUnsignedByte((byte)(vset + VSET_OFFSET));
-        fry.writeUnsignedInt(getCategoryId());
+        vset.writeTo(fry);
+        category.writeTo(fry);
 
         if(issetTitle()) {
-            fry.writeString(title);
+            title.writeTo(fry);
         }
         if(issetDescription()) {
-            fry.writeString(description);
-        }
-        if(issetDateStart()) {
-            fry.writeUnsignedShort(date_start);
-        }
-        if(issetTimeStart()) {
-            fry.writeUnsignedShort(time_start);
+            description.writeTo(fry);
         }
 
-        if(issetDateEnd()) {
-            fry.writeUnsignedShort(date_end);
+        if(issetStart()) {
+            start.writeTo(fry);
+        }
+        if(issetEnd()) {
+            end.writeTo(fry);
         }
 
-        if(issetTimeEnd()) {
-            fry.writeUnsignedShort(time_end);
-        }
-
-        fry.writeString(rRule.getString());
+        rRule.writeTo(fry);
 
         if(issetColor()) {
-            fry.writeInt(color);
+            color.writeTo(fry);
         }
+
     }
 
     @Override
     public boolean equals(Object o) {
         if(o instanceof Tag) {
-
+            Tag tag = (Tag)o;
+            return ( tag.getCategoryId() == getCategoryId() &&
+                     tag.title.equals(title) &&
+                     tag.description.equals(description) &&
+                     tag.start.equals(start) &&
+                     tag.end.equals(end) &&
+                     tag.rRule.equals(rRule) &&
+                     tag.color.equals(color)                 );
         }
         return false;
-    }
-
-    @Override
-    public Object backup() {
-        return null;
-    }
-
-    @Override
-    protected void synchronize(MySQL mysql) {
-
     }
 
     @Override
@@ -187,35 +172,55 @@ public class Tag extends MySQLEntry {
     }
 
     @Override
-    protected boolean mysql_create() {
-        FryFile fry = executeMySQL(DIR_TAG + "create.php", "&category_id=" + signed(getCategoryId()) + "&title=" + title
-                + "&description=" + description + "&time_start=" + signed(time_start) + "&date_start=" + signed(date_start)
-                + "&time_start=" + signed(time_start) + "&date_end=" + signed(date_end) + "&time_end=" + signed(time_end)
-                + "&rrule="+rRule.getString() + "&color=" + color + "&set=" + signed((byte)(vset + VSET_OFFSET)));
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            return true;
+    protected void sync(MySQLEntry entry) {
+        Tag tag = (Tag) entry;
+        boolean update = false;
+
+        if(category.doUpdate(tag.category)) {
+            update = true;
         }
-        return false;
+        if(title.doUpdate(tag.title)) {
+            update = true;
+        }
+        if(description.doUpdate(tag.description)) {
+            update = true;
+        }
+        if(start.doUpdate(tag.start)) {
+            update = true;
+        }
+        if(end.doUpdate(tag.end)) {
+            update = true;
+        }
+        if(rRule.doUpdate(tag.rRule)) {
+            update = true;
+        }
+        if(color.doUpdate(tag.color)) {
+            update = true;
+        }
+        if(vset.doUpdate(tag.vset)) {
+            update = true;
+        }
+
+        if(update) {
+            update();
+        }
     }
 
     @Override
-    protected boolean mysql_update() {
-        return (executeMySQL(DIR_TAG + "update.php", "&id=" + signed(id) + "&category_id=" + signed(getCategoryId()) + "&title=" + title
-                + "&description=" + description + "&time_start=" + signed(time_start) + "&date_start=" + signed(date_start)
-                + "&time_start=" + signed(time_start) + "&date_end=" + signed(date_end) + "&time_end=" + signed(time_end)
-                + "&rrule="+rRule.getString() + "&color=" + color + "&set=" + signed((byte)(vset + VSET_OFFSET))) != null);
-    }
-
-    @Override
-    protected byte getType() {
+    protected char getType() {
         return TYPE_TAG;
     }
 
     @Override
-    protected String getPath() {
-        return DIR_TAG;
+    protected void addData(MySQL mysql) {
+        mysql.add("category_id", category);
+        mysql.add("title", title);
+        mysql.add("description", description);
+        mysql.add("start", start);
+        mysql.add("end", end);
+        mysql.add("rrule", rRule);
+        mysql.add("color", color);
+        mysql.add("vset", vset);
     }
 
     @Override
@@ -224,104 +229,96 @@ public class Tag extends MySQLEntry {
     }
 
     public boolean issetTitle() {
-        return ((vset & VSET_TITLE) > 0);
+        return !vset.hasBit(VSET_TITLE);
     }
 
     public boolean issetDescription() {
-        return ((vset & VSET_DESCRIPTION) > 0);
+        return !vset.hasBit(VSET_DESCRIPTION);
     }
 
-    public boolean issetDateStart() {
-        return ((vset & VSET_DATE_START) > 0);
+    public boolean issetStart() {
+        return !vset.hasBit(VSET_START);
     }
 
-    public boolean issetTimeStart() {
-        return ((vset & VSET_TIME_START) > 0);
-    }
-
-    public boolean issetDateEnd() {
-        return ((vset & VSET_DATE_END) > 0);
-    }
-
-    public boolean issetTimeEnd() {
-        return ((vset & VSET_TIME_END) > 0);
+    public boolean issetEnd() {
+        return !vset.hasBit(VSET_END);
     }
 
     public boolean issetColor() {
-        return ((vset & VSET_COLOR) > 0);
+        return !vset.hasBit(VSET_COLOR);
     }
 
     public int getCategoryId() {
-        if(category == null) {
-            return 0;
-        }
-        return category.id;
+        return category.getId();
     }
 
-    public Time getTimeStart() {
-        return new Time(time_start);
+    public String getTitle() {
+        return title.getValue();
     }
 
-    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, int duration, RRule rRule) {
-        set(category, title, description, date_start, time_start, date_end, time_end, rRule, false, 0);
+    public Date getStart() {
+        return new Date(start.getValue());
     }
 
-    public void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, int duration, RRule rRule, int color) {
-        set(category, title, description, date_start, time_start, date_end, time_end, rRule, true, color);
+    public Date getEnd() {
+        return new Date(end.getValue());
     }
 
-    protected void set(Category category, String title, String description, Date date_start, Time time_start, Date date_end, Time time_end, RRule rRule, boolean set_color, int color) {
-        vset = 0;
+    public void set(Category category, String title, String description, Date start, Date end, RRule rRule) {
+        set(category, title, description, start, end, rRule, false, 0);
+    }
 
-        this.category = category;
+    public void set(Category category, String title, String description, Date start, Date end, RRule rRule, int color) {
+        set(category, title, description, start, end, rRule, true, color);
+    }
 
-        if(title == null) {
-            this.title = " ";
-        }else {
-            vset |= VSET_TITLE;
-            this.title = title;
+    protected void set(Category category, String title, String description, Date start, Date end, RRule rRule, boolean set_color, int color) {
+        vset.setValue((byte)0xFF);
+
+        this.category.setValue(category);
+
+        if (title == null) {
+            vset.setBit(VSET_TITLE);
+            this.title.setValue(" ");
+        } else {
+            vset.unsetBit(VSET_TITLE);
+            this.title.setValue(title);
         }
 
-        if(description == null) {
-            this.description = " ";
-        }else {
-            vset |= VSET_DESCRIPTION;
-            this.description = description;
+        if (description == null) {
+            vset.setBit(VSET_DESCRIPTION);
+            this.description.setValue(" ");
+        } else {
+            vset.unsetBit(VSET_DESCRIPTION);
+            this.description.setValue(description);
         }
 
-        if(date_start == null) {
-            this.date_start = 0;
-        }else {
-            vset |= VSET_DATE_START;
-            this.date_start = date_start.getShort();
+        if (start == null) {
+            vset.setBit(VSET_START);
+            this.start.setValue(0);
+        } else {
+            vset.unsetBit(VSET_START);
+            this.start.setValue(start.getInt());
+        }
+        if (end == null) {
+            vset.setBit(VSET_END);
+            this.end.setValue(0);
+        } else {
+            vset.unsetBit(VSET_END);
+            this.end.setValue(end.getInt());
         }
 
-        if(time_start == null) {
-            this.time_start = 0;
+        if(rRule == null) {
+            this.rRule.setValue(null);
         }else {
-            vset |= VSET_TIME_START;
-            this.time_start = time_start.time;
+            this.rRule.setValue(rRule);
         }
 
-        if(date_end == null) {
-            this.date_end = 0;
-        }else {
-            vset |= VSET_DATE_END;
-            this.date_end = date_end.getShort();
-        }
-
-        if(time_end == null) {
-            this.time_end = 0;
-        }else {
-            vset |= VSET_TIME_END;
-            this.time_end = time_end.time;
-        }
-
-        this.rRule = rRule;
-
-        this.color = color;
         if(set_color) {
-            vset |= VSET_TIME_START;
+            this.color.setValue(color);
+            vset.unsetBit(VSET_COLOR);
+        }else {
+            vset.setBit(VSET_COLOR);
         }
 
         update();

@@ -10,6 +10,10 @@ import java.util.ArrayList;
 
 public class ConnectionManager {
 
+    public static long last_update = 0;
+
+    private static boolean ready = false;
+
     protected static boolean PERFORM_UPDATE = false;
 
     protected static boolean SYNC_ANDROID = false;
@@ -18,14 +22,21 @@ public class ConnectionManager {
 
     protected static MySQLListener mysql_listener;
 
-    protected static ArrayList<MySQL> entries = new ArrayList<>();
+    protected static ArrayList<MySQLEntry> entries = new ArrayList<>();
 
     public static void setMySQLListener(MySQLListener listener) {
         Logger.Log("ConnectionManager", "setMySQLListener(MySQLListener)");
         mysql_listener = listener;
     }
 
-    public static void add(MySQL entry) {
+    protected static void setReady(boolean ready) {
+        ConnectionManager.ready = ready;
+        if(ready) {
+            sync();
+        }
+    }
+
+    public static void add(MySQLEntry entry) {
         Logger.Log("ConnectionManager", "add(MySQL)");
         if(entry instanceof Category) {
             entries.add(0, entry);
@@ -34,6 +45,10 @@ public class ConnectionManager {
             entries.add(entry);
         }
         sync();
+    }
+
+    protected static void remove(MySQLEntry entry) {
+        entries.remove(entry);
     }
 
     protected static void notifyMySQLListener() {
@@ -53,9 +68,9 @@ public class ConnectionManager {
         sync();
     }
 
-    public static boolean hasEntry(MySQL entry, char type) {
+    public static boolean hasEntry(MySQLEntry entry, char type) {
         Class clazz  = entry.getClass();
-        for(MySQL ent : entries) {
+        for(MySQLEntry ent : entries) {
             if(ent == entry || (ent.id == entry.id && ent.getClass().equals(clazz))) {
                 return true;
             }
@@ -65,7 +80,7 @@ public class ConnectionManager {
 
     protected static void sync() {
         Logger.Log("ConnectionManager", "sync()");
-        if(User.isOnline()) {
+        if(ready && User.isOnline()) {
             if (syncTask.getStatus() == AsyncTask.Status.PENDING && App.hasInternetConnection) {
                 syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
@@ -81,10 +96,9 @@ public class ConnectionManager {
         char[] types = new char[entries.size()];
         int[] ids = new int[entries.size()];
 
-        for(MySQL ent : entries) {
-            byte type = ent.getBaseType();
-            if(type == MySQL.BASETYPE_UPDATE || type == MySQL.BASETYPE_DELETE) {
-                types[length] = (char)(type | (ent.getType() << 8));
+        for(MySQLEntry ent : entries) {
+            if(ent instanceof Delete) {
+                types[length] = ent.getType();
                 ids[length++] = ent.id;
             }
         }
@@ -92,54 +106,17 @@ public class ConnectionManager {
         fry.writeArrayLength(length);
         for(int i=0; i<length; ++i) {
             fry.writeChar(types[i]);
-            fry.writeUnsignedInt(ids[i]);
+            fry.writeId(ids[i]);
         }
     }
 
     protected static void readFrom(FryFile fry) {
-        int length = fry.getArrayLength();
+        int length = fry.readArrayLength();
         for(int i=0; i<length; ++i) {
-            char type = fry.getChar();
-            int id = fry.getUnsignedInt();
-            byte t = (byte)type;
-
-            if(t == MySQL.BASETYPE_UPDATE) {
-                MySQL ent = MySQL.getMySQL((byte)(type >> 8), id);
-                if(ent != null) {
-                    ent.update();
-                }
-
-            }else if(t == MySQL.BASETYPE_DELETE) {
-                Delete.create((byte)(type >> 8), id);
-
-            }
+            Delete.create(fry.readChar(), fry.readId());
         }
     }
 
-/*
-    public static String[] split(String str) {
-        String buffer = "";
-        ArrayList<String> list = new ArrayList<>();
-
-        for(int k=0; k<str.length(); ++k) {
-            char c = str.charAt(k);
-
-            if(c == 0) {
-                if(buffer.length() == 0) {
-                    buffer += c;
-
-                }else {
-                    list.add(buffer);
-                    buffer = "";
-                }
-            }else {
-                buffer += c;
-            }
-        }
-
-        return  list.toArray(new String[list.size()]);
-    }
-*/
     private static boolean synchronizeAll(FryFile fry) {
         if(fry.size() < 8) {
             return false;
@@ -201,8 +178,15 @@ public class ConnectionManager {
 
         protected boolean sync_all() {
             Logger.Log("ConnectionManager$Sync", "sync_all()");
-            FryFile fry = MySQL.executeMySQL("get.php", "");
-            return (fry != null && synchronizeAll(fry));
+            FryFile fry = (new MySQL(MySQLEntry.PATH_MYSQL, MySQLEntry.PHP_GET)).execute();
+            if(fry != null) {
+                long update_time = fry.readLong();
+                if(synchronizeAll(fry)) {
+                    last_update = update_time;
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

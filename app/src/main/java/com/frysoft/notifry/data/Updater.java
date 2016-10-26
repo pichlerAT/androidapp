@@ -34,7 +34,7 @@ public class Updater extends AsyncTask<String,String,String> {
 
     public static void start() {
         Logger.Log("Updater", "start()");
-        if(User.isOnline() && updater.getStatus() == Status.PENDING) {
+        if(false) {//User.isOnline() && updater.getStatus() == Status.PENDING) { TODO reactivate updater
             updater.update = true;
             updater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

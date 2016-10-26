@@ -1,47 +1,47 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueString;
 import com.frysoft.notifry.utils.App;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Fryable;
 import com.frysoft.notifry.utils.Logger;
 import com.frysoft.notifry.utils.Searchable;
 
-public class Contact extends MySQL implements Fryable, Searchable {
+public class Contact extends MySQLEntry implements Fryable, Searchable {
 
-    protected String email;
+    protected ValueString email = new ValueString();
 
-    protected String name;
+    protected ValueString name = new ValueString();
 
     protected static Contact createRequest(String email) {
         Logger.Log("Contact", "createRequest(String)");
         if(!App.hasInternetConnection) {
             return null;
         }
-        Contact cont = new Contact.Request(0, 0, email, null);
+        Contact cont = new ContactRequest(0, 0, email, null);
         cont.create();
         return cont;
     }
 
     protected Contact(FryFile fry) {
         super(fry);
-        Logger.Log("Contact", "Contact(FryFile)");
-        email = fry.getString();
-        name = fry.getString();
+        email.readFrom(fry);
+        name.readFrom(fry);
     }
 
-    protected Contact(int id, int user_id, String email, String name) {
-        super(id, user_id);
+    protected Contact(char type, int id, int user_id, String email, String name) {
+        super(id, user_id, 0);
         Logger.Log("Contact", "Contact(char,int,int,String,String)");
-        this.email = email;
-        this.name = name;
+        this.email.setValue(email);
+        this.name.setValue(name);
     }
 
     @Override
     public void writeTo(FryFile fry) {
         Logger.Log("Contact", "writeTo(FryFile)");
         super.writeTo(fry);
-        fry.writeString(email);
-        fry.writeString(name);
+        email.writeTo(fry);
+        name.writeTo(fry);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class Contact extends MySQL implements Fryable, Searchable {
     @Override
     public boolean search(String... keyWords) {
         Logger.Log("Contact", "search(String...)");
-        String name = this.name.toLowerCase();
+        String name = this.name.getValue().toLowerCase();
         for(String keyWord : keyWords) {
             if(name.contains(keyWord)) {
                 return true;
@@ -62,87 +62,43 @@ public class Contact extends MySQL implements Fryable, Searchable {
     }
 
     @Override
-    protected boolean mysql_create() {
-        Logger.Log("Contact", "mysql_create()");
-        return true;
+    protected void addData(MySQL mysql) {
     }
 
     @Override
-    protected boolean mysql_update() {
-        Logger.Log("Contact", "mysql_update()");
-        return true;
+    public boolean canEdit() {
+        return false;
     }
 
     @Override
-    protected byte getType() {
+    public int getShareId() {
+        return 0;
+    }
+
+    @Override
+    protected void sync(MySQLEntry entry) {
+    }
+
+    @Override
+    protected char getType() {
         return TYPE_CONTACT;
     }
 
     @Override
-    protected String getPath() {
-        return DIR_CONTACT;
-    }
-
-    public void accept() {
-        Logger.Log("Contact", "accept()");
-        update();
-        ContactList.contactRequests.remove(this);
-    }
-
-    public void decline() {
-        Logger.Log("Contact", "decline()");
-        delete();
-        ContactList.contactRequests.remove(this);
+    protected void synchronize(MySQLEntry entry) {
+        Contact contact = (Contact) entry;
+        email = contact.email;
+        name = contact.name;
     }
 
     public String getEmail() {
         Logger.Log("Contact", "getEmail()");
-        return email;
+        return email.getValue();
     }
 
     public String getName() {
         Logger.Log("Contact", "getName()");
-        return name;
-    }
-
-    public static class Request extends Contact {
-
-        protected Request(FryFile fry) {
-            super(fry);
-        }
-
-        protected Request(int id, int user_id, String email, String name) {
-            super(id, user_id, email, name);
-        }
-
-        @Override
-        protected boolean mysql_create() { // contact request send
-            Logger.Log("Contact", "mysql_create()");
-            return (executeMySQL(DIR_CONTACT_REQUEST+"create.php", "&contact_email="+email) != null);
-        }
-
-        @Override
-        protected boolean mysql_update() { // contact request accept
-            Logger.Log("Contact", "mysql_update()");
-            FryFile fry = executeMySQL(DIR_CONTACT_REQUEST+"update.php", "&id="+id);
-            if(fry == null) {
-                return false;
-            }
-            id = fry.getUnsignedInt();
-            ContactList.getAllContactsGroup().contacts.add(this);
-            return true;
-        }
-
-        @Override
-        protected byte getType() {
-            return TYPE_CONTACT_REQUEST;
-        }
-
-        @Override
-        protected String getPath() {
-            return DIR_CONTACT_REQUEST;
-        }
-
+        return name.getValue();
     }
 
 }

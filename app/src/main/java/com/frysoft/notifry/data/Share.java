@@ -1,9 +1,10 @@
 package com.frysoft.notifry.data;
 
+import com.frysoft.notifry.data.value.ValueUnsignedByte;
 import com.frysoft.notifry.utils.FryFile;
 import com.frysoft.notifry.utils.Logger;
 
-public class Share extends Contact {
+public class Share extends MySQLEntry {
 
     public static final byte PERMISSION_NONE = 0;
 
@@ -11,127 +12,169 @@ public class Share extends Contact {
 
     public static final byte PERMISSION_EDIT = 2;
 
-    public static final byte PERMISSION_MORE = 3;
+    public static final byte PERMISSION_EXECUTE = 3;
 
-    protected byte permission;
+    protected ValueUnsignedByte permission = new ValueUnsignedByte();
 
-    protected MySQL sharedEntry;
+    protected Contact contact;
 
-    protected Share(int id, int user_id, byte permission, String email, String name, MySQL sharedEntry) {
-        super(id, user_id, email, name);
-        Logger.Log("Share", "Share(char,int,int,byte,int,String,String)");
+    protected MySQLEntry sharedEntry;
+
+    /**
+     * Used in ShareList only
+     */
+    protected Share(byte permission, Contact contact, MySQLEntry sharedEntry) {
+        super(0, contact.user_id, 0);
+        this.permission.setValue(permission);
+        this.contact = contact;
         this.sharedEntry = sharedEntry;
-        this.permission = permission;
-    }
 
-    protected Share(byte permission, Contact contact, MySQL sharedEntry) {
-        this(0, contact.user_id, permission, contact.email, contact.name, sharedEntry);
-        Logger.Log("Share", "Share(char,byte,int,Contact)");
-    }
-
-    @Override
-    public boolean mysql_create() {
-        Logger.Log("Share", "mysql_create()");
-        FryFile fry = executeMySQL(getPath()+"share/create.php", "&share_user_id=" + signed(user_id) + "&share_id=" + signed(sharedEntry.id) + "&permission=" + signed(permission));
-        if(fry != null) {
-            id = fry.getUnsignedInt();
-            //user_id = User.getId();
-            store();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mysql_update() {
-        Logger.Log("Share", "mysql_update()");
-        return (executeMySQL(getPath()+"share/update.php", "&id="+signed(id)+"&permission="+signed(permission)) != null);
-    }
-
-    @Override
-    public void writeTo(FryFile fry) {
-        Logger.Log("Share", "writeTo(FryFile)");
-        super.writeTo(fry);
-        fry.writeUnsignedInt(sharedEntry.id);
-        fry.writeUnsignedByte(permission);
-    }
-
-    @Override
-    protected void remove() {
-        // TODO remove share
-    }
-
-    protected void store() {
-        switch(sharedEntry.getType()) {
-            case TYPE_CALENDAR:
-                Data.Timetable.Shares.addStorage(permission, id, user_id);
-                return;
-
-            case TYPE_CATEGORY:
-                ((Category)sharedEntry).shares.addStorage(permission, id, user_id);
-                return;
-
-            case TYPE_CALENDAR_ENTRY:
-                ((TimetableEntry)sharedEntry).shares.addStorage(permission, id, user_id);
-                return;
-
-            case TYPE_TASKLIST:
-                ((Tasklist)sharedEntry).shares.addStorage(permission, id, user_id);
-
-        }
-    }
-
-    public void setPermission(byte permission) {
-        Logger.Log("Share", "setPermission(byte)");
-        this.permission = permission;
-        if(isOnline()) {
+        if(this.permission.isChanged()) {
             update();
         }
     }
 
+    protected Share(FryFile fry) {
+        super(fry);
+        permission.readFrom(fry);
+
+        contact = ContactList.getContactByUserId(user_id);
+    }
+
+    @Override
+    protected void addData(MySQL mysql) {
+    }
+
+    @Override
+    public boolean canEdit() {
+        return true;
+    }
+
+    @Override
+    public int getShareId() {
+        return 0;
+    }
+
+    @Override
+    protected void sync(MySQLEntry entry) {
+        Share share = (Share) entry;
+        if(permission.doUpdate(share.permission)) {
+            update();
+        }
+    }
+
+    @Override
+    protected boolean mysql() {
+        if(id == 0) {
+            MySQL mysql = new MySQL(getPath(), PHP_CREATE);
+            mysql.addId("share_user_id", user_id);
+            mysql.addId("share_id", sharedEntry.id);
+            mysql.add("permission", permission);
+            FryFile fry = mysql.execute();
+
+            if (fry == null) {
+                return false;
+            }
+
+            update_time = fry.readLong();
+            id = fry.readId();
+            if(id == 0) {
+                // TODO message: entry is already shared with this user
+                remove();
+            }
+            return true;
+
+        }else {
+            MySQL mysql = new MySQL(getPath(), PHP_UPDATE);
+            mysql.addId("id", id);
+            mysql.add("permission", permission);
+            FryFile fry = mysql.execute();
+
+            if (fry == null) {
+                return false;
+            }
+
+            update_time = fry.readLong();
+            return true;
+        }
+    }
+
+    @Override
+    public void writeTo(FryFile fry) {
+        super.writeTo(fry);
+        permission.writeTo(fry);
+    }
+
+    @Override
+    protected void remove() {
+        switch(sharedEntry.getType()) {
+            case TYPE_TIMETABLE:
+                ((Timetable) sharedEntry).shares.remove(this);
+                break;
+
+            case TYPE_CATEGORY:
+                ((Category) sharedEntry).shares.remove(this);
+                break;
+
+            case TYPE_TIMETABLE_ENTRY:
+                ((TimetableEntry) sharedEntry).shares.remove(this);
+                break;
+
+            case TYPE_TASKLIST:
+                ((Tasklist) sharedEntry).shares.remove(this);
+
+        }
+    }
+
+    @Override
+    protected void synchronize(MySQLEntry entry) {
+        super.synchronize(entry);
+        Share share = (Share) entry;
+        permission = share.permission;
+    }
+
+    @Override
+    protected char getType() {
+        return (char)(sharedEntry.getType() | SHARE);
+    }
+
+    public String getEmail() {
+        return contact.email.getValue();
+    }
+
+    public String getName() {
+        return contact.name.getValue();
+    }
+
+    public void setPermission(byte permission) {
+        Logger.Log("Share", "setPermission(byte)");
+        this.permission.setValue(permission);
+        update();
+    }
+
     public boolean hasPermissions() {
         Logger.Log("Share", "hasPermissions()");
-        return (permission > 0);
+        return (permission.getValue() > 0);
     }
 
     public boolean hasPermissionView() {
         Logger.Log("Share", "hasPermissionView()");
-        return ( permission >= PERMISSION_VIEW );
+        return (permission.getValue() >= PERMISSION_VIEW);
     }
 
     public boolean hasPermissionEdit() {
         Logger.Log("Share", "hasPermissionEdit()");
-        return ( permission >= PERMISSION_EDIT );
+        return (permission.getValue() >= PERMISSION_EDIT);
     }
 
-    public boolean hasPermissionMore() {
+    public boolean hasPermissionExecute() {
         Logger.Log("Share", "hasPermissionMore()");
-        return ( permission >= PERMISSION_MORE );
+        return (permission.getValue() >= PERMISSION_EXECUTE);
     }
 
     public boolean equals(Contact contact) {
         Logger.Log("Share", "equals(Contact)");
-        return ( contact.user_id == user_id );
+        return (contact.user_id == user_id);
     }
-/*
-    protected String getFileUrl() {
-        Logger.Log("Share", "getFileUrl()");
-        switch(sharedEntry.getType()) {
 
-            case TYPE_TASKLIST:
-                return DIR_TASKLIST_SHARE;
-
-            case TYPE_CALENDAR:
-                return DIR_CALENDAR_SHARE;
-
-            case TYPE_CATEGORY:
-                return DIR_CATEGORY_SHARE;
-
-            case TYPE_CALENDAR_ENTRY:
-                return DIR_CALENDAR_ENTRY_SHARE;
-
-        }
-        return null;
-    }
-*/
 }

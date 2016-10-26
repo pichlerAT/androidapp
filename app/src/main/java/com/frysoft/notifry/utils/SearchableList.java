@@ -241,6 +241,7 @@ public class SearchableList<E> extends AbstractList<E> {
 
         System.arraycopy(baseItems, index, baseItems, index + 1, length - index);
         baseItems[index] = (Searchable) item;
+        ++length;
 
         updateSearchItems();
     }
@@ -277,8 +278,10 @@ public class SearchableList<E> extends AbstractList<E> {
 
         E item = baseItems(index);
 
-        System.arraycopy(baseItems, index + 1, baseItems, index, length - index);
-        baseItems[length--] = null;
+        if((index + 1) < length) {
+            System.arraycopy(baseItems, index + 1, baseItems, index, length - index);
+        }
+        baseItems[--length] = null;
 
         updateSearchItems();
 
