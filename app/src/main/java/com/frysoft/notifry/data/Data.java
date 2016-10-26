@@ -168,6 +168,7 @@ public class Data {
         resetData();
 
         if(fry == null || fry.size() <= 0) {
+            ConnectionManager.setReady(true);
             return;
         }
 

@@ -46,35 +46,61 @@ public class ContactList {
     }
 
     protected static void synchronizeContactsFromMySQL(FryFile fry) {
-        Logger.Log("ContactList", "synchronizeContactsFromMySQL(String[])");
-
         ContactGroup all = groups.get(groups.size() - 1);
-        boolean[] offIsOn = new boolean[all.contacts.size()];
-
+        boolean[] isOnline = new boolean[all.contacts.size()];
         int NoContacts = fry.readArrayLength();
-        for(int i=0; i<NoContacts; ++i) {
-            Contact on = new Contact(fry);
-            int off_index = all.getContactIndexByUserId(on.user_id);
 
-            if(off_index >= 0) {
-                offIsOn[off_index] = true;
-                Contact off = all.contacts.get(off_index);
-                off.email = on.email;
-                off.name = on.name;
-            }else if(!ConnectionManager.hasEntry(on, (char)(MySQLEntry.TYPE_CONTACT | MySQLEntry.BASETYPE_DELETE))) {
-                all.contacts.add(on);
+        for(int i=0; i<NoContacts; ++i) {
+            Contact onlineEntry = new Contact(fry);
+            int index = all.getContactIndexByUserId(onlineEntry.user_id);
+
+            if(index < 0) {
+                if(!ConnectionManager.hasEntry(onlineEntry, MySQLEntry.BASETYPE_DELETE)) {
+                    all.contacts.add(onlineEntry);
+                }
+
+            }else {
+                isOnline[index] = true;
+                all.contacts.get(index).synchronize(onlineEntry);
             }
         }
-        for(int i=offIsOn.length-1; i>=0; --i) {
-            if(!offIsOn[i]) {
-                Contact cont = all.contacts.remove(i);
-                for(int j=0; j<groups.size()-1; ++j) {
-                    groups.get(i).removeContact(cont);
-                }
+        for(int i=isOnline.length-1; i>=0; --i) {
+            if(!isOnline[i]) {
+                all.contacts.remove(i);
             }
+        }
+
+        isOnline = new boolean[all.contacts.size()];
+        int NoContactGroups = fry.readArrayLength();
+
+        for(int i=0; i<NoContactGroups; ++i) {
+            ContactGroup onlineEntry = new ContactGroup(fry);
+            int index = getContactGroupIndexById(onlineEntry.id);
+
+            if(index < 0) {
+                if(!ConnectionManager.hasEntry(onlineEntry, MySQLEntry.BASETYPE_DELETE)) {
+                    groups.add(onlineEntry);
+                }
+
+            }else {
+                isOnline[index] = true;
+                groups.get(index).synchronize(onlineEntry);
+            }
+        }
+        for(int i=isOnline.length-1; i>=0; --i) {
+            if(!isOnline[i]) {
+                groups.remove(i);
+            }
+        }
+
+        contactRequests=new ArrayList<>();
+        int NoContactRequests = fry.readArrayLength();
+
+        for(int i=0; i<NoContactRequests; ++i) {
+            contactRequests.add(new ContactRequest(fry));
         }
     }
-
+/*
     protected static void synchronizeContactGroupsFromMySQL(FryFile fry) { // TODO Stefan: recheck whole method
         Logger.Log("ContactList", "synchronizeContactGroupsFromMySQL(String[])");
 
@@ -107,14 +133,14 @@ public class ContactList {
         for(int i=0; i<lastIndex; ++i) {
             groups.set(onIndex[i],onBackup[i]);
         }
-        */
+        *//*
         for(int i=offIsOn.length-1; i>=0; --i) {
             if(!offIsOn[i] && groups.get(i).isOnline()) {
                 groups.remove(i);
             }
         }
     }
-
+*//*
     protected static void synchronizeContactRequestsFromMySQL(FryFile fry) {
         Logger.Log("ContactList", "synchronizeContactRequestsFromMySQL(String[])");
 
@@ -125,7 +151,7 @@ public class ContactList {
             contactRequests.add(new ContactRequest(fry));
         }
     }
-
+*/
     public static boolean isEmpty() {
         Logger.Log("ContactList", "isEmpty()");
         return (groups.get(groups.size() - 1).contacts.size() == 0);

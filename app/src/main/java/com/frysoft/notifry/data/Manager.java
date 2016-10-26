@@ -48,24 +48,24 @@ public class Manager<E extends MySQLEntry> implements Fryable {
     }
 
     protected void synchronizeWith(E[] onList) {
-        boolean[] online = new boolean[list.size()];
+        boolean[] isOnline = new boolean[list.size()];
 
-        for(int i=0; i<onList.length; ++i) {
-            int index = indexOf(onList[i]);
+        for(E item : onList) {
+            int index = indexOf(item);
 
             if(index < 0) {
-                if(!ConnectionManager.hasEntry(onList[i], MySQLEntry.BASETYPE_DELETE)) {
-                    list.add(onList[i]);
+                if(!ConnectionManager.hasEntry(item, MySQLEntry.BASETYPE_DELETE)) {
+                    list.add(item);
                 }
 
             }else {
-                online[index] = true;
-                list.get(index).synchronize(onList[i]);
+                isOnline[index] = true;
+                list.get(index).synchronize(item);
             }
         }
 
-        for(int i=online.length-1; i>=0; --i) {
-            if(!online[i]) {
+        for(int i=isOnline.length-1; i>=0; --i) {
+            if(!isOnline[i]) {
                 list.remove(i);
             }
         }

@@ -34,12 +34,12 @@ public class TestFragment extends Fragment {
         setHasOptionsMenu(true);
 
         Button b = (Button) rootView.findViewById(R.id.b1);
-        b.setText("delete contact");
+        b.setText("nixxi");
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ContactList.getAllContacts().get(0).delete();
+
 
             }
         });

@@ -31,14 +31,6 @@ public class ShareList implements Fryable {
 
     public Share get(int index) {
         return shares.get(index);
-        /*
-        ShareStorage storage = storages.get(index);
-        Contact cont = ContactList.getContactByUserId(storage.user_id);
-        if(cont != null) {
-            return new Share(storage.id, storage.user_id, storage.permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
-        }
-        return null;
-        */
     }
 
     public int getId(int index) {
@@ -60,16 +52,6 @@ public class ShareList implements Fryable {
                 return share;
             }
         }
-        /*
-        for(ShareStorage storage : storages) {
-            if(storage.id == id) {
-                Contact cont = ContactList.getContactByUserId(storage.user_id);
-                if(cont != null) {
-                    return new Share(storage.id, storage.user_id, storage.permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
-                }
-            }
-        }
-        */
         return null;
     }
 
@@ -93,7 +75,6 @@ public class ShareList implements Fryable {
 
     public void add(Contact contact, byte permission) {
         Logger.Log("ShareList", "add(Contact,byte)");
-        //Share share = new Share(0, cont.user_id, permission, cont.email.getValue(), cont.name.getValue(), sharedEntry);
         if(getByUserId(contact.user_id) == null) {
             Share share = new Share(permission, contact, sharedEntry);
             shares.add(share);
@@ -103,24 +84,10 @@ public class ShareList implements Fryable {
             // TODO message: entry is already shared with this user
         }
     }
-/*
-    protected void addStorage(byte permission, int id, int user_id) {
-        Logger.Log("ShareList", "addStorage(byte,int,int)");
-        storages.add(new ShareStorage(id, user_id, permission));
-    }
-*/
+
     public boolean remove(Share share) {
         Logger.Log("ShareList", "remove(Share)");
         return shares.remove(share);
-        /*
-        for(int i = 0; i< storages.size(); ++i) {
-            if(storages.get(i).id == share.id) {
-                storages.remove(i);
-                return true;
-            }
-        }
-        return false;
-        */
     }
 
     public ArrayList<ContactGroup> getList() {
@@ -182,37 +149,5 @@ public class ShareList implements Fryable {
         */
         return false;
     }
-/*
-    protected static class ShareStorage implements Fryable {
 
-        protected byte permission;
-
-        protected int id;
-
-        protected int user_id;
-
-        protected long update_time;
-
-        protected ShareStorage(FryFile fry) {
-            id = fry.readId();
-            user_id = fry.readId();
-            update_time = fry.readLong();
-            permission = fry.readUnsignedByte();
-        }
-
-        protected ShareStorage(int id, int user_id, byte permission) {
-            Logger.Log("ShareList$ShareStorage", "ShareStorage(byte,int,int)");
-            this.permission = permission;
-            this.id = id;
-            this.user_id = user_id;
-        }
-
-        @Override
-        public void writeTo(FryFile fry) {
-            fry.writeId(id);
-            fry.writeId(user_id);
-            fry.writeUnsignedByte(permission);
-        }
-    }
-*/
 }
