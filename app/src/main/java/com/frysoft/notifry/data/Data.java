@@ -63,7 +63,7 @@ public class Data {
             if(rRule == null) {
                 rRule = new RRule();
 
-                if(start.minute == 0 && start.hour == 0 && end.minute == 59 && end.hour == 23) {
+                if(end != null && start.minute == 0 && start.hour == 0 && end.minute == 59 && end.hour == 23) {
                     rRule.setWholeDay(true);
                 }
             }

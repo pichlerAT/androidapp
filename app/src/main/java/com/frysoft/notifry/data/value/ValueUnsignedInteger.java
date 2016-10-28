@@ -26,7 +26,7 @@ public class ValueUnsignedInteger extends ValueInteger {
 
     @Override
     public String getString() {
-        return ("" + value + (value < 0 ? 4294967296L : 0L));
+        return ("" + (value + (value < 0 ? 4294967296L : 0L)));
     }
 
 }

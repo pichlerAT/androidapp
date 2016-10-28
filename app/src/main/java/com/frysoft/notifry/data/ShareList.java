@@ -90,47 +90,30 @@ public class ShareList implements Fryable {
         return shares.remove(share);
     }
 
-    public ArrayList<ContactGroup> getList() {
-        Logger.Log("ShareList", "getList()");
-        ArrayList<ContactGroup> groupList = new ArrayList<>();
-        ContactGroup allContacts = ContactList.getAllContactsGroup();
-        ContactGroup allShares = new ContactGroup(allContacts.name.getValue());
-/*
-        for(Contact contact : allContacts.contacts) {
-            Share share = getByUserId(contact.user_id);
-            if(share == null) {
-                allShares.contacts.add()
-            }else {
-                allShares.contacts.add(share);
-            }
-        }
-        /*
-        for(Contact cont : allContacts.contacts) {
-            allShares.contacts.add(new Share(0, cont.user_id, Share.PERMISSION_NONE, cont.email.getValue(), cont.name.getValue(), sharedEntry));
-        }
-/*
-        for(ShareStorage storage : storages) {
-            Share share = (Share) allShares.getContactByUserId(storage.user_id);
-            if(share == null) {
-                continue;
-            }
-            //share.type = type;
-            share.id = storage.id;
-            share.permission.setValue(storage.permission);
-            //share.share_id = share_id;
-        }
-*/
-        for(ContactGroup grp : ContactList.getGroups()) {
-            ContactGroup grpShare = new ContactGroup(grp.id, grp.user_id, grp.name.getValue());
-            for(Contact cont : grp.contacts) {
-                grpShare.contacts.add(allShares.getContactByUserId(cont.user_id));
-            }
-            groupList.add(grpShare);
+    public ArrayList<ShareGroup> getList() {
+        ShareGroup allShares = new ShareGroup(ContactList.ALL_CONTACTS);
+
+        for(Contact contact : ContactList.getAllContacts()) {
+            allShares.add(new Share((byte)0, contact, sharedEntry));
         }
 
-        groupList.add(allShares);
+        ArrayList<ShareGroup> shareGroups = new ArrayList<>(ContactList.getNoGroups() + 1);
 
-        return groupList;
+        for(ContactGroup group : ContactList.getGroups()) {
+            ShareGroup shareGroup = new ShareGroup(group.getName());
+
+            for(Contact contact : group.contacts) {
+                Share share = allShares.getShareByContact(contact);
+
+                if(share != null) {
+                    shareGroup.add(share);
+                }
+            }
+
+            shareGroups.add(shareGroup);
+        }
+
+        return shareGroups;
     }
 
     public boolean isSharedWithUserId(int user_id) {

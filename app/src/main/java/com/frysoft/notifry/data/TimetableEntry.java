@@ -64,7 +64,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
 
     protected void setRawValues() {
         Date d_start = new Date(start);
-        Date d_end = new Date(start);
+        Date d_end = new Date(end);
 
         if(!rRule.getValue().wholeDay) {
             d_start.subtractMinutes(TimezoneOffset);
@@ -72,7 +72,7 @@ public class TimetableEntry extends MySQLEntry implements Fryable {
         }
 
         raw_start.setValue(d_start.getInt());
-        raw_start.setValue(d_end.getInt());
+        raw_end.setValue(d_end.getInt());
 
         days = d_start.getDaysUntil(d_end);
     }

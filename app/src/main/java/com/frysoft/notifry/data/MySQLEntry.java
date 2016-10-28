@@ -66,7 +66,6 @@ public abstract class MySQLEntry implements Fryable {
         this.id = id;
         this.user_id = user_id;
         this.update_time = update_time;
-
     }
 
     protected MySQLEntry(FryFile fry) {

@@ -891,12 +891,12 @@ public class EventIterator {
 
         @Override
         protected boolean reached() {
-            return (count++ < rRule.count && cursor.isAfterDate(rangeEnd));
+            return (count++ > rRule.count || cursor.isAfterDate(rangeEnd));
         }
 
         @Override
         protected boolean reached(Date date) {
-            return (count < rRule.count && date.isAfterDate(rangeEnd));
+            return (count > rRule.count || date.isAfterDate(rangeEnd));
         }
     }
 

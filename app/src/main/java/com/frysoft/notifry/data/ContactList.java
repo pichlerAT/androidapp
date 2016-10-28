@@ -13,9 +13,11 @@ public class ContactList {
 
     protected static ArrayList<Contact> contactRequests=new ArrayList<>();
 
+    protected static final String ALL_CONTACTS = "All Contacts";
+
     static {
 
-        groups.add(new ContactGroup("All Contacts"));
+        groups.add(new ContactGroup(ALL_CONTACTS));
 
     }
 
@@ -27,7 +29,7 @@ public class ContactList {
 
     protected static void resetData() {
         groups = new ArrayList<>();
-        groups.add(new ContactGroup("All Contacts"));
+        groups.add(new ContactGroup(ALL_CONTACTS));
     }
 
     protected static void readFrom(FryFile fry) {
@@ -45,7 +47,8 @@ public class ContactList {
         }
     }
 
-    protected static void synchronizeContactsFromMySQL(FryFile fry) {
+    //protected static void synchronizeContactsFromMySQL(FryFile fry) {
+    protected static void synchronizeFromMySQL(FryFile fry) {
         ContactGroup all = groups.get(groups.size() - 1);
         boolean[] isOnline = new boolean[all.contacts.size()];
         int NoContacts = fry.readArrayLength();
@@ -70,7 +73,7 @@ public class ContactList {
             }
         }
 
-        isOnline = new boolean[all.contacts.size()];
+        isOnline = new boolean[groups.size() - 1];
         int NoContactGroups = fry.readArrayLength();
 
         for(int i=0; i<NoContactGroups; ++i) {
@@ -79,7 +82,7 @@ public class ContactList {
 
             if(index < 0) {
                 if(!ConnectionManager.hasEntry(onlineEntry, MySQLEntry.BASETYPE_DELETE)) {
-                    groups.add(onlineEntry);
+                    groups.add(groups.size() - 1, onlineEntry);
                 }
 
             }else {

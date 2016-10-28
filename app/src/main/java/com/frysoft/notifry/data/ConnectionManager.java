@@ -122,9 +122,10 @@ public class ConnectionManager {
             return false;
         }
 
-        ContactList.synchronizeContactsFromMySQL(fry);
-        ContactList.synchronizeContactGroupsFromMySQL(fry);
-        ContactList.synchronizeContactRequestsFromMySQL(fry);
+        //ContactList.synchronizeContactsFromMySQL(fry);
+        //ContactList.synchronizeContactGroupsFromMySQL(fry);
+        //ContactList.synchronizeContactRequestsFromMySQL(fry);
+        ContactList.synchronizeFromMySQL(fry);
         Data.synchronizeFromMySQL(fry);
         return true;
     }
