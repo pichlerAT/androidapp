@@ -28,10 +28,6 @@ public class Share extends MySQLEntry {
         this.permission.setValue(permission);
         this.contact = contact;
         this.sharedEntry = sharedEntry;
-
-        if(this.permission.isChanged()) {
-            update();
-        }
     }
 
     protected Share(FryFile fry) {
@@ -39,6 +35,10 @@ public class Share extends MySQLEntry {
         permission.readFrom(fry);
 
         contact = ContactList.getContactByUserId(user_id);
+
+        if(this.permission.isChanged()) {
+            update();
+        }
     }
 
     @Override
@@ -147,9 +147,14 @@ public class Share extends MySQLEntry {
     }
 
     public void setPermission(byte permission) {
-        Logger.Log("Share", "setPermission(byte)");
         this.permission.setValue(permission);
-        update();
+
+        if(permission > PERMISSION_NONE && this.permission.isChanged()) {
+            update();
+
+        }else if(isOnline()) {
+            delete();
+        }
     }
 
     public boolean hasPermissions() {

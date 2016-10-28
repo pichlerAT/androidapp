@@ -17,7 +17,7 @@ public class ShareGroup extends ArrayList<Share> {
     public Share getShareByContact(Contact contact) {
         for(int i=0; i<size(); ++i) {
             Share share = get(i);
-            if(share.contact.getUserId() == contact.getUserId()) {
+            if(share.contact.user_id == contact.user_id) {
                 return share;
             }
         }

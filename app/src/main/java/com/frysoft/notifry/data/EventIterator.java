@@ -309,9 +309,9 @@ public class EventIterator {
 
     protected class MonthlyIterator extends Iterator {
 
-        protected int monthDay = 0;
+        protected int monthDay = entry.getStart().day;// = 0;
 
-        protected int daysOfMonth = entry.getStart().getDaysOfMonth();
+        protected int month = entry.getStart().month;
 
         protected MonthlyIterator() {
             super();
@@ -322,12 +322,14 @@ public class EventIterator {
 
             do {
 
-                if(monthDay == daysOfMonth) {
-                    monthDay = 0;
+                if(pos >= entry.days) {
+                    cursor.day = monthDay;
+                    cursor.month = month;
+
                     cursor.addMonths(rRule.interval);
+                    month = cursor.month;
 
                 }else {
-                    ++monthDay;
                     cursor.goToNextDay();
                 }
 
@@ -672,11 +674,11 @@ public class EventIterator {
 
     protected class YearlyIterator extends Iterator {
 
-        protected int currentYear;
+        protected int year;
 
         protected YearlyIterator() {
             super();
-            currentYear = entry.getStart().year;
+            year = entry.getStart().year;
         }
 
         @Override
@@ -684,12 +686,13 @@ public class EventIterator {
 
             do {
 
-                cursor.goToNextDay();
+                if(pos >= entry.days) {
+                    cursor.goToDate(entry.getStart());
+                    year += rRule.interval;
+                    cursor.year = year;
 
-                if(cursor.year > currentYear) {
-                    cursor.goToDate(currentYear, 1, 1);
-                    cursor.addYears(rRule.interval);
-                    currentYear = cursor.year;
+                }else {
+                    cursor.goToNextDay();
                 }
 
                 if ((isByDay && !isByDayInYearValid()) ) {

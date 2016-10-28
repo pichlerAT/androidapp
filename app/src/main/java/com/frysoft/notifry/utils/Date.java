@@ -745,6 +745,10 @@ public class Date {
             --year;
         }
 
+        public boolean goToDate(Date date) {
+            return goToDate(date.year, date.month, date.day);
+        }
+
         public boolean goToDate(int year, int month, int day) {
             if(month < 1 || month > 12) {
                 return false;
