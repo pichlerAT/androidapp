@@ -184,6 +184,7 @@ public class ConnectionManager {
                 long update_time = fry.readLong();
                 if(synchronizeAll(fry)) {
                     last_update = update_time;
+                    notifyMySQLListener();
                     return true;
                 }
             }
